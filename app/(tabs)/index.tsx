@@ -389,8 +389,9 @@ export default function HomeScreen() {
               renderItem={({ item }) => (
                 <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
               )}
-              contentContainerStyle={{ padding: 16 }}
+              showsVerticalScrollIndicator={false}
               columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
+              className="p-4 mb-4"
             />
           ) : (
             <View className="py-10 items-center">

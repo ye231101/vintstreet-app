@@ -417,8 +417,8 @@ export default function DiscoveryScreen() {
               renderItem={({ item }) => (
                 <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
               )}
-              contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
-              columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
+              className="p-4 mb-4"
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
               ListEmptyComponent={
                 <View className="flex-1 justify-center items-center p-10">
                   <Text className="text-base font-poppins text-gray-600 text-center">
@@ -533,8 +533,8 @@ export default function DiscoveryScreen() {
                 renderItem={({ item }) => (
                   <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
                 )}
-                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
-                columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
+                className="p-4 mb-4"
+                columnWrapperStyle={{ justifyContent: 'space-between' }}
                 ListEmptyComponent={
                   <View className="flex-1 justify-center items-center p-10">
                     <Text className="text-base font-poppins text-gray-600 text-center">

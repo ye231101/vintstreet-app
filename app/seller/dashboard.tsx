@@ -448,6 +448,7 @@ export default function DashboardScreen() {
 
       <ScrollView
         className="flex-1"
+        showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadDashboardData} tintColor="#007AFF" />}
       >
         <View className="p-4">

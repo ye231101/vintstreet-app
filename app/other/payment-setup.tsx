@@ -262,7 +262,7 @@ export default function PaymentSetupScreen() {
         )}
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-4">
           {/* PayPal Section */}
           <Text className="text-white text-2xl font-poppins-bold mb-4">PayPal Account</Text>

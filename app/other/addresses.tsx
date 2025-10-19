@@ -226,7 +226,7 @@ export default function AddressesScreen() {
         <Text className="flex-1 text-lg font-poppins-bold text-white">Addresses</Text>
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-4">
           {/* Shipping Address Section */}
           <AddressSection

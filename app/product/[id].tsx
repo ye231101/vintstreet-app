@@ -301,7 +301,7 @@ export default function ProductDetailsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="absolute top-15 left-0 right-0 z-10 flex-row justify-between items-center px-4 pr-6 mt-6">
+      <View className="absolute top-20 left-0 right-0 z-10 flex-row justify-between items-center px-4 pr-6 mt-6">
         <Pressable onPress={() => router.back()}>
           <Feather name="arrow-left" size={24} color="#000" />
         </Pressable>
@@ -310,7 +310,7 @@ export default function ProductDetailsScreen() {
         </Pressable>
       </View>
 
-      <ScrollView className="flex-1" ref={scrollViewRef}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1" ref={scrollViewRef}>
         {/* Image Carousel */}
         {renderImageCarousel()}
 

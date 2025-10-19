@@ -764,7 +764,7 @@ export default function CheckoutScreen() {
         <Text className="flex-1 text-lg font-poppins-bold text-white">Checkout All Items</Text>
       </View>
 
-      <ScrollView className="flex-1 bg-gray-50">
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-gray-50">
         {/* Order Summary */}
         <OrderSummaryCard />
 

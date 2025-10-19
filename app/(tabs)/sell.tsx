@@ -168,7 +168,7 @@ export default function SellScreen() {
         <Feather name="shopping-bag" size={24} color="#fff" />
       </View>
 
-      <ScrollView className="flex-1 bg-white">
+      <ScrollView className="flex-1 bg-white" showsVerticalScrollIndicator={false}>
         <TouchableOpacity
           className="flex-1"
           activeOpacity={1}
@@ -463,7 +463,7 @@ export default function SellScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
               {categories.map((cat, index) => (
                 <TouchableOpacity
                   key={index}

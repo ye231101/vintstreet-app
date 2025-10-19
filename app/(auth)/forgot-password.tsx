@@ -44,7 +44,7 @@ export default function ForgotPasswordScreen() {
   if (isSuccess) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="p-6">
+        <ScrollView showsVerticalScrollIndicator={false} className="p-6 flex-1">
           <View className="flex-1 items-center justify-center">
             <View className="w-full max-w-lg items-center">
               {/* Success Icon */}
@@ -94,7 +94,7 @@ export default function ForgotPasswordScreen() {
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="black" />
             </Pressable>
-            <Text className="text-xl font-poppins-bold flex-1 text-center mr-6">Forgot Password</Text>
+            <Text className="text-xl font-poppins-bold flex-1 ml-6">Forgot Password</Text>
           </View>
 
           <View className="flex-1 items-center justify-center">

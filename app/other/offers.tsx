@@ -180,8 +180,8 @@ export default function MyOffersScreen() {
 
     return (
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 16 }}
+        className="flex-1 p-4"
+        showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
       >
         {offers.map((offer) => (
@@ -248,9 +248,7 @@ export default function MyOffersScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingRight: 16,
-          }}
+          className="pr-4"
         >
           {tabs.map((tab) => (
             <TouchableOpacity

@@ -196,9 +196,9 @@ export default function MessageDetailScreen() {
       <View className="flex-1 bg-white">
         <ScrollView
           ref={scrollViewRef}
-          className="flex-1 bg-white"
+          className="flex-1 bg-white py-4"
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingVertical: 8,
             flexGrow: 1,
           }}
           onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}

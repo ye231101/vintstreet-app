@@ -272,6 +272,7 @@ export default function BasketScreen() {
 
       <View className="flex-1 bg-gray-50">
         <ScrollView
+          showsVerticalScrollIndicator={false}
           className="flex-1"
           refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refreshBasket} tintColor="#007AFF" />}
         >

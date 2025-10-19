@@ -218,8 +218,8 @@ export default function ReviewsScreen() {
 
       {/* Reviews List */}
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 16 }}
+        className="flex-1 p-4"
+        showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadReviews} tintColor="#007AFF" />}
       >
         {reviews.map((review) => (

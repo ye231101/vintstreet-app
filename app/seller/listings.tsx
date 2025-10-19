@@ -114,8 +114,8 @@ export default function ListingsScreen() {
 
     return (
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 16 }}
+        className="flex-1 p-4"
+        showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
       >
         {products.map((product) => (
@@ -178,8 +178,8 @@ export default function ListingsScreen() {
       </View>
 
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 16 }}
+        className="flex-1 p-4"
+        showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadProducts} tintColor="#007AFF" />}
       >
         {/* Action Buttons */}

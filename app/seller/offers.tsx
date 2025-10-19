@@ -147,8 +147,8 @@ export default function OffersScreen() {
 
     return (
       <ScrollView
-        className="flex-1 p-4"
-        contentContainerStyle={{ paddingBottom: 16 }}
+        className="flex-1 pb-4"
+        showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
       >
         {offers.map((offer) => (

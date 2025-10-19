@@ -20,7 +20,7 @@ export default function AccountScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-black">
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Profile Header Section */}
         <View className="p-4 pt-4">
           <View className="flex-row items-center">
@@ -60,13 +60,13 @@ export default function AccountScreen() {
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/orders')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center py-3 px-4">
             <Feather name="grid" size={24} color="#fff" />
             <Text className="text-base font-poppins text-white ml-4 flex-1">My Listings</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/seller/orders')} className="flex-row items-center py-3 px-4">
             <Feather name="list" size={24} color="#fff" />
             <Text className="text-base font-poppins text-white ml-4 flex-1">Orders</Text>
             <Feather name="chevron-right" size={16} color="#999" />

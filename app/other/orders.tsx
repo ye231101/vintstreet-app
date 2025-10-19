@@ -265,8 +265,8 @@ export default function OrdersScreen() {
 
     return (
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 16 }}
+        className="flex-1 p-4"
+        showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
       >
         {orders.map((order) => (
@@ -333,9 +333,7 @@ export default function OrdersScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: 16,
-          }}
+          className="px-4"
         >
           {tabs.map((tab, index) => (
             <TouchableOpacity
