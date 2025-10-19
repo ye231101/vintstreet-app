@@ -1,5 +1,6 @@
 import { typesenseService } from '@/api/services';
 import ArticleCarousel from '@/components/article-carousel';
+import FilterModal from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
 import PopularProductsCarousel from '@/components/popular-products-carousel';
 import ProductCard from '@/components/product-card';
@@ -143,6 +144,11 @@ export default function HomeScreen() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
   const [sortBy, setSortBy] = useState('Most Relevant');
+  
+  // Filter and sort state
+  const [appliedFilters, setAppliedFilters] = useState<any>({});
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showSortModal, setShowSortModal] = useState(false);
 
   // Fetch all product sections on mount
   useEffect(() => {
@@ -296,9 +302,83 @@ export default function HomeScreen() {
       setIsSearching(true);
       setShowSearchResults(true);
 
+      // Build filter query
+      let filterBy = '';
+      if (appliedFilters && Object.keys(appliedFilters).length > 0) {
+        const additionalFilters: string[] = [];
+
+        // Brand filter
+        if (appliedFilters.brand && appliedFilters.brand.length > 0) {
+          const brandFilters = appliedFilters.brand.map((brand: string) => `brand:=${brand}`).join(' || ');
+          additionalFilters.push(`(${brandFilters})`);
+        }
+
+        // Size filter
+        if (appliedFilters.size && appliedFilters.size.length > 0) {
+          const sizeFilters = appliedFilters.size.map((size: string) => `pa_size:=${size}`).join(' || ');
+          additionalFilters.push(`(${sizeFilters})`);
+        }
+
+        // Price filter
+        if (appliedFilters.price && appliedFilters.price.length > 0) {
+          const priceFilters: string[] = [];
+          appliedFilters.price.forEach((priceRange: string) => {
+            switch (priceRange) {
+              case 'under-50':
+                priceFilters.push('price:<50');
+                break;
+              case '50-100':
+                priceFilters.push('price:>=50 && price:<100');
+                break;
+              case '100-200':
+                priceFilters.push('price:>=100 && price:<200');
+                break;
+              case 'over-200':
+                priceFilters.push('price:>=200');
+                break;
+            }
+          });
+          if (priceFilters.length > 0) {
+            additionalFilters.push(`(${priceFilters.join(' || ')})`);
+          }
+        }
+
+        if (additionalFilters.length > 0) {
+          filterBy = additionalFilters.join(' && ');
+        }
+      }
+
+      // Determine sort order
+      let sortOrder = '';
+      if (sortBy) {
+        switch (sortBy) {
+          case 'Price: Low to High':
+            sortOrder = 'price:asc';
+            break;
+          case 'Price: High to Low':
+            sortOrder = 'price:desc';
+            break;
+          case 'Newest First':
+            sortOrder = 'created_at:desc';
+            break;
+          case 'Oldest First':
+            sortOrder = 'created_at:asc';
+            break;
+          case 'Most Popular':
+            sortOrder = 'favorites_count:desc';
+            break;
+          case 'Most Relevant':
+          default:
+            // No sort order for relevance
+            break;
+        }
+      }
+
       const response = await typesenseService.search({
         query: searchText,
         queryBy: 'name,description,short_description,brand,categories,category_slugs',
+        filterBy: filterBy,
+        sortBy: sortOrder,
         perPage: 20,
         page: 1,
       });
@@ -351,13 +431,35 @@ export default function HomeScreen() {
   };
 
   const handleFilterPress = () => {
-    // TODO: Implement filter modal
-    console.log('Filter pressed');
+    setShowFilterModal(true);
   };
 
   const handleSortPress = () => {
-    // TODO: Implement sort options
-    console.log('Sort pressed');
+    setShowSortModal(true);
+  };
+
+  const handleApplyFilters = (filters: any) => {
+    console.log('Applied filters:', filters);
+    setAppliedFilters(filters);
+
+    // Update filter count based on applied filters
+    const totalFilters = Object.values(filters).reduce((total: number, options: any) => total + options.length, 0);
+    setFilterCount(totalFilters);
+
+    // Re-run search with new filters if we're showing search results
+    if (showSearchResults) {
+      handleSearch();
+    }
+  };
+
+  const handleSortChange = (sortOption: string) => {
+    setSortBy(sortOption);
+    setShowSortModal(false);
+
+    // Re-run search with new sort if we're showing search results
+    if (showSearchResults) {
+      handleSearch();
+    }
   };
 
   return (
@@ -659,6 +761,47 @@ export default function HomeScreen() {
 
           <View className="h-10" />
         </ScrollView>
+      )}
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApplyFilters={handleApplyFilters}
+      />
+
+      {/* Sort Dropdown */}
+      {showSortModal && (
+        <>
+          <Pressable className="absolute top-0 left-0 right-0 bottom-0 z-50" onPress={() => setShowSortModal(false)} />
+          <View className="absolute top-12 right-5 w-60 bg-white rounded-lg shadow-lg z-50">
+            {[
+              'Most Relevant',
+              'Price: Low to High',
+              'Price: High to Low',
+              'Newest First',
+              'Oldest First',
+              'Most Popular',
+            ].map((option) => (
+              <Pressable
+                key={option}
+                className={`flex-row justify-between items-center px-4 py-3 border-b border-gray-100 ${
+                  sortBy === option ? 'bg-gray-50' : ''
+                }`}
+                onPress={() => handleSortChange(option)}
+              >
+                <Text
+                  className={`text-sm font-inter text-gray-800 flex-1 ${
+                    sortBy === option ? 'font-inter-semibold text-black' : ''
+                  }`}
+                >
+                  {option}
+                </Text>
+                {sortBy === option && <Feather name="check" size={16} color="#000" />}
+              </Pressable>
+            ))}
+          </View>
+        </>
       )}
     </SafeAreaView>
   );

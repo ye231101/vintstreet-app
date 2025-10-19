@@ -3,23 +3,17 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { listingsService, Product } from '../../api/services/listings.service';
+import { useAuth } from '../../hooks/use-auth';
 
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  status: 'live' | 'private' | 'sold' | 'draft';
-  imageUrl?: string;
-  dateCreated: string;
-  views?: number;
-  likes?: number;
-}
+// Interfaces are now imported from the listings service
 
 export default function ListingsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('live');
+  const { user } = useAuth();
 
   const tabs = [
     { key: 'live', label: 'Live Listings' },
@@ -29,25 +23,28 @@ export default function ListingsScreen() {
   ];
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    if (user?.id) {
+      loadProducts();
+    }
+  }, [user?.id, activeTab]);
 
   const loadProducts = async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock data - replace with actual data fetching
-      const mockProducts: Product[] = [
-        // Empty for now to show empty state
-      ];
-
-      setProducts(mockProducts);
+      // Fetch listings from the API for the seller
+      const fetchedProducts = await listingsService.getListingsByStatus(user.id, activeTab);
+      setProducts(fetchedProducts);
     } catch (err) {
-      setError('Error loading products');
+      console.error('Error loading products:', err);
+      setError(err instanceof Error ? err.message : 'Error loading products');
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +74,38 @@ export default function ListingsScreen() {
             Created: {new Date(product.dateCreated).toLocaleDateString()}
           </Text>
           <View className="flex-row gap-2">
+            {product.status === 'live' && (
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    await listingsService.updateListingStatus(product.id, false);
+                    Alert.alert('Listing Updated', 'Listing has been made private');
+                    loadProducts(); // Refresh the listings
+                  } catch (error) {
+                    Alert.alert('Error', 'Failed to update listing status');
+                  }
+                }}
+                className="bg-orange-500 rounded-md py-1.5 px-3"
+              >
+                <Text className="text-white text-xs font-inter-bold">Make Private</Text>
+              </TouchableOpacity>
+            )}
+            {product.status === 'private' && (
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    await listingsService.updateListingStatus(product.id, true);
+                    Alert.alert('Listing Updated', 'Listing has been made live');
+                    loadProducts(); // Refresh the listings
+                  } catch (error) {
+                    Alert.alert('Error', 'Failed to update listing status');
+                  }
+                }}
+                className="bg-green-500 rounded-md py-1.5 px-3"
+              >
+                <Text className="text-white text-xs font-inter-bold">Make Live</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               onPress={() => {
                 Alert.alert('Edit Product', 'This would open product editing');

@@ -12,123 +12,43 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ordersService, Order } from '../../api/services/orders.service';
+import { useAuth } from '../../hooks/use-auth';
 
-interface OrderItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
-}
-
-interface OrderTotals {
-  total: number;
-}
-
-interface Order {
-  id: string;
-  createdAt: string;
-  status: string;
-  displayStatus: string;
-  statusColor: number;
-  items: OrderItem[];
-  totals: OrderTotals;
-}
+// Interfaces are now imported from the orders service
 
 export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const { user } = useAuth();
 
   const tabs = ['All', 'Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    if (user?.id) {
+      loadOrders();
+    }
+  }, [user?.id]);
 
   const loadOrders = async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock data - replace with actual data fetching
-      const mockOrders: Order[] = [
-        {
-          id: 'ORD-001',
-          createdAt: '2024-01-15T10:30:00Z',
-          status: 'processing',
-          displayStatus: 'Processing',
-          statusColor: 0x007aff,
-          items: [
-            {
-              id: '1',
-              name: 'Vintage Nike Air Max 90',
-              price: 89.99,
-              quantity: 1,
-              imageUrl: 'https://example.com/nike-air-max.jpg',
-            },
-          ],
-          totals: { total: 89.99 },
-        },
-        {
-          id: 'ORD-002',
-          createdAt: '2024-01-14T14:20:00Z',
-          status: 'shipped',
-          displayStatus: 'Shipped',
-          statusColor: 0x34c759,
-          items: [
-            {
-              id: '2',
-              name: 'Retro Adidas Jacket',
-              price: 125.5,
-              quantity: 1,
-              imageUrl: 'https://example.com/adidas-jacket.jpg',
-            },
-          ],
-          totals: { total: 125.5 },
-        },
-        {
-          id: 'ORD-003',
-          createdAt: '2024-01-13T09:15:00Z',
-          status: 'pending',
-          displayStatus: 'Pending',
-          statusColor: 0xffcc00,
-          items: [
-            {
-              id: '3',
-              name: "Vintage Levi's Jeans",
-              price: 75.0,
-              quantity: 2,
-              imageUrl: 'https://example.com/levis-jeans.jpg',
-            },
-          ],
-          totals: { total: 150.0 },
-        },
-        {
-          id: 'ORD-004',
-          createdAt: '2024-01-12T16:45:00Z',
-          status: 'completed',
-          displayStatus: 'Completed',
-          statusColor: 0x34c759,
-          items: [
-            {
-              id: '4',
-              name: 'Classic Converse Chuck Taylor',
-              price: 65.0,
-              quantity: 1,
-              imageUrl: 'https://example.com/converse.jpg',
-            },
-          ],
-          totals: { total: 65.0 },
-        },
-      ];
-      setOrders(mockOrders);
+      // Fetch orders from the API for the buyer
+      const fetchedOrders = await ordersService.getOrders(user.id, 'buyer');
+      setOrders(fetchedOrders);
     } catch (err) {
-      setError('Error loading orders');
+      console.error('Error loading orders:', err);
+      setError(err instanceof Error ? err.message : 'Error loading orders');
     } finally {
       setIsLoading(false);
     }
@@ -220,21 +140,41 @@ export default function OrdersScreen() {
           {order.status === 'pending' && (
             <TouchableOpacity
               onPress={() => {
-                Alert.alert('Accept Order', 'Order has been accepted and moved to processing');
+                Alert.alert('Order Status', 'Your order is pending seller confirmation');
               }}
-              className="bg-green-500 rounded px-3 py-1.5"
+              className="bg-yellow-500 rounded px-3 py-1.5"
             >
-              <Text className="text-white text-xs font-inter-bold">Accept</Text>
+              <Text className="text-white text-xs font-inter-bold">Pending</Text>
             </TouchableOpacity>
           )}
           {order.status === 'processing' && (
             <TouchableOpacity
               onPress={() => {
-                Alert.alert('Mark as Shipped', 'Order has been marked as shipped');
+                Alert.alert('Order Status', 'Your order is being processed by the seller');
               }}
               className="bg-blue-500 rounded px-3 py-1.5"
             >
-              <Text className="text-white text-xs font-inter-bold">Ship</Text>
+              <Text className="text-white text-xs font-inter-bold">Processing</Text>
+            </TouchableOpacity>
+          )}
+          {order.status === 'shipped' && (
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert('Order Shipped', 'Your order has been shipped and is on its way');
+              }}
+              className="bg-green-500 rounded px-3 py-1.5"
+            >
+              <Text className="text-white text-xs font-inter-bold">Shipped</Text>
+            </TouchableOpacity>
+          )}
+          {order.status === 'completed' && (
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert('Order Completed', 'Your order has been delivered successfully');
+              }}
+              className="bg-green-600 rounded px-3 py-1.5"
+            >
+              <Text className="text-white text-xs font-inter-bold">Delivered</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -254,10 +194,10 @@ export default function OrdersScreen() {
     if (orders.length === 0) {
       return (
         <View className="flex-1 justify-center items-center px-8">
-          <Feather name="truck" color="#999" size={64} />
+          <Feather name="shopping-bag" color="#999" size={64} />
           <Text className="text-gray-400 text-lg font-inter-medium mt-4">No orders yet</Text>
           <Text className="text-gray-600 text-sm font-inter mt-2 text-center">
-            Orders from buyers will appear here
+            Your purchase orders will appear here
           </Text>
         </View>
       );

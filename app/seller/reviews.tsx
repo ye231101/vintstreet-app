@@ -3,72 +3,49 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { reviewsService, Review, ReviewStats } from '../../api/services/reviews.service';
+import { useAuth } from '../../hooks/use-auth';
 
-interface Review {
-  id: string;
-  customerName: string;
-  customerAvatar?: string;
-  rating: number;
-  comment: string;
-  productName: string;
-  productImage?: string;
-  dateCreated: string;
-  isVerified: boolean;
-}
+// Interfaces are now imported from the reviews service
 
 export default function ReviewsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [averageRating, setAverageRating] = useState(4.2);
-  const [totalSales, setTotalSales] = useState(500);
-  const [sortFilter, setSortFilter] = useState('low-to-high');
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalSales, setTotalSales] = useState(0);
+  const [sortFilter, setSortFilter] = useState<'all' | 'high-to-low' | 'low-to-high'>('all');
+  const { user } = useAuth();
 
   useEffect(() => {
-    loadReviews();
-  }, []);
+    if (user?.id) {
+      loadReviews();
+    }
+  }, [user?.id, sortFilter]);
 
   const loadReviews = async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock data - replace with actual data fetching
-      const mockReviews: Review[] = [
-        {
-          id: '1',
-          customerName: 'Max Hughes',
-          customerAvatar: '',
-          rating: 3,
-          comment:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
-          productName: '90s Jacket',
-          productImage: '',
-          dateCreated: '2026-10-01T00:00:00Z',
-          isVerified: true,
-        },
-        {
-          id: '2',
-          customerName: 'Max Hughes',
-          customerAvatar: '',
-          rating: 3,
-          comment:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
-          productName: '90s Jacket',
-          productImage: '',
-          dateCreated: '2026-10-01T00:00:00Z',
-          isVerified: true,
-        },
-      ];
-
-      setReviews(mockReviews);
-      setAverageRating(4.2);
-      setTotalSales(500);
+      // Fetch reviews and stats from the API
+      const [fetchedReviews, stats] = await Promise.all([
+        reviewsService.getReviewsWithSort(user.id, sortFilter),
+        reviewsService.getReviewStats(user.id)
+      ]);
+      
+      setReviews(fetchedReviews);
+      setAverageRating(stats.averageRating);
+      setTotalSales(stats.totalSales);
     } catch (err) {
-      setError('Error loading reviews');
+      console.error('Error loading reviews:', err);
+      setError(err instanceof Error ? err.message : 'Error loading reviews');
     } finally {
       setIsLoading(false);
     }
@@ -189,19 +166,23 @@ export default function ReviewsScreen() {
         <TouchableOpacity
           onPress={() => setSortFilter('all')}
           className={`border border-white rounded py-2 px-4 mr-2 ${
-            sortFilter === 'all' ? 'bg-black' : 'bg-transparent'
+            sortFilter === 'all' ? 'bg-white' : 'bg-transparent'
           }`}
         >
-          <Text className="text-white text-sm font-inter-medium">All</Text>
+          <Text className={`text-sm font-inter-medium ${sortFilter === 'all' ? 'text-black' : 'text-white'}`}>
+            All
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => setSortFilter('high-to-low')}
           className={`border border-white rounded py-2 px-4 mr-2 ${
-            sortFilter === 'high-to-low' ? 'bg-black' : 'bg-transparent'
+            sortFilter === 'high-to-low' ? 'bg-white' : 'bg-transparent'
           }`}
         >
-          <Text className="text-white text-sm font-inter-medium">High to low</Text>
+          <Text className={`text-sm font-inter-medium ${sortFilter === 'high-to-low' ? 'text-black' : 'text-white'}`}>
+            High to low
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
