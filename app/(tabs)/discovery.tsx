@@ -605,7 +605,7 @@ export default function DiscoveryScreen() {
       {showSortModal && (
         <>
           <Pressable className="absolute top-0 left-0 right-0 bottom-0 z-50" onPress={() => setShowSortModal(false)} />
-          <View className="absolute top-12 right-5 w-50 bg-white rounded-lg shadow-lg z-50">
+          <View className="absolute top-12 right-5 w-60 bg-white rounded-lg shadow-lg z-50">
             {[
               'Most Relevant',
               'Price: Low to High',

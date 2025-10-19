@@ -31,33 +31,6 @@ interface Product {
   flaws?: string;
 }
 
-// Mock product data
-const mockProduct: Product = {
-  id: 1,
-  name: 'Tommy Hilfiger Jeans, Blue - 11',
-  price: 40.0,
-  images: [
-    'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400',
-    'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400',
-    'https://images.unsplash.com/photo-1582418702059-97ebafb35d09?w=400',
-  ],
-  likes: 0,
-  brand: 'Tommy Hilfiger',
-  size: '11',
-  description:
-    'Tommy Hilfiger Jeans, Blue - Size 11. Classic blue denim jeans in excellent condition, featuring two front pockets, including a coin pocket on the right with an embroidered Tommy Hilfiger logo for added detail. The waistband is finished with another signature Tommy Hilfiger logo embroidered on the back. Two back pockets provide a timeless silhouette & reliable high-quality staple for',
-  vendorId: 42,
-  vendorShopName: 'Vint Street Official',
-  stockQuantity: 5,
-  onSale: false,
-  averageRating: 4.8,
-  reviewCount: 127,
-  condition: 'Excellent',
-  colour: 'Blue',
-  gender: 'Unisex',
-  flaws: 'None',
-};
-
 export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();

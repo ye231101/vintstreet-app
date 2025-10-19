@@ -181,7 +181,7 @@ export default function SellScreen() {
             {/* Add Photos Section */}
             {selectedImages.length === 0 ? (
               <TouchableOpacity
-                className="h-50 bg-gray-100 rounded-xl border border-gray-300 border-dashed justify-center items-center mb-4"
+                className="h-60 bg-gray-100 rounded-xl border border-gray-300 border-dashed justify-center items-center mb-4"
                 onPress={() => setShowImageSourceModal(true)}
               >
                 <Feather name="image" size={48} color="#999" />
@@ -489,8 +489,16 @@ export default function SellScreen() {
         animationType="slide"
         onRequestClose={() => setShowImageSourceModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl p-5 pb-10">
+        <TouchableOpacity
+          className="flex-1 bg-black/50 justify-end"
+          activeOpacity={1}
+          onPress={() => setShowImageSourceModal(false)}
+        >
+          <TouchableOpacity
+            className="bg-white rounded-t-3xl p-5 pb-10"
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
             <Text className="text-lg font-poppins-bold text-center mb-2">Add Photos</Text>
             <Text className="text-sm font-poppins text-gray-600 text-center mb-5">
               Choose multiple images or take a photo
@@ -516,8 +524,8 @@ export default function SellScreen() {
                 <Text className="text-base font-poppins-semibold text-gray-800">Camera</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
       {/* Unsaved Changes Modal */}
