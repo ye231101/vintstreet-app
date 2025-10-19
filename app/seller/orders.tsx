@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ordersService, Order } from '../../api/services/orders.service';
+import { Order, ordersService } from '../../api/services/orders.service';
 import { useAuth } from '../../hooks/use-auth';
 
 // Interfaces are now imported from the orders service
@@ -21,10 +21,17 @@ export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState('fulfilled');
   const { user } = useAuth();
 
-  const tabs = ['Orders To Fulfil', 'All Orders', 'Pending', 'Shipped', 'Delivered', 'Cancelled'];
+  const tabs = [
+    { key: 'fulfilled', label: 'Fulfilled' },
+    { key: 'all', label: 'All' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'shipped', label: 'Shipped' },
+    { key: 'delivered', label: 'Delivered' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
 
   useEffect(() => {
     if (user?.id) {
@@ -69,17 +76,17 @@ export default function OrdersScreen() {
 
   const getFilteredOrders = () => {
     switch (activeTab) {
-      case 0: // Orders To Fulfil (Pending + Processing)
+      case 'fulfilled': // Fulfilled
         return orders.filter((order) => order.status === 'pending' || order.status === 'processing');
-      case 1: // All Orders
+      case 'all': // All
         return orders;
-      case 2: // Pending
+      case 'pending': // Pending
         return orders.filter((order) => order.status === 'pending');
-      case 3: // Shipped
-        return orders.filter((order) => order.status === 'shipped');
-      case 4: // Delivered (Completed)
+      case 'shipped': // Shipped
+        return orders.filter((order) => order.status === 'shipped');  
+      case 'delivered': // Delivered (Completed)
         return orders.filter((order) => order.status === 'completed');
-      case 5: // Cancelled
+      case 'cancelled': // Cancelled
         return orders.filter((order) => order.status === 'cancelled');
       default:
         return orders;
@@ -95,13 +102,11 @@ export default function OrdersScreen() {
             <Text className="text-white font-inter-bold text-base mb-1">Order {order.id}</Text>
             <Text className="text-gray-400 text-sm font-inter">{formatDate(order.createdAt)}</Text>
           </View>
-          <View className="rounded-full px-3 py-1.5" style={{ backgroundColor: `rgba(${order.statusColor}, 0.1)` }}>
-            <Text
-              className="font-inter-bold text-xs"
-              style={{ color: `#${order.statusColor.toString(16).padStart(6, '0')}` }}
-            >
-              {order.displayStatus}
-            </Text>
+          <View
+            className="rounded-full px-3 py-1.5"
+            style={{ backgroundColor: `#${order.statusColor.toString(16).padStart(6, '0')}` }}
+          >
+            <Text className="font-inter-bold text-xs text-white">{order.displayStatus}</Text>
           </View>
         </View>
       </View>
@@ -150,7 +155,7 @@ export default function OrdersScreen() {
                   Alert.alert('Error', 'Failed to accept order. Please try again.');
                 }
               }}
-              className="bg-green-500 rounded-md py-1.5 px-3"
+              className="bg-green-500 rounded-md py-1.5 px-3 justify-center items-center"
             >
               <Text className="text-white text-xs font-inter-bold">Accept</Text>
             </TouchableOpacity>
@@ -166,7 +171,7 @@ export default function OrdersScreen() {
                   Alert.alert('Error', 'Failed to mark order as shipped. Please try again.');
                 }
               }}
-              className="bg-blue-500 rounded-md py-1.5 px-3"
+              className="bg-blue-500 rounded-md py-1.5 px-3 justify-center items-center"
             >
               <Text className="text-white text-xs font-inter-bold">Ship</Text>
             </TouchableOpacity>
@@ -187,12 +192,9 @@ export default function OrdersScreen() {
   const OrdersList = ({ orders, onRefresh }: { orders: Order[]; onRefresh: () => void }) => {
     if (orders.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center px-8">
-          <Feather name="package" color="#999" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4">No processing orders.</Text>
-          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
-            No orders with processing status found.
-          </Text>
+        <View className="flex-1 justify-center items-center py-20">
+          <Feather name="shopping-bag" color="#666666" size={64} style={{ marginBottom: 24 }} />
+          <Text className="text-white text-lg font-inter-bold mb-2">No orders found</Text>
         </View>
       );
     }
@@ -254,46 +256,29 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="bg-black px-4 py-5 border-b border-gray-700">
-        <View className="flex-row items-center mb-2">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
-          </TouchableOpacity>
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+          <Feather name="arrow-left" size={24} color="#fff" />
+        </TouchableOpacity>
 
-          <Text className="flex-1 text-2xl font-inter-bold text-white">Orders</Text>
-        </View>
-
-        <Text className="text-sm font-inter text-gray-400 ml-10">Manage your customer orders and shipping.</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Orders</Text>
       </View>
 
-      {/* Filter Buttons */}
-      <View className="bg-gray-700 px-4 py-4">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="pr-4">
-          {tabs.map((tab, index) => (
+      {/* Filter Tabs */}
+      <View className="bg-black px-4">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {tabs.map((tab) => (
             <TouchableOpacity
-              key={index}
-              onPress={() => setActiveTab(index)}
-              className={`py-2 px-4 mr-2 rounded border border-gray-600 ${
-                activeTab === index ? 'bg-black' : 'bg-gray-600'
-              }`}
+              key={tab.key}
+              onPress={() => setActiveTab(tab.key)}
+              className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-white' : 'border-transparent'}`}
             >
-              <Text className={`text-sm font-inter-medium ${activeTab === index ? 'text-white' : 'text-gray-400'}`}>
-                {tab}
+              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-white' : 'text-gray-400'}`}>
+                {tab.label}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
-
-        {/* Export Button */}
-        <TouchableOpacity
-          onPress={() => {
-            Alert.alert('Export Excel', 'Orders data will be exported to Excel format');
-          }}
-          className="flex-row items-center bg-gray-600 py-3 px-4 rounded-md border border-gray-500 mt-3 self-start"
-        >
-          <Feather name="download" size={16} color="#999" className="mr-2" />
-          <Text className="text-gray-400 text-sm font-inter-medium">Export Excel</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Orders List */}

@@ -26,7 +26,7 @@ export default function ListingsScreen() {
     if (user?.id) {
       loadProducts();
     }
-  }, [user?.id, activeTab]);
+  }, [user?.id]);
 
   const loadProducts = async () => {
     if (!user?.id) {
@@ -131,7 +131,7 @@ export default function ListingsScreen() {
   const ProductsList = ({ products, onRefresh }: { products: Product[]; onRefresh: () => void }) => {
     if (products.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center px-8 bg-gray-800 rounded-xl m-4 py-12">
+        <View className="flex-1 justify-center items-center px-8 bg-gray-800 rounded-xl py-12">
           <Feather name="package" color="#999" size={64} />
           <Text className="text-white text-lg font-inter-bold mt-4">No products yet</Text>
           <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
@@ -196,9 +196,9 @@ export default function ListingsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-col flex-1 bg-black px-4">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-black py-3 border-b border-gray-700">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
@@ -209,10 +209,10 @@ export default function ListingsScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadProducts} tintColor="#007AFF" />}
-        className="flex-1 p-4"
+        className="flex-1"
       >
         {/* Action Buttons */}
-        <View className="mb-6">
+        <View className="mt-4 mb-6">
           <TouchableOpacity
             onPress={() => {
               Alert.alert('Shipping Settings', 'This would open shipping settings');
@@ -224,7 +224,7 @@ export default function ListingsScreen() {
 
           <TouchableOpacity
             onPress={() => {
-              Alert.alert('Add Product', 'This would open product creation');
+              router.push('/(tabs)/sell');
             }}
             className="bg-black rounded-lg py-4 px-5 mb-4 items-center border border-white"
           >
@@ -255,14 +255,14 @@ export default function ListingsScreen() {
         </View>
 
         {/* Category Tabs */}
-        <View className="flex-row mb-4">
+        <View className="flex-row gap-3 mb-4">
           {tabs.map((tab) => (
             <TouchableOpacity
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
               className={`${
                 activeTab === tab.key ? 'bg-black border-white' : 'bg-gray-600 border-gray-500'
-              } flex-1 rounded-md py-3 px-2 mr-2 border`}
+              } flex-1 rounded-md py-3 px-2 border`}
             >
               <Text
                 className={`${

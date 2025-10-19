@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { offersService, Offer } from '../../api/services/offers.service';
+import { Offer, offersService } from '../../api/services/offers.service';
 import { useAuth } from '../../hooks/use-auth';
 
 // Interfaces are now imported from the offers service
@@ -26,7 +26,7 @@ export default function MyOffersScreen() {
     if (user?.id) {
       loadOffers();
     }
-  }, [user?.id, activeTab]);
+  }, [user?.id]);
 
   const loadOffers = async () => {
     if (!user?.id) {
@@ -159,12 +159,9 @@ export default function MyOffersScreen() {
   const OffersList = ({ offers, onRefresh }: { offers: Offer[]; onRefresh: () => void }) => {
     if (offers.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center px-8 bg-gray-800 rounded-xl m-4 py-12">
+        <View className="flex-1 justify-center items-center px-8">
           <Feather name="tag" color="#999" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4">No offers yet</Text>
-          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
-            Your received offers will appear here
-          </Text>
+          <Text className="text-white text-lg font-inter-medium mt-4">No offers found</Text>
         </View>
       );
     }
@@ -185,7 +182,7 @@ export default function MyOffersScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-800">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
@@ -203,7 +200,7 @@ export default function MyOffersScreen() {
   if (error) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-800">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
@@ -235,17 +232,15 @@ export default function MyOffersScreen() {
       </View>
 
       {/* Filter Tabs */}
-      <View className="bg-gray-800 px-4 py-4">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="pr-4">
+      <View className="bg-black px-4">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {tabs.map((tab) => (
             <TouchableOpacity
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
-              className={`${
-                activeTab === tab.key ? 'bg-black border-white' : 'bg-gray-600 border-gray-500'
-              } py-2 px-4 mr-2 rounded-md border`}
+              className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-white' : 'border-transparent'}`}
             >
-              <Text className={`${activeTab === tab.key ? 'text-white' : 'text-gray-400'} text-sm font-inter-medium`}>
+              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-white' : 'text-gray-400'}`}>
                 {tab.label}
               </Text>
             </TouchableOpacity>

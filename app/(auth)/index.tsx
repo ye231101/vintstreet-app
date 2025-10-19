@@ -2,7 +2,7 @@ import { useAuth } from '@/hooks/use-auth';
 import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function IndexScreen() {
@@ -29,17 +29,17 @@ export default function IndexScreen() {
             <View className="items-center mb-10">
               <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
               <Text className="text-2xl font-inter-bold mt-4 text-center">Welcome to Vint Street</Text>
-              <Text className="text-base font-inter text-gray-500 mt-2 text-center">Sign in to continue</Text>
+              <Text className="text-gray-500 font-inter mt-2 text-center">Sign in to continue</Text>
             </View>
 
             {error && (
               <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
-                <Text className="font-inter text-red-700">{error}</Text>
+                <Text className="text-red-700 font-inter">{error}</Text>
               </View>
             )}
 
             <View className="w-full">
-              <View className="border border-gray-300 rounded-lg flex-row items-center px-3 h-13">
+              <View className="border border-gray-300 rounded-lg flex-row items-center px-3 h-14">
                 <Text className="mr-2">
                   <Feather name="mail" size={24} color="black" />
                 </Text>
@@ -57,7 +57,7 @@ export default function IndexScreen() {
             </View>
 
             <View className="w-full mt-4">
-              <View className="border border-gray-300 rounded-lg flex-row items-center px-3 h-13">
+              <View className="border border-gray-300 rounded-lg flex-row items-center px-3 h-14">
                 <Text className="mr-2">
                   <Feather name="lock" size={24} color="black" />
                 </Text>
@@ -86,22 +86,24 @@ export default function IndexScreen() {
 
             <View className="items-end mt-4">
               <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
-                <Text className="font-inter text-gray-800">Forgot Password?</Text>
+                <Text className="text-gray-800 font-inter">Forgot Password?</Text>
               </Pressable>
             </View>
 
             <Pressable
               onPress={onSubmit}
               disabled={loading}
-              className={`h-12 rounded-lg items-center justify-center mt-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
+              className={`h-14 rounded-lg items-center justify-center mt-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="font-inter text-white text-base">{loading ? '...' : 'Login'}</Text>
+              <Text className="text-white font-inter-bold">
+                {loading ? <ActivityIndicator size="small" color="white" /> : 'LOG IN'}
+              </Text>
             </Pressable>
 
             <View className="flex-row justify-center mt-6">
-              <Text className="font-inter">Don't have an account? </Text>
+              <Text className="text-gray-800 font-inter">Don't have an account? </Text>
               <Pressable onPress={() => router.push('/(auth)/register')}>
-                <Text className="font-inter text-gray-800 font-medium">Register</Text>
+                <Text className="text-gray-800 font-inter-bold">Register</Text>
               </Pressable>
             </View>
           </View>

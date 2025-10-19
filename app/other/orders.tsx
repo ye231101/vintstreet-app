@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ordersService, Order } from '../../api/services/orders.service';
+import { Order, ordersService } from '../../api/services/orders.service';
 import { useAuth } from '../../hooks/use-auth';
 
 // Interfaces are now imported from the orders service
@@ -21,10 +21,17 @@ export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState('all');
   const { user } = useAuth();
 
-  const tabs = ['All', 'Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
+  const tabs = [
+    { key: 'all', label: 'All' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'processing', label: 'Processing' },
+    { key: 'shipped', label: 'Shipped' },
+    { key: 'completed', label: 'Completed' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
 
   useEffect(() => {
     if (user?.id) {
@@ -69,15 +76,15 @@ export default function OrdersScreen() {
 
   const getFilteredOrders = () => {
     switch (activeTab) {
-      case 1: // Pending
+      case 'pending': // Pending
         return orders.filter((order) => order.status === 'pending');
-      case 2: // Processing
+      case 'processing': // Processing
         return orders.filter((order) => order.status === 'processing');
-      case 3: // Shipped
+      case 'shipped': // Shipped
         return orders.filter((order) => order.status === 'shipped');
-      case 4: // Completed
+      case 'completed': // Completed
         return orders.filter((order) => order.status === 'completed');
-      case 5: // Cancelled
+      case 'cancelled': // Cancelled
         return orders.filter((order) => order.status === 'cancelled');
       default: // All
         return orders;
@@ -93,13 +100,11 @@ export default function OrdersScreen() {
             <Text className="text-white text-base font-inter-bold mb-1">Order {order.id}</Text>
             <Text className="text-gray-400 text-sm font-inter">{formatDate(order.createdAt)}</Text>
           </View>
-          <View className="rounded-full px-3 py-1.5" style={{ backgroundColor: `rgba(${order.statusColor}, 0.1)` }}>
-            <Text
-              className="font-inter-bold text-xs"
-              style={{ color: `#${order.statusColor.toString(16).padStart(6, '0')}` }}
-            >
-              {order.displayStatus}
-            </Text>
+          <View
+            className="rounded-full px-3 py-1.5"
+            style={{ backgroundColor: `#${order.statusColor.toString(16).padStart(6, '0')}` }}
+          >
+            <Text className="font-inter-bold text-xs text-white">{order.displayStatus}</Text>
           </View>
         </View>
       </View>
@@ -142,7 +147,7 @@ export default function OrdersScreen() {
               onPress={() => {
                 Alert.alert('Order Status', 'Your order is pending seller confirmation');
               }}
-              className="bg-yellow-500 rounded px-3 py-1.5"
+              className="bg-yellow-500 rounded px-3 py-1.5 items-center justify-center"
             >
               <Text className="text-white text-xs font-inter-bold">Pending</Text>
             </TouchableOpacity>
@@ -152,7 +157,7 @@ export default function OrdersScreen() {
               onPress={() => {
                 Alert.alert('Order Status', 'Your order is being processed by the seller');
               }}
-              className="bg-blue-500 rounded px-3 py-1.5"
+              className="bg-blue-500 rounded px-3 py-1.5 items-center justify-center"
             >
               <Text className="text-white text-xs font-inter-bold">Processing</Text>
             </TouchableOpacity>
@@ -162,7 +167,7 @@ export default function OrdersScreen() {
               onPress={() => {
                 Alert.alert('Order Shipped', 'Your order has been shipped and is on its way');
               }}
-              className="bg-green-500 rounded px-3 py-1.5"
+              className="bg-green-500 rounded px-3 py-1.5 items-center justify-center"
             >
               <Text className="text-white text-xs font-inter-bold">Shipped</Text>
             </TouchableOpacity>
@@ -172,7 +177,7 @@ export default function OrdersScreen() {
               onPress={() => {
                 Alert.alert('Order Completed', 'Your order has been delivered successfully');
               }}
-              className="bg-green-600 rounded px-3 py-1.5"
+              className="bg-green-600 rounded px-3 py-1.5 items-center justify-center"
             >
               <Text className="text-white text-xs font-inter-bold">Delivered</Text>
             </TouchableOpacity>
@@ -181,7 +186,7 @@ export default function OrdersScreen() {
             onPress={() => {
               Alert.alert('Order Details', 'This would show order details');
             }}
-            className="py-2 px-4"
+            className="py-2 px-4 items-center justify-center"
           >
             <Text className="text-blue-500 text-base font-inter">View Details</Text>
           </TouchableOpacity>
@@ -193,12 +198,9 @@ export default function OrdersScreen() {
   const OrdersList = ({ orders, onRefresh }: { orders: Order[]; onRefresh: () => void }) => {
     if (orders.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center px-8">
-          <Feather name="shopping-bag" color="#999" size={64} />
-          <Text className="text-gray-400 text-lg font-inter-medium mt-4">No orders yet</Text>
-          <Text className="text-gray-600 text-sm font-inter mt-2 text-center">
-            Your purchase orders will appear here
-          </Text>
+        <View className="flex-1 justify-center items-center py-20">
+          <Feather name="shopping-bag" color="#666666" size={64} style={{ marginBottom: 24 }} />
+          <Text className="text-white text-lg font-inter-bold mb-2">No orders found</Text>
         </View>
       );
     }
@@ -269,16 +271,16 @@ export default function OrdersScreen() {
       </View>
 
       {/* Tabs */}
-      <View className="bg-black border-b border-gray-700">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4">
-          {tabs.map((tab, index) => (
+      <View className="bg-black px-4">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {tabs.map((tab) => (
             <TouchableOpacity
-              key={index}
-              onPress={() => setActiveTab(index)}
-              className={`py-4 px-5 mr-2 border-b-2 ${activeTab === index ? 'border-white' : 'border-transparent'}`}
+              key={tab.key}
+              onPress={() => setActiveTab(tab.key)}
+              className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-white' : 'border-transparent'}`}
             >
-              <Text className={`text-base font-inter ${activeTab === index ? 'text-white' : 'text-gray-400'}`}>
-                {tab}
+              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-white' : 'text-gray-400'}`}>
+                {tab.label}
               </Text>
             </TouchableOpacity>
           ))}

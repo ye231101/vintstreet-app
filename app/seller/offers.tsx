@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { offersService, Offer } from '../../api/services/offers.service';
+import { Offer, offersService } from '../../api/services/offers.service';
 import { useAuth } from '../../hooks/use-auth';
 
 // Interfaces are now imported from the offers service
@@ -12,8 +12,15 @@ export default function OffersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<'pending' | 'completed'>('pending');
+  const [activeTab, setActiveTab] = useState('pending');
   const { user } = useAuth();
+
+  const tabs = [
+    { key: 'pending', label: 'Pending' },
+    { key: 'accepted', label: 'Accepted' },
+    { key: 'declined', label: 'Declined' },
+    { key: 'completed', label: 'Completed' },
+  ];
 
   useEffect(() => {
     if (user?.id) {
@@ -44,19 +51,18 @@ export default function OffersScreen() {
   };
 
   const getFilteredOffers = () => {
-    if (activeFilter === 'pending') {
-      return offers.filter((offer) => offer.status === 'pending');
-    } else {
-      return offers.filter((offer) => offer.status === 'accepted' || offer.status === 'rejected');
+    switch (activeTab) {
+      case 'pending': // Pending
+        return offers.filter((offer) => offer.status === 'pending');
+      case 'accepted': // Accepted
+        return offers.filter((offer) => offer.status === 'accepted');
+      case 'declined': // Declined
+        return offers.filter((offer) => offer.status === 'rejected');
+      case 'completed': // Completed
+        return offers.filter((offer) => offer.status === 'accepted' || offer.status === 'rejected');
+      default:
+        return offers;
     }
-  };
-
-  const getPendingCount = () => {
-    return offers.filter((offer) => offer.status === 'pending').length;
-  };
-
-  const getCompletedCount = () => {
-    return offers.filter((offer) => offer.status === 'accepted' || offer.status === 'rejected').length;
   };
 
   const formatDate = (dateString: string) => {
@@ -144,12 +150,9 @@ export default function OffersScreen() {
   const OffersList = ({ offers, onRefresh }: { offers: Offer[]; onRefresh: () => void }) => {
     if (offers.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center px-8">
-          <Feather name="heart" color="#999" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4">No offers yet</Text>
-          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
-            Offers from buyers will appear here
-          </Text>
+        <View className="flex-1 justify-center items-center py-20">
+          <Feather name="shopping-bag" color="#666666" size={64} style={{ marginBottom: 24 }} />
+          <Text className="text-white text-lg font-inter-bold mb-2">No offers found</Text>
         </View>
       );
     }
@@ -158,7 +161,7 @@ export default function OffersScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
-        className="flex-1 pb-4"
+        className="flex-1 p-4"
       >
         {offers.map((offer) => (
           <OfferCard key={offer.id} offer={offer} />
@@ -219,41 +222,21 @@ export default function OffersScreen() {
         <Text className="flex-1 text-lg font-inter-bold text-white">Offers</Text>
       </View>
 
-      {/* Product Offers Section */}
-      <View className="bg-black px-4 py-4">
-        <View className="flex-row items-center mb-4">
-          <Feather name="heart" color="#8B5CF6" size={20} className="mr-2" />
-          <Text className="text-white text-base font-inter-bold flex-1">Product Offers</Text>
-        </View>
-
-        {/* Filter Buttons */}
-        <View className="flex-row gap-3">
-          <TouchableOpacity
-            onPress={() => setActiveFilter('pending')}
-            className={`border border-orange-500 rounded-full py-2 px-4 ${
-              activeFilter === 'pending' ? 'bg-orange-500' : 'bg-transparent'
-            }`}
-          >
-            <Text
-              className={`text-sm font-inter-medium ${activeFilter === 'pending' ? 'text-white' : 'text-orange-500'}`}
+      {/* Filter Tabs */}
+      <View className="bg-black px-4">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => setActiveTab(tab.key)}
+              className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-white' : 'border-transparent'}`}
             >
-              {getPendingCount()} Pending
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => setActiveFilter('completed')}
-            className={`border border-gray-400 rounded-full py-2 px-4 ${
-              activeFilter === 'completed' ? 'bg-gray-400' : 'bg-transparent'
-            }`}
-          >
-            <Text
-              className={`text-sm font-inter-medium ${activeFilter === 'completed' ? 'text-white' : 'text-gray-400'}`}
-            >
-              {getCompletedCount()} Completed
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-white' : 'text-gray-400'}`}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* Offers List */}

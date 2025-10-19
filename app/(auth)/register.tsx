@@ -2,7 +2,7 @@ import { useAuth } from '@/hooks/use-auth';
 import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useState, memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -52,47 +52,49 @@ interface InputFieldProps {
   onTogglePassword?: () => void;
 }
 
-const InputField = memo(({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  icon,
-  error,
-  secureTextEntry,
-  keyboardType = 'default',
-  autoCapitalize = 'sentences',
-  showPasswordToggle = false,
-  onTogglePassword,
-}: InputFieldProps) => (
-  <View className="mb-4">
-    <View
-      className={`border rounded-lg flex-row items-center px-3 h-13 bg-white ${
-        error ? 'border-red-400' : 'border-gray-300'
-      }`}
-    >
-      <Text className="mr-2">
-        <Feather name={icon as any} size={24} color="black" />
-      </Text>
-      <TextInput
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize={autoCapitalize}
-        autoCorrect={false}
-        keyboardType={keyboardType}
-        className="flex-1 font-inter text-base h-13"
-      />
-      {showPasswordToggle && (
-        <Pressable onPress={onTogglePassword} hitSlop={8}>
-          <Feather name={secureTextEntry ? 'eye' : 'eye-off'} size={24} color="black" />
-        </Pressable>
-      )}
+const InputField = memo(
+  ({
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    icon,
+    error,
+    secureTextEntry,
+    keyboardType = 'default',
+    autoCapitalize = 'sentences',
+    showPasswordToggle = false,
+    onTogglePassword,
+  }: InputFieldProps) => (
+    <View className="mb-4">
+      <View
+        className={`border rounded-lg flex-row items-center px-3 h-14 bg-white ${
+          error ? 'border-red-400' : 'border-gray-300'
+        }`}
+      >
+        <Text className="mr-2">
+          <Feather name={icon as any} size={24} color="black" />
+        </Text>
+        <TextInput
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry}
+          autoCapitalize={autoCapitalize}
+          autoCorrect={false}
+          keyboardType={keyboardType}
+          className="flex-1 font-inter text-base h-14"
+        />
+        {showPasswordToggle && (
+          <Pressable onPress={onTogglePassword} hitSlop={8}>
+            <Feather name={secureTextEntry ? 'eye' : 'eye-off'} size={24} color="black" />
+          </Pressable>
+        )}
+      </View>
+      {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
     </View>
-    {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
-  </View>
-));
+  )
+);
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -250,7 +252,6 @@ export default function RegisterScreen() {
     }
   };
 
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView
@@ -259,28 +260,28 @@ export default function RegisterScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
         className="p-6"
       >
-        <View className="flex-1">
-          {/* Header */}
-          <View className="w-full flex-row items-center mb-5">
-            <Pressable onPress={() => router.back()} hitSlop={8}>
-              <Feather name="arrow-left" size={24} color="black" />
-            </Pressable>
-            <Text className="text-xl font-inter-bold flex-1 ml-6">Create Account</Text>
-          </View>
-
-          {/* Logo */}
-          <View className="items-center mb-8">
-            <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
-          </View>
-
-          {/* Error message */}
-          {error && (
-            <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
-              <Text className="font-inter text-red-700">{error}</Text>
+        <View className="flex-1 items-center justify-center">
+          <View className="w-full max-w-lg">
+            {/* Header */}
+            <View className="w-full flex-row items-center mb-5">
+              <Pressable onPress={() => router.back()} hitSlop={8}>
+                <Feather name="arrow-left" size={24} color="black" />
+              </Pressable>
+              <Text className="text-xl font-inter-bold flex-1 ml-6">Create Account</Text>
             </View>
-          )}
 
-          <View className="w-full max-w-lg self-center">
+            {/* Logo */}
+            <View className="items-center mb-10">
+              <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
+            </View>
+
+            {/* Error message */}
+            {error && (
+              <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
+                <Text className="font-inter text-red-700">{error}</Text>
+              </View>
+            )}
+
             {/* Account Information Section */}
             <Text className="text-lg font-inter-bold mb-2 mt-2">Account Information</Text>
 
