@@ -236,7 +236,7 @@ export default function RegisterScreen() {
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
           keyboardType={keyboardType}
-          className="flex-1 font-poppins text-base h-13"
+          className="flex-1 font-inter text-base h-13"
         />
         {showPasswordToggle && (
           <Pressable onPress={onTogglePassword} hitSlop={8}>
@@ -244,7 +244,7 @@ export default function RegisterScreen() {
           </Pressable>
         )}
       </View>
-      {error && <Text className="text-red-400 text-xs mt-1 font-poppins">{error}</Text>}
+      {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
     </View>
   );
 
@@ -258,11 +258,11 @@ export default function RegisterScreen() {
       >
         <View className="flex-1">
           {/* Header */}
-          <View className="flex-row items-center mb-5 w-full">
+          <View className="w-full flex-row items-center mb-5">
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="black" />
             </Pressable>
-            <Text className="text-xl font-poppins-bold flex-1 ml-6">Create Account</Text>
+            <Text className="text-xl font-inter-bold flex-1 ml-6">Create Account</Text>
           </View>
 
           {/* Logo */}
@@ -273,13 +273,13 @@ export default function RegisterScreen() {
           {/* Error message */}
           {error && (
             <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
-              <Text className="font-poppins text-red-700">{error}</Text>
+              <Text className="font-inter text-red-700">{error}</Text>
             </View>
           )}
 
           <View className="w-full max-w-lg self-center">
             {/* Account Information Section */}
-            <Text className="text-lg font-poppins-bold mb-2 mt-2">Account Information</Text>
+            <Text className="text-lg font-inter-bold mb-2 mt-2">Account Information</Text>
 
             <InputField
               label="Username"
@@ -329,7 +329,7 @@ export default function RegisterScreen() {
             />
 
             {/* Personal Information Section */}
-            <Text className="text-lg font-poppins-bold mb-2 mt-2">Personal Information</Text>
+            <Text className="text-lg font-inter-bold mb-2 mt-2">Personal Information</Text>
 
             <InputField
               label="First Name"
@@ -359,7 +359,7 @@ export default function RegisterScreen() {
             />
 
             {/* Address Information Section */}
-            <Text className="text-lg font-poppins-bold mb-2 mt-2">Address Information</Text>
+            <Text className="text-lg font-inter-bold mb-2 mt-2">Address Information</Text>
 
             <InputField
               label="Address Line 1"
@@ -434,7 +434,7 @@ export default function RegisterScreen() {
                 {termsAccepted && <Feather name="check" size={16} color="white" />}
               </Pressable>
               <View className="flex-1">
-                <Text className="font-poppins leading-5">
+                <Text className="font-inter leading-5">
                   I have read and agree to the{' '}
                   <Text className="text-blue-500 underline" onPress={openTermsAndConditions}>
                     Terms and Conditions
@@ -449,16 +449,16 @@ export default function RegisterScreen() {
               disabled={loading}
               className={`h-12 rounded-lg items-center justify-center mb-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="font-poppins text-white text-base">
+              <Text className="font-inter text-white text-base">
                 {loading ? 'Creating Account...' : 'Create Account'}
               </Text>
             </Pressable>
 
             {/* Login Link */}
             <View className="flex-row justify-center items-center">
-              <Text className="font-poppins">Already have an account? </Text>
+              <Text className="font-inter">Already have an account? </Text>
               <Pressable onPress={() => router.back()}>
-                <Text className="font-poppins text-gray-800 font-medium">Login</Text>
+                <Text className="font-inter text-gray-800 font-medium">Login</Text>
               </Pressable>
             </View>
           </View>

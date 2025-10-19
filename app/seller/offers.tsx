@@ -79,11 +79,11 @@ export default function OffersScreen() {
     <View className="bg-gray-700 rounded-xl mb-4 p-4">
       <View className="flex-row justify-between items-start mb-3">
         <View className="flex-1">
-          <Text className="text-white font-poppins-bold text-base mb-1">{offer.productName}</Text>
-          <Text className="text-gray-400 text-sm font-poppins">From {offer.buyerName}</Text>
+          <Text className="text-white font-inter-bold text-base mb-1">{offer.productName}</Text>
+          <Text className="text-gray-400 text-sm font-inter">From {offer.buyerName}</Text>
         </View>
         <View className={`rounded-full px-3 py-1.5 ${offer.status === 'pending' ? 'bg-orange-500' : 'bg-green-500'}`}>
-          <Text className="text-white font-poppins-bold text-xs">
+          <Text className="text-white font-inter-bold text-xs">
             {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
           </Text>
         </View>
@@ -91,23 +91,23 @@ export default function OffersScreen() {
 
       <View className="flex-row justify-between items-center mb-3">
         <View>
-          <Text className="text-gray-400 text-xs font-poppins">Original Price</Text>
-          <Text className="text-white text-base font-poppins-bold">£{offer.originalPrice.toFixed(2)}</Text>
+          <Text className="text-gray-400 text-xs font-inter">Original Price</Text>
+          <Text className="text-white text-base font-inter-bold">£{offer.originalPrice.toFixed(2)}</Text>
         </View>
         <View>
-          <Text className="text-gray-400 text-xs font-poppins">Offer Amount</Text>
-          <Text className="text-green-500 text-base font-poppins-bold">£{offer.offerAmount.toFixed(2)}</Text>
+          <Text className="text-gray-400 text-xs font-inter">Offer Amount</Text>
+          <Text className="text-green-500 text-base font-inter-bold">£{offer.offerAmount.toFixed(2)}</Text>
         </View>
       </View>
 
       {offer.message && (
         <View className="bg-gray-600 rounded-lg p-3 mb-3">
-          <Text className="text-white text-sm font-poppins">"{offer.message}"</Text>
+          <Text className="text-white text-sm font-inter">"{offer.message}"</Text>
         </View>
       )}
 
       <View className="flex-row justify-between items-center">
-        <Text className="text-gray-400 text-xs font-poppins">Expires: {formatDate(offer.expiresAt)}</Text>
+        <Text className="text-gray-400 text-xs font-inter">Expires: {formatDate(offer.expiresAt)}</Text>
         {offer.status === 'pending' && (
           <View className="flex-row gap-2">
             <TouchableOpacity
@@ -116,7 +116,7 @@ export default function OffersScreen() {
               }}
               className="bg-green-500 rounded px-3 py-1.5"
             >
-              <Text className="text-white text-xs font-poppins-bold">Accept</Text>
+              <Text className="text-white text-xs font-inter-bold">Accept</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -124,7 +124,7 @@ export default function OffersScreen() {
               }}
               className="bg-red-500 rounded px-3 py-1.5"
             >
-              <Text className="text-white text-xs font-poppins-bold">Reject</Text>
+              <Text className="text-white text-xs font-inter-bold">Reject</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -137,8 +137,8 @@ export default function OffersScreen() {
       return (
         <View className="flex-1 justify-center items-center px-8">
           <Feather name="heart" color="#999" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4">No offers yet</Text>
-          <Text className="text-gray-400 text-sm font-poppins mt-2 text-center">
+          <Text className="text-white text-lg font-inter-bold mt-4">No offers yet</Text>
+          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
             Offers from buyers will appear here
           </Text>
         </View>
@@ -166,7 +166,7 @@ export default function OffersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Offers</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Offers</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -184,15 +184,15 @@ export default function OffersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Offers</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Offers</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading offers</Text>
-          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading offers</Text>
+          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOffers} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-poppins-bold">Retry</Text>
+            <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -207,14 +207,14 @@ export default function OffersScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Offers</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Offers</Text>
       </View>
 
       {/* Product Offers Section */}
       <View className="bg-black px-4 py-4">
         <View className="flex-row items-center mb-4">
           <Feather name="heart" color="#8B5CF6" size={20} className="mr-2" />
-          <Text className="text-white text-base font-poppins-bold flex-1">Product Offers</Text>
+          <Text className="text-white text-base font-inter-bold flex-1">Product Offers</Text>
         </View>
 
         {/* Filter Buttons */}
@@ -226,7 +226,7 @@ export default function OffersScreen() {
             }`}
           >
             <Text
-              className={`text-sm font-poppins-medium ${activeFilter === 'pending' ? 'text-white' : 'text-orange-500'}`}
+              className={`text-sm font-inter-medium ${activeFilter === 'pending' ? 'text-white' : 'text-orange-500'}`}
             >
               {getPendingCount()} Pending
             </Text>
@@ -239,7 +239,7 @@ export default function OffersScreen() {
             }`}
           >
             <Text
-              className={`text-sm font-poppins-medium ${activeFilter === 'completed' ? 'text-white' : 'text-gray-400'}`}
+              className={`text-sm font-inter-medium ${activeFilter === 'completed' ? 'text-white' : 'text-gray-400'}`}
             >
               {getCompletedCount()} Completed
             </Text>

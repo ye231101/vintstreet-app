@@ -122,7 +122,7 @@ const BrandCard = ({ brand }: { brand: Brand }) => (
     }}
   >
     <Image source={{ uri: brand.image }} className="w-4/5 h-3/5" resizeMode="contain" />
-    <Text className="text-xs font-poppins mt-2">{brand.name}</Text>
+    <Text className="text-xs font-inter mt-2">{brand.name}</Text>
   </View>
 );
 
@@ -379,7 +379,7 @@ export default function HomeScreen() {
           {isSearching ? (
             <View className="py-10 items-center">
               <ActivityIndicator size="large" color="#000" />
-              <Text className="mt-3 text-sm font-poppins text-gray-600">Searching for "{searchText}"...</Text>
+              <Text className="mt-3 text-sm font-inter text-gray-600">Searching for "{searchText}"...</Text>
             </View>
           ) : searchResults.length > 0 ? (
             <FlatList
@@ -395,10 +395,10 @@ export default function HomeScreen() {
             />
           ) : (
             <View className="py-10 items-center">
-              <Text className="text-base font-poppins text-gray-600 text-center">
+              <Text className="text-base font-inter text-gray-600 text-center">
                 No results found for "{searchText}"
               </Text>
-              <Text className="text-sm font-poppins text-gray-400 text-center mt-2">
+              <Text className="text-sm font-inter text-gray-400 text-center mt-2">
                 Try different keywords or check your spelling
               </Text>
             </View>
@@ -422,14 +422,14 @@ export default function HomeScreen() {
 
           {/* Quick Links Section */}
           <View className="mb-6">
-            <Text className="text-xs font-poppins-bold text-black mb-3">QUICK LINKS</Text>
+            <Text className="text-xs font-inter-bold text-black mb-3">QUICK LINKS</Text>
             <ArticleCarousel />
           </View>
 
           <View className="mb-6">
             {isLoadingTrending ? (
               <View>
-                <Text className="text-xs font-poppins-bold text-black mb-3">TRENDING NOW</Text>
+                <Text className="text-xs font-inter-bold text-black mb-3">TRENDING NOW</Text>
                 <View className="py-10 items-center">
                   <ActivityIndicator size="large" color="#000" />
                 </View>
@@ -442,8 +442,8 @@ export default function HomeScreen() {
               />
             ) : (
               <View>
-                <Text className="text-xs font-poppins-bold text-black mb-3">TRENDING NOW</Text>
-                <Text className="text-xs font-poppins text-gray-600 text-center py-5">
+                <Text className="text-xs font-inter-bold text-black mb-3">TRENDING NOW</Text>
+                <Text className="text-xs font-inter text-gray-600 text-center py-5">
                   No trending products available
                 </Text>
               </View>
@@ -453,9 +453,9 @@ export default function HomeScreen() {
           {/* RECENTLY ADDS */}
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-xs font-poppins-bold text-black">RECENTLY ADDED</Text>
+              <Text className="text-xs font-inter-bold text-black">RECENTLY ADDED</Text>
               <Pressable>
-                <Text className="text-xs font-poppins text-blue-500">See All</Text>
+                <Text className="text-xs font-inter text-blue-500">See All</Text>
               </Pressable>
             </View>
             {isLoadingRecentlyAdded ? (
@@ -469,7 +469,7 @@ export default function HomeScreen() {
                 ))}
               </ScrollView>
             ) : (
-              <Text className="text-xs font-poppins text-gray-600 text-center py-5">
+              <Text className="text-xs font-inter text-gray-600 text-center py-5">
                 No recently added products available
               </Text>
             )}
@@ -477,7 +477,7 @@ export default function HomeScreen() {
 
           {/* Top Categories Section */}
           <View className="mb-6">
-            <Text className="text-xs font-poppins-bold text-black mb-3">TOP CATEGORIES</Text>
+            <Text className="text-xs font-inter-bold text-black mb-3">TOP CATEGORIES</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {topCategories.map((cat) => {
                 const cardWidth = screenWidth / 2;
@@ -505,7 +505,7 @@ export default function HomeScreen() {
                     </View>
                     {/* Title with arrow */}
                     <View className="absolute left-3 right-3 bottom-3 flex-row justify-between items-center">
-                      <Text className="text-base font-poppins-bold text-white" numberOfLines={1}>
+                      <Text className="text-base font-inter-bold text-white" numberOfLines={1}>
                         {cat.title}
                       </Text>
                       <Feather name="chevron-right" size={16} color="white" />
@@ -518,7 +518,7 @@ export default function HomeScreen() {
 
           {/* Explore the Eras Section */}
           <View className="mb-6">
-            <Text className="text-xs font-poppins-bold text-black mb-3">EXPLORE THE ERAS</Text>
+            <Text className="text-xs font-inter-bold text-black mb-3">EXPLORE THE ERAS</Text>
             <View className="flex-row flex-wrap">
               {eras.map((era, idx) => {
                 const cardWidth = screenWidth / 2 - (16 + 12) / 2;
@@ -537,7 +537,7 @@ export default function HomeScreen() {
                     <View className="absolute inset-0 opacity-50" style={{ backgroundColor: era.color }} />
                     <View className="absolute inset-0 items-center justify-center">
                       <Text
-                        className="text-xl font-poppins-bold text-white"
+                        className="text-xl font-inter-bold text-white"
                         style={{
                           textShadowColor: 'rgba(0,0,0,0.5)',
                           textShadowOffset: { width: 1, height: 1 },
@@ -547,7 +547,7 @@ export default function HomeScreen() {
                         {era.name}
                       </Text>
                       <Text
-                        className="text-sm font-poppins text-white"
+                        className="text-sm font-inter text-white"
                         style={{
                           textShadowColor: 'rgba(0,0,0,0.5)',
                           textShadowOffset: { width: 1, height: 1 },
@@ -565,7 +565,7 @@ export default function HomeScreen() {
 
           {/* Brands Section */}
           <View className="mb-6">
-            <Text className="text-xs font-poppins-bold text-black mb-3">Brands you may like</Text>
+            <Text className="text-xs font-inter-bold text-black mb-3">Brands you may like</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {Array.from({ length: Math.ceil(brands.length / 2) }).map((_, colIndex) => {
                 const first = brands[colIndex * 2];
@@ -584,7 +584,7 @@ export default function HomeScreen() {
           {recentlyViewedInitialized && recentlyViewedItems.length > 0 && (
             <View className="mb-6">
               <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-xs font-poppins-bold text-black">RECENTLY VIEWED</Text>
+                <Text className="text-xs font-inter-bold text-black">RECENTLY VIEWED</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {recentlyViewedItems.map((listing) => {
@@ -631,9 +631,9 @@ export default function HomeScreen() {
           {/* Indie Items Section */}
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-xs font-poppins-bold text-black">INDIE ITEMS</Text>
+              <Text className="text-xs font-inter-bold text-black">INDIE ITEMS</Text>
               <Pressable>
-                <Text className="text-xs font-poppins text-blue-500">See All</Text>
+                <Text className="text-xs font-inter text-blue-500">See All</Text>
               </Pressable>
             </View>
             {isLoadingIndieItems ? (
@@ -653,7 +653,7 @@ export default function HomeScreen() {
                 ))}
               </ScrollView>
             ) : (
-              <Text className="text-xs font-poppins text-gray-600 text-center py-5">No indie items available</Text>
+              <Text className="text-xs font-inter text-gray-600 text-center py-5">No indie items available</Text>
             )}
           </View>
 

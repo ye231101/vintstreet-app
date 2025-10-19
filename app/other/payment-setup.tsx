@@ -155,13 +155,13 @@ export default function PaymentSetupScreen() {
     multiline?: boolean;
   }) => (
     <View className="mb-4">
-      <Text className="text-white text-base font-poppins-bold mb-2">{label}</Text>
+      <Text className="text-white text-base font-inter-bold mb-2">{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#999"
-        className={`bg-gray-600 rounded-lg px-3 py-3 text-white text-base font-poppins ${
+        className={`bg-gray-600 rounded-lg px-3 py-3 text-white text-base font-inter ${
           multiline ? 'min-h-20' : 'min-h-12'
         }`}
         textAlignVertical={multiline ? 'top' : 'center'}
@@ -182,12 +182,12 @@ export default function PaymentSetupScreen() {
   }) => (
     <View className="flex-row mb-4">
       <View className="flex-1">
-        <Text className="text-gray-400 text-sm font-poppins">{label}</Text>
+        <Text className="text-gray-400 text-sm font-inter">{label}</Text>
       </View>
       <View className="flex-1 items-end">
         <Text
           className={`${
-            isHighlighted ? 'text-white text-base font-poppins-bold' : 'text-white text-sm font-poppins'
+            isHighlighted ? 'text-white text-base font-inter-bold' : 'text-white text-sm font-inter'
           } text-right`}
         >
           {value}
@@ -204,7 +204,7 @@ export default function PaymentSetupScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Setup</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Payment Setup</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -222,15 +222,15 @@ export default function PaymentSetupScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Setup</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Payment Setup</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading payment settings</Text>
-          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading payment settings</Text>
+          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadSellerSettings} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-poppins-bold">Retry</Text>
+            <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -245,7 +245,7 @@ export default function PaymentSetupScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Setup</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Payment Setup</Text>
 
         {!isLoading && sellerSettings && (
           <TouchableOpacity
@@ -256,7 +256,7 @@ export default function PaymentSetupScreen() {
             {isSaving ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text className="text-white text-base font-poppins-bold">Save</Text>
+              <Text className="text-white text-base font-inter-bold">Save</Text>
             )}
           </TouchableOpacity>
         )}
@@ -265,7 +265,7 @@ export default function PaymentSetupScreen() {
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* PayPal Section */}
-          <Text className="text-white text-2xl font-poppins-bold mb-4">PayPal Account</Text>
+          <Text className="text-white text-2xl font-inter-bold mb-4">PayPal Account</Text>
 
           <View className="bg-gray-700 rounded-xl p-4 mb-6">
             <FormField
@@ -278,7 +278,7 @@ export default function PaymentSetupScreen() {
           </View>
 
           {/* Bank Account Section */}
-          <Text className="text-white text-2xl font-poppins-bold mb-4">Bank Account</Text>
+          <Text className="text-white text-2xl font-inter-bold mb-4">Bank Account</Text>
 
           <View className="bg-gray-700 rounded-xl p-4 mb-6">
             <FormField
@@ -334,7 +334,7 @@ export default function PaymentSetupScreen() {
           {/* Store Information */}
           {sellerSettings && (
             <>
-              <Text className="text-white text-xl font-poppins-bold mb-4">Store Information</Text>
+              <Text className="text-white text-xl font-inter-bold mb-4">Store Information</Text>
 
               <View className="bg-gray-800 rounded-xl p-4">
                 <SummaryItem label="Store Name" value={sellerSettings.storeName} isHighlighted />

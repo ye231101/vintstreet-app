@@ -84,9 +84,9 @@ export default function ProductDetailsScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 justify-center items-center">
-          <Text className="font-poppins text-base">Product not found</Text>
+          <Text className="font-inter text-base">Product not found</Text>
           <Pressable onPress={() => router.back()} className="mt-5">
-            <Text className="font-poppins-semibold text-sm text-blue-500">Go Back</Text>
+            <Text className="font-inter-semibold text-sm text-blue-500">Go Back</Text>
           </Pressable>
         </View>
       </SafeAreaView>

@@ -50,13 +50,17 @@ module.exports = {
         }
       },
       fontFamily: {
-        'poppins': ['Poppins-Regular', 'system-ui', 'sans-serif'],
-        'poppins-bold': ['Poppins-Bold', 'system-ui', 'sans-serif'],
-        'poppins-medium': ['Poppins-Medium', 'system-ui', 'sans-serif'],
-        'poppins-semibold': ['Poppins-SemiBold', 'system-ui', 'sans-serif'],
+        'inter-thin': ['Inter-Thin', 'system-ui', 'sans-serif'],
+        'inter-extralight': ['Inter-ExtraLight', 'system-ui', 'sans-serif'],
+        'inter-light': ['Inter-Light', 'system-ui', 'sans-serif'],
+        'inter-regular': ['Inter-Regular', 'system-ui', 'sans-serif'],
+        'inter-bold': ['Inter-Bold', 'system-ui', 'sans-serif'],
+        'inter-medium': ['Inter-Medium', 'system-ui', 'sans-serif'],
+        'inter-semibold': ['Inter-SemiBold', 'system-ui', 'sans-serif'],
+        'inter-extrabold': ['Inter-ExtraBold', 'system-ui', 'sans-serif'],
+        'inter-black': ['Inter-Black', 'system-ui', 'sans-serif'],
       },
     },
   },
   plugins: [],
 }
-

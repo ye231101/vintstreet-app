@@ -80,8 +80,8 @@ export default function HelpCenterScreen() {
     <TouchableOpacity onPress={onPress} className="flex-row items-center py-3 px-4">
       <Feather name={icon as any} color="#fff" size={24} />
       <View className="ml-4 flex-1">
-        <Text className="text-white text-base font-poppins-bold mb-1">{title}</Text>
-        <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
+        <Text className="text-white text-base font-inter-bold mb-1">{title}</Text>
+        <Text className="text-gray-400 text-sm font-inter">{subtitle}</Text>
       </View>
       <Feather name="chevron-right" size={16} color="#999" />
     </TouchableOpacity>
@@ -100,12 +100,12 @@ export default function HelpCenterScreen() {
   }) => (
     <View>
       <TouchableOpacity onPress={onToggle} className="flex-row items-center py-3 px-4">
-        <Text className="text-white text-base font-poppins flex-1">{question}</Text>
+        <Text className="text-white text-base font-inter flex-1">{question}</Text>
         <Feather name={isExpanded ? 'chevron-up' : 'chevron-down'} size={16} color="#999" />
       </TouchableOpacity>
       {isExpanded && (
         <View className="px-4 pb-3">
-          <Text className="text-gray-400 text-sm font-poppins leading-5">{answer}</Text>
+          <Text className="text-gray-400 text-sm font-inter leading-5">{answer}</Text>
         </View>
       )}
     </View>
@@ -119,7 +119,7 @@ export default function HelpCenterScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Help Center</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Help Center</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
@@ -128,7 +128,7 @@ export default function HelpCenterScreen() {
           <View className="bg-gray-800 rounded-xl flex-row items-center px-3 mb-6">
             <Feather name="search" size={20} color="#999" />
             <TextInput
-              className="flex-1 text-white text-base font-poppins py-4 px-3"
+              className="flex-1 text-white text-base font-inter py-4 px-3"
               placeholder="Search help articles..."
               placeholderTextColor="#999"
               value={searchQuery}
@@ -139,7 +139,7 @@ export default function HelpCenterScreen() {
           </View>
 
           {/* Popular Topics Section */}
-          <Text className="text-gray-400 text-xs font-poppins-bold mb-3 uppercase">POPULAR TOPICS</Text>
+          <Text className="text-gray-400 text-xs font-inter-bold mb-3 uppercase">POPULAR TOPICS</Text>
 
           {popularTopics.map((topic, index) => (
             <HelpTopic
@@ -155,7 +155,7 @@ export default function HelpCenterScreen() {
           <View className="h-px bg-gray-700 my-6" />
 
           {/* FAQ Section */}
-          <Text className="text-gray-400 text-xs font-poppins-bold mb-3 uppercase">FREQUENTLY ASKED QUESTIONS</Text>
+          <Text className="text-gray-400 text-xs font-inter-bold mb-3 uppercase">FREQUENTLY ASKED QUESTIONS</Text>
 
           {faqItems.map((item, index) => (
             <FAQItem
@@ -175,7 +175,7 @@ export default function HelpCenterScreen() {
       {/* Contact Support Button */}
       <View className="p-4 bg-black">
         <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
-          <Text className="text-white text-base font-poppins-bold">Contact Support</Text>
+          <Text className="text-white text-base font-inter-bold">Contact Support</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

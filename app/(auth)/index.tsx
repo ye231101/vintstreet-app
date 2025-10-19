@@ -26,15 +26,15 @@ export default function IndexScreen() {
       >
         <View className="flex-1 items-center justify-center">
           <View className="w-full max-w-lg">
-            <View className="pb-10 items-center">
+            <View className="items-center mb-10">
               <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
-              <Text className="text-2xl font-poppins-bold mt-4 text-center">Welcome to Vint Street</Text>
-              <Text className="text-base font-poppins text-gray-500 mt-2 text-center">Sign in to continue</Text>
+              <Text className="text-2xl font-inter-bold mt-4 text-center">Welcome to Vint Street</Text>
+              <Text className="text-base font-inter text-gray-500 mt-2 text-center">Sign in to continue</Text>
             </View>
 
             {error && (
               <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
-                <Text className="font-poppins text-red-700">{error}</Text>
+                <Text className="font-inter text-red-700">{error}</Text>
               </View>
             )}
 
@@ -50,7 +50,7 @@ export default function IndexScreen() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="email-address"
-                  className="flex-1 font-poppins text-base h-14"
+                  className="flex-1 font-inter text-base h-14"
                   returnKeyType="next"
                 />
               </View>
@@ -68,12 +68,12 @@ export default function IndexScreen() {
                   secureTextEntry={secure}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  className="flex-1 font-poppins text-base h-14"
+                  className="flex-1 font-inter text-base h-14"
                   returnKeyType="done"
                   onSubmitEditing={onSubmit}
                 />
                 <Pressable onPress={() => setSecure((s) => !s)} hitSlop={8}>
-                  <Text className="text-base font-poppins">
+                  <Text className="text-base font-inter">
                     {secure ? (
                       <Feather name="eye" size={24} color="black" />
                     ) : (
@@ -86,7 +86,7 @@ export default function IndexScreen() {
 
             <View className="items-end mt-4">
               <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
-                <Text className="font-poppins text-gray-800">Forgot Password?</Text>
+                <Text className="font-inter text-gray-800">Forgot Password?</Text>
               </Pressable>
             </View>
 
@@ -95,13 +95,13 @@ export default function IndexScreen() {
               disabled={loading}
               className={`h-12 rounded-lg items-center justify-center mt-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="font-poppins text-white text-base">{loading ? '...' : 'Login'}</Text>
+              <Text className="font-inter text-white text-base">{loading ? '...' : 'Login'}</Text>
             </Pressable>
 
             <View className="flex-row justify-center mt-6">
-              <Text className="font-poppins">Don't have an account? </Text>
+              <Text className="font-inter">Don't have an account? </Text>
               <Pressable onPress={() => router.push('/(auth)/register')}>
-                <Text className="font-poppins text-gray-800 font-medium">Register</Text>
+                <Text className="font-inter text-gray-800 font-medium">Register</Text>
               </Pressable>
             </View>
           </View>

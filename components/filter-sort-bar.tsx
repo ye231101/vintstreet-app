@@ -21,7 +21,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
         className="flex-1 flex-row items-center justify-center bg-gray-100 rounded-2xl px-4 py-2 gap-2"
         onPress={onFilterPress}
       >
-        <Text className="text-sm font-poppins text-gray-800">Filter by {filterCount > 0 && `| ${filterCount}`}</Text>
+        <Text className="text-sm font-inter text-gray-800">Filter by {filterCount > 0 && `| ${filterCount}`}</Text>
         <Feather name="chevron-down" size={16} color="#666" />
       </Pressable>
 
@@ -29,7 +29,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
         className="flex-1 flex-row items-center justify-center bg-gray-100 rounded-2xl px-4 py-2 gap-2"
         onPress={onSortPress}
       >
-        <Text className="text-sm font-poppins text-gray-800">Sort by | {sortBy}</Text>
+        <Text className="text-sm font-inter text-gray-800">Sort by | {sortBy}</Text>
         <Feather name="chevron-down" size={16} color="#666" />
       </Pressable>
     </View>

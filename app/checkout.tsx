@@ -188,8 +188,8 @@ export default function CheckoutScreen() {
       {/* Header */}
       <View className="flex-row items-center p-4 bg-gray-50 rounded-t-xl">
         <Feather name="shopping-bag" color="#666" size={20} />
-        <Text className="text-base font-poppins-bold text-gray-800 ml-2 flex-1">Order Summary</Text>
-        <Text className="text-sm font-poppins text-gray-600">
+        <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">Order Summary</Text>
+        <Text className="text-sm font-inter text-gray-600">
           {checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''}
         </Text>
       </View>
@@ -200,34 +200,34 @@ export default function CheckoutScreen() {
           <View className="w-12 h-12 rounded-lg bg-gray-100 mr-3" />
 
           <View className="flex-1">
-            <Text className="text-sm font-poppins-bold text-gray-800 mb-1" numberOfLines={2}>
+            <Text className="text-sm font-inter-bold text-gray-800 mb-1" numberOfLines={2}>
               {item.name}
             </Text>
-            <Text className="text-xs font-poppins text-gray-600 mb-1">{item.brand}</Text>
-            <Text className="text-xs font-poppins text-gray-600">Qty: {item.quantity}</Text>
+            <Text className="text-xs font-inter text-gray-600 mb-1">{item.brand}</Text>
+            <Text className="text-xs font-inter text-gray-600">Qty: {item.quantity}</Text>
           </View>
 
-          <Text className="text-sm font-poppins-bold text-gray-800">£{item.lineTotal.toFixed(2)}</Text>
+          <Text className="text-sm font-inter-bold text-gray-800">£{item.lineTotal.toFixed(2)}</Text>
         </View>
       ))}
 
       {/* Totals */}
       <View className="p-4 bg-gray-50 rounded-b-xl">
         <View className="flex-row justify-between mb-1">
-          <Text className="text-sm font-poppins text-gray-600">Subtotal</Text>
-          <Text className="text-sm font-poppins-bold text-gray-800">£{subtotal.toFixed(2)}</Text>
+          <Text className="text-sm font-inter text-gray-600">Subtotal</Text>
+          <Text className="text-sm font-inter-bold text-gray-800">£{subtotal.toFixed(2)}</Text>
         </View>
 
         <View className="flex-row justify-between mb-2">
-          <Text className="text-sm font-poppins text-gray-600">Protection Fee</Text>
-          <Text className="text-sm font-poppins-bold text-gray-800">£{protectionFee.toFixed(2)}</Text>
+          <Text className="text-sm font-inter text-gray-600">Protection Fee</Text>
+          <Text className="text-sm font-inter-bold text-gray-800">£{protectionFee.toFixed(2)}</Text>
         </View>
 
         <View className="h-px bg-gray-300 my-2" />
 
         <View className="flex-row justify-between">
-          <Text className="text-base font-poppins-bold text-gray-800">Total</Text>
-          <Text className="text-lg font-poppins-bold text-gray-800">£{total.toFixed(2)}</Text>
+          <Text className="text-base font-inter-bold text-gray-800">Total</Text>
+          <Text className="text-lg font-inter-bold text-gray-800">£{total.toFixed(2)}</Text>
         </View>
       </View>
     </View>
@@ -242,8 +242,8 @@ export default function CheckoutScreen() {
       <View className="bg-white rounded-xl p-5 m-4">
         <View className="flex-row items-center mb-3">
           <Feather name="check-square" color="#007AFF" size={20} />
-          <Text className="text-base font-poppins-bold text-gray-800 ml-2 flex-1">Checkout Progress</Text>
-          <Text className="text-sm font-poppins text-gray-600">
+          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">Checkout Progress</Text>
+          <Text className="text-sm font-inter text-gray-600">
             {completedSteps} of {totalSteps} completed
           </Text>
         </View>
@@ -256,7 +256,7 @@ export default function CheckoutScreen() {
         </View>
 
         <Text
-          className={`text-xs ${progress === 1 ? 'font-poppins-bold text-green-500' : 'font-poppins text-gray-600'}`}
+          className={`text-xs ${progress === 1 ? 'font-inter-bold text-green-500' : 'font-inter text-gray-600'}`}
         >
           {progress === 1
             ? 'All steps completed! You can now place your order.'
@@ -284,7 +284,7 @@ export default function CheckoutScreen() {
     icon?: string;
   }) => (
     <View className="mb-4">
-      <Text className="text-sm font-poppins-bold text-gray-800 mb-2">
+      <Text className="text-sm font-inter-bold text-gray-800 mb-2">
         {label} {required && <Text className="text-red-500">*</Text>}
       </Text>
       <View className="flex-row items-center bg-white rounded-lg border border-gray-200 px-3">
@@ -294,7 +294,7 @@ export default function CheckoutScreen() {
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor="#999"
-          className="flex-1 py-3 text-base font-poppins text-gray-800"
+          className="flex-1 py-3 text-base font-inter text-gray-800"
           keyboardType={keyboardType}
         />
       </View>
@@ -317,11 +317,11 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text className="text-base font-poppins-bold text-gray-800 flex-1">Shipping Address</Text>
+        <Text className="text-base font-inter-bold text-gray-800 flex-1">Shipping Address</Text>
 
         {stepCompleted[0] && (
           <View className="bg-green-500 rounded-xl px-2 py-1">
-            <Text className="text-white text-xs font-poppins-bold">✓</Text>
+            <Text className="text-white text-xs font-inter-bold">✓</Text>
           </View>
         )}
       </View>
@@ -447,11 +447,11 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text className="text-base font-poppins-bold text-gray-800 flex-1">Billing Details</Text>
+        <Text className="text-base font-inter-bold text-gray-800 flex-1">Billing Details</Text>
 
         {stepCompleted[1] && (
           <View className="bg-green-500 rounded-xl px-2 py-1">
-            <Text className="text-white text-xs font-poppins-bold">✓</Text>
+            <Text className="text-white text-xs font-inter-bold">✓</Text>
           </View>
         )}
       </View>
@@ -460,7 +460,7 @@ export default function CheckoutScreen() {
       <View className="p-5">
         <View className="flex-row items-center mb-4">
           <Feather name="arrow-right-circle" color="#666" size={20} />
-          <Text className="text-base font-poppins-bold text-gray-800 ml-2 flex-1">
+          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">
             Is billing address different from shipping address?
           </Text>
           <Switch
@@ -471,13 +471,13 @@ export default function CheckoutScreen() {
           />
         </View>
 
-        <Text className="text-sm font-poppins text-gray-600 mb-4">
+        <Text className="text-sm font-inter text-gray-600 mb-4">
           Billing address will be the same as shipping address
         </Text>
 
         {isBillingDifferent && (
           <>
-            <Text className="text-base font-poppins-bold text-gray-800 mb-4">Billing Address</Text>
+            <Text className="text-base font-inter-bold text-gray-800 mb-4">Billing Address</Text>
 
             <View className="flex-row mb-4">
               <View className="flex-1 mr-2">
@@ -575,7 +575,7 @@ export default function CheckoutScreen() {
 
         <View className="bg-blue-50 rounded-lg p-3 flex-row items-center">
           <Feather name="shield" color="#1976d2" size={16} />
-          <Text className="text-sm font-poppins text-blue-600 ml-2 flex-1">
+          <Text className="text-sm font-inter text-blue-600 ml-2 flex-1">
             Your billing information is securely stored and only used for order processing.
           </Text>
         </View>
@@ -599,18 +599,18 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text className="text-base font-poppins-bold text-gray-800 flex-1">Payment Information</Text>
+        <Text className="text-base font-inter-bold text-gray-800 flex-1">Payment Information</Text>
 
         {stepCompleted[2] && (
           <View className="bg-green-500 rounded-xl px-2 py-1">
-            <Text className="text-white text-xs font-poppins-bold">✓</Text>
+            <Text className="text-white text-xs font-inter-bold">✓</Text>
           </View>
         )}
       </View>
 
       {/* Section Content */}
       <View className="p-5">
-        <Text className="text-base font-poppins-bold text-gray-800 mb-4">Payment Method</Text>
+        <Text className="text-base font-inter-bold text-gray-800 mb-4">Payment Method</Text>
 
         {/* Credit/Debit Card Option */}
         <TouchableOpacity
@@ -622,11 +622,11 @@ export default function CheckoutScreen() {
           <Feather name="credit-card" color={paymentMethod === 'card' ? '#1976d2' : '#666'} size={20} />
           <View className="flex-1 ml-3">
             <Text
-              className={`text-base font-poppins-bold ${paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-800'}`}
+              className={`text-base font-inter-bold ${paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-800'}`}
             >
               Credit/Debit Card
             </Text>
-            <Text className={`text-sm font-poppins ${paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-600'}`}>
+            <Text className={`text-sm font-inter ${paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-600'}`}>
               Visa, Mastercard, American Express
             </Text>
           </View>
@@ -643,14 +643,14 @@ export default function CheckoutScreen() {
           <Feather name="smartphone" color={paymentMethod === 'googlepay' ? '#1976d2' : '#666'} size={20} />
           <View className="flex-1 ml-3">
             <Text
-              className={`text-base font-poppins-bold ${
+              className={`text-base font-inter-bold ${
                 paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-800'
               }`}
             >
               Google Pay
             </Text>
             <Text
-              className={`text-sm font-poppins ${paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-600'}`}
+              className={`text-sm font-inter ${paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-600'}`}
             >
               Google Pay (availability will be checked at payment)
             </Text>
@@ -660,7 +660,7 @@ export default function CheckoutScreen() {
 
         {paymentMethod === 'card' && (
           <>
-            <Text className="text-base font-poppins-bold text-gray-800 mb-4">Card Details</Text>
+            <Text className="text-base font-inter-bold text-gray-800 mb-4">Card Details</Text>
 
             <FormField
               label="Cardholder Name"
@@ -672,10 +672,10 @@ export default function CheckoutScreen() {
             />
 
             {cardDetails.cardholderName.trim() === '' && (
-              <Text className="text-xs font-poppins text-gray-600 -mt-3 mb-4">Cardholder name is required</Text>
+              <Text className="text-xs font-inter text-gray-600 -mt-3 mb-4">Cardholder name is required</Text>
             )}
 
-            <Text className="text-base font-poppins-bold text-gray-800 mb-4">Card Information</Text>
+            <Text className="text-base font-inter-bold text-gray-800 mb-4">Card Information</Text>
 
             <View className="bg-gray-50 rounded-lg p-4 mb-4">
               <FormField
@@ -727,7 +727,7 @@ export default function CheckoutScreen() {
 
         <View className="bg-blue-50 rounded-lg p-3 flex-row items-center">
           <Feather name="shield" color="#1976d2" size={16} />
-          <Text className="text-sm font-poppins text-blue-600 ml-2 flex-1">
+          <Text className="text-sm font-inter text-blue-600 ml-2 flex-1">
             Your payment information is securely processed by Stripe and never stored on our servers.
           </Text>
         </View>
@@ -743,7 +743,7 @@ export default function CheckoutScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Checkout All Items</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Checkout All Items</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -761,7 +761,7 @@ export default function CheckoutScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Checkout All Items</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Checkout All Items</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-gray-50">
@@ -787,11 +787,11 @@ export default function CheckoutScreen() {
           onPress={processCheckout}
           className={`rounded-2xl py-4 items-center ${canProceedToCheckout() ? 'bg-black' : 'bg-orange-500'}`}
         >
-          <Text className="text-white text-base font-poppins-bold">
+          <Text className="text-white text-base font-inter-bold">
             {canProceedToCheckout() ? 'Complete Order' : 'Complete Required Fields'}
           </Text>
           {!canProceedToCheckout() && (
-            <Text className="text-white text-xs font-poppins mt-1 text-center">{getValidationMessage()}</Text>
+            <Text className="text-white text-xs font-inter mt-1 text-center">{getValidationMessage()}</Text>
           )}
         </TouchableOpacity>
       </View>

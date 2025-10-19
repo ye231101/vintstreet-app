@@ -163,7 +163,7 @@ export default function SellScreen() {
       <View className="bg-black px-4 py-3 flex-row justify-between items-center">
         <TouchableOpacity onPress={handleNavigationAway} className="flex-row items-center">
           <Feather name="arrow-left" size={20} color="#fff" className="mr-2" />
-          <Text className="text-lg font-poppins-bold text-white">Sell an item</Text>
+          <Text className="text-lg font-inter-bold text-white">Sell an item</Text>
         </TouchableOpacity>
         <Feather name="shopping-bag" size={24} color="#fff" />
       </View>
@@ -185,7 +185,7 @@ export default function SellScreen() {
                 onPress={() => setShowImageSourceModal(true)}
               >
                 <Feather name="image" size={48} color="#999" />
-                <Text className="text-base font-poppins-semibold text-gray-400 mt-2">Add Photos</Text>
+                <Text className="text-base font-inter-semibold text-gray-400 mt-2">Add Photos</Text>
               </TouchableOpacity>
             ) : (
               <View className="mb-4">
@@ -207,7 +207,7 @@ export default function SellScreen() {
                       </TouchableOpacity>
                       {index === 0 && (
                         <View className="absolute bottom-1 left-1 bg-black/60 px-1.5 py-0.5 rounded">
-                          <Text className="text-white text-xs font-poppins-semibold">Main</Text>
+                          <Text className="text-white text-xs font-inter-semibold">Main</Text>
                         </View>
                       )}
                     </View>
@@ -219,7 +219,7 @@ export default function SellScreen() {
                     <Feather name="plus" size={24} color="#999" />
                   </TouchableOpacity>
                 </View>
-                <Text className="text-xs font-poppins text-gray-500 mt-2 italic">
+                <Text className="text-xs font-inter text-gray-500 mt-2 italic">
                   Drag to reorder. First image will be the main product image.
                 </Text>
               </View>
@@ -229,8 +229,8 @@ export default function SellScreen() {
             <View className="bg-blue-100 rounded-lg p-3 mb-6 flex-row items-start">
               <Feather name="info" size={20} color="#1976d2" />
               <View className="ml-2 flex-1">
-                <Text className="text-sm font-poppins-bold text-blue-700 mb-1">Creating New Product</Text>
-                <Text className="text-xs font-poppins text-blue-700">
+                <Text className="text-sm font-inter-bold text-blue-700 mb-1">Creating New Product</Text>
+                <Text className="text-xs font-inter text-blue-700">
                   Fields marked with * are required. You can save as draft or publish directly.
                 </Text>
               </View>
@@ -238,9 +238,9 @@ export default function SellScreen() {
 
             {/* Title Field */}
             <View className="mb-4">
-              <Text className="text-sm font-poppins-semibold text-black mb-2">Title *</Text>
+              <Text className="text-sm font-inter-semibold text-black mb-2">Title *</Text>
               <TextInput
-                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins"
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
                 placeholder="Enter item title"
                 value={title}
                 onChangeText={setTitle}
@@ -249,9 +249,9 @@ export default function SellScreen() {
 
             {/* Description Field */}
             <View className="mb-4">
-              <Text className="text-sm font-poppins-semibold text-black mb-2">Description *</Text>
+              <Text className="text-sm font-inter-semibold text-black mb-2">Description *</Text>
               <TextInput
-                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins h-25"
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter h-25"
                 placeholder="Enter item description"
                 value={description}
                 onChangeText={setDescription}
@@ -261,10 +261,10 @@ export default function SellScreen() {
 
             {/* Price Field */}
             <View className="mb-4">
-              <Text className="text-sm font-poppins-semibold text-black mb-2">Price *</Text>
+              <Text className="text-sm font-inter-semibold text-black mb-2">Price *</Text>
               <View className="flex-row items-center">
                 <TextInput
-                  className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins flex-1"
+                  className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter flex-1"
                   placeholder="0.00"
                   value={price}
                   onChangeText={setPrice}
@@ -275,16 +275,16 @@ export default function SellScreen() {
 
             {/* Brand Field */}
             <View className="mb-4">
-              <Text className="text-sm font-poppins-semibold text-black mb-2">Brand</Text>
+              <Text className="text-sm font-inter-semibold text-black mb-2">Brand</Text>
               <TextInput
-                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins"
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
                 placeholder="Enter brand name (API brands not loaded)"
                 value={brand}
                 onChangeText={setBrand}
               />
               <View className="bg-yellow-100 rounded p-2 mt-2 flex-row items-center">
                 <Feather name="alert-circle" size={16} color="#856404" />
-                <Text className="text-xs font-poppins text-yellow-800 ml-1">
+                <Text className="text-xs font-inter text-yellow-800 ml-1">
                   Brand API not responding. Using text input as fallback.
                 </Text>
               </View>
@@ -292,12 +292,12 @@ export default function SellScreen() {
 
             {/* Category Field */}
             <View className="mb-4">
-              <Text className="text-sm font-poppins-semibold text-black mb-2">Category</Text>
+              <Text className="text-sm font-inter-semibold text-black mb-2">Category</Text>
               <TouchableOpacity
                 className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
                 onPress={() => setShowCategoryModal(true)}
               >
-                <Text className={`text-sm font-poppins ${category ? 'text-black' : 'text-gray-400'}`}>
+                <Text className={`text-sm font-inter ${category ? 'text-black' : 'text-gray-400'}`}>
                   {category || 'Select Category'}
                 </Text>
                 <Feather name="chevron-right" size={16} color="#999" />
@@ -306,7 +306,7 @@ export default function SellScreen() {
 
             {/* Stock Management Section */}
             <View className="mb-6">
-              <Text className="text-lg font-poppins-bold text-black mb-4">Stock Management</Text>
+              <Text className="text-lg font-inter-bold text-black mb-4">Stock Management</Text>
               <View className="flex-row items-center">
                 <TouchableOpacity
                   className={`w-5 h-5 border-2 rounded ${
@@ -316,15 +316,15 @@ export default function SellScreen() {
                 >
                   {stockManagement && <Feather name="check" size={14} color="#fff" />}
                 </TouchableOpacity>
-                <Text className="text-base font-poppins text-black">Enable stock management</Text>
+                <Text className="text-base font-inter text-black">Enable stock management</Text>
               </View>
             </View>
 
             {/* Purchase Note Field */}
             <View className="mb-4">
-              <Text className="text-sm font-poppins-semibold text-black mb-2">Purchase Note</Text>
+              <Text className="text-sm font-inter-semibold text-black mb-2">Purchase Note</Text>
               <TextInput
-                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins h-20"
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter h-20"
                 placeholder="Customer will get this info in their order email"
                 value={purchaseNote}
                 onChangeText={setPurchaseNote}
@@ -334,11 +334,11 @@ export default function SellScreen() {
 
             {/* Product Status Section */}
             <View className="mb-6">
-              <Text className="text-lg font-poppins-bold text-black mb-4">Product Status</Text>
+              <Text className="text-lg font-inter-bold text-black mb-4">Product Status</Text>
 
               {/* Status Dropdown */}
               <View className="mb-4">
-                <Text className="text-sm font-poppins-semibold text-black mb-2">Status</Text>
+                <Text className="text-sm font-inter-semibold text-black mb-2">Status</Text>
                 <View className="relative">
                   <TouchableOpacity
                     className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
@@ -348,7 +348,7 @@ export default function SellScreen() {
                       setShowVisibilityDropdown(false);
                     }}
                   >
-                    <Text className="text-sm font-poppins text-black">{productStatus}</Text>
+                    <Text className="text-sm font-inter text-black">{productStatus}</Text>
                     <Feather name="chevron-down" size={16} color="#999" />
                   </TouchableOpacity>
 
@@ -366,7 +366,7 @@ export default function SellScreen() {
                             setShowStatusDropdown(false);
                           }}
                         >
-                          <Text className="text-sm font-poppins text-black">{status}</Text>
+                          <Text className="text-sm font-inter text-black">{status}</Text>
                         </TouchableOpacity>
                       ))}
                     </View>
@@ -376,7 +376,7 @@ export default function SellScreen() {
 
               {/* Visibility Dropdown */}
               <View>
-                <Text className="text-sm font-poppins-semibold text-black mb-2">Visibility</Text>
+                <Text className="text-sm font-inter-semibold text-black mb-2">Visibility</Text>
                 <View className="relative">
                   <TouchableOpacity
                     className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
@@ -386,7 +386,7 @@ export default function SellScreen() {
                       setShowStatusDropdown(false);
                     }}
                   >
-                    <Text className="text-sm font-poppins text-black">{visibility}</Text>
+                    <Text className="text-sm font-inter text-black">{visibility}</Text>
                     <Feather name="chevron-down" size={16} color="#999" />
                   </TouchableOpacity>
 
@@ -404,7 +404,7 @@ export default function SellScreen() {
                             setShowVisibilityDropdown(false);
                           }}
                         >
-                          <Text className="text-sm font-poppins text-black">{vis}</Text>
+                          <Text className="text-sm font-inter text-black">{vis}</Text>
                         </TouchableOpacity>
                       ))}
                     </View>
@@ -419,20 +419,20 @@ export default function SellScreen() {
                 className="flex-1 bg-gray-200 rounded-lg py-3 mr-2 items-center"
                 onPress={handleSaveDraft}
               >
-                <Text className="text-base font-poppins-semibold text-black">Save as Draft</Text>
+                <Text className="text-base font-inter-semibold text-black">Save as Draft</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="flex-1 bg-gray-200 rounded-lg py-3 ml-2 items-center"
                 onPress={handlePublishItem}
               >
-                <Text className="text-base font-poppins-semibold text-black">Publish Item</Text>
+                <Text className="text-base font-inter-semibold text-black">Publish Item</Text>
               </TouchableOpacity>
             </View>
 
             {/* Warning Message */}
             <View className="bg-yellow-100 rounded-lg p-3 flex-row items-center">
               <Feather name="alert-circle" size={20} color="#856404" />
-              <Text className="text-xs font-poppins text-yellow-800 ml-2 flex-1">
+              <Text className="text-xs font-inter text-yellow-800 ml-2 flex-1">
                 Complete all required fields (*) to publish this product
               </Text>
             </View>
@@ -454,7 +454,7 @@ export default function SellScreen() {
 
             {/* Header */}
             <View className="flex-row justify-between items-center mb-5">
-              <Text className="text-lg font-poppins-bold text-black">Select Category</Text>
+              <Text className="text-lg font-inter-bold text-black">Select Category</Text>
               <TouchableOpacity
                 onPress={() => setShowCategoryModal(false)}
                 className="w-6 h-6 justify-center items-center"
@@ -473,7 +473,7 @@ export default function SellScreen() {
                     setShowCategoryModal(false);
                   }}
                 >
-                  <Text className="text-base font-poppins text-black">{cat}</Text>
+                  <Text className="text-base font-inter text-black">{cat}</Text>
                   <Feather name="chevron-right" size={16} color="#999" />
                 </TouchableOpacity>
               ))}
@@ -499,8 +499,8 @@ export default function SellScreen() {
             activeOpacity={1}
             onPress={(e) => e.stopPropagation()}
           >
-            <Text className="text-lg font-poppins-bold text-center mb-2">Add Photos</Text>
-            <Text className="text-sm font-poppins text-gray-600 text-center mb-5">
+            <Text className="text-lg font-inter-bold text-center mb-2">Add Photos</Text>
+            <Text className="text-sm font-inter text-gray-600 text-center mb-5">
               Choose multiple images or take a photo
             </Text>
 
@@ -513,7 +513,7 @@ export default function SellScreen() {
                 <View className="w-20 h-20 bg-gray-100 rounded-2xl justify-center items-center mb-2 shadow-sm">
                   <Feather name="image" size={36} color="#333" />
                 </View>
-                <Text className="text-base font-poppins-semibold text-gray-800">Gallery</Text>
+                <Text className="text-base font-inter-semibold text-gray-800">Gallery</Text>
               </TouchableOpacity>
 
               {/* Camera Option */}
@@ -521,7 +521,7 @@ export default function SellScreen() {
                 <View className="w-20 h-20 bg-gray-100 rounded-2xl justify-center items-center mb-2 shadow-sm">
                   <Feather name="camera" size={36} color="#333" />
                 </View>
-                <Text className="text-base font-poppins-semibold text-gray-800">Camera</Text>
+                <Text className="text-base font-inter-semibold text-gray-800">Camera</Text>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -537,9 +537,9 @@ export default function SellScreen() {
       >
         <View className="flex-1 bg-black/50 justify-center items-center px-5 shadow-2xl">
           <View className="bg-white rounded-xl p-6 w-full max-w-xs">
-            <Text className="text-lg font-poppins-bold text-black mb-3 text-center">Unsaved Changes</Text>
+            <Text className="text-lg font-inter-bold text-black mb-3 text-center">Unsaved Changes</Text>
 
-            <Text className="text-sm font-poppins text-gray-600 mb-6 text-center leading-5">
+            <Text className="text-sm font-inter text-gray-600 mb-6 text-center leading-5">
               Your changes will be lost if you leave this page. Do you want to continue?
             </Text>
 
@@ -548,14 +548,14 @@ export default function SellScreen() {
                 className="flex-1 bg-gray-200 rounded-lg py-3 items-center"
                 onPress={handleCancelNavigation}
               >
-                <Text className="text-base font-poppins-semibold text-black">Cancel</Text>
+                <Text className="text-base font-inter-semibold text-black">Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 className="flex-1 bg-red-500 rounded-lg py-3 items-center"
                 onPress={handleContinueWithoutSaving}
               >
-                <Text className="text-base font-poppins-semibold text-white">Continue</Text>
+                <Text className="text-base font-inter-semibold text-white">Continue</Text>
               </TouchableOpacity>
             </View>
           </View>

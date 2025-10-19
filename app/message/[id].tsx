@@ -154,7 +154,7 @@ export default function MessageDetailScreen() {
   const renderDateHeader = (item: DateHeader) => (
     <View key={`date-${item.date}`} className="items-center my-4">
       <View className="bg-gray-100 px-3 py-1 rounded-xl">
-        <Text className="text-xs font-poppins text-gray-600">{item.displayText}</Text>
+        <Text className="text-xs font-inter text-gray-600">{item.displayText}</Text>
       </View>
     </View>
   );
@@ -162,12 +162,12 @@ export default function MessageDetailScreen() {
   const renderMessage = (message: Message) => (
     <View key={message.id} className={`${message.isSent ? 'items-end' : 'items-start'} my-1 mx-2`}>
       <View className={`max-w-3/4 py-2 px-3 rounded-2xl shadow-sm ${message.isSent ? 'bg-black' : 'bg-gray-100'}`}>
-        <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-poppins`}>
+        <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-inter`}>
           {message.content}
         </Text>
       </View>
 
-      <Text className={`text-xs font-poppins text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
+      <Text className={`text-xs font-inter text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
         {formatTime(message.dateSent)}
       </Text>
     </View>
@@ -184,7 +184,7 @@ export default function MessageDetailScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Hello</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Hello</Text>
 
           <TouchableOpacity onPress={() => Alert.alert('Refresh', 'Refreshing messages...')} className="ml-4">
             <Feather name="refresh-cw" size={20} color="#fff" />
@@ -203,7 +203,7 @@ export default function MessageDetailScreen() {
         >
           {isLoading ? (
             <View className="flex-1 justify-center items-center py-12">
-              <Text className="text-base font-poppins text-gray-600">Loading messages...</Text>
+              <Text className="text-base font-inter text-gray-600">Loading messages...</Text>
             </View>
           ) : (
             messageItems.map((item: MessageItem) => {
@@ -225,7 +225,7 @@ export default function MessageDetailScreen() {
         <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200 min-h-15">
           <View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-2 mr-3 min-h-10">
             <TextInput
-              className="flex-1 text-sm font-poppins text-black max-h-25 min-h-6"
+              className="flex-1 text-sm font-inter text-black max-h-25 min-h-6"
               placeholder="Type a message..."
               placeholderTextColor="#999"
               value={messageText}

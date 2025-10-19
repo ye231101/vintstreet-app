@@ -164,7 +164,7 @@ Thank you,
               }`}
             >
               <Text
-                className={`text-sm font-poppins ${selectedCategory === category ? 'text-blue-500' : 'text-white'}`}
+                className={`text-sm font-inter ${selectedCategory === category ? 'text-blue-500' : 'text-white'}`}
               >
                 {category}
               </Text>
@@ -196,8 +196,8 @@ Thank you,
     >
       <Feather name={icon as any} color="#999" size={20} />
       <View className="ml-3 flex-1">
-        <Text className="text-gray-400 text-xs font-poppins">{title}</Text>
-        <Text className={`text-sm font-poppins ${isTappable ? 'text-blue-500 underline' : 'text-white'}`}>{value}</Text>
+        <Text className="text-gray-400 text-xs font-inter">{title}</Text>
+        <Text className={`text-sm font-inter ${isTappable ? 'text-blue-500 underline' : 'text-white'}`}>{value}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -210,31 +210,31 @@ Thank you,
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Contact Support</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Contact Support</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Support Categories */}
-          <Text className="text-white text-base font-poppins-bold mb-2">What can we help you with?</Text>
+          <Text className="text-white text-base font-inter-bold mb-2">What can we help you with?</Text>
 
           <TouchableOpacity
             onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
             className="bg-gray-700 rounded-xl px-3 py-4 flex-row items-center justify-between"
           >
-            <Text className="text-white text-base font-poppins">{selectedCategory}</Text>
+            <Text className="text-white text-base font-inter">{selectedCategory}</Text>
             <Feather name="chevron-down" size={20} color="#999" />
           </TouchableOpacity>
 
           <View className="h-6" />
 
           {/* Message Field */}
-          <Text className="text-white text-base font-poppins-bold mb-2">Describe your issue</Text>
+          <Text className="text-white text-base font-inter-bold mb-2">Describe your issue</Text>
 
           <TextInput
             value={message}
             onChangeText={setMessage}
-            className="bg-gray-700 rounded-xl p-4 text-white text-base font-poppins min-h-30"
+            className="bg-gray-700 rounded-xl p-4 text-white text-base font-inter min-h-30"
             placeholder="Please provide as much detail as possible..."
             placeholderTextColor="#999"
             multiline
@@ -249,7 +249,7 @@ Thank you,
             onPress={handleQuickEmail}
             className="border border-blue-500 rounded-xl py-4 items-center mb-4"
           >
-            <Text className="text-blue-500 text-base font-poppins-bold">Send Quick Email</Text>
+            <Text className="text-blue-500 text-base font-inter-bold">Send Quick Email</Text>
           </TouchableOpacity>
 
           {/* Submit Button */}
@@ -259,9 +259,9 @@ Thank you,
             className={`rounded-xl py-4 items-center mb-6 ${isSubmitting ? 'bg-gray-600' : 'bg-blue-500'}`}
           >
             {isSubmitting ? (
-              <Text className="text-white text-base font-poppins-bold">Submitting...</Text>
+              <Text className="text-white text-base font-inter-bold">Submitting...</Text>
             ) : (
-              <Text className="text-white text-base font-poppins-bold">Submit Request</Text>
+              <Text className="text-white text-base font-inter-bold">Submit Request</Text>
             )}
           </TouchableOpacity>
 
@@ -269,7 +269,7 @@ Thank you,
           <View className="bg-gray-700 rounded-xl p-4">
             <View className="flex-row items-center mb-3">
               <Feather name="info" size={20} color="#007AFF" />
-              <Text className="text-white text-base font-poppins-bold ml-2">Other Ways to Contact Us</Text>
+              <Text className="text-white text-base font-inter-bold ml-2">Other Ways to Contact Us</Text>
             </View>
 
             <ContactMethod

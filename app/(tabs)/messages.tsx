@@ -74,25 +74,25 @@ export default function MessagesScreen() {
     >
       {/* Avatar */}
       <View className="w-12 h-12 rounded-full bg-black justify-center items-center mr-3">
-        <Text className="text-white text-lg font-poppins-bold">{conversation.otherParticipantName.charAt(0)}</Text>
+        <Text className="text-white text-lg font-inter-bold">{conversation.otherParticipantName.charAt(0)}</Text>
       </View>
 
       {/* Content */}
       <View className="flex-1">
         {/* Name */}
-        <Text className="text-base font-poppins-bold text-black mb-1">{conversation.otherParticipantName}</Text>
+        <Text className="text-base font-inter-bold text-black mb-1">{conversation.otherParticipantName}</Text>
 
         {/* Subject */}
-        <Text className="text-sm font-poppins text-gray-600 mb-0.5">{conversation.subject}</Text>
+        <Text className="text-sm font-inter text-gray-600 mb-0.5">{conversation.subject}</Text>
 
         {/* Last Message */}
-        <Text className="text-xs font-poppins text-gray-400 max-w-4/5" numberOfLines={1}>
+        <Text className="text-xs font-inter text-gray-400 max-w-4/5" numberOfLines={1}>
           {conversation.lastMessageContent}
         </Text>
       </View>
 
       {/* Time */}
-      <Text className="text-xs font-poppins text-gray-400">{formatTime(conversation.lastMessageDate)}</Text>
+      <Text className="text-xs font-inter text-gray-400">{formatTime(conversation.lastMessageDate)}</Text>
     </TouchableOpacity>
   );
 
@@ -105,13 +105,13 @@ export default function MessagesScreen() {
       <View className="flex-1 bg-white">
         {isLoading ? (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-base font-poppins text-gray-600">Loading conversations...</Text>
+            <Text className="text-base font-inter text-gray-600">Loading conversations...</Text>
           </View>
         ) : conversations.length === 0 ? (
           <View className="flex-1 justify-center items-center px-8">
             <Feather name="message-circle" size={64} color="#ccc" />
-            <Text className="text-lg font-poppins-bold text-gray-600 mt-4 mb-2">No conversations yet</Text>
-            <Text className="text-sm font-poppins text-gray-400 text-center">Start a conversation with a seller</Text>
+            <Text className="text-lg font-inter-bold text-gray-600 mt-4 mb-2">No conversations yet</Text>
+            <Text className="text-sm font-inter text-gray-400 text-center">Start a conversation with a seller</Text>
           </View>
         ) : (
           <ScrollView

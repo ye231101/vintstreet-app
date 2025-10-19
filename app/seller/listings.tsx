@@ -62,18 +62,18 @@ export default function ListingsScreen() {
       <View className="p-4">
         <View className="flex-row justify-between items-start mb-3">
           <View className="flex-1">
-            <Text className="text-white font-poppins-bold text-base mb-1">{product.title}</Text>
-            <Text className="text-gray-400 text-sm font-poppins">£{product.price.toFixed(2)}</Text>
+            <Text className="text-white font-inter-bold text-base mb-1">{product.title}</Text>
+            <Text className="text-gray-400 text-sm font-inter">£{product.price.toFixed(2)}</Text>
           </View>
           <View className={`${product.status === 'live' ? 'bg-green-500' : 'bg-orange-500'} rounded-full px-3 py-1.5`}>
-            <Text className="text-white font-poppins-bold text-xs">
+            <Text className="text-white font-inter-bold text-xs">
               {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
             </Text>
           </View>
         </View>
 
         <View className="flex-row justify-between items-center">
-          <Text className="text-gray-400 text-xs font-poppins">
+          <Text className="text-gray-400 text-xs font-inter">
             Created: {new Date(product.dateCreated).toLocaleDateString()}
           </Text>
           <View className="flex-row gap-2">
@@ -83,7 +83,7 @@ export default function ListingsScreen() {
               }}
               className="bg-blue-500 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-poppins-bold">Edit</Text>
+              <Text className="text-white text-xs font-inter-bold">Edit</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -91,7 +91,7 @@ export default function ListingsScreen() {
               }}
               className="bg-gray-600 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-poppins-bold">View</Text>
+              <Text className="text-white text-xs font-inter-bold">View</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -104,8 +104,8 @@ export default function ListingsScreen() {
       return (
         <View className="flex-1 justify-center items-center px-8 bg-gray-800 rounded-xl m-4 py-12">
           <Feather name="package" color="#999" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4">No products yet</Text>
-          <Text className="text-gray-400 text-sm font-poppins mt-2 text-center">
+          <Text className="text-white text-lg font-inter-bold mt-4">No products yet</Text>
+          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
             Create your first product template
           </Text>
         </View>
@@ -133,7 +133,7 @@ export default function ListingsScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">My Listings</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">My Listings</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -151,15 +151,15 @@ export default function ListingsScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">My Listings</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">My Listings</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading products</Text>
-          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading products</Text>
+          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadProducts} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-poppins-bold">Retry</Text>
+            <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -174,7 +174,7 @@ export default function ListingsScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">My Listings</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">My Listings</Text>
       </View>
 
       <ScrollView
@@ -190,7 +190,7 @@ export default function ListingsScreen() {
             }}
             className="bg-gray-600 rounded-lg py-4 px-5 mb-3 items-center"
           >
-            <Text className="text-white text-base font-poppins-bold">Shipping Settings</Text>
+            <Text className="text-white text-base font-inter-bold">Shipping Settings</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -199,15 +199,15 @@ export default function ListingsScreen() {
             }}
             className="bg-black rounded-lg py-4 px-5 mb-4 items-center border border-white"
           >
-            <Text className="text-white text-base font-poppins-bold">Add Product</Text>
+            <Text className="text-white text-base font-inter-bold">Add Product</Text>
           </TouchableOpacity>
 
           {/* Information Banner */}
           <View className="bg-blue-500 rounded-lg p-4 mb-4 flex-row items-center">
             <Feather name="info" color="#fff" size={20} className="mr-3" />
             <View className="flex-1">
-              <Text className="text-white text-sm font-poppins">
-                Please <Text className="underline font-poppins-bold">select shipping options</Text> for your items to go
+              <Text className="text-white text-sm font-inter">
+                Please <Text className="underline font-inter-bold">select shipping options</Text> for your items to go
                 live on the marketplace.
               </Text>
             </View>
@@ -221,7 +221,7 @@ export default function ListingsScreen() {
             className="bg-gray-600 rounded-lg py-3 px-4 flex-row items-center self-end"
           >
             <Feather name="upload" color="#fff" size={16} className="mr-2" />
-            <Text className="text-white text-sm font-poppins-medium">Bulk Upload</Text>
+            <Text className="text-white text-sm font-inter-medium">Bulk Upload</Text>
           </TouchableOpacity>
         </View>
 
@@ -238,7 +238,7 @@ export default function ListingsScreen() {
               <Text
                 className={`${
                   activeTab === tab.key ? 'text-white' : 'text-gray-400'
-                } text-xs font-poppins-medium text-center`}
+                } text-xs font-inter-medium text-center`}
               >
                 {tab.label}
               </Text>

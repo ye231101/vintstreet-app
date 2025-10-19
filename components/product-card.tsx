@@ -45,27 +45,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </View>
 
       <View className="p-3">
-        <Text className="text-xs font-poppins mb-1 leading-4" numberOfLines={2}>
+        <Text className="text-xs font-inter mb-1 leading-4" numberOfLines={2}>
           {product.name}
         </Text>
 
-        <Text className="text-xs font-poppins text-gray-600 mb-1" numberOfLines={1}>
+        <Text className="text-xs font-inter text-gray-600 mb-1" numberOfLines={1}>
           {product.brand}
         </Text>
 
         {showSize && product.size && (
-          <Text className="text-xs font-poppins text-gray-600 mb-1" numberOfLines={1}>
+          <Text className="text-xs font-inter text-gray-600 mb-1" numberOfLines={1}>
             {product.size}
           </Text>
         )}
 
-        <Text className="text-sm font-poppins-semibold mb-0.5 text-black">{product.price}</Text>
+        <Text className="text-sm font-inter-semibold mb-0.5 text-black">{product.price}</Text>
 
         {showProtectionFee && product.protectionFee && (
-          <Text className="text-xs font-poppins text-gray-600 mb-0.5">({product.protectionFee} Protection Fee)</Text>
+          <Text className="text-xs font-inter text-gray-600 mb-0.5">({product.protectionFee} Protection Fee)</Text>
         )}
 
-        <Text className="text-xs font-poppins text-gray-600 mt-0.5">(Official Vint Street Product)</Text>
+        <Text className="text-xs font-inter text-gray-600 mt-0.5">(Official Vint Street Product)</Text>
       </View>
     </Pressable>
   );

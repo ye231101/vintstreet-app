@@ -83,8 +83,8 @@ export default function PrivacySecurityScreen() {
     <View className="px-4 py-3">
       <View className="flex-row items-center justify-between">
         <View className="flex-1 mr-4">
-          <Text className="text-white text-base font-poppins-bold mb-1">{title}</Text>
-          <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
+          <Text className="text-white text-base font-inter-bold mb-1">{title}</Text>
+          <Text className="text-gray-400 text-sm font-inter">{subtitle}</Text>
         </View>
         <Switch
           value={value}
@@ -98,7 +98,7 @@ export default function PrivacySecurityScreen() {
 
   const SettingsItem = ({ title, onPress }: { title: string; onPress: () => void }) => (
     <TouchableOpacity onPress={onPress} className="px-4 py-4 flex-row items-center justify-between">
-      <Text className="text-white text-base font-poppins-bold">{title}</Text>
+      <Text className="text-white text-base font-inter-bold">{title}</Text>
       <Feather name="chevron-right" size={16} color="#999" />
     </TouchableOpacity>
   );
@@ -111,13 +111,13 @@ export default function PrivacySecurityScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Privacy & Security</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Privacy & Security</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         {/* Security Section */}
         <View className="mt-4">
-          <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">SECURITY</Text>
+          <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">SECURITY</Text>
 
           <SettingsSwitch
             title="Two-Factor Authentication"
@@ -141,7 +141,7 @@ export default function PrivacySecurityScreen() {
 
         {/* Privacy Section */}
         <View>
-          <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">PRIVACY</Text>
+          <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">PRIVACY</Text>
 
           <SettingsSwitch
             title="Location Services"
@@ -170,7 +170,7 @@ export default function PrivacySecurityScreen() {
 
         {/* Data & Privacy Section */}
         <View>
-          <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">DATA & PRIVACY</Text>
+          <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">DATA & PRIVACY</Text>
 
           <SettingsItem
             title="Privacy Policy"
@@ -188,7 +188,7 @@ export default function PrivacySecurityScreen() {
         {/* Delete Account Button */}
         <View className="p-4">
           <TouchableOpacity onPress={handleDeleteAccount} className="bg-red-500 py-4 px-6 rounded-xl items-center">
-            <Text className="text-white text-base font-poppins-bold">Delete Account</Text>
+            <Text className="text-white text-base font-inter-bold">Delete Account</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -202,8 +202,8 @@ export default function PrivacySecurityScreen() {
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-poppins-bold mb-3">Set Up Two-Factor Authentication</Text>
-            <Text className="text-gray-400 text-sm font-poppins mb-5">
+            <Text className="text-white text-lg font-inter-bold mb-3">Set Up Two-Factor Authentication</Text>
+            <Text className="text-gray-400 text-sm font-inter mb-5">
               We'll send you a verification code via SMS when you log in from a new device.
             </Text>
             <View className="flex-row justify-end">
@@ -233,10 +233,10 @@ export default function PrivacySecurityScreen() {
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-poppins-bold mb-5">Change Password</Text>
+            <Text className="text-white text-lg font-inter-bold mb-5">Change Password</Text>
 
             <TextInput
-              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-poppins"
+              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-inter"
               placeholder="Current Password"
               placeholderTextColor="#999"
               value={currentPassword}
@@ -245,7 +245,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-poppins"
+              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-inter"
               placeholder="New Password"
               placeholderTextColor="#999"
               value={newPassword}
@@ -254,7 +254,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              className="bg-gray-700 rounded-lg p-3 text-white mb-5 font-poppins"
+              className="bg-gray-700 rounded-lg p-3 text-white mb-5 font-inter"
               placeholder="Confirm New Password"
               placeholderTextColor="#999"
               value={confirmPassword}
@@ -283,8 +283,8 @@ export default function PrivacySecurityScreen() {
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-poppins-bold mb-3">Download My Data</Text>
-            <Text className="text-gray-400 text-sm font-poppins mb-5">
+            <Text className="text-white text-lg font-inter-bold mb-3">Download My Data</Text>
+            <Text className="text-gray-400 text-sm font-inter mb-5">
               We'll prepare your data and send it to your registered email address. This may take up to 48 hours.
             </Text>
             <View className="flex-row justify-end">
@@ -308,8 +308,8 @@ export default function PrivacySecurityScreen() {
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-poppins-bold mb-3">Delete Account</Text>
-            <Text className="text-gray-400 text-sm font-poppins mb-5">
+            <Text className="text-white text-lg font-inter-bold mb-3">Delete Account</Text>
+            <Text className="text-gray-400 text-sm font-inter mb-5">
               This action cannot be undone. All your data will be permanently deleted.
             </Text>
             <View className="flex-row justify-end">

@@ -98,14 +98,14 @@ export default function FavouritesScreen() {
 
       {/* Product Info */}
       <View className="p-3">
-        <Text className="text-white text-base font-poppins-bold mb-1" numberOfLines={2}>
+        <Text className="text-white text-base font-inter-bold mb-1" numberOfLines={2}>
           {item.name}
         </Text>
 
-        {item.brand && <Text className="text-gray-400 text-sm font-poppins mb-1">{item.brand}</Text>}
+        {item.brand && <Text className="text-gray-400 text-sm font-inter mb-1">{item.brand}</Text>}
 
         <View className="flex-row justify-between items-center mt-2">
-          <Text className="text-white text-lg font-poppins-bold">£{item.price.toFixed(2)}</Text>
+          <Text className="text-white text-lg font-inter-bold">£{item.price.toFixed(2)}</Text>
 
           <TouchableOpacity
             onPress={(e) => {
@@ -124,9 +124,9 @@ export default function FavouritesScreen() {
   const EmptyState = () => (
     <View className="flex-1 justify-center items-center px-8">
       <Feather name="heart" color="#999" size={64} />
-      <Text className="text-gray-400 text-lg font-poppins-medium mt-4 mb-2">No favourites yet</Text>
+      <Text className="text-gray-400 text-lg font-inter-medium mt-4 mb-2">No favourites yet</Text>
       <TouchableOpacity onPress={navigateToDiscovery} className="bg-blue-500 rounded-lg py-3 px-6 mt-4">
-        <Text className="text-white text-base font-poppins-bold">Discover Items</Text>
+        <Text className="text-white text-base font-inter-bold">Discover Items</Text>
       </TouchableOpacity>
     </View>
   );
@@ -134,15 +134,15 @@ export default function FavouritesScreen() {
   const ErrorState = () => (
     <View className="flex-1 justify-center items-center px-8">
       <Feather name="alert-circle" color="#ff4444" size={64} />
-      <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading favourites</Text>
-      <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+      <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading favourites</Text>
+      <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
       {error?.includes('log in') ? (
         <TouchableOpacity onPress={navigateToLogin} className="bg-blue-500 rounded-lg py-3 px-6">
-          <Text className="text-white text-base font-poppins-bold">Log In</Text>
+          <Text className="text-white text-base font-inter-bold">Log In</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity onPress={loadFavourites} className="bg-blue-500 rounded-lg py-3 px-6">
-          <Text className="text-white text-base font-poppins-bold">Try Again</Text>
+          <Text className="text-white text-base font-inter-bold">Try Again</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -156,7 +156,7 @@ export default function FavouritesScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Favourites</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Favourites</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -174,7 +174,7 @@ export default function FavouritesScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Favourites</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Favourites</Text>
         </View>
 
         <ErrorState />
@@ -190,7 +190,7 @@ export default function FavouritesScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Favourites</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Favourites</Text>
       </View>
 
       {/* Content */}

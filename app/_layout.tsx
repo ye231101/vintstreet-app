@@ -1,3 +1,15 @@
+import {
+  Inter_100Thin,
+  Inter_200ExtraLight,
+  Inter_300Light,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+  Inter_900Black,
+  useFonts,
+} from '@expo-google-fonts/inter';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -79,13 +91,28 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [fontsLoaded] = useFonts({
+    "inter-thin": Inter_100Thin,
+    "inter-extralight": Inter_200ExtraLight,
+    "inter-light": Inter_300Light,
+    "inter-regular": Inter_400Regular,
+    "inter-medium": Inter_500Medium,
+    "inter-semibold": Inter_600SemiBold,
+    "inter-bold": Inter_700Bold,
+    "inter-extrabold": Inter_800ExtraBold,
+    "inter-black": Inter_900Black,
+  });
 
   useEffect(() => {
     const hideSplash = async () => {
       await SplashScreen.hideAsync();
     };
     hideSplash();
-  }, []);
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <ReduxProvider>

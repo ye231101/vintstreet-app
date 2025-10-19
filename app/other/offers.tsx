@@ -115,30 +115,30 @@ export default function MyOffersScreen() {
     <View className="bg-gray-800 rounded-xl mb-4 p-4 border border-gray-600">
       <View className="flex-row justify-between items-start mb-3">
         <View className="flex-1">
-          <Text className="text-white font-poppins-bold text-base mb-1">{offer.productName}</Text>
-          <Text className="text-gray-400 text-sm font-poppins mb-2">by {offer.sellerName}</Text>
+          <Text className="text-white font-inter-bold text-base mb-1">{offer.productName}</Text>
+          <Text className="text-gray-400 text-sm font-inter mb-2">by {offer.sellerName}</Text>
         </View>
         <View className={`rounded-xl px-2 py-1 bg-[#${getStatusColor(offer.status)}]`}>
-          <Text className="text-white text-xs font-poppins-bold">{getStatusText(offer.status).toUpperCase()}</Text>
+          <Text className="text-white text-xs font-inter-bold">{getStatusText(offer.status).toUpperCase()}</Text>
         </View>
       </View>
 
       {offer.description && (
-        <Text className="text-gray-300 text-sm font-poppins mb-3 leading-5">{offer.description}</Text>
+        <Text className="text-gray-300 text-sm font-inter mb-3 leading-5">{offer.description}</Text>
       )}
 
       <View className="flex-row justify-between items-center mb-3">
         <View>
-          <Text className="text-gray-400 text-xs font-poppins line-through">£{offer.originalPrice.toFixed(2)}</Text>
-          <Text className="text-white text-lg font-poppins-bold">£{offer.offerPrice.toFixed(2)}</Text>
+          <Text className="text-gray-400 text-xs font-inter line-through">£{offer.originalPrice.toFixed(2)}</Text>
+          <Text className="text-white text-lg font-inter-bold">£{offer.offerPrice.toFixed(2)}</Text>
         </View>
         <View className="bg-green-500 rounded-lg px-2 py-1">
-          <Text className="text-white text-xs font-poppins-bold">{offer.discount}% OFF</Text>
+          <Text className="text-white text-xs font-inter-bold">{offer.discount}% OFF</Text>
         </View>
       </View>
 
       <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-gray-400 text-xs font-poppins">
+        <Text className="text-gray-400 text-xs font-inter">
           Expires: {new Date(offer.expiryDate).toLocaleDateString()}
         </Text>
         {offer.status === 'active' && (
@@ -149,7 +149,7 @@ export default function MyOffersScreen() {
               }}
               className="bg-green-500 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-poppins-bold">Accept</Text>
+              <Text className="text-white text-xs font-inter-bold">Accept</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -157,7 +157,7 @@ export default function MyOffersScreen() {
               }}
               className="bg-red-500 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-poppins-bold">Decline</Text>
+              <Text className="text-white text-xs font-inter-bold">Decline</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -170,8 +170,8 @@ export default function MyOffersScreen() {
       return (
         <View className="flex-1 justify-center items-center px-8 bg-gray-800 rounded-xl m-4 py-12">
           <Feather name="tag" color="#999" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4">No offers yet</Text>
-          <Text className="text-gray-400 text-sm font-poppins mt-2 text-center">
+          <Text className="text-white text-lg font-inter-bold mt-4">No offers yet</Text>
+          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
             Your received offers will appear here
           </Text>
         </View>
@@ -199,7 +199,7 @@ export default function MyOffersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">My Offers</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">My Offers</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -217,15 +217,15 @@ export default function MyOffersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">My Offers</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">My Offers</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading offers</Text>
-          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading offers</Text>
+          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOffers} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-poppins-bold">Retry</Text>
+            <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -240,7 +240,7 @@ export default function MyOffersScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">My Offers</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">My Offers</Text>
       </View>
 
       {/* Filter Tabs */}
@@ -254,7 +254,7 @@ export default function MyOffersScreen() {
                 activeTab === tab.key ? 'bg-black border-white' : 'bg-gray-600 border-gray-500'
               } py-2 px-4 mr-2 rounded-md border`}
             >
-              <Text className={`${activeTab === tab.key ? 'text-white' : 'text-gray-400'} text-sm font-poppins-medium`}>
+              <Text className={`${activeTab === tab.key ? 'text-white' : 'text-gray-400'} text-sm font-inter-medium`}>
                 {tab.label}
               </Text>
             </TouchableOpacity>

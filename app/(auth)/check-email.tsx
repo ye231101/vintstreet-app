@@ -119,7 +119,7 @@ export default function CheckEmailScreen() {
             <Pressable onPress={() => router.replace('/(auth)')} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="black" />
             </Pressable>
-            <Text className="text-xl font-poppins-bold flex-1 text-center mr-6">Check Your Email</Text>
+            <Text className="text-xl font-inter-bold flex-1 text-center mr-6">Check Your Email</Text>
           </View>
 
           <View className="flex-1 items-center justify-center">
@@ -135,18 +135,18 @@ export default function CheckEmailScreen() {
               </View>
 
               {/* Title */}
-              <Text className="text-3xl font-poppins-bold text-center mb-4">Verify Your Email</Text>
+              <Text className="text-3xl font-inter-bold text-center mb-4">Verify Your Email</Text>
 
               {/* Description */}
-              <Text className="text-base font-poppins text-center text-gray-600 leading-6 mb-2">
+              <Text className="text-base font-inter text-center text-gray-600 leading-6 mb-2">
                 We've sent a confirmation link to
               </Text>
 
-              <Text className="text-lg font-poppins-semibold text-center text-black mb-8">{email}</Text>
+              <Text className="text-lg font-inter-semibold text-center text-black mb-8">{email}</Text>
 
               {/* Instructions */}
               <View className="bg-gray-100 p-5 rounded-xl mb-6 w-full">
-                <Text className="text-sm font-poppins text-center text-gray-800 leading-5">
+                <Text className="text-sm font-inter text-center text-gray-800 leading-5">
                   Click the link in the email to confirm your account and get started.
                 </Text>
               </View>
@@ -159,7 +159,7 @@ export default function CheckEmailScreen() {
                   }`}
                 >
                   <Feather name="refresh-cw" size={16} color={checkingStatus ? '#1976d2' : '#999'} className="mr-2" />
-                  <Text className={`text-sm font-poppins ${checkingStatus ? 'text-blue-600' : 'text-gray-500'}`}>
+                  <Text className={`text-sm font-inter ${checkingStatus ? 'text-blue-600' : 'text-gray-500'}`}>
                     Waiting for email confirmation...
                   </Text>
                 </View>
@@ -169,7 +169,7 @@ export default function CheckEmailScreen() {
               {isConfirmed && (
                 <View className="flex-row items-center justify-center mb-6 p-3 bg-green-50 rounded-lg">
                   <Feather name="check-circle" size={16} color="#4CAF50" className="mr-2" />
-                  <Text className="text-sm font-poppins-semibold text-green-600">Email confirmed! Redirecting...</Text>
+                  <Text className="text-sm font-inter-semibold text-green-600">Email confirmed! Redirecting...</Text>
                 </View>
               )}
 
@@ -177,21 +177,21 @@ export default function CheckEmailScreen() {
               <View className="w-full mb-8">
                 <View className="flex-row items-start mb-3">
                   <Feather name="info" size={18} color="#666" className="mr-3 mt-0.5" />
-                  <Text className="flex-1 text-sm font-poppins text-gray-600 leading-5">
+                  <Text className="flex-1 text-sm font-inter text-gray-600 leading-5">
                     Check your spam or junk folder if you don't see the email
                   </Text>
                 </View>
 
                 <View className="flex-row items-start mb-3">
                   <Feather name="info" size={18} color="#666" className="mr-3 mt-0.5" />
-                  <Text className="flex-1 text-sm font-poppins text-gray-600 leading-5">
+                  <Text className="flex-1 text-sm font-inter text-gray-600 leading-5">
                     The confirmation link will expire in 24 hours
                   </Text>
                 </View>
 
                 <View className="flex-row items-start">
                   <Feather name="info" size={18} color="#666" className="mr-3 mt-0.5" />
-                  <Text className="flex-1 text-sm font-poppins text-gray-600 leading-5">
+                  <Text className="flex-1 text-sm font-inter text-gray-600 leading-5">
                     After clicking the link, return to this screen and you'll be automatically signed in
                   </Text>
                 </View>
@@ -199,8 +199,8 @@ export default function CheckEmailScreen() {
 
               {/* Important Note for Mobile */}
               <View className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500 mb-8 w-full">
-                <Text className="text-sm font-poppins-semibold text-orange-800 mb-2">📱 Mobile Users:</Text>
-                <Text className="text-xs font-poppins text-orange-800 leading-4">
+                <Text className="text-sm font-inter-semibold text-orange-800 mb-2">📱 Mobile Users:</Text>
+                <Text className="text-xs font-inter text-orange-800 leading-4">
                   Click the link in your email, then come back to this app. We'll automatically detect your confirmation
                   and sign you in!
                 </Text>
@@ -214,14 +214,14 @@ export default function CheckEmailScreen() {
                   resendLoading ? 'bg-gray-400' : 'bg-black'
                 }`}
               >
-                <Text className="font-poppins text-white text-base">
+                <Text className="font-inter text-white text-base">
                   {resendLoading ? 'Sending...' : 'Resend Confirmation Email'}
                 </Text>
               </Pressable>
 
               {/* Return to Login */}
               <Pressable onPress={() => router.replace('/(auth)')}>
-                <Text className="font-poppins text-gray-600 text-sm">Return to Login</Text>
+                <Text className="font-inter text-gray-600 text-sm">Return to Login</Text>
               </Pressable>
             </View>
           </View>

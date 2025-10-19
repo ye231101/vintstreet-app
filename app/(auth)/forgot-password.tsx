@@ -53,16 +53,16 @@ export default function ForgotPasswordScreen() {
               </View>
 
               {/* Success Title */}
-              <Text className="text-2xl font-poppins-bold text-center mb-4">Password Reset Email Sent</Text>
+              <Text className="text-2xl font-inter-bold text-center mb-4">Password Reset Email Sent</Text>
 
               {/* Success Message */}
-              <Text className="text-base font-poppins text-center text-gray-600 leading-6 mb-2">
+              <Text className="text-base font-inter text-center text-gray-600 leading-6 mb-2">
                 We've sent a password reset link to:
               </Text>
 
-              <Text className="text-lg font-poppins-semibold text-center text-black mb-6">{email}</Text>
+              <Text className="text-lg font-inter-semibold text-center text-black mb-6">{email}</Text>
 
-              <Text className="text-sm font-poppins text-center text-gray-600 leading-5 mb-8">
+              <Text className="text-sm font-inter text-center text-gray-600 leading-5 mb-8">
                 Please check your inbox and spam folder. Click the link in the email to reset your password.
               </Text>
 
@@ -71,7 +71,7 @@ export default function ForgotPasswordScreen() {
                 onPress={() => router.back()}
                 className="h-12 rounded-lg bg-black items-center justify-center w-full"
               >
-                <Text className="font-poppins text-white text-base">Return to Login</Text>
+                <Text className="font-inter text-white text-base">Return to Login</Text>
               </Pressable>
             </View>
           </View>
@@ -94,7 +94,7 @@ export default function ForgotPasswordScreen() {
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="black" />
             </Pressable>
-            <Text className="text-xl font-poppins-bold flex-1 ml-6">Forgot Password</Text>
+            <Text className="text-xl font-inter-bold flex-1 ml-6">Forgot Password</Text>
           </View>
 
           <View className="flex-1 items-center justify-center">
@@ -105,17 +105,17 @@ export default function ForgotPasswordScreen() {
               </View>
 
               {/* Title */}
-              <Text className="text-2xl font-poppins-bold text-center mb-4">Forgot your password?</Text>
+              <Text className="text-2xl font-inter-bold text-center mb-4">Forgot your password?</Text>
 
               {/* Description */}
-              <Text className="text-base font-poppins text-center text-gray-600 leading-6 mb-8">
+              <Text className="text-base font-inter text-center text-gray-600 leading-6 mb-8">
                 Enter your email address and we'll send you instructions to reset your password.
               </Text>
 
               {/* Error message */}
               {error && (
                 <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4 w-full">
-                  <Text className="font-poppins text-red-700">{error}</Text>
+                  <Text className="font-inter text-red-700">{error}</Text>
                 </View>
               )}
 
@@ -136,10 +136,10 @@ export default function ForgotPasswordScreen() {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     autoCorrect={false}
-                    className="flex-1 font-poppins text-base h-13"
+                    className="flex-1 font-inter text-base h-13"
                   />
                 </View>
-                {emailError && <Text className="text-red-400 text-xs mt-1 font-poppins">{emailError}</Text>}
+                {emailError && <Text className="text-red-400 text-xs mt-1 font-inter">{emailError}</Text>}
               </View>
 
               {/* Reset Password Button */}
@@ -148,7 +148,7 @@ export default function ForgotPasswordScreen() {
                 disabled={loading}
                 className={`h-12 rounded-lg items-center justify-center w-full ${loading ? 'bg-gray-400' : 'bg-black'}`}
               >
-                <Text className="font-poppins text-white text-base">{loading ? 'Sending...' : 'Reset Password'}</Text>
+                <Text className="font-inter text-white text-base">{loading ? 'Sending...' : 'Reset Password'}</Text>
               </Pressable>
             </View>
           </View>

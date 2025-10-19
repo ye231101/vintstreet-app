@@ -365,7 +365,7 @@ export default function DiscoveryScreen() {
                 setCurrentView('categories');
               }}
             >
-              <Text className="text-sm font-poppins text-black font-bold">All Categories</Text>
+              <Text className="text-sm font-inter text-black font-bold">All Categories</Text>
             </Pressable>
             {categoryPath.map((category, index) => (
               <View key={index} className="flex-row items-center ml-2">
@@ -378,7 +378,7 @@ export default function DiscoveryScreen() {
                   }}
                 >
                   <Text
-                    className={`text-sm font-poppins font-bold ${
+                    className={`text-sm font-inter font-bold ${
                       index === categoryPath.length - 1 ? 'text-gray-600' : 'text-black'
                     }`}
                   >
@@ -407,7 +407,7 @@ export default function DiscoveryScreen() {
           {isSearching ? (
             <View className="flex-1 justify-center items-center p-5">
               <ActivityIndicator size="large" color="#000" />
-              <Text className="mt-4 text-base font-poppins text-gray-600">Searching products...</Text>
+              <Text className="mt-4 text-base font-inter text-gray-600">Searching products...</Text>
             </View>
           ) : (
             <FlatList
@@ -421,7 +421,7 @@ export default function DiscoveryScreen() {
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               ListEmptyComponent={
                 <View className="flex-1 justify-center items-center p-10">
-                  <Text className="text-base font-poppins text-gray-600 text-center">
+                  <Text className="text-base font-inter text-gray-600 text-center">
                     No products found for "{searchText}"
                   </Text>
                 </View>
@@ -436,7 +436,7 @@ export default function DiscoveryScreen() {
       return (
         <View className="flex-1 justify-center items-center p-5">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-4 text-base font-poppins text-gray-600">Loading categories...</Text>
+          <Text className="mt-4 text-base font-inter text-gray-600">Loading categories...</Text>
         </View>
       );
     }
@@ -444,9 +444,9 @@ export default function DiscoveryScreen() {
     if (error) {
       return (
         <View className="flex-1 justify-center items-center p-5">
-          <Text className="text-base font-poppins text-gray-600 text-center mb-4">{error}</Text>
+          <Text className="text-base font-inter text-gray-600 text-center mb-4">{error}</Text>
           <Pressable className="bg-black px-6 py-3 rounded" onPress={loadCategories}>
-            <Text className="text-white text-base font-poppins-bold">Retry</Text>
+            <Text className="text-white text-base font-inter-bold">Retry</Text>
           </Pressable>
         </View>
       );
@@ -466,7 +466,7 @@ export default function DiscoveryScreen() {
                 onPress={() => handleCategoryPress(item)}
               >
                 <View className="flex-1 flex-row items-center">
-                  <Text className="text-base font-poppins text-black">{item.name}</Text>
+                  <Text className="text-base font-inter text-black">{item.name}</Text>
                 </View>
                 {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
               </Pressable>
@@ -488,7 +488,7 @@ export default function DiscoveryScreen() {
                 onPress={() => handleSubcategoryPress(item)}
               >
                 <View className="flex-1 flex-row items-center">
-                  <Text className="text-base font-poppins text-black">{item.name}</Text>
+                  <Text className="text-base font-inter text-black">{item.name}</Text>
                 </View>
                 {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
               </Pressable>
@@ -509,11 +509,11 @@ export default function DiscoveryScreen() {
             {isLoadingProducts ? (
               <View className="flex-1 justify-center items-center p-5">
                 <ActivityIndicator size="large" color="#000" />
-                <Text className="mt-4 text-base font-poppins text-gray-600">Loading products...</Text>
+                <Text className="mt-4 text-base font-inter text-gray-600">Loading products...</Text>
               </View>
             ) : productsError ? (
               <View className="flex-1 justify-center items-center p-5">
-                <Text className="text-base font-poppins text-gray-600 text-center mb-4">{productsError}</Text>
+                <Text className="text-base font-inter text-gray-600 text-center mb-4">{productsError}</Text>
                 <Pressable
                   className="bg-black px-6 py-3 rounded"
                   onPress={() => {
@@ -522,7 +522,7 @@ export default function DiscoveryScreen() {
                     }
                   }}
                 >
-                  <Text className="text-white text-base font-poppins-bold">Retry</Text>
+                  <Text className="text-white text-base font-inter-bold">Retry</Text>
                 </Pressable>
               </View>
             ) : (
@@ -537,7 +537,7 @@ export default function DiscoveryScreen() {
                 columnWrapperStyle={{ justifyContent: 'space-between' }}
                 ListEmptyComponent={
                   <View className="flex-1 justify-center items-center p-10">
-                    <Text className="text-base font-poppins text-gray-600 text-center">
+                    <Text className="text-base font-inter text-gray-600 text-center">
                       No products found in this category
                     </Text>
                   </View>
@@ -569,13 +569,13 @@ export default function DiscoveryScreen() {
             <Feather name="arrow-left" size={24} color="#000" />
           </Pressable>
         )}
-        <Text className="text-3xl font-poppins-bold text-black flex-1 font-bold">{getCurrentTitle()}</Text>
+        <Text className="text-3xl font-inter-bold text-black flex-1 font-bold">{getCurrentTitle()}</Text>
       </View>
 
       {/* All Categories Label */}
       {!showSearchResults && categoryPath.length === 0 && (
         <View className="px-5 py-2 bg-white">
-          <Text className="text-base font-poppins text-gray-600">All Categories</Text>
+          <Text className="text-base font-inter text-gray-600">All Categories</Text>
         </View>
       )}
 
@@ -589,7 +589,7 @@ export default function DiscoveryScreen() {
       {currentView === 'subcategories' && (
         <View className="bg-white px-5 py-4 border-t border-gray-100">
           <Pressable className="bg-black rounded py-3 items-center" onPress={handleViewAllProducts}>
-            <Text className="text-white text-base font-poppins-bold">View all products in this category</Text>
+            <Text className="text-white text-base font-inter-bold">View all products in this category</Text>
           </Pressable>
         </View>
       )}
@@ -622,8 +622,8 @@ export default function DiscoveryScreen() {
                 onPress={() => handleSortChange(option)}
               >
                 <Text
-                  className={`text-sm font-poppins text-gray-800 flex-1 ${
-                    currentSortBy === option ? 'font-poppins-semibold text-black' : ''
+                  className={`text-sm font-inter text-gray-800 flex-1 ${
+                    currentSortBy === option ? 'font-inter-semibold text-black' : ''
                   }`}
                 >
                   {option}

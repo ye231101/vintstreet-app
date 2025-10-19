@@ -39,7 +39,7 @@ export default function PopularProductsCarousel({
 
   return (
     <View className="mb-6">
-      <Text className="text-xs font-poppins-bold text-black mb-3">{title}</Text>
+      <Text className="text-xs font-inter-bold text-black mb-3">{title}</Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollEnabled={outerScrollEnabled}>
         {items.map((product) => (
@@ -114,14 +114,14 @@ export default function PopularProductsCarousel({
               )}
             </View>
             <View className="p-2">
-              <Text className="text-xs font-poppins-bold mb-0.5" numberOfLines={1}>
+              <Text className="text-xs font-inter-bold mb-0.5" numberOfLines={1}>
                 {product.name}
               </Text>
-              <Text className="text-xs font-poppins text-gray-600 mb-0.5" numberOfLines={1}>
+              <Text className="text-xs font-inter text-gray-600 mb-0.5" numberOfLines={1}>
                 {product.brand}
               </Text>
-              <Text className="text-xs font-poppins-semibold">{product.price}</Text>
-              <Text className="text-xs font-poppins text-gray-600 mt-0.5">(Official Vint Street Product)</Text>
+              <Text className="text-xs font-inter-semibold">{product.price}</Text>
+              <Text className="text-xs font-inter text-gray-600 mt-0.5">(Official Vint Street Product)</Text>
             </View>
           </Pressable>
         ))}

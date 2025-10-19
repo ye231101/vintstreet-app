@@ -105,14 +105,14 @@ export default function PaymentMethodsScreen() {
       <View className="flex-row items-center mb-4">
         <Feather name="credit-card" color="#fff" size={24} />
         <View className="ml-3 flex-1">
-          <Text className="text-white text-base font-poppins-bold mb-1">
+          <Text className="text-white text-base font-inter-bold mb-1">
             {cardType} •••• {lastFour}
           </Text>
-          <Text className="text-gray-400 text-sm font-poppins">Expires {expiryDate}</Text>
+          <Text className="text-gray-400 text-sm font-inter">Expires {expiryDate}</Text>
         </View>
         {isDefault && (
           <View className="bg-blue-500/20 rounded px-2 py-1">
-            <Text className="text-blue-500 text-xs font-poppins-bold">Default</Text>
+            <Text className="text-blue-500 text-xs font-inter-bold">Default</Text>
           </View>
         )}
       </View>
@@ -120,11 +120,11 @@ export default function PaymentMethodsScreen() {
       <View className="flex-row justify-end">
         {!isDefault && (
           <TouchableOpacity onPress={onSetDefault} className="mr-4 py-2">
-            <Text className="text-blue-500 text-sm font-poppins">Set as Default</Text>
+            <Text className="text-blue-500 text-sm font-inter">Set as Default</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity onPress={onDelete} className="py-2">
-          <Text className="text-red-500 text-sm font-poppins">Delete</Text>
+          <Text className="text-red-500 text-sm font-inter">Delete</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -146,8 +146,8 @@ export default function PaymentMethodsScreen() {
     <View className="flex-row items-center py-3">
       <Feather name={icon as any} color="#fff" size={24} />
       <View className="ml-4 flex-1">
-        <Text className="text-white text-base font-poppins-bold mb-1">{title}</Text>
-        <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
+        <Text className="text-white text-base font-inter-bold mb-1">{title}</Text>
+        <Text className="text-gray-400 text-sm font-inter">{subtitle}</Text>
       </View>
       <Switch
         value={value}
@@ -166,7 +166,7 @@ export default function PaymentMethodsScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Methods</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Payment Methods</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -184,15 +184,15 @@ export default function PaymentMethodsScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Methods</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Payment Methods</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
-          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading payment methods</Text>
-          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading payment methods</Text>
+          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadPaymentMethods} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-poppins-bold">Retry</Text>
+            <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -207,23 +207,23 @@ export default function PaymentMethodsScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Methods</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Payment Methods</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Add New Payment Method */}
           <View className="bg-gray-700 rounded-xl p-4 mb-6">
-            <Text className="text-gray-400 text-sm font-poppins mb-4">Add a new payment method</Text>
+            <Text className="text-gray-400 text-sm font-inter mb-4">Add a new payment method</Text>
             <TouchableOpacity onPress={addPaymentMethod} className="bg-blue-500 rounded-lg py-3 items-center">
-              <Text className="text-white text-base font-poppins-bold">Add Payment Method</Text>
+              <Text className="text-white text-base font-inter-bold">Add Payment Method</Text>
             </TouchableOpacity>
           </View>
 
           {/* Saved Cards Section */}
           {paymentMethods.length > 0 ? (
             <>
-              <Text className="text-white text-2xl font-poppins-bold mb-4">Saved Cards</Text>
+              <Text className="text-white text-2xl font-inter-bold mb-4">Saved Cards</Text>
 
               {paymentMethods.map((method) => (
                 <SavedCard
@@ -240,13 +240,13 @@ export default function PaymentMethodsScreen() {
           ) : (
             <View className="bg-gray-700 rounded-xl p-5 border border-gray-600 items-center mb-6">
               <Feather name="credit-card" color="#666" size={32} />
-              <Text className="text-gray-400 text-base font-poppins-medium mt-3 mb-2">No payment methods saved</Text>
-              <Text className="text-gray-500 text-sm font-poppins text-center">Add a payment method to continue</Text>
+              <Text className="text-gray-400 text-base font-inter-medium mt-3 mb-2">No payment methods saved</Text>
+              <Text className="text-gray-500 text-sm font-inter text-center">Add a payment method to continue</Text>
             </View>
           )}
 
           {/* Payment Settings */}
-          <Text className="text-white text-2xl font-poppins-bold mb-4">Payment Settings</Text>
+          <Text className="text-white text-2xl font-inter-bold mb-4">Payment Settings</Text>
 
           <View className="bg-gray-700 rounded-xl p-4">
             <SettingsItem

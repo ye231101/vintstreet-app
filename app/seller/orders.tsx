@@ -172,12 +172,12 @@ export default function OrdersScreen() {
       <View className="p-4">
         <View className="flex-row justify-between items-start">
           <View className="flex-1">
-            <Text className="text-white font-poppins-bold text-base mb-1">Order {order.id}</Text>
-            <Text className="text-gray-400 text-sm font-poppins">{formatDate(order.createdAt)}</Text>
+            <Text className="text-white font-inter-bold text-base mb-1">Order {order.id}</Text>
+            <Text className="text-gray-400 text-sm font-inter">{formatDate(order.createdAt)}</Text>
           </View>
           <View className="rounded-full px-3 py-1.5" style={{ backgroundColor: `rgba(${order.statusColor}, 0.1)` }}>
             <Text
-              className="font-poppins-bold text-xs"
+              className="font-inter-bold text-xs"
               style={{ color: `#${order.statusColor.toString(16).padStart(6, '0')}` }}
             >
               {order.displayStatus}
@@ -204,9 +204,9 @@ export default function OrdersScreen() {
             </View>
 
             <View className="flex-1">
-              <Text className="text-white font-poppins-medium text-base mb-1">{item.name}</Text>
-              <Text className="text-gray-400 text-sm font-poppins mb-1">Quantity: {item.quantity}</Text>
-              <Text className="text-white font-poppins-bold text-base">£{item.price.toFixed(2)}</Text>
+              <Text className="text-white font-inter-medium text-base mb-1">{item.name}</Text>
+              <Text className="text-gray-400 text-sm font-inter mb-1">Quantity: {item.quantity}</Text>
+              <Text className="text-white font-inter-bold text-base">£{item.price.toFixed(2)}</Text>
             </View>
           </View>
         </View>
@@ -217,7 +217,7 @@ export default function OrdersScreen() {
 
       {/* Order actions */}
       <View className="flex-row justify-between items-center p-4">
-        <Text className="text-white font-poppins-bold text-base">Total: £{order.totals.total.toFixed(2)}</Text>
+        <Text className="text-white font-inter-bold text-base">Total: £{order.totals.total.toFixed(2)}</Text>
         <View className="flex-row gap-2">
           {order.status === 'pending' && (
             <TouchableOpacity
@@ -226,7 +226,7 @@ export default function OrdersScreen() {
               }}
               className="bg-green-500 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-poppins-bold">Accept</Text>
+              <Text className="text-white text-xs font-inter-bold">Accept</Text>
             </TouchableOpacity>
           )}
           {order.status === 'processing' && (
@@ -236,7 +236,7 @@ export default function OrdersScreen() {
               }}
               className="bg-blue-500 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-poppins-bold">Ship</Text>
+              <Text className="text-white text-xs font-inter-bold">Ship</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -245,7 +245,7 @@ export default function OrdersScreen() {
             }}
             className="py-2 px-4"
           >
-            <Text className="text-blue-500 text-base font-poppins">View Details</Text>
+            <Text className="text-blue-500 text-base font-inter">View Details</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -257,8 +257,8 @@ export default function OrdersScreen() {
       return (
         <View className="flex-1 justify-center items-center px-8">
           <Feather name="package" color="#999" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4">No processing orders.</Text>
-          <Text className="text-gray-400 text-sm font-poppins mt-2 text-center">
+          <Text className="text-white text-lg font-inter-bold mt-4">No processing orders.</Text>
+          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
             No orders with processing status found.
           </Text>
         </View>
@@ -286,7 +286,7 @@ export default function OrdersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Orders</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Orders</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -304,15 +304,15 @@ export default function OrdersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">Orders</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">Orders</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading orders</Text>
-          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading orders</Text>
+          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOrders} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-poppins-bold">Retry</Text>
+            <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -328,10 +328,10 @@ export default function OrdersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-2xl font-poppins-bold text-white">Orders</Text>
+          <Text className="flex-1 text-2xl font-inter-bold text-white">Orders</Text>
         </View>
 
-        <Text className="text-sm font-poppins text-gray-400 ml-10">Manage your customer orders and shipping.</Text>
+        <Text className="text-sm font-inter text-gray-400 ml-10">Manage your customer orders and shipping.</Text>
       </View>
 
       {/* Filter Buttons */}
@@ -345,7 +345,7 @@ export default function OrdersScreen() {
                 activeTab === index ? 'bg-black' : 'bg-gray-600'
               }`}
             >
-              <Text className={`text-sm font-poppins-medium ${activeTab === index ? 'text-white' : 'text-gray-400'}`}>
+              <Text className={`text-sm font-inter-medium ${activeTab === index ? 'text-white' : 'text-gray-400'}`}>
                 {tab}
               </Text>
             </TouchableOpacity>
@@ -360,7 +360,7 @@ export default function OrdersScreen() {
           className="flex-row items-center bg-gray-600 py-3 px-4 rounded-md border border-gray-500 mt-3 self-start"
         >
           <Feather name="download" size={16} color="#999" className="mr-2" />
-          <Text className="text-gray-400 text-sm font-poppins-medium">Export Excel</Text>
+          <Text className="text-gray-400 text-sm font-inter-medium">Export Excel</Text>
         </TouchableOpacity>
       </View>
 
