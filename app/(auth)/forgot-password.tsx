@@ -44,7 +44,7 @@ export default function ForgotPasswordScreen() {
   if (isSuccess) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <ScrollView showsVerticalScrollIndicator={false} className="p-6 flex-1">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="p-6">
           <View className="flex-1 items-center justify-center">
             <View className="w-full max-w-lg items-center">
               {/* Success Icon */}

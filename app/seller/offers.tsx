@@ -147,9 +147,9 @@ export default function OffersScreen() {
 
     return (
       <ScrollView
-        className="flex-1 pb-4"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
+        className="flex-1 pb-4"
       >
         {offers.map((offer) => (
           <OfferCard key={offer.id} offer={offer} />

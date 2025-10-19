@@ -168,7 +168,7 @@ export default function SellScreen() {
         <Feather name="shopping-bag" size={24} color="#fff" />
       </View>
 
-      <ScrollView className="flex-1 bg-white" showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-white">
         <TouchableOpacity
           className="flex-1"
           activeOpacity={1}

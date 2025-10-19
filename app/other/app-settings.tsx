@@ -122,7 +122,7 @@ export default function AppSettingsScreen() {
       </View>
 
       <View className="flex-1 relative">
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
           {/* Notifications Section */}
           <View className="mt-4">
             <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">NOTIFICATIONS</Text>

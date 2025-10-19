@@ -258,11 +258,11 @@ export default function RegisterScreen() {
       >
         <View className="flex-1">
           {/* Header */}
-          <View className="flex-row items-center mb-5">
+          <View className="flex-row items-center mb-5 w-full">
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="black" />
             </Pressable>
-            <Text className="text-xl font-poppins-bold flex-1 text-center mr-6">Create Account</Text>
+            <Text className="text-xl font-poppins-bold flex-1 ml-6">Create Account</Text>
           </View>
 
           {/* Logo */}

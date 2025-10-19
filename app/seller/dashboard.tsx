@@ -447,9 +447,9 @@ export default function DashboardScreen() {
       </View>
 
       <ScrollView
-        className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadDashboardData} tintColor="#007AFF" />}
+        className="flex-1"
       >
         <View className="p-4">
           {/* Period Selector */}

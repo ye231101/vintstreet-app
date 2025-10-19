@@ -265,9 +265,9 @@ export default function OrdersScreen() {
 
     return (
       <ScrollView
-        className="flex-1 p-4"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
+        className="flex-1 p-4"
       >
         {orders.map((order) => (
           <OrderCard key={order.id} order={order} />
@@ -330,11 +330,7 @@ export default function OrdersScreen() {
 
       {/* Tabs */}
       <View className="bg-black border-b border-gray-700">
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="px-4"
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4">
           {tabs.map((tab, index) => (
             <TouchableOpacity
               key={index}

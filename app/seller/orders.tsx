@@ -267,9 +267,9 @@ export default function OrdersScreen() {
 
     return (
       <ScrollView
-        className="flex-1 p-4"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
+        className="flex-1 p-4"
       >
         {orders.map((order) => (
           <OrderCard key={order.id} order={order} />
@@ -336,11 +336,7 @@ export default function OrdersScreen() {
 
       {/* Filter Buttons */}
       <View className="bg-gray-700 px-4 py-4">
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="pr-4"
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="pr-4">
           {tabs.map((tab, index) => (
             <TouchableOpacity
               key={index}

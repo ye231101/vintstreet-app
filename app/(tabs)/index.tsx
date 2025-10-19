@@ -406,7 +406,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         // Home Content
-        <ScrollView className="flex-1 px-2" showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-2">
           {/* Banner Section */}
           <View className="my-4">
             <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>

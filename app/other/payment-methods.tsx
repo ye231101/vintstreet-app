@@ -210,7 +210,7 @@ export default function PaymentMethodsScreen() {
         <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Methods</Text>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Add New Payment Method */}
           <View className="bg-gray-700 rounded-xl p-4 mb-6">

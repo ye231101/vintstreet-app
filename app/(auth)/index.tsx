@@ -32,7 +32,7 @@ export default function IndexScreen() {
               <Text className="text-base font-poppins text-gray-500 mt-2 text-center">Sign in to continue</Text>
             </View>
 
-            {Boolean(error) && (
+            {error && (
               <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
                 <Text className="font-poppins text-red-700">{error}</Text>
               </View>
@@ -50,7 +50,7 @@ export default function IndexScreen() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="email-address"
-                  className="flex-1 font-poppins text-base h-13"
+                  className="flex-1 font-poppins text-base h-14"
                   returnKeyType="next"
                 />
               </View>
@@ -68,7 +68,7 @@ export default function IndexScreen() {
                   secureTextEntry={secure}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  className="flex-1 font-poppins text-base h-13"
+                  className="flex-1 font-poppins text-base h-14"
                   returnKeyType="done"
                   onSubmitEditing={onSubmit}
                 />

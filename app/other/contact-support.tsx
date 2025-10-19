@@ -213,7 +213,7 @@ Thank you,
         <Text className="flex-1 text-lg font-poppins-bold text-white">Contact Support</Text>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Support Categories */}
           <Text className="text-white text-base font-poppins-bold mb-2">What can we help you with?</Text>

@@ -114,9 +114,9 @@ export default function ListingsScreen() {
 
     return (
       <ScrollView
-        className="flex-1 p-4"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
+        className="flex-1 p-4"
       >
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -178,9 +178,9 @@ export default function ListingsScreen() {
       </View>
 
       <ScrollView
-        className="flex-1 p-4"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadProducts} tintColor="#007AFF" />}
+        className="flex-1 p-4"
       >
         {/* Action Buttons */}
         <View className="mb-6">

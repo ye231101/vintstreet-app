@@ -310,7 +310,7 @@ export default function ProductDetailsScreen() {
         </Pressable>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1" ref={scrollViewRef}>
+      <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} className="flex-1">
         {/* Image Carousel */}
         {renderImageCarousel()}
 

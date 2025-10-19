@@ -114,7 +114,7 @@ export default function PrivacySecurityScreen() {
         <Text className="flex-1 text-lg font-poppins-bold text-white">Privacy & Security</Text>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         {/* Security Section */}
         <View className="mt-4">
           <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">SECURITY</Text>

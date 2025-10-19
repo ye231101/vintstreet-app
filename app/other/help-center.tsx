@@ -122,7 +122,7 @@ export default function HelpCenterScreen() {
         <Text className="flex-1 text-lg font-poppins-bold text-white">Help Center</Text>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Search Bar */}
           <View className="bg-gray-800 rounded-xl flex-row items-center px-3 mb-6">
