@@ -10,7 +10,7 @@ export { ordersService } from './orders.service';
 export { offersService } from './offers.service';
 export { reviewsService } from './reviews.service';
 export { listingsService } from './listings.service';
+export { messagesService } from './messages.service';
 
 // Export all services here as you add them
 // export { productsService } from './products.service';
-// export { messagesService } from './messages.service';
