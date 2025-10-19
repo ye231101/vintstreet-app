@@ -15,70 +15,46 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const brands = [
-  {
-    name: "Levi's",
-    image: 'https://www.citypng.com/public/uploads/preview/levis-black-logo-hd-png-70175169470713089bqxrjlb3.png',
-  },
-  {
-    name: 'Adidas',
-    image: 'https://1000logos.net/wp-content/uploads/2019/06/Adidas-Logo-1991.jpg',
-  },
-  {
-    name: 'H&M',
-    image: 'https://1000logos.net/wp-content/uploads/2017/02/H-Logo-1999.png',
-  },
-  {
-    name: 'Nike',
-    image:
-      'https://static.vecteezy.com/system/resources/previews/010/994/412/original/nike-logo-black-with-name-clothes-design-icon-abstract-football-illustration-with-white-background-free-vector.jpg',
-  },
-  {
-    name: 'Zara',
-    image: 'https://1000logos.net/wp-content/uploads/2017/05/Zara-Logo-2008.png',
-  },
-  {
-    name: 'Gucci',
-    image: 'https://1000logos.net/wp-content/uploads/2017/03/Gucci-Logo-2015.png',
-  },
-];
-
 const topCategories = [
   {
     title: 'Caps',
-    image: require('@/assets/images/cat_caps.png'),
+    image: require('@/assets/images/cat_caps.jpg'),
   },
   {
     title: 'Denim',
-    image: require('@/assets/images/cat_denim.png'),
+    image: require('@/assets/images/cat_denim.jpg'),
   },
   {
     title: 'Vinyl',
-    image: require('@/assets/images/cat_vinyl.png'),
+    image: require('@/assets/images/cat_vinyl.jpg'),
   },
   {
     title: 'Football Shirts',
-    image: require('@/assets/images/cat_football_shirts.png'),
+    image: require('@/assets/images/cat_football_shirts.jpg'),
   },
   {
     title: 'Gaming',
-    image: require('@/assets/images/cat_gaming.png'),
+    image: require('@/assets/images/cat_gaming.jpg'),
   },
   {
     title: "Levi's",
-    image: require('@/assets/images/cat_levis.png'),
+    image: require('@/assets/images/cat_levis.jpg'),
   },
   {
     title: 'Nike',
-    image: require('@/assets/images/cat_nike.png'),
+    image: require('@/assets/images/cat_nike.jpg'),
   },
   {
     title: 'Tees',
-    image: require('@/assets/images/cat_tees.png'),
+    image: require('@/assets/images/cat_tees.jpg'),
+  },
+  {
+    title: 'VeeFriends',
+    image: require('@/assets/images/cat_veefriends.jpg'),
   },
   {
     title: 'Y2K',
-    image: require('@/assets/images/cat_y2k.png'),
+    image: require('@/assets/images/cat_y2k.jpg'),
   },
 ];
 
@@ -106,6 +82,33 @@ const eras = [
     decade: '2000s',
     color: '#4CAF50',
     image: require('@/assets/images/00s.jpg'),
+  },
+];
+
+const brands = [
+  {
+    name: "Levi's",
+    image: 'https://1000logos.net/wp-content/uploads/2017/03/Levis-Logo.png',
+  },
+  {
+    name: 'Adidas',
+    image: 'https://1000logos.net/wp-content/uploads/2016/10/Adidas-Logo.png',
+  },
+  {
+    name: 'H&M',
+    image: 'https://1000logos.net/wp-content/uploads/2017/02/Hennes-logo.jpg',
+  },
+  {
+    name: 'Nike',
+    image: 'https://1000logos.net/wp-content/uploads/2021/11/Nike-Logo.png',
+  },
+  {
+    name: 'Zara',
+    image: 'https://1000logos.net/wp-content/uploads/2017/05/Zara-logo.jpg',
+  },
+  {
+    name: 'Gucci',
+    image: 'https://1000logos.net/wp-content/uploads/2017/01/Gucci-Logo.jpg',
   },
 ];
 
@@ -285,7 +288,7 @@ export default function HomeScreen() {
   };
 
   const handleProductPress = (productId: number) => {
-    router.push(`/product/${productId}` as any);
+    router.push(`/product/${productId}`);
   };
 
   const handleCategoryPress = (categoryName: string) => {
@@ -528,6 +531,7 @@ export default function HomeScreen() {
             <ArticleCarousel />
           </View>
 
+          {/* TRENDING NOW */}
           <View className="mb-6">
             {isLoadingTrending ? (
               <View>
@@ -552,7 +556,7 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* RECENTLY ADDS */}
+          {/* RECENTLY ADDED */}
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-3">
               <Text className="text-xs font-inter-bold text-black">RECENTLY ADDED</Text>
@@ -577,7 +581,7 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* Top Categories Section */}
+          {/* TOP CATEGORIES */}
           <View className="mb-6">
             <Text className="text-xs font-inter-bold text-black mb-3">TOP CATEGORIES</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -595,7 +599,7 @@ export default function HomeScreen() {
                     }}
                   >
                     <Image source={cat.image} className="w-full h-full" resizeMode="cover" />
-                    {/* 3-step gradient overlay */}
+
                     <View className="absolute inset-0 bg-transparent">
                       <LinearGradient
                         colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0)']}
@@ -605,9 +609,9 @@ export default function HomeScreen() {
                         className="absolute inset-0"
                       />
                     </View>
-                    {/* Title with arrow */}
+
                     <View className="absolute left-3 right-3 bottom-3 flex-row justify-between items-center">
-                      <Text className="text-base font-inter-bold text-white" numberOfLines={1}>
+                      <Text className="flex-1text-base font-inter-bold text-white" numberOfLines={1}>
                         {cat.title}
                       </Text>
                       <Feather name="chevron-right" size={16} color="white" />
@@ -618,12 +622,12 @@ export default function HomeScreen() {
             </ScrollView>
           </View>
 
-          {/* Explore the Eras Section */}
+          {/* EXPLORE THE ERAS */}
           <View className="mb-6">
             <Text className="text-xs font-inter-bold text-black mb-3">EXPLORE THE ERAS</Text>
             <View className="flex-row flex-wrap">
               {eras.map((era, idx) => {
-                const cardWidth = screenWidth / 2 - (16 + 12) / 2;
+                const cardWidth = screenWidth / 2 - 14;
                 const cardHeight = cardWidth * (7 / 16);
                 const isLeft = idx % 2 === 0;
                 return (
@@ -635,7 +639,7 @@ export default function HomeScreen() {
                       height: cardHeight,
                     }}
                   >
-                    <Image source={era.image} className="w-full h-full" resizeMode="cover" />
+                    <Image source={era.image} resizeMode="cover" className="w-full h-full" />
                     <View className="absolute inset-0 opacity-50" style={{ backgroundColor: era.color }} />
                     <View className="absolute inset-0 items-center justify-center">
                       <Text
@@ -665,7 +669,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Brands Section */}
+          {/* BRANDS YOU MAY LIKE */}
           <View className="mb-6">
             <Text className="text-xs font-inter-bold text-black mb-3">Brands you may like</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -682,7 +686,7 @@ export default function HomeScreen() {
             </ScrollView>
           </View>
 
-          {/* Recently Viewed Section */}
+          {/* RECENTLY VIEWED */}
           {recentlyViewedInitialized && recentlyViewedItems.length > 0 && (
             <View className="mb-6">
               <View className="flex-row justify-between items-center mb-3">
@@ -730,7 +734,7 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* Indie Items Section */}
+          {/* INDIE ITEMS */}
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-3">
               <Text className="text-xs font-inter-bold text-black">INDIE ITEMS</Text>
