@@ -2,7 +2,7 @@ import { useAuth } from '@/hooks/use-auth';
 import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -37,6 +37,62 @@ interface FormErrors {
   country?: string;
   phone?: string;
 }
+
+interface InputFieldProps {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  icon: string;
+  error?: string;
+  secureTextEntry?: boolean;
+  keyboardType?: 'default' | 'email-address' | 'phone-pad';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  showPasswordToggle?: boolean;
+  onTogglePassword?: () => void;
+}
+
+const InputField = memo(({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  icon,
+  error,
+  secureTextEntry,
+  keyboardType = 'default',
+  autoCapitalize = 'sentences',
+  showPasswordToggle = false,
+  onTogglePassword,
+}: InputFieldProps) => (
+  <View className="mb-4">
+    <View
+      className={`border rounded-lg flex-row items-center px-3 h-13 bg-white ${
+        error ? 'border-red-400' : 'border-gray-300'
+      }`}
+    >
+      <Text className="mr-2">
+        <Feather name={icon as any} size={24} color="black" />
+      </Text>
+      <TextInput
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
+        autoCapitalize={autoCapitalize}
+        autoCorrect={false}
+        keyboardType={keyboardType}
+        className="flex-1 font-inter text-base h-13"
+      />
+      {showPasswordToggle && (
+        <Pressable onPress={onTogglePassword} hitSlop={8}>
+          <Feather name={secureTextEntry ? 'eye' : 'eye-off'} size={24} color="black" />
+        </Pressable>
+      )}
+    </View>
+    {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
+  </View>
+));
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -194,59 +250,6 @@ export default function RegisterScreen() {
     }
   };
 
-  const InputField = ({
-    label,
-    value,
-    onChangeText,
-    placeholder,
-    icon,
-    error,
-    secureTextEntry,
-    keyboardType = 'default',
-    autoCapitalize = 'sentences',
-    showPasswordToggle = false,
-    onTogglePassword,
-  }: {
-    label: string;
-    value: string;
-    onChangeText: (text: string) => void;
-    placeholder: string;
-    icon: string;
-    error?: string;
-    secureTextEntry?: boolean;
-    keyboardType?: 'default' | 'email-address' | 'phone-pad';
-    autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-    showPasswordToggle?: boolean;
-    onTogglePassword?: () => void;
-  }) => (
-    <View className="mb-4">
-      <View
-        className={`border rounded-lg flex-row items-center px-3 h-13 bg-white ${
-          error ? 'border-red-400' : 'border-gray-300'
-        }`}
-      >
-        <Text className="mr-2">
-          <Feather name={icon as any} size={24} color="black" />
-        </Text>
-        <TextInput
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry}
-          autoCapitalize={autoCapitalize}
-          autoCorrect={false}
-          keyboardType={keyboardType}
-          className="flex-1 font-inter text-base h-13"
-        />
-        {showPasswordToggle && (
-          <Pressable onPress={onTogglePassword} hitSlop={8}>
-            <Feather name={secureTextEntry ? 'eye' : 'eye-off'} size={24} color="black" />
-          </Pressable>
-        )}
-      </View>
-      {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
-    </View>
-  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">

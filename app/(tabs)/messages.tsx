@@ -4,56 +4,45 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { messagesService, Conversation } from '../../api/services/messages.service';
+import { useAuth } from '../../hooks/use-auth';
 
-interface Conversation {
-  id: number;
-  subject: string;
-  lastMessageContent: string;
-  lastMessageDate: string;
-  unreadCount: number;
-  recipients: number[];
-  otherParticipantName: string;
-}
+// Interfaces are now imported from the messages service
 
 export default function MessagesScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Mock data based on the image
-  const mockConversations: Conversation[] = [
-    {
-      id: 1,
-      subject: 'About Tommy Hilfiger Jeans',
-      lastMessageContent: 'About Tommy Hilfiger Jeans, hthththththth',
-      lastMessageDate: 'Oct 17, 5:50 AM',
-      unreadCount: 0,
-      recipients: [2],
-      otherParticipantName: 'Matt Scott',
-    },
-    {
-      id: 2,
-      subject: 'Hello',
-      lastMessageContent: 'Hello 65456',
-      lastMessageDate: 'Oct 17, 5:50 AM',
-      unreadCount: 0,
-      recipients: [2],
-      otherParticipantName: 'Matt Scott',
-    },
-  ];
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    loadConversations();
-  }, []);
+    if (user?.id) {
+      loadConversations();
+    }
+  }, [user?.id]);
 
   const loadConversations = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setConversations(mockConversations);
+    if (!user?.id) {
+      setError('User not authenticated');
       setIsLoading(false);
-    }, 1000);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch conversations from the API
+      const fetchedConversations = await messagesService.getConversations(user.id);
+      setConversations(fetchedConversations);
+    } catch (err) {
+      console.error('Error loading conversations:', err);
+      setError(err instanceof Error ? err.message : 'Error loading conversations');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onRefresh = async () => {
@@ -106,6 +95,15 @@ export default function MessagesScreen() {
         {isLoading ? (
           <View className="flex-1 justify-center items-center">
             <Text className="text-base font-inter text-gray-600">Loading conversations...</Text>
+          </View>
+        ) : error ? (
+          <View className="flex-1 justify-center items-center px-8">
+            <Feather name="alert-circle" size={64} color="#ff4444" />
+            <Text className="text-lg font-inter-bold text-gray-600 mt-4 mb-2">Error loading conversations</Text>
+            <Text className="text-sm font-inter text-gray-400 text-center mb-4">{error}</Text>
+            <TouchableOpacity onPress={loadConversations} className="bg-black rounded-lg py-3 px-6">
+              <Text className="text-white text-base font-inter-bold">Retry</Text>
+            </TouchableOpacity>
           </View>
         ) : conversations.length === 0 ? (
           <View className="flex-1 justify-center items-center px-8">
