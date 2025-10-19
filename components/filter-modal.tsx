@@ -1,6 +1,6 @@
 import Feather from '@expo/vector-icons/Feather';
 import React, { useState } from 'react';
-import { Dimensions, FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, FlatList, Modal, Pressable, Text, View } from 'react-native';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -101,11 +101,18 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApplyFilt
     const isSelected = selectedFilters[selectedCategory]?.includes(item.id) || false;
 
     return (
-      <Pressable style={styles.filterOption} onPress={() => handleFilterToggle(item.id)}>
-        <Text style={styles.filterOptionText}>
+      <Pressable
+        className="flex-row items-center justify-between py-3 px-5 border-b border-gray-200"
+        onPress={() => handleFilterToggle(item.id)}
+      >
+        <Text className="text-base text-gray-800 flex-1">
           {item.name} ({item.count})
         </Text>
-        <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+        <View
+          className={`w-5 h-5 border rounded items-center justify-center ${
+            isSelected ? 'bg-black border-black' : 'bg-white border-gray-300'
+          }`}
+        >
           {isSelected && <Feather name="check" size={12} color="#fff" />}
         </View>
       </Pressable>
@@ -114,45 +121,54 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApplyFilt
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <Pressable style={styles.overlayPressable} onPress={onClose} />
-        <View style={styles.modalContainer}>
+      <View className="flex-1 bg-black/50 justify-end">
+        <Pressable className="flex-1" onPress={onClose} />
+        <View className="bg-white rounded-t-2xl pb-0" style={{ height: screenHeight * 0.8 }}>
           {/* Handle */}
-          <View style={styles.handle} />
+          <View className="w-10 h-1 bg-gray-300 self-center mt-2 mb-4 rounded-full" />
 
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Filters</Text>
-            <Pressable style={styles.browseCategoriesButton}>
+          <View className="flex-row items-center justify-between px-5 pb-4 border-b border-gray-100">
+            <Text className="text-lg font-bold text-black">Filters</Text>
+            <Pressable className="flex-row items-center">
               <Feather name="grid" size={16} color="#666" />
-              <Text style={styles.browseCategoriesText}>Browse Categories</Text>
+              <Text className="text-sm text-gray-600 ml-2">Browse Categories</Text>
             </Pressable>
-            <Pressable onPress={handleClearAll} style={styles.clearAllButton}>
+            <Pressable onPress={handleClearAll} className="flex-row items-center">
               <Feather name="trash-2" size={16} color="#666" />
-              <Text style={styles.clearAllText}>Clear all</Text>
+              <Text className="text-sm text-gray-600 ml-2">Clear all</Text>
             </Pressable>
           </View>
 
-          <View style={styles.content}>
+          <View className="flex-1 flex-row">
             {/* Filter Categories */}
-            <View style={styles.filterCategories}>
+            <View className="w-1/4 bg-gray-50 border-r border-gray-200">
               {filterCategories.map((category) => (
                 <Pressable
                   key={category.id}
-                  style={[
-                    styles.filterCategoryButton,
-                    selectedCategory === category.id && styles.filterCategoryButtonActive,
-                  ]}
+                  className={`py-3 px-3 items-center justify-center border-b border-gray-200 ${
+                    selectedCategory === category.id ? 'bg-black' : 'bg-gray-50'
+                  }`}
                   onPress={() => setSelectedCategory(category.id)}
                 >
-                  <Feather name={category.icon as any} size={16} color="#fff" />
-                  <Text style={styles.filterCategoryText}>{category.name}</Text>
+                  <Feather
+                    name={category.icon as any}
+                    size={16}
+                    color={selectedCategory === category.id ? '#fff' : '#000'}
+                  />
+                  <Text
+                    className={`text-xs mt-1 text-center ${
+                      selectedCategory === category.id ? 'text-white font-semibold' : 'text-gray-800'
+                    }`}
+                  >
+                    {category.name}
+                  </Text>
                 </Pressable>
               ))}
             </View>
 
             {/* Filter Options */}
-            <View style={styles.filterOptions}>
+            <View className="flex-3 flex-1 px-5 py-4">
               <FlatList
                 data={currentCategory?.options || []}
                 renderItem={renderFilterOption}
@@ -163,8 +179,8 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApplyFilt
           </View>
 
           {/* Apply Button */}
-          <Pressable style={styles.applyButton} onPress={handleApply}>
-            <Text style={styles.applyButtonText}>
+          <Pressable className="bg-black mx-5 my-4 py-4 rounded-lg items-center" onPress={handleApply}>
+            <Text className="text-white text-base font-semibold">
               Apply Filters {getTotalFilterCount() > 0 && `(${getTotalFilterCount()})`}
             </Text>
           </Pressable>
@@ -173,136 +189,5 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApplyFilt
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  overlayPressable: {
-    flex: 1,
-  },
-  modalContainer: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: screenHeight * 0.8, // 80% of screen height
-    paddingBottom: 0,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#e0e0e0',
-    alignSelf: 'center',
-    marginTop: 8,
-    marginBottom: 16,
-    borderRadius: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  browseCategoriesButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  browseCategoriesText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  clearAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  clearAllText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  content: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  filterCategories: {
-    width: 120,
-    backgroundColor: '#f8f8f8',
-    paddingVertical: 16,
-  },
-  filterCategoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginHorizontal: 8,
-    marginVertical: 4,
-    backgroundColor: '#333',
-    borderRadius: 20,
-    gap: 8,
-  },
-  filterCategoryButtonActive: {
-    backgroundColor: '#000',
-  },
-  filterCategoryText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  filterOptions: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  filterOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  filterOptionText: {
-    fontSize: 16,
-    color: '#333',
-    flex: 1,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxSelected: {
-    backgroundColor: '#000',
-    borderColor: '#000',
-  },
-  applyButton: {
-    backgroundColor: '#000',
-    marginHorizontal: 20,
-    marginVertical: 16,
-    paddingVertical: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
 
 export default FilterModal;

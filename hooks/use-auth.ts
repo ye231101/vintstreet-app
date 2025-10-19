@@ -1,17 +1,9 @@
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  clearError,
-  loginUser,
-  logoutUser,
-  registerUser,
-  resetPassword,
-} from '@/store/slices/authSlice';
+import { clearError, loginUser, logoutUser, registerUser, resetPassword } from '@/store/slices/authSlice';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
-  const { isAuthenticated, user, loading, error, isInitialized } = useAppSelector(
-    (state) => state.auth
-  );
+  const { isAuthenticated, user, loading, error, isInitialized } = useAppSelector((state) => state.auth);
 
   const login = async (email: string, password: string) => {
     if (loading) return;

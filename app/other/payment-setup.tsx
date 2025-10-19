@@ -1,15 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SellerSettings {
@@ -162,33 +154,17 @@ export default function PaymentSetupScreen() {
     keyboardType?: 'default' | 'email-address' | 'numeric';
     multiline?: boolean;
   }) => (
-    <View style={{ marginBottom: 16 }}>
-      <Text
-        style={{
-          color: '#fff',
-          fontSize: 16,
-          fontFamily: 'Poppins-Bold',
-          marginBottom: 8,
-        }}
-      >
-        {label}
-      </Text>
+    <View className="mb-4">
+      <Text className="text-white text-base font-poppins-bold mb-2">{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#999"
-        style={{
-          backgroundColor: '#555',
-          borderRadius: 8,
-          paddingHorizontal: 12,
-          paddingVertical: 12,
-          color: '#fff',
-          fontSize: 16,
-          fontFamily: 'Poppins-Regular',
-          minHeight: multiline ? 80 : 48,
-          textAlignVertical: multiline ? 'top' : 'center',
-        }}
+        className={`bg-gray-600 rounded-lg px-3 py-3 text-white text-base font-poppins ${
+          multiline ? 'min-h-20' : 'min-h-12'
+        }`}
+        textAlignVertical={multiline ? 'top' : 'center'}
         keyboardType={keyboardType}
         multiline={multiline}
       />
@@ -204,31 +180,15 @@ export default function PaymentSetupScreen() {
     value: string;
     isHighlighted?: boolean;
   }) => (
-    <View
-      style={{
-        flexDirection: 'row',
-        marginBottom: 16,
-      }}
-    >
-      <View style={{ flex: 2 }}>
-        <Text
-          style={{
-            color: '#999',
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-          }}
-        >
-          {label}
-        </Text>
+    <View className="flex-row mb-4">
+      <View className="flex-1">
+        <Text className="text-gray-400 text-sm font-poppins">{label}</Text>
       </View>
-      <View style={{ flex: 3, alignItems: 'flex-end' }}>
+      <View className="flex-1 items-end">
         <Text
-          style={{
-            color: '#fff',
-            fontSize: isHighlighted ? 16 : 14,
-            fontFamily: isHighlighted ? 'Poppins-Bold' : 'Poppins-Regular',
-            textAlign: 'right',
-          }}
+          className={`${
+            isHighlighted ? 'text-white text-base font-poppins-bold' : 'text-white text-sm font-poppins'
+          } text-right`}
         >
           {value}
         </Text>
@@ -238,46 +198,16 @@ export default function PaymentSetupScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Payment Setup
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Setup</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </SafeAreaView>
@@ -286,88 +216,21 @@ export default function PaymentSetupScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Payment Setup
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Setup</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-          }}
-        >
+        <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              marginTop: 16,
-              marginBottom: 8,
-            }}
-          >
-            Error loading payment settings
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              textAlign: 'center',
-              marginBottom: 16,
-            }}
-          >
-            {error}
-          </Text>
-          <TouchableOpacity
-            onPress={loadSellerSettings}
-            style={{
-              backgroundColor: '#007AFF',
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Retry
-            </Text>
+          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading payment settings</Text>
+          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <TouchableOpacity onPress={loadSellerSettings} className="bg-blue-500 rounded-lg py-3 px-6">
+            <Text className="text-white text-base font-poppins-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -375,89 +238,36 @@ export default function PaymentSetupScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Payment Setup
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Setup</Text>
 
         {!isLoading && sellerSettings && (
           <TouchableOpacity
             onPress={savePaymentSettings}
             disabled={isSaving}
-            style={{
-              backgroundColor: isSaving ? '#555' : '#007AFF',
-              borderRadius: 8,
-              paddingVertical: 8,
-              paddingHorizontal: 16,
-            }}
+            className={`rounded-lg py-2 px-4 ${isSaving ? 'bg-gray-600' : 'bg-blue-500'}`}
           >
             {isSaving ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Bold',
-                }}
-              >
-                Save
-              </Text>
+              <Text className="text-white text-base font-poppins-bold">Save</Text>
             )}
           </TouchableOpacity>
         )}
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
-        <View style={{ padding: 16 }}>
+      <ScrollView className="flex-1">
+        <View className="p-4">
           {/* PayPal Section */}
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 20,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 16,
-            }}
-          >
-            PayPal Account
-          </Text>
+          <Text className="text-white text-2xl font-poppins-bold mb-4">PayPal Account</Text>
 
-          <View
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 24,
-            }}
-          >
+          <View className="bg-gray-700 rounded-xl p-4 mb-6">
             <FormField
               label="PayPal Email Address"
               value={paypalEmail}
@@ -468,25 +278,9 @@ export default function PaymentSetupScreen() {
           </View>
 
           {/* Bank Account Section */}
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 20,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 16,
-            }}
-          >
-            Bank Account
-          </Text>
+          <Text className="text-white text-2xl font-poppins-bold mb-4">Bank Account</Text>
 
-          <View
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 24,
-            }}
-          >
+          <View className="bg-gray-700 rounded-xl p-4 mb-6">
             <FormField
               label="Account Name"
               value={accountName}
@@ -509,12 +303,7 @@ export default function PaymentSetupScreen() {
               keyboardType="numeric"
             />
 
-            <FormField
-              label="Bank Name"
-              value={bankName}
-              onChangeText={setBankName}
-              placeholder="Name of your bank"
-            />
+            <FormField label="Bank Name" value={bankName} onChangeText={setBankName} placeholder="Name of your bank" />
 
             <FormField
               label="Bank Address"
@@ -539,45 +328,22 @@ export default function PaymentSetupScreen() {
               placeholder="International Bank Account Number"
             />
 
-            <FormField
-              label="SWIFT Code"
-              value={swift}
-              onChangeText={setSwift}
-              placeholder="Bank SWIFT/BIC code"
-            />
+            <FormField label="SWIFT Code" value={swift} onChangeText={setSwift} placeholder="Bank SWIFT/BIC code" />
           </View>
 
           {/* Store Information */}
           {sellerSettings && (
             <>
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 20,
-                  fontFamily: 'Poppins-Bold',
-                  marginBottom: 16,
-                }}
-              >
-                Store Information
-              </Text>
+              <Text className="text-white text-xl font-poppins-bold mb-4">Store Information</Text>
 
-              <View
-                style={{
-                  backgroundColor: '#333',
-                  borderRadius: 12,
-                  padding: 16,
-                }}
-              >
+              <View className="bg-gray-800 rounded-xl p-4">
                 <SummaryItem label="Store Name" value={sellerSettings.storeName} isHighlighted />
 
                 <SummaryItem label="Email" value={sellerSettings.email} />
 
                 <SummaryItem label="Phone" value={sellerSettings.phone || 'Not provided'} />
 
-                <SummaryItem
-                  label="Address"
-                  value={sellerSettings.address.fullAddress || 'Not provided'}
-                />
+                <SummaryItem label="Address" value={sellerSettings.address.fullAddress || 'Not provided'} />
               </View>
             </>
           )}

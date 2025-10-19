@@ -1,7 +1,7 @@
 import Feather from '@expo/vector-icons/Feather';
 import { router } from 'expo-router';
 import React from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 
 export interface SearchBarProps {
   placeholder?: string;
@@ -10,18 +10,13 @@ export interface SearchBarProps {
   onSearch?: () => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = 'Search...',
-  value,
-  onChangeText,
-  onSearch,
-}) => {
+const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value, onChangeText, onSearch }) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
+    <View className="flex-row items-center px-4 py-2 bg-gray-900 gap-8">
+      <View className="flex-1 flex-row items-center bg-gray-600 rounded-lg px-3">
         <Feather name="search" size={20} color="white" />
         <TextInput
-          style={styles.input}
+          className="flex-1 ml-2 text-sm text-white font-poppins"
           placeholder={placeholder}
           placeholderTextColor="#b0b0b0"
           value={value}
@@ -41,31 +36,5 @@ const SearchBar: React.FC<SearchBarProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#151515',
-    gap: 32,
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4a4a4a',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-  },
-  input: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#fff',
-    fontFamily: 'Poppins-Regular',
-  },
-});
 
 export default SearchBar;

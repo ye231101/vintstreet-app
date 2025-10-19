@@ -11,13 +11,6 @@ export default function OtherLayout() {
       }}
     >
       <Stack.Screen
-        name="seller-dashboard"
-        options={{
-          title: 'Seller Dashboard',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
         name="payment-setup"
         options={{
           title: 'Payment Setup',
@@ -28,6 +21,13 @@ export default function OtherLayout() {
         name="orders"
         options={{
           title: 'My Orders',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="offers"
+        options={{
+          title: 'My Offers',
           headerShown: false,
         }}
       />

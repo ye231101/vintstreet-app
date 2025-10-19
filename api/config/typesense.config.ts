@@ -12,9 +12,7 @@ const TYPESENSE_API_KEY = process.env.EXPO_PUBLIC_TYPESENSE_API_KEY || '';
 
 // Validate critical environment variables
 if (!TYPESENSE_API_KEY) {
-  console.warn(
-    'Warning: EXPO_PUBLIC_TYPESENSE_API_KEY is not set. Typesense features may not work correctly.'
-  );
+  console.warn('Warning: EXPO_PUBLIC_TYPESENSE_API_KEY is not set. Typesense features may not work correctly.');
 }
 
 export const typesenseConfig = {

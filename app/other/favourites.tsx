@@ -1,16 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  RefreshControl,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface FavouriteItem {
@@ -69,24 +60,20 @@ export default function FavouritesScreen() {
   };
 
   const removeFromFavourites = (itemId: string) => {
-    Alert.alert(
-      'Remove from Favourites',
-      'Are you sure you want to remove this item from your favourites?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+    Alert.alert('Remove from Favourites', 'Are you sure you want to remove this item from your favourites?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: () => {
+          setFavourites((prev) => prev.filter((item) => item.id !== itemId));
+          Alert.alert('Success', 'Item removed from favourites');
         },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () => {
-            setFavourites((prev) => prev.filter((item) => item.id !== itemId));
-            Alert.alert('Success', 'Item removed from favourites');
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   const navigateToProduct = (itemId: string) => {
@@ -96,100 +83,36 @@ export default function FavouritesScreen() {
   const FavouriteCard = ({ item }: { item: FavouriteItem }) => (
     <TouchableOpacity
       onPress={() => navigateToProduct(item.id)}
-      style={{
-        backgroundColor: '#333',
-        borderRadius: 12,
-        marginBottom: 16,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
-        elevation: 5,
-      }}
+      className="bg-gray-800 rounded-xl mb-4 overflow-hidden shadow-lg"
     >
       {/* Product Image */}
-      <View
-        style={{
-          width: '100%',
-          height: 200,
-          backgroundColor: '#555',
-        }}
-      >
+      <View className="w-full h-50 bg-gray-600">
         {item.imageUrl ? (
-          <Image
-            source={{ uri: item.imageUrl }}
-            style={{ width: '100%', height: '100%' }}
-            resizeMode="cover"
-          />
+          <Image source={{ uri: item.imageUrl }} className="w-full h-full" resizeMode="cover" />
         ) : (
-          <View
-            style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#555',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
+          <View className="w-full h-full bg-gray-600 justify-center items-center">
             <Feather name="image" color="#999" size={48} />
           </View>
         )}
       </View>
 
       {/* Product Info */}
-      <View style={{ padding: 12 }}>
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            marginBottom: 4,
-          }}
-          numberOfLines={2}
-        >
+      <View className="p-3">
+        <Text className="text-white text-base font-poppins-bold mb-1" numberOfLines={2}>
           {item.name}
         </Text>
 
-        {item.brand && (
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              marginBottom: 4,
-            }}
-          >
-            {item.brand}
-          </Text>
-        )}
+        {item.brand && <Text className="text-gray-400 text-sm font-poppins mb-1">{item.brand}</Text>}
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 8,
-          }}
-        >
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-            }}
-          >
-            £{item.price.toFixed(2)}
-          </Text>
+        <View className="flex-row justify-between items-center mt-2">
+          <Text className="text-white text-lg font-poppins-bold">£{item.price.toFixed(2)}</Text>
 
           <TouchableOpacity
             onPress={(e) => {
               e.stopPropagation();
               removeFromFavourites(item.id);
             }}
-            style={{
-              padding: 8,
-            }}
+            className="p-2"
           >
             <Feather name="heart" color="#ff4444" size={20} />
           </TouchableOpacity>
@@ -199,120 +122,27 @@ export default function FavouritesScreen() {
   );
 
   const EmptyState = () => (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 32,
-      }}
-    >
+    <View className="flex-1 justify-center items-center px-8">
       <Feather name="heart" color="#999" size={64} />
-      <Text
-        style={{
-          color: '#999',
-          fontSize: 18,
-          fontFamily: 'Poppins-Medium',
-          marginTop: 16,
-          marginBottom: 8,
-        }}
-      >
-        No favourites yet
-      </Text>
-      <TouchableOpacity
-        onPress={navigateToDiscovery}
-        style={{
-          backgroundColor: '#007AFF',
-          borderRadius: 8,
-          paddingVertical: 12,
-          paddingHorizontal: 24,
-          marginTop: 16,
-        }}
-      >
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-          }}
-        >
-          Discover Items
-        </Text>
+      <Text className="text-gray-400 text-lg font-poppins-medium mt-4 mb-2">No favourites yet</Text>
+      <TouchableOpacity onPress={navigateToDiscovery} className="bg-blue-500 rounded-lg py-3 px-6 mt-4">
+        <Text className="text-white text-base font-poppins-bold">Discover Items</Text>
       </TouchableOpacity>
     </View>
   );
 
   const ErrorState = () => (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 32,
-      }}
-    >
+    <View className="flex-1 justify-center items-center px-8">
       <Feather name="alert-circle" color="#ff4444" size={64} />
-      <Text
-        style={{
-          color: '#fff',
-          fontSize: 18,
-          fontFamily: 'Poppins-Bold',
-          marginTop: 16,
-          marginBottom: 8,
-        }}
-      >
-        Error loading favourites
-      </Text>
-      <Text
-        style={{
-          color: '#999',
-          fontSize: 14,
-          fontFamily: 'Poppins-Regular',
-          textAlign: 'center',
-          marginBottom: 16,
-        }}
-      >
-        {error}
-      </Text>
+      <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading favourites</Text>
+      <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
       {error?.includes('log in') ? (
-        <TouchableOpacity
-          onPress={navigateToLogin}
-          style={{
-            backgroundColor: '#007AFF',
-            borderRadius: 8,
-            paddingVertical: 12,
-            paddingHorizontal: 24,
-          }}
-        >
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-            }}
-          >
-            Log In
-          </Text>
+        <TouchableOpacity onPress={navigateToLogin} className="bg-blue-500 rounded-lg py-3 px-6">
+          <Text className="text-white text-base font-poppins-bold">Log In</Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity
-          onPress={loadFavourites}
-          style={{
-            backgroundColor: '#007AFF',
-            borderRadius: 8,
-            paddingVertical: 12,
-            paddingHorizontal: 24,
-          }}
-        >
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-            }}
-          >
-            Try Again
-          </Text>
+        <TouchableOpacity onPress={loadFavourites} className="bg-blue-500 rounded-lg py-3 px-6">
+          <Text className="text-white text-base font-poppins-bold">Try Again</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -320,46 +150,16 @@ export default function FavouritesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Favourites
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Favourites</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </SafeAreaView>
@@ -368,37 +168,13 @@ export default function FavouritesScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Favourites
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Favourites</Text>
         </View>
 
         <ErrorState />
@@ -407,38 +183,14 @@ export default function FavouritesScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Favourites
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Favourites</Text>
       </View>
 
       {/* Content */}
@@ -450,15 +202,11 @@ export default function FavouritesScreen() {
           renderItem={({ item }) => <FavouriteCard item={item} />}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          contentContainerStyle={{
-            padding: 16,
-          }}
+          className="p-4"
           columnWrapperStyle={{
             justifyContent: 'space-between',
           }}
-          refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={loadFavourites} tintColor="#007AFF" />
-          }
+          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadFavourites} tintColor="#007AFF" />}
           showsVerticalScrollIndicator={false}
         />
       )}

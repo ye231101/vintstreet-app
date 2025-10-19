@@ -1,9 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import {
-  persistReducer,
-  persistStore
-} from 'redux-persist';
+import { persistReducer, persistStore } from 'redux-persist';
 import authReducer from './slices/authSlice';
 import basketReducer from './slices/basketSlice';
 import recentlyViewedReducer from './slices/recentlyViewedSlice';

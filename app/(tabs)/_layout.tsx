@@ -27,18 +27,14 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name={focused ? 'home' : 'home'} size={24} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => <Feather name={focused ? 'home' : 'home'} size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="discovery"
         options={{
           title: 'Discovery',
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name={focused ? 'search' : 'search'} size={24} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => <Feather name={focused ? 'search' : 'search'} size={24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -63,9 +59,7 @@ export default function TabLayout() {
         name="account"
         options={{
           title: 'Account',
-          tabBarIcon: ({ color, focused }) => (
-            <Feather name={focused ? 'user' : 'user'} size={24} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => <Feather name={focused ? 'user' : 'user'} size={24} color={color} />,
         }}
       />
     </Tabs>

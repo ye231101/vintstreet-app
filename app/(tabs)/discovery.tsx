@@ -1,34 +1,21 @@
-import CategoryWidget from '@/components/category-widget';
+import { categoriesService, typesenseService } from '@/api/services';
+import { Category } from '@/api/types/category.types';
 import FilterModal from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
-import { categoriesService, typesenseService } from '@/api/services';
-import { Category } from '@/api/types/category.types';
 import Feather from '@expo/vector-icons/Feather';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 export default function DiscoveryScreen() {
   const router = useRouter();
   const { category } = useLocalSearchParams();
   const [searchText, setSearchText] = useState('');
   const [categoryPath, setCategoryPath] = useState<Category[]>([]);
-  const [currentView, setCurrentView] = useState<'categories' | 'subcategories' | 'products'>(
-    'categories'
-  );
+  const [currentView, setCurrentView] = useState<'categories' | 'subcategories' | 'products'>('categories');
   const [filterCount, setFilterCount] = useState(0);
   const [sortBy, setSortBy] = useState('Most Relevant');
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -37,17 +24,17 @@ export default function DiscoveryScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Search functionality
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  
+
   // Products state
   const [products, setProducts] = useState<any[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [productsError, setProductsError] = useState<string | null>(null);
-  
+
   // Filter and sort state
   const [appliedFilters, setAppliedFilters] = useState<any>({});
   const [currentSortBy, setCurrentSortBy] = useState('Most Relevant');
@@ -92,26 +79,26 @@ export default function DiscoveryScreen() {
     try {
       setIsLoadingProducts(true);
       setProductsError(null);
-      
+
       // Build filter for the category
       let filterBy = `category_slugs:=${category.slug}`;
-      
+
       // Add additional filters if provided
       if (filters && Object.keys(filters).length > 0) {
         const additionalFilters: string[] = [];
-        
+
         // Brand filter
         if (filters.brand && filters.brand.length > 0) {
           const brandFilters = filters.brand.map((brand: string) => `brand:=${brand}`).join(' || ');
           additionalFilters.push(`(${brandFilters})`);
         }
-        
+
         // Size filter
         if (filters.size && filters.size.length > 0) {
           const sizeFilters = filters.size.map((size: string) => `pa_size:=${size}`).join(' || ');
           additionalFilters.push(`(${sizeFilters})`);
         }
-        
+
         // Price filter
         if (filters.price && filters.price.length > 0) {
           const priceFilters: string[] = [];
@@ -135,12 +122,12 @@ export default function DiscoveryScreen() {
             additionalFilters.push(`(${priceFilters.join(' || ')})`);
           }
         }
-        
+
         if (additionalFilters.length > 0) {
           filterBy = `(${filterBy}) && (${additionalFilters.join(' && ')})`;
         }
       }
-      
+
       // Determine sort order
       let sortOrder = '';
       if (sortBy) {
@@ -166,7 +153,7 @@ export default function DiscoveryScreen() {
             break;
         }
       }
-      
+
       const response = await typesenseService.search({
         query: '*',
         queryBy: 'name,description,short_description,brand,categories,category_slugs',
@@ -315,11 +302,6 @@ export default function DiscoveryScreen() {
     }
   };
 
-  const handleShoppingCartPress = () => {
-    // Navigate to shopping cart
-    console.log('Navigate to shopping cart');
-  };
-
   const handleFilterPress = () => {
     setShowFilterModal(true);
   };
@@ -327,14 +309,11 @@ export default function DiscoveryScreen() {
   const handleApplyFilters = (filters: any) => {
     console.log('Applied filters:', filters);
     setAppliedFilters(filters);
-    
+
     // Update filter count based on applied filters
-    const totalFilters = Object.values(filters).reduce(
-      (total: number, options: any) => total + options.length,
-      0
-    );
+    const totalFilters = Object.values(filters).reduce((total: number, options: any) => total + options.length, 0);
     setFilterCount(totalFilters);
-    
+
     // Reload products with new filters if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
       loadProductsForCategory(categoryPath[categoryPath.length - 1], filters, currentSortBy);
@@ -348,7 +327,7 @@ export default function DiscoveryScreen() {
   const handleSortChange = (sortOption: string) => {
     setCurrentSortBy(sortOption);
     setShowSortModal(false);
-    
+
     // Reload products with new sort if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
       loadProductsForCategory(categoryPath[categoryPath.length - 1], appliedFilters, sortOption);
@@ -377,19 +356,19 @@ export default function DiscoveryScreen() {
     if (categoryPath.length === 0) return null;
 
     return (
-      <View style={styles.breadcrumbsContainer}>
+      <View className="bg-white border-b border-gray-100">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.breadcrumbs}>
+          <View className="flex-row items-center px-5 py-3">
             <Pressable
               onPress={() => {
                 setCategoryPath([]);
                 setCurrentView('categories');
               }}
             >
-              <Text style={styles.breadcrumbText}>All Categories</Text>
+              <Text className="text-sm font-poppins text-black font-bold">All Categories</Text>
             </Pressable>
             {categoryPath.map((category, index) => (
-              <View key={index} style={styles.breadcrumbItem}>
+              <View key={index} className="flex-row items-center ml-2">
                 <Feather name="chevron-right" size={16} color="#666" />
                 <Pressable
                   onPress={() => {
@@ -399,10 +378,9 @@ export default function DiscoveryScreen() {
                   }}
                 >
                   <Text
-                    style={[
-                      styles.breadcrumbText,
-                      index === categoryPath.length - 1 && styles.breadcrumbTextActive,
-                    ]}
+                    className={`text-sm font-poppins font-bold ${
+                      index === categoryPath.length - 1 ? 'text-gray-600' : 'text-black'
+                    }`}
                   >
                     {category.name}
                   </Text>
@@ -419,7 +397,7 @@ export default function DiscoveryScreen() {
     // Show search results if searching
     if (showSearchResults) {
       return (
-        <View style={styles.productsContainer}>
+        <View className="flex-1">
           <FilterSortBar
             filterCount={filterCount}
             sortBy={sortBy}
@@ -427,9 +405,9 @@ export default function DiscoveryScreen() {
             onSortPress={handleSortPress}
           />
           {isSearching ? (
-            <View style={styles.loadingContainer}>
+            <View className="flex-1 justify-center items-center p-5">
               <ActivityIndicator size="large" color="#000" />
-              <Text style={styles.loadingText}>Searching products...</Text>
+              <Text className="mt-4 text-base font-poppins text-gray-600">Searching products...</Text>
             </View>
           ) : (
             <FlatList
@@ -437,18 +415,15 @@ export default function DiscoveryScreen() {
               keyExtractor={(item) => item.id.toString()}
               numColumns={2}
               renderItem={({ item }) => (
-                <ProductCard
-                  product={item}
-                  onPress={() => handleProductPress(item.id)}
-                  width={180}
-                  height={240}
-                />
+                <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
               )}
-              contentContainerStyle={styles.productsGrid}
-              columnWrapperStyle={styles.productRow}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+              columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
               ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyText}>No products found for "{searchText}"</Text>
+                <View className="flex-1 justify-center items-center p-10">
+                  <Text className="text-base font-poppins text-gray-600 text-center">
+                    No products found for "{searchText}"
+                  </Text>
                 </View>
               }
             />
@@ -459,19 +434,19 @@ export default function DiscoveryScreen() {
 
     if (isLoading) {
       return (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 justify-center items-center p-5">
           <ActivityIndicator size="large" color="#000" />
-          <Text style={styles.loadingText}>Loading categories...</Text>
+          <Text className="mt-4 text-base font-poppins text-gray-600">Loading categories...</Text>
         </View>
       );
     }
 
     if (error) {
       return (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <Pressable style={styles.retryButton} onPress={loadCategories}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+        <View className="flex-1 justify-center items-center p-5">
+          <Text className="text-base font-poppins text-gray-600 text-center mb-4">{error}</Text>
+          <Pressable className="bg-black px-6 py-3 rounded" onPress={loadCategories}>
+            <Text className="text-white text-base font-poppins-bold">Retry</Text>
           </Pressable>
         </View>
       );
@@ -485,26 +460,18 @@ export default function DiscoveryScreen() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item, index }) => (
               <Pressable
-                style={[
-                  styles.categoryItem,
-                  index === categories.length - 1 && styles.categoryItemLast,
-                ]}
+                className={`flex-row items-center justify-between px-5 py-4 border-b border-gray-100 bg-white ${
+                  index === categories.length - 1 ? 'border-b-0' : ''
+                }`}
                 onPress={() => handleCategoryPress(item)}
               >
-                <View style={styles.categoryContent}>
-                  <Text style={styles.categoryText}>{item.name}</Text>
+                <View className="flex-1 flex-row items-center">
+                  <Text className="text-base font-poppins text-black">{item.name}</Text>
                 </View>
-                {item.children.length > 0 && (
-                  <Feather
-                    name="chevron-right"
-                    size={20}
-                    color="#666"
-                    style={styles.categoryChevron}
-                  />
-                )}
+                {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
               </Pressable>
             )}
-            style={styles.list}
+            className="flex-1 bg-white"
           />
         );
 
@@ -515,32 +482,24 @@ export default function DiscoveryScreen() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item, index }) => (
               <Pressable
-                style={[
-                  styles.categoryItem,
-                  index === getCurrentCategories().length - 1 && styles.categoryItemLast,
-                ]}
+                className={`flex-row items-center justify-between px-5 py-4 border-b border-gray-100 bg-white ${
+                  index === getCurrentCategories().length - 1 ? 'border-b-0' : ''
+                }`}
                 onPress={() => handleSubcategoryPress(item)}
               >
-                <View style={styles.categoryContent}>
-                  <Text style={styles.categoryText}>{item.name}</Text>
+                <View className="flex-1 flex-row items-center">
+                  <Text className="text-base font-poppins text-black">{item.name}</Text>
                 </View>
-                {item.children.length > 0 && (
-                  <Feather
-                    name="chevron-right"
-                    size={20}
-                    color="#666"
-                    style={styles.categoryChevron}
-                  />
-                )}
+                {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
               </Pressable>
             )}
-            style={styles.list}
+            className="flex-1 bg-white"
           />
         );
 
       case 'products':
         return (
-          <View style={styles.productsContainer}>
+          <View className="flex-1">
             <FilterSortBar
               filterCount={filterCount}
               sortBy={currentSortBy}
@@ -548,19 +507,22 @@ export default function DiscoveryScreen() {
               onSortPress={handleSortPress}
             />
             {isLoadingProducts ? (
-              <View style={styles.loadingContainer}>
+              <View className="flex-1 justify-center items-center p-5">
                 <ActivityIndicator size="large" color="#000" />
-                <Text style={styles.loadingText}>Loading products...</Text>
+                <Text className="mt-4 text-base font-poppins text-gray-600">Loading products...</Text>
               </View>
             ) : productsError ? (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{productsError}</Text>
-                <Pressable style={styles.retryButton} onPress={() => {
-                  if (categoryPath.length > 0) {
-                    loadProductsForCategory(categoryPath[categoryPath.length - 1]);
-                  }
-                }}>
-                  <Text style={styles.retryButtonText}>Retry</Text>
+              <View className="flex-1 justify-center items-center p-5">
+                <Text className="text-base font-poppins text-gray-600 text-center mb-4">{productsError}</Text>
+                <Pressable
+                  className="bg-black px-6 py-3 rounded"
+                  onPress={() => {
+                    if (categoryPath.length > 0) {
+                      loadProductsForCategory(categoryPath[categoryPath.length - 1]);
+                    }
+                  }}
+                >
+                  <Text className="text-white text-base font-poppins-bold">Retry</Text>
                 </Pressable>
               </View>
             ) : (
@@ -569,18 +531,15 @@ export default function DiscoveryScreen() {
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 renderItem={({ item }) => (
-                  <ProductCard
-                    product={item}
-                    onPress={() => handleProductPress(item.id)}
-                    width={180}
-                    height={240}
-                  />
+                  <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
                 )}
-                contentContainerStyle={styles.productsGrid}
-                columnWrapperStyle={styles.productRow}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+                columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
                 ListEmptyComponent={
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>No products found in this category</Text>
+                  <View className="flex-1 justify-center items-center p-10">
+                    <Text className="text-base font-poppins text-gray-600 text-center">
+                      No products found in this category
+                    </Text>
                   </View>
                 }
               />
@@ -594,9 +553,9 @@ export default function DiscoveryScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Search Bar */}
-      <SearchBar 
+      <SearchBar
         value={searchText}
         onChangeText={setSearchText}
         onSearch={handleSearch}
@@ -604,19 +563,19 @@ export default function DiscoveryScreen() {
       />
 
       {/* Header */}
-      <View style={styles.header}>
+      <View className="flex-row items-center px-5 py-4 bg-white">
         {(categoryPath.length > 0 || showSearchResults) && (
-          <Pressable onPress={handleBack} style={styles.backButton}>
+          <Pressable onPress={handleBack} className="mr-4 p-2">
             <Feather name="arrow-left" size={24} color="#000" />
           </Pressable>
         )}
-        <Text style={styles.title}>{getCurrentTitle()}</Text>
+        <Text className="text-3xl font-poppins-bold text-black flex-1 font-bold">{getCurrentTitle()}</Text>
       </View>
 
       {/* All Categories Label */}
       {!showSearchResults && categoryPath.length === 0 && (
-        <View style={styles.allCategoriesContainer}>
-          <Text style={styles.allCategoriesText}>All Categories</Text>
+        <View className="px-5 py-2 bg-white">
+          <Text className="text-base font-poppins text-gray-600">All Categories</Text>
         </View>
       )}
 
@@ -628,9 +587,9 @@ export default function DiscoveryScreen() {
 
       {/* Bottom Button for Categories */}
       {currentView === 'subcategories' && (
-        <View style={styles.bottomButtonContainer}>
-          <Pressable style={styles.bottomButton} onPress={handleViewAllProducts}>
-            <Text style={styles.bottomButtonText}>View all products in this category</Text>
+        <View className="bg-white px-5 py-4 border-t border-gray-100">
+          <Pressable className="bg-black rounded py-3 items-center" onPress={handleViewAllProducts}>
+            <Text className="text-white text-base font-poppins-bold">View all products in this category</Text>
           </Pressable>
         </View>
       )}
@@ -645,11 +604,8 @@ export default function DiscoveryScreen() {
       {/* Sort Dropdown */}
       {showSortModal && (
         <>
-          <Pressable 
-            style={styles.sortDropdownOverlay} 
-            onPress={() => setShowSortModal(false)} 
-          />
-          <View style={styles.sortDropdown}>
+          <Pressable className="absolute top-0 left-0 right-0 bottom-0 z-50" onPress={() => setShowSortModal(false)} />
+          <View className="absolute top-12 right-5 w-50 bg-white rounded-lg shadow-lg z-50">
             {[
               'Most Relevant',
               'Price: Low to High',
@@ -660,23 +616,19 @@ export default function DiscoveryScreen() {
             ].map((option) => (
               <Pressable
                 key={option}
-                style={[
-                  styles.sortDropdownOption,
-                  currentSortBy === option && styles.sortDropdownOptionSelected,
-                ]}
+                className={`flex-row justify-between items-center px-4 py-3 border-b border-gray-100 ${
+                  currentSortBy === option ? 'bg-gray-50' : ''
+                }`}
                 onPress={() => handleSortChange(option)}
               >
                 <Text
-                  style={[
-                    styles.sortDropdownOptionText,
-                    currentSortBy === option && styles.sortDropdownOptionTextSelected,
-                  ]}
+                  className={`text-sm font-poppins text-gray-800 flex-1 ${
+                    currentSortBy === option ? 'font-poppins-semibold text-black' : ''
+                  }`}
                 >
                   {option}
                 </Text>
-                {currentSortBy === option && (
-                  <Feather name="check" size={16} color="#000" />
-                )}
+                {currentSortBy === option && <Feather name="check" size={16} color="#000" />}
               </Pressable>
             ))}
           </View>
@@ -685,217 +637,3 @@ export default function DiscoveryScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#fff',
-  },
-  backButton: {
-    marginRight: 16,
-    padding: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontFamily: 'Poppins-Bold',
-    color: '#000',
-    flex: 1,
-    fontWeight: 'bold',
-  },
-  allCategoriesContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    backgroundColor: '#fff',
-  },
-  allCategoriesText: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-  },
-  breadcrumbsContainer: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  breadcrumbs: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  breadcrumbItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  breadcrumbText: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  breadcrumbTextActive: {
-    color: '#666',
-  },
-  list: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  categoryItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f3f4',
-    backgroundColor: '#fff',
-  },
-  categoryItemLast: {
-    borderBottomWidth: 0,
-  },
-  categoryContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  categoryText: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
-    color: '#000',
-    fontWeight: 'normal',
-  },
-  categoryChevron: {
-    marginLeft: 8,
-  },
-  productsContainer: {
-    flex: 1,
-  },
-  productsGrid: {
-    padding: 16,
-  },
-  productRow: {
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  bottomButtonContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  },
-  bottomButton: {
-    backgroundColor: '#000',
-    borderRadius: 4,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  bottomButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Poppins-Bold',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  retryButton: {
-    backgroundColor: '#000',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 4,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Poppins-Bold',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-    textAlign: 'center',
-  },
-  sortDropdownOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 999,
-  },
-  sortDropdown: {
-    position: 'absolute',
-    top: 50, // Position directly below the FilterSortBar
-    right: 20, // Align with the right edge of the sort button
-    width: 200, // Fixed width for the dropdown
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    zIndex: 1000,
-  },
-  sortDropdownOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  sortDropdownOptionSelected: {
-    backgroundColor: '#f8f9fa',
-  },
-  sortDropdownOptionText: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-    color: '#333',
-    flex: 1,
-  },
-  sortDropdownOptionTextSelected: {
-    fontFamily: 'Poppins-SemiBold',
-    color: '#000',
-  },
-});

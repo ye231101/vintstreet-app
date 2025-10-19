@@ -1,16 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface CheckoutItem {
@@ -179,11 +170,8 @@ export default function CheckoutScreen() {
 
     if (missingFields.length === 0) return 'All fields are complete!';
     if (missingFields.length === 1) return `Please complete: ${missingFields[0]}`;
-    if (missingFields.length === 2)
-      return `Please complete: ${missingFields[0]} and ${missingFields[1]}`;
-    return `Please complete: ${missingFields.slice(0, -1).join(', ')}, and ${
-      missingFields[missingFields.length - 1]
-    }`;
+    if (missingFields.length === 2) return `Please complete: ${missingFields[0]} and ${missingFields[1]}`;
+    return `Please complete: ${missingFields.slice(0, -1).join(', ')}, and ${missingFields[missingFields.length - 1]}`;
   };
 
   const processCheckout = () => {
@@ -196,212 +184,50 @@ export default function CheckoutScreen() {
   };
 
   const OrderSummaryCard = () => (
-    <View
-      style={{
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        margin: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-      }}
-    >
+    <View className="bg-white rounded-xl m-4">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: 16,
-          backgroundColor: '#f8f9fa',
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
-        }}
-      >
+      <View className="flex-row items-center p-4 bg-gray-50 rounded-t-xl">
         <Feather name="shopping-bag" color="#666" size={20} />
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-            marginLeft: 8,
-            flex: 1,
-          }}
-        >
-          Order Summary
-        </Text>
-        <Text
-          style={{
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-            color: '#666',
-          }}
-        >
+        <Text className="text-base font-poppins-bold text-gray-800 ml-2 flex-1">Order Summary</Text>
+        <Text className="text-sm font-poppins text-gray-600">
           {checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''}
         </Text>
       </View>
 
       {/* Items */}
       {checkoutItems.map((item) => (
-        <View
-          key={item.id}
-          style={{
-            flexDirection: 'row',
-            padding: 16,
-            alignItems: 'center',
-          }}
-        >
-          <View
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: 8,
-              backgroundColor: '#f0f0f0',
-              marginRight: 12,
-            }}
-          />
+        <View key={item.id} className="flex-row p-4 items-center">
+          <View className="w-12 h-12 rounded-lg bg-gray-100 mr-3" />
 
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Bold',
-                color: '#333',
-                marginBottom: 4,
-              }}
-              numberOfLines={2}
-            >
+          <View className="flex-1">
+            <Text className="text-sm font-poppins-bold text-gray-800 mb-1" numberOfLines={2}>
               {item.name}
             </Text>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-                marginBottom: 4,
-              }}
-            >
-              {item.brand}
-            </Text>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-              }}
-            >
-              Qty: {item.quantity}
-            </Text>
+            <Text className="text-xs font-poppins text-gray-600 mb-1">{item.brand}</Text>
+            <Text className="text-xs font-poppins text-gray-600">Qty: {item.quantity}</Text>
           </View>
 
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-            }}
-          >
-            £{item.lineTotal.toFixed(2)}
-          </Text>
+          <Text className="text-sm font-poppins-bold text-gray-800">£{item.lineTotal.toFixed(2)}</Text>
         </View>
       ))}
 
       {/* Totals */}
-      <View
-        style={{
-          padding: 16,
-          backgroundColor: '#f8f9fa',
-          borderBottomLeftRadius: 12,
-          borderBottomRightRadius: 12,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 4,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              color: '#666',
-            }}
-          >
-            Subtotal
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-            }}
-          >
-            £{subtotal.toFixed(2)}
-          </Text>
+      <View className="p-4 bg-gray-50 rounded-b-xl">
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-sm font-poppins text-gray-600">Subtotal</Text>
+          <Text className="text-sm font-poppins-bold text-gray-800">£{subtotal.toFixed(2)}</Text>
         </View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 8,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              color: '#666',
-            }}
-          >
-            Protection Fee
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-            }}
-          >
-            £{protectionFee.toFixed(2)}
-          </Text>
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-sm font-poppins text-gray-600">Protection Fee</Text>
+          <Text className="text-sm font-poppins-bold text-gray-800">£{protectionFee.toFixed(2)}</Text>
         </View>
 
-        <View
-          style={{
-            height: 1,
-            backgroundColor: '#e0e0e0',
-            marginVertical: 8,
-          }}
-        />
+        <View className="h-px bg-gray-300 my-2" />
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-            }}
-          >
-            Total
-          </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-            }}
-          >
-            £{total.toFixed(2)}
-          </Text>
+        <View className="flex-row justify-between">
+          <Text className="text-base font-poppins-bold text-gray-800">Total</Text>
+          <Text className="text-lg font-poppins-bold text-gray-800">£{total.toFixed(2)}</Text>
         </View>
       </View>
     </View>
@@ -413,73 +239,24 @@ export default function CheckoutScreen() {
     const progress = completedSteps / totalSteps;
 
     return (
-      <View
-        style={{
-          backgroundColor: '#fff',
-          borderRadius: 12,
-          padding: 20,
-          margin: 16,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 12,
-          }}
-        >
+      <View className="bg-white rounded-xl p-5 m-4">
+        <View className="flex-row items-center mb-3">
           <Feather name="check-square" color="#007AFF" size={20} />
-          <Text
-            style={{
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-              marginLeft: 8,
-              flex: 1,
-            }}
-          >
-            Checkout Progress
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              color: '#666',
-            }}
-          >
+          <Text className="text-base font-poppins-bold text-gray-800 ml-2 flex-1">Checkout Progress</Text>
+          <Text className="text-sm font-poppins text-gray-600">
             {completedSteps} of {totalSteps} completed
           </Text>
         </View>
 
-        <View
-          style={{
-            height: 8,
-            backgroundColor: '#e0e0e0',
-            borderRadius: 4,
-            marginBottom: 8,
-          }}
-        >
+        <View className="h-2 bg-gray-300 rounded mb-2">
           <View
-            style={{
-              height: 8,
-              backgroundColor: progress === 1 ? '#34C759' : '#007AFF',
-              borderRadius: 4,
-              width: `${progress * 100}%`,
-            }}
+            className={`h-2 rounded ${progress === 1 ? 'bg-green-500' : 'bg-blue-500'}`}
+            style={{ width: `${progress * 100}%` }}
           />
         </View>
 
         <Text
-          style={{
-            fontSize: 12,
-            fontFamily: progress === 1 ? 'Poppins-Bold' : 'Poppins-Regular',
-            color: progress === 1 ? '#34C759' : '#666',
-          }}
+          className={`text-xs ${progress === 1 ? 'font-poppins-bold text-green-500' : 'font-poppins text-gray-600'}`}
         >
           {progress === 1
             ? 'All steps completed! You can now place your order.'
@@ -506,41 +283,18 @@ export default function CheckoutScreen() {
     required?: boolean;
     icon?: string;
   }) => (
-    <View style={{ marginBottom: 16 }}>
-      <Text
-        style={{
-          fontSize: 14,
-          fontFamily: 'Poppins-Bold',
-          color: '#333',
-          marginBottom: 8,
-        }}
-      >
-        {label} {required && <Text style={{ color: '#ff4444' }}>*</Text>}
+    <View className="mb-4">
+      <Text className="text-sm font-poppins-bold text-gray-800 mb-2">
+        {label} {required && <Text className="text-red-500">*</Text>}
       </Text>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#fff',
-          borderRadius: 8,
-          borderWidth: 1,
-          borderColor: '#e0e0e0',
-          paddingHorizontal: 12,
-        }}
-      >
-        {icon && <Feather name={icon as any} color="#666" size={16} style={{ marginRight: 8 }} />}
+      <View className="flex-row items-center bg-white rounded-lg border border-gray-200 px-3">
+        {icon && <Feather name={icon as any} color="#666" size={16} className="mr-2" />}
         <TextInput
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor="#999"
-          style={{
-            flex: 1,
-            paddingVertical: 12,
-            fontSize: 16,
-            fontFamily: 'Poppins-Regular',
-            color: '#333',
-          }}
+          className="flex-1 py-3 text-base font-poppins text-gray-800"
           keyboardType={keyboardType}
         />
       </View>
@@ -548,38 +302,13 @@ export default function CheckoutScreen() {
   );
 
   const ShippingAddressSection = () => (
-    <View
-      style={{
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        margin: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 3,
-      }}
-    >
+    <View className="bg-white rounded-2xl m-4">
       {/* Section Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: 20,
-          borderBottomWidth: 1,
-          borderBottomColor: '#f0f0f0',
-        }}
-      >
+      <View className="flex-row items-center bg-gray-50 px-5 py-4 rounded-t-2xl border-b border-gray-200">
         <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: stepCompleted[0] ? '#34C759' : '#f0f0f0',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 16,
-          }}
+          className={`w-10 h-10 rounded-full justify-center items-center mr-4 ${
+            stepCompleted[0] ? 'bg-green-500' : 'bg-gray-100'
+          }`}
         >
           {stepCompleted[0] ? (
             <Feather name="check" color="#fff" size={20} />
@@ -588,41 +317,17 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-            flex: 1,
-          }}
-        >
-          Shipping Address
-        </Text>
+        <Text className="text-base font-poppins-bold text-gray-800 flex-1">Shipping Address</Text>
 
         {stepCompleted[0] && (
-          <View
-            style={{
-              backgroundColor: '#34C759',
-              borderRadius: 12,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              ✓
-            </Text>
+          <View className="bg-green-500 rounded-xl px-2 py-1">
+            <Text className="text-white text-xs font-poppins-bold">✓</Text>
           </View>
         )}
       </View>
 
       {/* Section Content */}
-      <View style={{ padding: 20 }}>
+      <View className="p-5">
         <FormField
           label="Enter Shipping Address"
           value=""
@@ -631,13 +336,8 @@ export default function CheckoutScreen() {
           icon="search"
         />
 
-        <View
-          style={{
-            flexDirection: 'row',
-            marginBottom: 16,
-          }}
-        >
-          <View style={{ flex: 1, marginRight: 8 }}>
+        <View className="flex-row mb-4">
+          <View className="flex-1 mr-2">
             <FormField
               label="First Name"
               value={shippingAddress.firstName}
@@ -647,7 +347,7 @@ export default function CheckoutScreen() {
               required
             />
           </View>
-          <View style={{ flex: 1, marginLeft: 8 }}>
+          <View className="flex-1 ml-2">
             <FormField
               label="Last Name"
               value={shippingAddress.lastName}
@@ -658,13 +358,8 @@ export default function CheckoutScreen() {
           </View>
         </View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            marginBottom: 16,
-          }}
-        >
-          <View style={{ flex: 1, marginRight: 8 }}>
+        <View className="flex-row mb-4">
+          <View className="flex-1 mr-2">
             <FormField
               label="Email"
               value={shippingAddress.email}
@@ -675,7 +370,7 @@ export default function CheckoutScreen() {
               required
             />
           </View>
-          <View style={{ flex: 1, marginLeft: 8 }}>
+          <View className="flex-1 ml-2">
             <FormField
               label="Phone"
               value={shippingAddress.phone}
@@ -713,13 +408,8 @@ export default function CheckoutScreen() {
           required
         />
 
-        <View
-          style={{
-            flexDirection: 'row',
-            marginBottom: 16,
-          }}
-        >
-          <View style={{ flex: 1, marginRight: 8 }}>
+        <View className="flex-row mb-4">
+          <View className="flex-1 mr-2">
             <FormField
               label="State/Country"
               value={shippingAddress.state}
@@ -727,7 +417,7 @@ export default function CheckoutScreen() {
               placeholder="State/Country"
             />
           </View>
-          <View style={{ flex: 1, marginLeft: 8 }}>
+          <View className="flex-1 ml-2">
             <FormField
               label="Postcode"
               value={shippingAddress.postcode}
@@ -742,38 +432,13 @@ export default function CheckoutScreen() {
   );
 
   const BillingDetailsSection = () => (
-    <View
-      style={{
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        margin: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 3,
-      }}
-    >
+    <View className="bg-white rounded-2xl m-4">
       {/* Section Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: 20,
-          borderBottomWidth: 1,
-          borderBottomColor: '#f0f0f0',
-        }}
-      >
+      <View className="flex-row items-center p-5 border-b border-gray-100">
         <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: stepCompleted[1] ? '#34C759' : '#f0f0f0',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 16,
-          }}
+          className={`w-10 h-10 rounded-full justify-center items-center mr-4 ${
+            stepCompleted[1] ? 'bg-green-500' : 'bg-gray-100'
+          }`}
         >
           {stepCompleted[1] ? (
             <Feather name="check" color="#fff" size={20} />
@@ -782,99 +447,40 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-            flex: 1,
-          }}
-        >
-          Billing Details
-        </Text>
+        <Text className="text-base font-poppins-bold text-gray-800 flex-1">Billing Details</Text>
 
         {stepCompleted[1] && (
-          <View
-            style={{
-              backgroundColor: '#34C759',
-              borderRadius: 12,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              ✓
-            </Text>
+          <View className="bg-green-500 rounded-xl px-2 py-1">
+            <Text className="text-white text-xs font-poppins-bold">✓</Text>
           </View>
         )}
       </View>
 
       {/* Section Content */}
-      <View style={{ padding: 20 }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 16,
-          }}
-        >
+      <View className="p-5">
+        <View className="flex-row items-center mb-4">
           <Feather name="arrow-right-circle" color="#666" size={20} />
-          <Text
-            style={{
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-              marginLeft: 8,
-              flex: 1,
-            }}
-          >
+          <Text className="text-base font-poppins-bold text-gray-800 ml-2 flex-1">
             Is billing address different from shipping address?
           </Text>
           <Switch
             value={isBillingDifferent}
             onValueChange={setIsBillingDifferent}
-            trackColor={{ false: '#e0e0e0', true: '#007AFF' }}
-            thumbColor={isBillingDifferent ? '#fff' : '#fff'}
+            trackColor={{ false: '#e5e5e5', true: '#007AFF' }}
+            thumbColor="#fff"
           />
         </View>
 
-        <Text
-          style={{
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-            color: '#666',
-            marginBottom: 16,
-          }}
-        >
+        <Text className="text-sm font-poppins text-gray-600 mb-4">
           Billing address will be the same as shipping address
         </Text>
 
         {isBillingDifferent && (
           <>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-                color: '#333',
-                marginBottom: 16,
-              }}
-            >
-              Billing Address
-            </Text>
+            <Text className="text-base font-poppins-bold text-gray-800 mb-4">Billing Address</Text>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                marginBottom: 16,
-              }}
-            >
-              <View style={{ flex: 1, marginRight: 8 }}>
+            <View className="flex-row mb-4">
+              <View className="flex-1 mr-2">
                 <FormField
                   label="First Name"
                   value={billingAddress.firstName}
@@ -884,7 +490,7 @@ export default function CheckoutScreen() {
                   required
                 />
               </View>
-              <View style={{ flex: 1, marginLeft: 8 }}>
+              <View className="flex-1 ml-2">
                 <FormField
                   label="Last Name"
                   value={billingAddress.lastName}
@@ -895,13 +501,8 @@ export default function CheckoutScreen() {
               </View>
             </View>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                marginBottom: 16,
-              }}
-            >
-              <View style={{ flex: 1, marginRight: 8 }}>
+            <View className="flex-row mb-4">
+              <View className="flex-1 mr-2">
                 <FormField
                   label="Email"
                   value={billingAddress.email}
@@ -912,7 +513,7 @@ export default function CheckoutScreen() {
                   required
                 />
               </View>
-              <View style={{ flex: 1, marginLeft: 8 }}>
+              <View className="flex-1 ml-2">
                 <FormField
                   label="Phone"
                   value={billingAddress.phone}
@@ -950,13 +551,8 @@ export default function CheckoutScreen() {
               required
             />
 
-            <View
-              style={{
-                flexDirection: 'row',
-                marginBottom: 16,
-              }}
-            >
-              <View style={{ flex: 1, marginRight: 8 }}>
+            <View className="flex-row mb-4">
+              <View className="flex-1 mr-2">
                 <FormField
                   label="State/Country"
                   value={billingAddress.state}
@@ -964,7 +560,7 @@ export default function CheckoutScreen() {
                   placeholder="State/Country"
                 />
               </View>
-              <View style={{ flex: 1, marginLeft: 8 }}>
+              <View className="flex-1 ml-2">
                 <FormField
                   label="Postcode"
                   value={billingAddress.postcode}
@@ -977,25 +573,9 @@ export default function CheckoutScreen() {
           </>
         )}
 
-        <View
-          style={{
-            backgroundColor: '#e3f2fd',
-            borderRadius: 8,
-            padding: 12,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
+        <View className="bg-blue-50 rounded-lg p-3 flex-row items-center">
           <Feather name="shield" color="#1976d2" size={16} />
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              color: '#1976d2',
-              marginLeft: 8,
-              flex: 1,
-            }}
-          >
+          <Text className="text-sm font-poppins text-blue-600 ml-2 flex-1">
             Your billing information is securely stored and only used for order processing.
           </Text>
         </View>
@@ -1004,38 +584,13 @@ export default function CheckoutScreen() {
   );
 
   const PaymentInformationSection = () => (
-    <View
-      style={{
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        margin: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 3,
-      }}
-    >
+    <View className="bg-white rounded-2xl m-4">
       {/* Section Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: 20,
-          borderBottomWidth: 1,
-          borderBottomColor: '#f0f0f0',
-        }}
-      >
+      <View className="flex-row items-center p-5 border-b border-gray-100">
         <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: stepCompleted[2] ? '#34C759' : '#f0f0f0',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 16,
-          }}
+          className={`w-10 h-10 rounded-full justify-center items-center mr-4 ${
+            stepCompleted[2] ? 'bg-green-500' : 'bg-gray-100'
+          }`}
         >
           {stepCompleted[2] ? (
             <Feather name="check" color="#fff" size={20} />
@@ -1044,88 +599,34 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-            flex: 1,
-          }}
-        >
-          Payment Information
-        </Text>
+        <Text className="text-base font-poppins-bold text-gray-800 flex-1">Payment Information</Text>
 
         {stepCompleted[2] && (
-          <View
-            style={{
-              backgroundColor: '#34C759',
-              borderRadius: 12,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              ✓
-            </Text>
+          <View className="bg-green-500 rounded-xl px-2 py-1">
+            <Text className="text-white text-xs font-poppins-bold">✓</Text>
           </View>
         )}
       </View>
 
       {/* Section Content */}
-      <View style={{ padding: 20 }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-            marginBottom: 16,
-          }}
-        >
-          Payment Method
-        </Text>
+      <View className="p-5">
+        <Text className="text-base font-poppins-bold text-gray-800 mb-4">Payment Method</Text>
 
         {/* Credit/Debit Card Option */}
         <TouchableOpacity
           onPress={() => setPaymentMethod('card')}
-          style={{
-            backgroundColor: paymentMethod === 'card' ? '#e3f2fd' : '#fff',
-            borderRadius: 8,
-            padding: 16,
-            borderWidth: 1,
-            borderColor: paymentMethod === 'card' ? '#1976d2' : '#e0e0e0',
-            marginBottom: 12,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
+          className={`rounded-lg p-4 border mb-3 flex-row items-center ${
+            paymentMethod === 'card' ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
+          }`}
         >
-          <Feather
-            name="credit-card"
-            color={paymentMethod === 'card' ? '#1976d2' : '#666'}
-            size={20}
-          />
-          <View style={{ flex: 1, marginLeft: 12 }}>
+          <Feather name="credit-card" color={paymentMethod === 'card' ? '#1976d2' : '#666'} size={20} />
+          <View className="flex-1 ml-3">
             <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-                color: paymentMethod === 'card' ? '#1976d2' : '#333',
-              }}
+              className={`text-base font-poppins-bold ${paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-800'}`}
             >
               Credit/Debit Card
             </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: paymentMethod === 'card' ? '#1976d2' : '#666',
-              }}
-            >
+            <Text className={`text-sm font-poppins ${paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-600'}`}>
               Visa, Mastercard, American Express
             </Text>
           </View>
@@ -1135,38 +636,21 @@ export default function CheckoutScreen() {
         {/* Google Pay Option */}
         <TouchableOpacity
           onPress={() => setPaymentMethod('googlepay')}
-          style={{
-            backgroundColor: paymentMethod === 'googlepay' ? '#e3f2fd' : '#fff',
-            borderRadius: 8,
-            padding: 16,
-            borderWidth: 1,
-            borderColor: paymentMethod === 'googlepay' ? '#1976d2' : '#e0e0e0',
-            marginBottom: 16,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
+          className={`rounded-lg p-4 border mb-4 flex-row items-center ${
+            paymentMethod === 'googlepay' ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
+          }`}
         >
-          <Feather
-            name="smartphone"
-            color={paymentMethod === 'googlepay' ? '#1976d2' : '#666'}
-            size={20}
-          />
-          <View style={{ flex: 1, marginLeft: 12 }}>
+          <Feather name="smartphone" color={paymentMethod === 'googlepay' ? '#1976d2' : '#666'} size={20} />
+          <View className="flex-1 ml-3">
             <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-                color: paymentMethod === 'googlepay' ? '#1976d2' : '#333',
-              }}
+              className={`text-base font-poppins-bold ${
+                paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-800'
+              }`}
             >
               Google Pay
             </Text>
             <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: paymentMethod === 'googlepay' ? '#1976d2' : '#666',
-              }}
+              className={`text-sm font-poppins ${paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-600'}`}
             >
               Google Pay (availability will be checked at payment)
             </Text>
@@ -1176,16 +660,7 @@ export default function CheckoutScreen() {
 
         {paymentMethod === 'card' && (
           <>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-                color: '#333',
-                marginBottom: 16,
-              }}
-            >
-              Card Details
-            </Text>
+            <Text className="text-base font-poppins-bold text-gray-800 mb-4">Card Details</Text>
 
             <FormField
               label="Cardholder Name"
@@ -1197,38 +672,12 @@ export default function CheckoutScreen() {
             />
 
             {cardDetails.cardholderName.trim() === '' && (
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#666',
-                  marginTop: -12,
-                  marginBottom: 16,
-                }}
-              >
-                Cardholder name is required
-              </Text>
+              <Text className="text-xs font-poppins text-gray-600 -mt-3 mb-4">Cardholder name is required</Text>
             )}
 
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-                color: '#333',
-                marginBottom: 16,
-              }}
-            >
-              Card Information
-            </Text>
+            <Text className="text-base font-poppins-bold text-gray-800 mb-4">Card Information</Text>
 
-            <View
-              style={{
-                backgroundColor: '#f8f9fa',
-                borderRadius: 8,
-                padding: 16,
-                marginBottom: 16,
-              }}
-            >
+            <View className="bg-gray-50 rounded-lg p-4 mb-4">
               <FormField
                 label="Card Number"
                 value={cardDetails.cardNumber}
@@ -1237,13 +686,8 @@ export default function CheckoutScreen() {
                 keyboardType="numeric"
               />
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginBottom: 16,
-                }}
-              >
-                <View style={{ flex: 1, marginRight: 8 }}>
+              <View className="flex-row mb-4">
+                <View className="flex-1 mr-2">
                   <FormField
                     label="Expiry Date"
                     value={cardDetails.expiryDate}
@@ -1252,7 +696,7 @@ export default function CheckoutScreen() {
                     keyboardType="numeric"
                   />
                 </View>
-                <View style={{ flex: 1, marginLeft: 8 }}>
+                <View className="flex-1 ml-2">
                   <FormField
                     label="CVC"
                     value={cardDetails.cvc}
@@ -1281,27 +725,10 @@ export default function CheckoutScreen() {
           </>
         )}
 
-        <View
-          style={{
-            backgroundColor: '#e3f2fd',
-            borderRadius: 8,
-            padding: 12,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
+        <View className="bg-blue-50 rounded-lg p-3 flex-row items-center">
           <Feather name="shield" color="#1976d2" size={16} />
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              color: '#1976d2',
-              marginLeft: 8,
-              flex: 1,
-            }}
-          >
-            Your payment information is securely processed by Stripe and never stored on our
-            servers.
+          <Text className="text-sm font-poppins text-blue-600 ml-2 flex-1">
+            Your payment information is securely processed by Stripe and never stored on our servers.
           </Text>
         </View>
       </View>
@@ -1310,46 +737,16 @@ export default function CheckoutScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Checkout All Items
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Checkout All Items</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </SafeAreaView>
@@ -1357,41 +754,17 @@ export default function CheckoutScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Checkout All Items
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Checkout All Items</Text>
       </View>
 
-      <ScrollView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+      <ScrollView className="flex-1 bg-gray-50">
         {/* Order Summary */}
         <OrderSummaryCard />
 
@@ -1409,44 +782,16 @@ export default function CheckoutScreen() {
       </ScrollView>
 
       {/* Bottom Action Button */}
-      <View
-        style={{
-          backgroundColor: '#fff',
-          padding: 20,
-          borderTopWidth: 1,
-          borderTopColor: '#e0e0e0',
-        }}
-      >
+      <View className="bg-white p-5 border-t border-gray-200">
         <TouchableOpacity
           onPress={processCheckout}
-          style={{
-            backgroundColor: canProceedToCheckout() ? '#000' : '#ff9500',
-            borderRadius: 12,
-            paddingVertical: 16,
-            alignItems: 'center',
-          }}
+          className={`rounded-2xl py-4 items-center ${canProceedToCheckout() ? 'bg-black' : 'bg-orange-500'}`}
         >
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-            }}
-          >
+          <Text className="text-white text-base font-poppins-bold">
             {canProceedToCheckout() ? 'Complete Order' : 'Complete Required Fields'}
           </Text>
           {!canProceedToCheckout() && (
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 12,
-                fontFamily: 'Poppins-Regular',
-                marginTop: 4,
-                textAlign: 'center',
-              }}
-            >
-              {getValidationMessage()}
-            </Text>
+            <Text className="text-white text-xs font-poppins mt-1 text-center">{getValidationMessage()}</Text>
           )}
         </TouchableOpacity>
       </View>

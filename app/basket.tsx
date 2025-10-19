@@ -77,47 +77,12 @@ export default function BasketScreen() {
     const vendorTotals = useAppSelector(selectVendorTotals(vendor.id));
 
     return (
-      <View
-        style={{
-          backgroundColor: '#fff',
-          borderRadius: 12,
-          marginBottom: 16,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        }}
-      >
+      <View className="bg-white rounded-xl mb-4">
         {/* Vendor Header */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            padding: 16,
-            borderBottomWidth: 1,
-            borderBottomColor: '#f0f0f0',
-          }}
-        >
+        <View className="flex-row items-center p-4 border-b border-gray-100">
           <Feather name="shopping-bag" color="#333" size={20} />
-          <Text
-            style={{
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              color: '#333',
-              marginLeft: 8,
-              flex: 1,
-            }}
-          >
-            {vendor.name}
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              color: '#666',
-            }}
-          >
+          <Text className="text-base font-poppins-bold text-gray-800 ml-2 flex-1">{vendor.name}</Text>
+          <Text className="text-sm font-poppins text-gray-600">
             {vendor.itemCount} item{vendor.itemCount !== 1 ? 's' : ''}
           </Text>
         </View>
@@ -125,259 +90,73 @@ export default function BasketScreen() {
         {/* Items */}
         {items.map((item, index) => (
           <View key={item.id}>
-            <View
-              style={{
-                flexDirection: 'row',
-                padding: 16,
-                alignItems: 'center',
-              }}
-            >
+            <View className="flex-row p-4 items-center">
               {/* Product Image */}
-              <View
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 8,
-                  backgroundColor: '#f0f0f0',
-                  marginRight: 12,
-                  overflow: 'hidden',
-                }}
-              >
-                <Image
-                  source={{ uri: item.image }}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                  }}
-                  resizeMode="cover"
-                />
+              <View className="w-20 h-20 rounded-lg bg-gray-100 mr-3 overflow-hidden">
+                <Image source={{ uri: item.image }} className="w-full h-full" resizeMode="cover" />
               </View>
 
               {/* Product Details */}
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-Bold',
-                    color: '#333',
-                    marginBottom: 4,
-                  }}
-                  numberOfLines={2}
-                >
+              <View className="flex-1">
+                <Text className="text-base font-poppins-bold text-gray-800 mb-1" numberOfLines={2}>
                   {item.name}
                 </Text>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontFamily: 'Poppins-Bold',
-                    color: '#333',
-                    marginBottom: 4,
-                  }}
-                >
-                  £{item.price.toFixed(2)}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#666',
-                  }}
-                >
-                  D&@
-                </Text>
+                <Text className="text-lg font-poppins-bold text-gray-800 mb-1">£{item.price.toFixed(2)}</Text>
+                <Text className="text-xs font-poppins text-gray-600">D&@</Text>
               </View>
 
               {/* Remove Button */}
-              <TouchableOpacity
-                onPress={() => onRemove(item)}
-                style={{
-                  position: 'absolute',
-                  top: 16,
-                  right: 16,
-                  padding: 4,
-                }}
-              >
+              <TouchableOpacity onPress={() => onRemove(item)} className="absolute top-4 right-4 p-1">
                 <Feather name="x" color="#999" size={20} />
               </TouchableOpacity>
 
               {/* Quantity Controls */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 8,
-                }}
-              >
+              <View className="flex-row items-center mt-2">
                 <TouchableOpacity
                   onPress={() => onQuantityChanged(item, item.quantity - 1)}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    backgroundColor: '#f0f0f0',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
+                  className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
                 >
                   <Feather name="minus" color="#333" size={16} />
                 </TouchableOpacity>
 
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-Bold',
-                    color: '#333',
-                    marginHorizontal: 16,
-                    minWidth: 20,
-                    textAlign: 'center',
-                  }}
-                >
+                <Text className="text-base font-poppins-bold text-gray-800 mx-4 min-w-5 text-center">
                   {item.quantity}
                 </Text>
 
                 <TouchableOpacity
                   onPress={() => onQuantityChanged(item, item.quantity + 1)}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    backgroundColor: '#f0f0f0',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
+                  className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
                 >
                   <Feather name="plus" color="#333" size={16} />
                 </TouchableOpacity>
               </View>
             </View>
 
-            {index < items.length - 1 && (
-              <View
-                style={{
-                  height: 1,
-                  backgroundColor: '#f0f0f0',
-                  marginLeft: 16,
-                }}
-              />
-            )}
+            {index < items.length - 1 && <View className="h-px bg-gray-100 ml-4" />}
           </View>
         ))}
 
         {/* Vendor Totals */}
-        <View
-          style={{
-            padding: 16,
-            borderTopWidth: 1,
-            borderTopColor: '#f0f0f0',
-          }}
-        >
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-              }}
-            >
-              Subtotal
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#333',
-              }}
-            >
-              £{vendorTotals.subtotal.toFixed(2)}
-            </Text>
+        <View className="p-4 border-t border-gray-100">
+          <View className="flex-row justify-between mb-2">
+            <Text className="text-sm font-poppins text-gray-600">Subtotal</Text>
+            <Text className="text-sm font-poppins text-gray-800">£{vendorTotals.subtotal.toFixed(2)}</Text>
           </View>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-              }}
-            >
-              Protection Fee
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#333',
-              }}
-            >
-              £{vendorTotals.protectionFee.toFixed(2)}
-            </Text>
+          <View className="flex-row justify-between mb-2">
+            <Text className="text-sm font-poppins text-gray-600">Protection Fee</Text>
+            <Text className="text-sm font-poppins text-gray-800">£{vendorTotals.protectionFee.toFixed(2)}</Text>
           </View>
 
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#f0f0f0',
-              marginVertical: 8,
-            }}
-          />
+          <View className="h-px bg-gray-100 my-2" />
 
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 16,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-                color: '#333',
-              }}
-            >
-              Vendor Total
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-                color: '#333',
-              }}
-            >
-              £{vendorTotals.total.toFixed(2)}
-            </Text>
+          <View className="flex-row justify-between mb-4">
+            <Text className="text-base font-poppins-bold text-gray-800">Vendor Total</Text>
+            <Text className="text-base font-poppins-bold text-gray-800">£{vendorTotals.total.toFixed(2)}</Text>
           </View>
 
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#000',
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-              alignItems: 'center',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Checkout with {vendor.name}
-            </Text>
+          <TouchableOpacity className="bg-black rounded-lg py-3 px-6 items-center">
+            <Text className="text-white text-base font-poppins-bold">Checkout with {vendor.name}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -385,147 +164,38 @@ export default function BasketScreen() {
   };
 
   const BasketSummary = ({ basket }: { basket: Basket }) => (
-    <View
-      style={{
-        backgroundColor: '#fff',
-        padding: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginBottom: 8,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Regular',
-            color: '#333',
-          }}
-        >
-          Subtotal
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-          }}
-        >
-          {basket.formattedSubtotal}
-        </Text>
+    <View className="bg-white p-4 border-t border-gray-100">
+      <View className="flex-row justify-between mb-2">
+        <Text className="text-base font-poppins text-gray-800">Subtotal</Text>
+        <Text className="text-base font-poppins-bold text-gray-800">{basket.formattedSubtotal}</Text>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginBottom: 8,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Regular',
-            color: '#333',
-          }}
-        >
-          Protection Fee
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-          }}
-        >
-          {basket.formattedTotalProtectionFee}
-        </Text>
+      <View className="flex-row justify-between mb-2">
+        <Text className="text-base font-poppins text-gray-800">Protection Fee</Text>
+        <Text className="text-base font-poppins-bold text-gray-800">{basket.formattedTotalProtectionFee}</Text>
       </View>
 
-      <View
-        style={{
-          height: 1,
-          backgroundColor: '#f0f0f0',
-          marginVertical: 12,
-        }}
-      />
+      <View className="h-px bg-gray-100 my-3" />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginBottom: 16,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-          }}
-        >
-          Total
-        </Text>
-        <Text
-          style={{
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#333',
-          }}
-        >
-          {basket.formattedTotal}
-        </Text>
+      <View className="flex-row justify-between mb-4">
+        <Text className="text-lg font-poppins-bold text-gray-800">Total</Text>
+        <Text className="text-lg font-poppins-bold text-gray-800">{basket.formattedTotal}</Text>
       </View>
     </View>
   );
 
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Your Basket
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Your Basket</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </SafeAreaView>
@@ -534,88 +204,21 @@ export default function BasketScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Your Basket
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Your Basket</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-          }}
-        >
+        <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              marginTop: 16,
-              marginBottom: 8,
-            }}
-          >
-            Error loading basket
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              textAlign: 'center',
-              marginBottom: 16,
-            }}
-          >
-            {error}
-          </Text>
-          <TouchableOpacity
-            onPress={refreshBasket}
-            style={{
-              backgroundColor: '#007AFF',
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Retry
-            </Text>
+          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading basket</Text>
+          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <TouchableOpacity onPress={refreshBasket} className="bg-blue-500 rounded-lg py-3 px-6">
+            <Text className="text-white text-base font-poppins-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -624,68 +227,19 @@ export default function BasketScreen() {
 
   if (!basket || basket.items.length === 0) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Your Basket
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Your Basket</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-          }}
-        >
+        <View className="flex-1 justify-center items-center p-4">
           <Feather name="shopping-bag" color="#999" size={64} />
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              marginTop: 16,
-              marginBottom: 8,
-            }}
-          >
-            Your basket is empty
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              textAlign: 'center',
-              marginBottom: 16,
-            }}
-          >
+          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Your basket is empty</Text>
+          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">
             Items you add to your basket will appear here
           </Text>
         </View>
@@ -694,55 +248,20 @@ export default function BasketScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Your Basket
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Your Basket</Text>
 
-        <TouchableOpacity
-          onPress={() => setShowClearModal(true)}
-          style={{
-            marginRight: 16,
-            padding: 8,
-          }}
-        >
+        <TouchableOpacity onPress={() => setShowClearModal(true)} className="mr-4 p-2">
           <Feather name="trash-2" color="#fff" size={20} />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={refreshBasket}
-          style={{
-            padding: 8,
-          }}
-        >
+        <TouchableOpacity onPress={refreshBasket} className="p-2">
           {isRefreshing ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
@@ -751,18 +270,12 @@ export default function BasketScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+      <View className="flex-1 bg-gray-50">
         <ScrollView
-          style={{ flex: 1 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={refreshBasket}
-              tintColor="#007AFF"
-            />
-          }
+          className="flex-1"
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refreshBasket} tintColor="#007AFF" />}
         >
-          <View style={{ padding: 16 }}>
+          <View className="p-4">
             {/* Display items by vendor */}
             {vendorIds.map((vendorId) => (
               <VendorItemsSection
@@ -780,129 +293,33 @@ export default function BasketScreen() {
         <BasketSummary basket={basket} />
 
         {/* Checkout Button */}
-        <View
-          style={{
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            paddingBottom: 16,
-          }}
-        >
-          <TouchableOpacity
-            onPress={proceedToCheckout}
-            style={{
-              backgroundColor: '#000',
-              borderRadius: 8,
-              paddingVertical: 16,
-              alignItems: 'center',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Proceed to Checkout
-            </Text>
+        <View className="px-4 py-2 pb-4">
+          <TouchableOpacity onPress={proceedToCheckout} className="bg-black rounded-lg py-4 items-center">
+            <Text className="text-white text-base font-poppins-bold">Proceed to Checkout</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Clear Basket Modal */}
-      <Modal
-        visible={showClearModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowClearModal(false)}
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: 12,
-              padding: 24,
-              width: '100%',
-              maxWidth: 400,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                color: '#333',
-                marginBottom: 16,
-                textAlign: 'center',
-              }}
-            >
-              Clear Basket
-            </Text>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-                marginBottom: 24,
-                textAlign: 'center',
-              }}
-            >
+      <Modal visible={showClearModal} transparent animationType="fade" onRequestClose={() => setShowClearModal(false)}>
+        <View className="flex-1 bg-black/50 justify-center items-center p-5">
+          <View className="bg-white rounded-xl p-6 w-full max-w-sm">
+            <Text className="text-lg font-poppins-bold text-gray-800 mb-4 text-center">Clear Basket</Text>
+            <Text className="text-base font-poppins text-gray-600 mb-6 text-center">
               Are you sure you want to remove all items from your basket?
             </Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}
-            >
+            <View className="flex-row justify-between">
               <TouchableOpacity
                 onPress={() => setShowClearModal(false)}
-                style={{
-                  flex: 1,
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  marginRight: 8,
-                  alignItems: 'center',
-                }}
+                className="flex-1 bg-gray-100 rounded-lg py-3 mr-2 items-center"
               >
-                <Text
-                  style={{
-                    color: '#333',
-                    fontSize: 16,
-                    fontFamily: 'Poppins-Bold',
-                  }}
-                >
-                  Cancel
-                </Text>
+                <Text className="text-gray-800 text-base font-poppins-bold">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleClearBasket}
-                style={{
-                  flex: 1,
-                  backgroundColor: '#ff4444',
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  marginLeft: 8,
-                  alignItems: 'center',
-                }}
+                className="flex-1 bg-red-500 rounded-lg py-3 ml-2 items-center"
               >
-                <Text
-                  style={{
-                    color: '#fff',
-                    fontSize: 16,
-                    fontFamily: 'Poppins-Bold',
-                  }}
-                >
-                  Clear All
-                </Text>
+                <Text className="text-white text-base font-poppins-bold">Clear All</Text>
               </TouchableOpacity>
             </View>
           </View>

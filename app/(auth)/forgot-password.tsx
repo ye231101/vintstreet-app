@@ -43,91 +43,35 @@ export default function ForgotPasswordScreen() {
 
   if (isSuccess) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, padding: 24 }}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <View style={{ width: '100%', maxWidth: 520, alignItems: 'center' }}>
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="p-6">
+          <View className="flex-1 items-center justify-center">
+            <View className="w-full max-w-lg items-center">
               {/* Success Icon */}
-              <View style={{ marginBottom: 24 }}>
+              <View className="mb-6">
                 <Feather name="check-circle" size={80} color="#4CAF50" />
               </View>
 
               {/* Success Title */}
-              <Text
-                style={{
-                  fontSize: 24,
-                  fontFamily: 'Poppins-Bold',
-                  textAlign: 'center',
-                  marginBottom: 16,
-                }}
-              >
-                Password Reset Email Sent
-              </Text>
+              <Text className="text-2xl font-poppins-bold text-center mb-4">Password Reset Email Sent</Text>
 
               {/* Success Message */}
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
-                  textAlign: 'center',
-                  color: '#666',
-                  lineHeight: 24,
-                  marginBottom: 8,
-                }}
-              >
+              <Text className="text-base font-poppins text-center text-gray-600 leading-6 mb-2">
                 We've sent a password reset link to:
               </Text>
 
-              <Text
-                style={{
-                  fontSize: 17,
-                  fontFamily: 'Poppins-SemiBold',
-                  textAlign: 'center',
-                  color: '#000',
-                  marginBottom: 24,
-                }}
-              >
-                {email}
-              </Text>
+              <Text className="text-lg font-poppins-semibold text-center text-black mb-6">{email}</Text>
 
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  textAlign: 'center',
-                  color: '#666',
-                  lineHeight: 20,
-                  marginBottom: 32,
-                }}
-              >
-                Please check your inbox and spam folder. Click the link in the email to reset your
-                password.
+              <Text className="text-sm font-poppins text-center text-gray-600 leading-5 mb-8">
+                Please check your inbox and spam folder. Click the link in the email to reset your password.
               </Text>
 
               {/* Return to Login Button */}
               <Pressable
                 onPress={() => router.back()}
-                style={{
-                  height: 50,
-                  borderRadius: 8,
-                  backgroundColor: '#000',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%',
-                }}
+                className="h-12 rounded-lg bg-black items-center justify-center w-full"
               >
-                <Text
-                  style={{
-                    fontFamily: 'Poppins-Regular',
-                    color: '#fff',
-                    fontSize: 16,
-                  }}
-                >
-                  Return to Login
-                </Text>
+                <Text className="font-poppins text-white text-base">Return to Login</Text>
               </Pressable>
             </View>
           </View>
@@ -137,107 +81,52 @@ export default function ForgotPasswordScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, padding: 24 }}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        className="p-6"
       >
-        <View style={{ flex: 1 }}>
+        <View className="flex-1">
           {/* Header */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginBottom: 20,
-              width: '100%',
-              paddingTop: 10,
-            }}
-          >
+          <View className="flex-row items-center mb-5 w-full pt-2.5">
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="black" />
             </Pressable>
-            <Text
-              style={{
-                fontSize: 20,
-                fontFamily: 'Poppins-Bold',
-                flex: 1,
-                textAlign: 'center',
-                marginRight: 24, // Offset for the back button
-              }}
-            >
-              Forgot Password
-            </Text>
+            <Text className="text-xl font-poppins-bold flex-1 text-center mr-6">Forgot Password</Text>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <View style={{ width: '100%', maxWidth: 520, alignItems: 'center' }}>
+          <View className="flex-1 items-center justify-center">
+            <View className="w-full max-w-lg items-center">
               {/* Logo */}
-              <View style={{ alignItems: 'center', marginBottom: 30 }}>
-                <Image
-                  source={require('@/assets/images/splash-logo.png')}
-                  style={{ width: 160, height: 160, resizeMode: 'contain' }}
-                />
+              <View className="items-center mb-8">
+                <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
               </View>
 
               {/* Title */}
-              <Text
-                style={{
-                  fontSize: 24,
-                  fontFamily: 'Poppins-Bold',
-                  textAlign: 'center',
-                  marginBottom: 16,
-                }}
-              >
-                Forgot your password?
-              </Text>
+              <Text className="text-2xl font-poppins-bold text-center mb-4">Forgot your password?</Text>
 
               {/* Description */}
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
-                  textAlign: 'center',
-                  color: '#666',
-                  lineHeight: 24,
-                  marginBottom: 32,
-                }}
-              >
+              <Text className="text-base font-poppins text-center text-gray-600 leading-6 mb-8">
                 Enter your email address and we'll send you instructions to reset your password.
               </Text>
 
               {/* Error message */}
               {error && (
-                <View
-                  style={{
-                    backgroundColor: '#ffe5e5',
-                    borderColor: '#ff9c9c',
-                    borderWidth: 1,
-                    padding: 10,
-                    borderRadius: 8,
-                    marginBottom: 16,
-                    width: '100%',
-                  }}
-                >
-                  <Text style={{ fontFamily: 'Poppins-Regular', color: '#b00020' }}>{error}</Text>
+                <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4 w-full">
+                  <Text className="font-poppins text-red-700">{error}</Text>
                 </View>
               )}
 
               {/* Email Input Field */}
-              <View style={{ width: '100%', marginBottom: 24 }}>
+              <View className="w-full mb-6">
                 <View
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 8,
-                    borderColor: emailError ? '#ff6b6b' : '#e0e0e0',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 12,
-                    height: 52,
-                    backgroundColor: '#fff',
-                  }}
+                  className={`border rounded-lg flex-row items-center px-3 h-13 bg-white ${
+                    emailError ? 'border-red-400' : 'border-gray-300'
+                  }`}
                 >
-                  <Text style={{ marginRight: 8 }}>
+                  <Text className="mr-2">
                     <Feather name="mail" size={24} color="black" />
                   </Text>
                   <TextInput
@@ -247,51 +136,19 @@ export default function ForgotPasswordScreen() {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     autoCorrect={false}
-                    style={{
-                      flex: 1,
-                      fontFamily: 'Poppins-Regular',
-                      fontSize: 16,
-                      height: 52,
-                      textAlignVertical: 'center',
-                    }}
+                    className="flex-1 font-poppins text-base h-13"
                   />
                 </View>
-                {emailError && (
-                  <Text
-                    style={{
-                      color: '#ff6b6b',
-                      fontSize: 12,
-                      marginTop: 4,
-                      fontFamily: 'Poppins-Regular',
-                    }}
-                  >
-                    {emailError}
-                  </Text>
-                )}
+                {emailError && <Text className="text-red-400 text-xs mt-1 font-poppins">{emailError}</Text>}
               </View>
 
               {/* Reset Password Button */}
               <Pressable
                 onPress={handleResetPassword}
                 disabled={loading}
-                style={{
-                  height: 50,
-                  borderRadius: 8,
-                  backgroundColor: loading ? '#9e9e9e' : '#000',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%',
-                }}
+                className={`h-12 rounded-lg items-center justify-center w-full ${loading ? 'bg-gray-400' : 'bg-black'}`}
               >
-                <Text
-                  style={{
-                    fontFamily: 'Poppins-Regular',
-                    color: '#fff',
-                    fontSize: 16,
-                  }}
-                >
-                  {loading ? 'Sending...' : 'Reset Password'}
-                </Text>
+                <Text className="font-poppins text-white text-base">{loading ? 'Sending...' : 'Reset Password'}</Text>
               </Pressable>
             </View>
           </View>

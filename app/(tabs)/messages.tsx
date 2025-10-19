@@ -70,163 +70,54 @@ export default function MessagesScreen() {
     <TouchableOpacity
       key={conversation.id}
       onPress={() => router.push(`/message/${conversation.id}`)}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-      }}
+      className="flex-row items-center px-4 py-3 border-b border-gray-100"
     >
       {/* Avatar */}
-      <View
-        style={{
-          width: 50,
-          height: 50,
-          borderRadius: 25,
-          backgroundColor: '#000',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginRight: 12,
-        }}
-      >
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-          }}
-        >
-          {conversation.otherParticipantName.charAt(0)}
-        </Text>
+      <View className="w-12 h-12 rounded-full bg-black justify-center items-center mr-3">
+        <Text className="text-white text-lg font-poppins-bold">{conversation.otherParticipantName.charAt(0)}</Text>
       </View>
 
       {/* Content */}
-      <View style={{ flex: 1 }}>
+      <View className="flex-1">
         {/* Name */}
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            color: '#000',
-            marginBottom: 4,
-          }}
-        >
-          {conversation.otherParticipantName}
-        </Text>
+        <Text className="text-base font-poppins-bold text-black mb-1">{conversation.otherParticipantName}</Text>
 
         {/* Subject */}
-        <Text
-          style={{
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-            color: '#666',
-            marginBottom: 2,
-          }}
-        >
-          {conversation.subject}
-        </Text>
+        <Text className="text-sm font-poppins text-gray-600 mb-0.5">{conversation.subject}</Text>
 
         {/* Last Message */}
-        <Text
-          style={{
-            fontSize: 12,
-            fontFamily: 'Poppins-Regular',
-            color: '#999',
-            maxWidth: '80%',
-          }}
-          numberOfLines={1}
-        >
+        <Text className="text-xs font-poppins text-gray-400 max-w-4/5" numberOfLines={1}>
           {conversation.lastMessageContent}
         </Text>
       </View>
 
       {/* Time */}
-      <Text
-        style={{
-          fontSize: 12,
-          fontFamily: 'Poppins-Regular',
-          color: '#999',
-        }}
-      >
-        {formatTime(conversation.lastMessageDate)}
-      </Text>
+      <Text className="text-xs font-poppins text-gray-400">{formatTime(conversation.lastMessageDate)}</Text>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header with Search */}
       <SearchBar value={searchText} onChangeText={setSearchText} />
 
       {/* Messages Content */}
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: '#fff',
-        }}
-      >
+      <View className="flex-1 bg-white">
         {isLoading ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-              }}
-            >
-              Loading conversations...
-            </Text>
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-base font-poppins text-gray-600">Loading conversations...</Text>
           </View>
         ) : conversations.length === 0 ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              paddingHorizontal: 32,
-            }}
-          >
+          <View className="flex-1 justify-center items-center px-8">
             <Feather name="message-circle" size={64} color="#ccc" />
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                color: '#666',
-                marginTop: 16,
-                marginBottom: 8,
-              }}
-            >
-              No conversations yet
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#999',
-                textAlign: 'center',
-              }}
-            >
-              Start a conversation with a seller
-            </Text>
+            <Text className="text-lg font-poppins-bold text-gray-600 mt-4 mb-2">No conversations yet</Text>
+            <Text className="text-sm font-poppins text-gray-400 text-center">Start a conversation with a seller</Text>
           </View>
         ) : (
           <ScrollView
-            style={{ flex: 1 }}
+            className="flex-1"
             refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={['#000']}
-                tintColor="#000"
-              />
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} tintColor="#000" />
             }
           >
             {conversations.map(renderConversationItem)}

@@ -152,82 +152,22 @@ export default function MessageDetailScreen() {
   };
 
   const renderDateHeader = (item: DateHeader) => (
-    <View
-      key={`date-${item.date}`}
-      style={{
-        alignItems: 'center',
-        marginVertical: 16,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: '#f0f0f0',
-          paddingHorizontal: 12,
-          paddingVertical: 4,
-          borderRadius: 12,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 12,
-            fontFamily: 'Poppins-Regular',
-            color: '#666',
-          }}
-        >
-          {item.displayText}
-        </Text>
+    <View key={`date-${item.date}`} className="items-center my-4">
+      <View className="bg-gray-100 px-3 py-1 rounded-xl">
+        <Text className="text-xs font-poppins text-gray-600">{item.displayText}</Text>
       </View>
     </View>
   );
 
   const renderMessage = (message: Message) => (
-    <View
-      key={message.id}
-      style={{
-        alignItems: message.isSent ? 'flex-end' : 'flex-start',
-        marginVertical: 4,
-        marginHorizontal: 8,
-      }}
-    >
-      <View
-        style={{
-          maxWidth: '75%',
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          borderRadius: 16,
-          backgroundColor: message.isSent ? '#000' : '#f0f0f0',
-          borderTopLeftRadius: message.isSent ? 16 : 4,
-          borderTopRightRadius: message.isSent ? 16 : 16,
-          borderBottomLeftRadius: message.isSent ? 16 : 16,
-          borderBottomRightRadius: message.isSent ? 4 : 16,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 2,
-          elevation: 1,
-        }}
-      >
-        <Text
-          style={{
-            color: message.isSent ? '#fff' : '#000',
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-          }}
-        >
+    <View key={message.id} className={`${message.isSent ? 'items-end' : 'items-start'} my-1 mx-2`}>
+      <View className={`max-w-3/4 py-2 px-3 rounded-2xl shadow-sm ${message.isSent ? 'bg-black' : 'bg-gray-100'}`}>
+        <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-poppins`}>
           {message.content}
         </Text>
       </View>
 
-      <Text
-        style={{
-          fontSize: 11,
-          fontFamily: 'Poppins-Regular',
-          color: '#999',
-          marginTop: 4,
-          marginHorizontal: message.isSent ? 0 : 12,
-          marginRight: message.isSent ? 12 : 0,
-        }}
-      >
+      <Text className={`text-xs font-poppins text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
         {formatTime(message.dateSent)}
       </Text>
     </View>
@@ -236,59 +176,27 @@ export default function MessageDetailScreen() {
   const messageItems = groupMessagesByDate(messages);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View className="flex-1 bg-white">
       {/* Header */}
-      <SafeAreaView style={{ backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Hello
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Hello</Text>
 
-          <TouchableOpacity
-            onPress={() => Alert.alert('Refresh', 'Refreshing messages...')}
-            style={{
-              marginLeft: 16,
-            }}
-          >
+          <TouchableOpacity onPress={() => Alert.alert('Refresh', 'Refreshing messages...')} className="ml-4">
             <Feather name="refresh-cw" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
       {/* Messages Area */}
-      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View className="flex-1 bg-white">
         <ScrollView
           ref={scrollViewRef}
-          style={{
-            flex: 1,
-            backgroundColor: '#fff',
-          }}
+          className="flex-1 bg-white"
           contentContainerStyle={{
             paddingVertical: 8,
             flexGrow: 1,
@@ -296,23 +204,8 @@ export default function MessageDetailScreen() {
           onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
         >
           {isLoading ? (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                paddingVertical: 50,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#666',
-                }}
-              >
-                Loading messages...
-              </Text>
+            <View className="flex-1 justify-center items-center py-12">
+              <Text className="text-base font-poppins text-gray-600">Loading messages...</Text>
             </View>
           ) : (
             messageItems.map((item: MessageItem) => {
@@ -331,42 +224,10 @@ export default function MessageDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#fff',
-            paddingHorizontal: 16,
-            paddingTop: 12,
-            paddingBottom: Platform.OS === 'ios' ? 34 : 12, // Add bottom padding for home indicator
-            borderTopWidth: 1,
-            borderTopColor: '#f0f0f0',
-            minHeight: 60,
-          }}
-        >
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#f5f5f5',
-              borderRadius: 24,
-              paddingHorizontal: 16,
-              paddingVertical: 8,
-              marginRight: 12,
-              minHeight: 40,
-            }}
-          >
+        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200 min-h-15">
+          <View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-2 mr-3 min-h-10">
             <TextInput
-              style={{
-                flex: 1,
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#000',
-                maxHeight: 100,
-                minHeight: 24,
-                textAlignVertical: 'center',
-              }}
+              className="flex-1 text-sm font-poppins text-black max-h-25 min-h-6"
               placeholder="Type a message..."
               placeholderTextColor="#999"
               value={messageText}
@@ -388,20 +249,7 @@ export default function MessageDetailScreen() {
 
           <TouchableOpacity
             onPress={sendMessage}
-            style={{
-              backgroundColor: '#000',
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              justifyContent: 'center',
-              alignItems: 'center',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 4,
-              elevation: 4,
-              marginBottom: 0,
-            }}
+            className="bg-black w-10 h-10 rounded-full justify-center items-center shadow-lg"
           >
             <Feather name="send" size={18} color="#fff" />
           </TouchableOpacity>

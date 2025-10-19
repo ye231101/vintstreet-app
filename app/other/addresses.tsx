@@ -104,52 +104,15 @@ export default function AddressesScreen() {
     onEdit: () => void;
     onDelete: () => void;
   }) => (
-    <View
-      style={{
-        backgroundColor: '#333',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 16,
-      }}
-    >
+    <View className="bg-gray-800 rounded-xl p-4 mb-4">
       {/* Section Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 16,
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: 'rgba(0, 122, 255, 0.1)',
-            borderRadius: 8,
-            padding: 8,
-            marginRight: 12,
-          }}
-        >
+      <View className="flex-row items-center mb-4">
+        <View className="bg-blue-500/10 rounded-lg p-2 mr-3">
           <Feather name={icon as any} color="#007AFF" size={20} />
         </View>
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 4,
-            }}
-          >
-            {title}
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-            }}
-          >
-            {subtitle}
-          </Text>
+        <View className="flex-1">
+          <Text className="text-white text-lg font-poppins-bold mb-1">{title}</Text>
+          <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
         </View>
       </View>
 
@@ -157,70 +120,25 @@ export default function AddressesScreen() {
       {address ? (
         <AddressCard
           name={address.name}
-          address={`${address.addressLine1}${
-            address.addressLine2 ? `, ${address.addressLine2}` : ''
-          }, ${address.city}, ${address.state ? `${address.state}, ` : ''}${address.postcode}, ${
-            address.country
-          }`}
+          address={`${address.addressLine1}${address.addressLine2 ? `, ${address.addressLine2}` : ''}, ${
+            address.city
+          }, ${address.state ? `${address.state}, ` : ''}${address.postcode}, ${address.country}`}
           phone={address.phone || ''}
           onEdit={onEdit}
           onDelete={onDelete}
         />
       ) : (
-        <View
-          style={{
-            backgroundColor: '#444',
-            borderRadius: 8,
-            padding: 20,
-            borderWidth: 1,
-            borderColor: '#555',
-            borderStyle: 'solid',
-          }}
-        >
-          <View style={{ alignItems: 'center' }}>
+        <View className="bg-gray-700 rounded-lg p-5 border border-gray-600">
+          <View className="items-center">
             <Feather name={icon as any} color="#666" size={32} />
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 16,
-                fontFamily: 'Poppins-Medium',
-                marginTop: 12,
-                marginBottom: 8,
-              }}
-            >
+            <Text className="text-gray-400 text-base font-poppins-medium mt-3 mb-2">
               No {addressType} address saved
             </Text>
-            <Text
-              style={{
-                color: '#777',
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                textAlign: 'center',
-                marginBottom: 16,
-              }}
-            >
+            <Text className="text-gray-500 text-sm font-poppins text-center mb-4">
               Add your {addressType} address to continue
             </Text>
-            <TouchableOpacity
-              onPress={onAdd}
-              style={{
-                backgroundColor: '#007AFF',
-                borderRadius: 8,
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                width: '100%',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Bold',
-                }}
-              >
-                Add {addressType} Address
-              </Text>
+            <TouchableOpacity onPress={onAdd} className="bg-blue-500 rounded-lg py-3 px-6 w-full items-center">
+              <Text className="text-white text-base font-poppins-bold">Add {addressType} Address</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -241,68 +159,15 @@ export default function AddressesScreen() {
     onEdit: () => void;
     onDelete: () => void;
   }) => (
-    <View
-      style={{
-        backgroundColor: '#444',
-        borderRadius: 8,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(0, 122, 255, 0.3)',
-      }}
-    >
-      <Text
-        style={{
-          color: '#fff',
-          fontSize: 14,
-          fontFamily: 'Poppins-Regular',
-          marginBottom: 4,
-        }}
-      >
-        {name}
-      </Text>
-      <Text
-        style={{
-          color: '#999',
-          fontSize: 14,
-          fontFamily: 'Poppins-Regular',
-          marginBottom: 4,
-        }}
-      >
-        {address}
-      </Text>
-      {phone && (
-        <Text
-          style={{
-            color: '#999',
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-            marginBottom: 16,
-          }}
-        >
-          {phone}
-        </Text>
-      )}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-        }}
-      >
-        <TouchableOpacity
-          onPress={onEdit}
-          style={{
-            marginRight: 8,
-            padding: 8,
-          }}
-        >
+    <View className="bg-gray-700 rounded-lg p-4 border border-blue-500/30">
+      <Text className="text-white text-sm font-poppins mb-1">{name}</Text>
+      <Text className="text-gray-400 text-sm font-poppins mb-1">{address}</Text>
+      {phone && <Text className="text-gray-400 text-sm font-poppins mb-4">{phone}</Text>}
+      <View className="flex-row justify-end">
+        <TouchableOpacity onPress={onEdit} className="mr-2 p-2">
           <Feather name="edit" color="#007AFF" size={20} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onDelete}
-          style={{
-            padding: 8,
-          }}
-        >
+        <TouchableOpacity onPress={onDelete} className="p-2">
           <Feather name="trash-2" color="#ff4444" size={20} />
         </TouchableOpacity>
       </View>
@@ -311,46 +176,16 @@ export default function AddressesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Addresses
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Addresses</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </SafeAreaView>
@@ -359,88 +194,21 @@ export default function AddressesScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Addresses
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Addresses</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-          }}
-        >
+        <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              marginTop: 16,
-              marginBottom: 8,
-            }}
-          >
-            Error loading addresses
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              textAlign: 'center',
-              marginBottom: 16,
-            }}
-          >
-            {error}
-          </Text>
-          <TouchableOpacity
-            onPress={loadAddresses}
-            style={{
-              backgroundColor: '#007AFF',
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Retry
-            </Text>
+          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading addresses</Text>
+          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <TouchableOpacity onPress={loadAddresses} className="bg-blue-500 rounded-lg py-3 px-6">
+            <Text className="text-white text-base font-poppins-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -448,42 +216,18 @@ export default function AddressesScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Addresses
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Addresses</Text>
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
-        <View style={{ padding: 16 }}>
+      <ScrollView className="flex-1">
+        <View className="p-4">
           {/* Shipping Address Section */}
           <AddressSection
             title="Shipping Address"

@@ -1,16 +1,7 @@
 import Feather from '@expo/vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import {
-  Alert,
-  Image,
-  Modal,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SellScreen() {
@@ -53,10 +44,7 @@ export default function SellScreen() {
 
   const handlePublishItem = () => {
     if (!title || !description || !price || !category) {
-      Alert.alert(
-        'Required Fields',
-        'Please complete all required fields (*) to publish this product.'
-      );
+      Alert.alert('Required Fields', 'Please complete all required fields (*) to publish this product.');
       return;
     }
     Alert.alert('Item Published', 'Your item has been published successfully!');
@@ -133,14 +121,7 @@ export default function SellScreen() {
   // Track if there are unsaved changes
   const checkForUnsavedChanges = () => {
     const hasChanges = Boolean(
-      title ||
-        description ||
-        price ||
-        brand ||
-        category ||
-        purchaseNote ||
-        selectedImages.length > 0 ||
-        stockManagement
+      title || description || price || brand || category || purchaseNote || selectedImages.length > 0 || stockManagement
     );
     setHasUnsavedChanges(hasChanges);
     return hasChanges;
@@ -177,107 +158,47 @@ export default function SellScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View
-        style={{
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <TouchableOpacity
-          onPress={handleNavigationAway}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-        >
-          <Feather name="arrow-left" size={20} color="#fff" style={{ marginRight: 8 }} />
-          <Text
-            style={{
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Sell an item
-          </Text>
+      <View className="bg-black px-4 py-3 flex-row justify-between items-center">
+        <TouchableOpacity onPress={handleNavigationAway} className="flex-row items-center">
+          <Feather name="arrow-left" size={20} color="#fff" className="mr-2" />
+          <Text className="text-lg font-poppins-bold text-white">Sell an item</Text>
         </TouchableOpacity>
         <Feather name="shopping-bag" size={24} color="#fff" />
       </View>
 
-      <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <ScrollView className="flex-1 bg-white">
         <TouchableOpacity
-          style={{ flex: 1 }}
+          className="flex-1"
           activeOpacity={1}
           onPress={() => {
             setShowStatusDropdown(false);
             setShowVisibilityDropdown(false);
           }}
         >
-          <View style={{ padding: 16 }}>
+          <View className="p-4">
             {/* Add Photos Section */}
             {selectedImages.length === 0 ? (
               <TouchableOpacity
-                style={{
-                  height: 200,
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  borderStyle: 'dashed',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: 16,
-                }}
+                className="h-50 bg-gray-100 rounded-xl border border-gray-300 border-dashed justify-center items-center mb-4"
                 onPress={() => setShowImageSourceModal(true)}
               >
                 <Feather name="image" size={48} color="#999" />
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#999',
-                    marginTop: 8,
-                  }}
-                >
-                  Add Photos
-                </Text>
+                <Text className="text-base font-poppins-semibold text-gray-400 mt-2">Add Photos</Text>
               </TouchableOpacity>
             ) : (
-              <View style={{ marginBottom: 16 }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    gap: 8,
-                  }}
-                >
+              <View className="mb-4">
+                <View className="flex-row flex-wrap gap-2">
                   {selectedImages.map((imageUri, index) => (
-                    <View key={index} style={{ position: 'relative' }}>
+                    <View key={index} className="relative">
                       <Image
                         source={{ uri: imageUri }}
-                        style={{
-                          width: 100,
-                          height: 100,
-                          borderRadius: 8,
-                          backgroundColor: '#f0f0f0',
-                        }}
                         resizeMode="cover"
+                        className="w-24 h-24 rounded-lg bg-gray-100"
                       />
                       <TouchableOpacity
-                        style={{
-                          position: 'absolute',
-                          top: 4,
-                          right: 4,
-                          backgroundColor: 'rgba(0,0,0,0.6)',
-                          borderRadius: 12,
-                          width: 24,
-                          height: 24,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
+                        className="absolute top-1 right-1 bg-black/60 rounded-full w-6 h-6 justify-center items-center"
                         onPress={() => {
                           setSelectedImages((prev) => prev.filter((_, i) => i !== index));
                         }}
@@ -285,119 +206,41 @@ export default function SellScreen() {
                         <Feather name="x" size={14} color="#fff" />
                       </TouchableOpacity>
                       {index === 0 && (
-                        <View
-                          style={{
-                            position: 'absolute',
-                            bottom: 4,
-                            left: 4,
-                            backgroundColor: 'rgba(0,0,0,0.6)',
-                            paddingHorizontal: 6,
-                            paddingVertical: 2,
-                            borderRadius: 4,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              color: '#fff',
-                              fontSize: 10,
-                              fontFamily: 'Poppins-SemiBold',
-                            }}
-                          >
-                            Main
-                          </Text>
+                        <View className="absolute bottom-1 left-1 bg-black/60 px-1.5 py-0.5 rounded">
+                          <Text className="text-white text-xs font-poppins-semibold">Main</Text>
                         </View>
                       )}
                     </View>
                   ))}
                   <TouchableOpacity
-                    style={{
-                      width: 100,
-                      height: 100,
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#e0e0e0',
-                      borderStyle: 'dashed',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    className="w-24 h-24 bg-gray-100 rounded-lg border border-gray-300 border-dashed justify-center items-center"
                     onPress={() => setShowImageSourceModal(true)}
                   >
                     <Feather name="plus" size={24} color="#999" />
                   </TouchableOpacity>
                 </View>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#666',
-                    marginTop: 8,
-                    fontStyle: 'italic',
-                  }}
-                >
+                <Text className="text-xs font-poppins text-gray-500 mt-2 italic">
                   Drag to reorder. First image will be the main product image.
                 </Text>
               </View>
             )}
 
             {/* Information Box */}
-            <View
-              style={{
-                backgroundColor: '#e3f2fd',
-                borderRadius: 8,
-                padding: 12,
-                marginBottom: 24,
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-              }}
-            >
+            <View className="bg-blue-100 rounded-lg p-3 mb-6 flex-row items-start">
               <Feather name="info" size={20} color="#1976d2" />
-              <View style={{ marginLeft: 8, flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'Poppins-Bold',
-                    color: '#1976d2',
-                    marginBottom: 4,
-                  }}
-                >
-                  Creating New Product
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#1976d2',
-                  }}
-                >
+              <View className="ml-2 flex-1">
+                <Text className="text-sm font-poppins-bold text-blue-700 mb-1">Creating New Product</Text>
+                <Text className="text-xs font-poppins text-blue-700">
                   Fields marked with * are required. You can save as draft or publish directly.
                 </Text>
               </View>
             </View>
 
             {/* Title Field */}
-            <View style={{ marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-SemiBold',
-                  color: '#000',
-                  marginBottom: 8,
-                }}
-              >
-                Title *
-              </Text>
+            <View className="mb-4">
+              <Text className="text-sm font-poppins-semibold text-black mb-2">Title *</Text>
               <TextInput
-                style={{
-                  backgroundColor: '#fff',
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  paddingHorizontal: 12,
-                  paddingVertical: 12,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                }}
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins"
                 placeholder="Enter item title"
                 value={title}
                 onChangeText={setTitle}
@@ -405,30 +248,10 @@ export default function SellScreen() {
             </View>
 
             {/* Description Field */}
-            <View style={{ marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-SemiBold',
-                  color: '#000',
-                  marginBottom: 8,
-                }}
-              >
-                Description *
-              </Text>
+            <View className="mb-4">
+              <Text className="text-sm font-poppins-semibold text-black mb-2">Description *</Text>
               <TextInput
-                style={{
-                  backgroundColor: '#fff',
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  paddingHorizontal: 12,
-                  paddingVertical: 12,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  height: 100,
-                  textAlignVertical: 'top',
-                }}
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins h-25"
                 placeholder="Enter item description"
                 value={description}
                 onChangeText={setDescription}
@@ -437,30 +260,11 @@ export default function SellScreen() {
             </View>
 
             {/* Price Field */}
-            <View style={{ marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-SemiBold',
-                  color: '#000',
-                  marginBottom: 8,
-                }}
-              >
-                Price *
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View className="mb-4">
+              <Text className="text-sm font-poppins-semibold text-black mb-2">Price *</Text>
+              <View className="flex-row items-center">
                 <TextInput
-                  style={{
-                    backgroundColor: '#fff',
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: '#e0e0e0',
-                    paddingHorizontal: 12,
-                    paddingVertical: 12,
-                    fontSize: 14,
-                    fontFamily: 'Poppins-Regular',
-                    flex: 1,
-                  }}
+                  className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins flex-1"
                   placeholder="0.00"
                   value={price}
                   onChangeText={setPrice}
@@ -470,89 +274,30 @@ export default function SellScreen() {
             </View>
 
             {/* Brand Field */}
-            <View style={{ marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-SemiBold',
-                  color: '#000',
-                  marginBottom: 8,
-                }}
-              >
-                Brand
-              </Text>
+            <View className="mb-4">
+              <Text className="text-sm font-poppins-semibold text-black mb-2">Brand</Text>
               <TextInput
-                style={{
-                  backgroundColor: '#fff',
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  paddingHorizontal: 12,
-                  paddingVertical: 12,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                }}
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins"
                 placeholder="Enter brand name (API brands not loaded)"
                 value={brand}
                 onChangeText={setBrand}
               />
-              <View
-                style={{
-                  backgroundColor: '#fff3cd',
-                  borderRadius: 4,
-                  padding: 8,
-                  marginTop: 8,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}
-              >
+              <View className="bg-yellow-100 rounded p-2 mt-2 flex-row items-center">
                 <Feather name="alert-circle" size={16} color="#856404" />
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#856404',
-                    marginLeft: 4,
-                  }}
-                >
+                <Text className="text-xs font-poppins text-yellow-800 ml-1">
                   Brand API not responding. Using text input as fallback.
                 </Text>
               </View>
             </View>
 
             {/* Category Field */}
-            <View style={{ marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-SemiBold',
-                  color: '#000',
-                  marginBottom: 8,
-                }}
-              >
-                Category
-              </Text>
+            <View className="mb-4">
+              <Text className="text-sm font-poppins-semibold text-black mb-2">Category</Text>
               <TouchableOpacity
-                style={{
-                  backgroundColor: '#fff',
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  paddingHorizontal: 12,
-                  paddingVertical: 12,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
                 onPress={() => setShowCategoryModal(true)}
               >
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'Poppins-Regular',
-                    color: category ? '#000' : '#999',
-                  }}
-                >
+                <Text className={`text-sm font-poppins ${category ? 'text-black' : 'text-gray-400'}`}>
                   {category || 'Select Category'}
                 </Text>
                 <Feather name="chevron-right" size={16} color="#999" />
@@ -560,71 +305,26 @@ export default function SellScreen() {
             </View>
 
             {/* Stock Management Section */}
-            <View style={{ marginBottom: 24 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: 'Poppins-Bold',
-                  color: '#000',
-                  marginBottom: 16,
-                }}
-              >
-                Stock Management
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View className="mb-6">
+              <Text className="text-lg font-poppins-bold text-black mb-4">Stock Management</Text>
+              <View className="flex-row items-center">
                 <TouchableOpacity
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderWidth: 2,
-                    borderColor: stockManagement ? '#000' : '#ccc',
-                    borderRadius: 4,
-                    backgroundColor: stockManagement ? '#000' : 'transparent',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginRight: 12,
-                  }}
+                  className={`w-5 h-5 border-2 rounded ${
+                    stockManagement ? 'bg-black border-black' : 'border-gray-300'
+                  } justify-center items-center mr-3`}
                   onPress={() => setStockManagement(!stockManagement)}
                 >
                   {stockManagement && <Feather name="check" size={14} color="#fff" />}
                 </TouchableOpacity>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#000',
-                  }}
-                >
-                  Enable stock management
-                </Text>
+                <Text className="text-base font-poppins text-black">Enable stock management</Text>
               </View>
             </View>
 
             {/* Purchase Note Field */}
-            <View style={{ marginBottom: 16 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-SemiBold',
-                  color: '#000',
-                  marginBottom: 8,
-                }}
-              >
-                Purchase Note
-              </Text>
+            <View className="mb-4">
+              <Text className="text-sm font-poppins-semibold text-black mb-2">Purchase Note</Text>
               <TextInput
-                style={{
-                  backgroundColor: '#fff',
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  paddingHorizontal: 12,
-                  paddingVertical: 12,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  height: 80,
-                  textAlignVertical: 'top',
-                }}
+                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-poppins h-20"
                 placeholder="Customer will get this info in their order email"
                 value={purchaseNote}
                 onChangeText={setPurchaseNote}
@@ -633,105 +333,40 @@ export default function SellScreen() {
             </View>
 
             {/* Product Status Section */}
-            <View style={{ marginBottom: 24 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: 'Poppins-Bold',
-                  color: '#000',
-                  marginBottom: 16,
-                }}
-              >
-                Product Status
-              </Text>
+            <View className="mb-6">
+              <Text className="text-lg font-poppins-bold text-black mb-4">Product Status</Text>
 
               {/* Status Dropdown */}
-              <View style={{ marginBottom: 16 }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#000',
-                    marginBottom: 8,
-                  }}
-                >
-                  Status
-                </Text>
-                <View style={{ position: 'relative' }}>
+              <View className="mb-4">
+                <Text className="text-sm font-poppins-semibold text-black mb-2">Status</Text>
+                <View className="relative">
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: '#fff',
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#e0e0e0',
-                      paddingHorizontal: 12,
-                      paddingVertical: 12,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
+                    className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
                     onPress={(e) => {
                       e.stopPropagation();
                       setShowStatusDropdown(!showStatusDropdown);
                       setShowVisibilityDropdown(false);
                     }}
                   >
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        fontFamily: 'Poppins-Regular',
-                        color: '#000',
-                      }}
-                    >
-                      {productStatus}
-                    </Text>
+                    <Text className="text-sm font-poppins text-black">{productStatus}</Text>
                     <Feather name="chevron-down" size={16} color="#999" />
                   </TouchableOpacity>
 
                   {showStatusDropdown && (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 45,
-                        left: 0,
-                        right: 0,
-                        backgroundColor: '#fff',
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: '#e0e0e0',
-                        zIndex: 1000,
-                        elevation: 5,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 3.84,
-                      }}
-                    >
+                    <View className="absolute top-11 left-0 right-0 z-50 bg-white rounded-lg border border-gray-300 shadow-lg">
                       {statusOptions.map((status, index) => (
                         <TouchableOpacity
                           key={index}
-                          style={{
-                            paddingVertical: 12,
-                            paddingHorizontal: 12,
-                            borderBottomWidth: index < statusOptions.length - 1 ? 1 : 0,
-                            borderBottomColor: '#f0f0f0',
-                            backgroundColor: status === productStatus ? '#f5f5f5' : 'transparent',
-                          }}
+                          className={`py-3 px-3 ${index < statusOptions.length - 1 ? 'border-b border-gray-100' : ''} ${
+                            status === productStatus ? 'bg-gray-100' : 'bg-transparent'
+                          }`}
                           onPress={(e) => {
                             e.stopPropagation();
                             setProductStatus(status);
                             setShowStatusDropdown(false);
                           }}
                         >
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              fontFamily: 'Poppins-Regular',
-                              color: '#000',
-                            }}
-                          >
-                            {status}
-                          </Text>
+                          <Text className="text-sm font-poppins text-black">{status}</Text>
                         </TouchableOpacity>
                       ))}
                     </View>
@@ -741,91 +376,35 @@ export default function SellScreen() {
 
               {/* Visibility Dropdown */}
               <View>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#000',
-                    marginBottom: 8,
-                  }}
-                >
-                  Visibility
-                </Text>
-                <View style={{ position: 'relative' }}>
+                <Text className="text-sm font-poppins-semibold text-black mb-2">Visibility</Text>
+                <View className="relative">
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: '#fff',
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#e0e0e0',
-                      paddingHorizontal: 12,
-                      paddingVertical: 12,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
+                    className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
                     onPress={(e) => {
                       e.stopPropagation();
                       setShowVisibilityDropdown(!showVisibilityDropdown);
                       setShowStatusDropdown(false);
                     }}
                   >
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        fontFamily: 'Poppins-Regular',
-                        color: '#000',
-                      }}
-                    >
-                      {visibility}
-                    </Text>
+                    <Text className="text-sm font-poppins text-black">{visibility}</Text>
                     <Feather name="chevron-down" size={16} color="#999" />
                   </TouchableOpacity>
 
                   {showVisibilityDropdown && (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 45,
-                        left: 0,
-                        right: 0,
-                        backgroundColor: '#fff',
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: '#e0e0e0',
-                        zIndex: 1000,
-                        elevation: 5,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 3.84,
-                      }}
-                    >
+                    <View className="absolute top-11 left-0 right-0 z-50 bg-white rounded-lg border border-gray-300 shadow-lg">
                       {visibilityOptions.map((vis, index) => (
                         <TouchableOpacity
                           key={index}
-                          style={{
-                            paddingVertical: 12,
-                            paddingHorizontal: 12,
-                            borderBottomWidth: index < visibilityOptions.length - 1 ? 1 : 0,
-                            borderBottomColor: '#f0f0f0',
-                            backgroundColor: vis === visibility ? '#f5f5f5' : 'transparent',
-                          }}
+                          className={`py-3 px-3 ${
+                            index < visibilityOptions.length - 1 ? 'border-b border-gray-100' : ''
+                          } ${vis === visibility ? 'bg-gray-100' : 'bg-transparent'}`}
                           onPress={(e) => {
                             e.stopPropagation();
                             setVisibility(vis);
                             setShowVisibilityDropdown(false);
                           }}
                         >
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              fontFamily: 'Poppins-Regular',
-                              color: '#000',
-                            }}
-                          >
-                            {vis}
-                          </Text>
+                          <Text className="text-sm font-poppins text-black">{vis}</Text>
                         </TouchableOpacity>
                       ))}
                     </View>
@@ -835,71 +414,25 @@ export default function SellScreen() {
             </View>
 
             {/* Action Buttons */}
-            <View style={{ flexDirection: 'row', marginBottom: 16 }}>
+            <View className="flex-row mb-4">
               <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  marginRight: 8,
-                  alignItems: 'center',
-                }}
+                className="flex-1 bg-gray-200 rounded-lg py-3 mr-2 items-center"
                 onPress={handleSaveDraft}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#000',
-                  }}
-                >
-                  Save as Draft
-                </Text>
+                <Text className="text-base font-poppins-semibold text-black">Save as Draft</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  marginLeft: 8,
-                  alignItems: 'center',
-                }}
+                className="flex-1 bg-gray-200 rounded-lg py-3 ml-2 items-center"
                 onPress={handlePublishItem}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#000',
-                  }}
-                >
-                  Publish Item
-                </Text>
+                <Text className="text-base font-poppins-semibold text-black">Publish Item</Text>
               </TouchableOpacity>
             </View>
 
             {/* Warning Message */}
-            <View
-              style={{
-                backgroundColor: '#fff3cd',
-                borderRadius: 8,
-                padding: 12,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
+            <View className="bg-yellow-100 rounded-lg p-3 flex-row items-center">
               <Feather name="alert-circle" size={20} color="#856404" />
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#856404',
-                  marginLeft: 8,
-                  flex: 1,
-                }}
-              >
+              <Text className="text-xs font-poppins text-yellow-800 ml-2 flex-1">
                 Complete all required fields (*) to publish this product
               </Text>
             </View>
@@ -914,62 +447,17 @@ export default function SellScreen() {
         animationType="slide"
         onRequestClose={() => setShowCategoryModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              paddingTop: 8,
-              paddingHorizontal: 20,
-              paddingBottom: 20,
-              maxHeight: '80%',
-            }}
-          >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl pt-2 px-5 pb-5 max-h-4/5">
             {/* Modal Handle */}
-            <View
-              style={{
-                width: 40,
-                height: 4,
-                backgroundColor: '#e0e0e0',
-                borderRadius: 2,
-                alignSelf: 'center',
-                marginBottom: 20,
-              }}
-            />
+            <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-5" />
 
             {/* Header */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 20,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontFamily: 'Poppins-Bold',
-                  color: '#000',
-                }}
-              >
-                Select Category
-              </Text>
+            <View className="flex-row justify-between items-center mb-5">
+              <Text className="text-lg font-poppins-bold text-black">Select Category</Text>
               <TouchableOpacity
                 onPress={() => setShowCategoryModal(false)}
-                style={{
-                  width: 24,
-                  height: 24,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                className="w-6 h-6 justify-center items-center"
               >
                 <Feather name="x" size={20} color="#000" />
               </TouchableOpacity>
@@ -979,28 +467,13 @@ export default function SellScreen() {
               {categories.map((cat, index) => (
                 <TouchableOpacity
                   key={index}
-                  style={{
-                    paddingVertical: 15,
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#f0f0f0',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
+                  className="py-4 border-b border-gray-100 flex-row justify-between items-center"
                   onPress={() => {
                     setCategory(cat);
                     setShowCategoryModal(false);
                   }}
                 >
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
-                      color: '#000',
-                    }}
-                  >
-                    {cat}
-                  </Text>
+                  <Text className="text-base font-poppins text-black">{cat}</Text>
                   <Feather name="chevron-right" size={16} color="#999" />
                 </TouchableOpacity>
               ))}
@@ -1016,125 +489,31 @@ export default function SellScreen() {
         animationType="slide"
         onRequestClose={() => setShowImageSourceModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              padding: 20,
-              paddingBottom: 40,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                textAlign: 'center',
-                marginBottom: 8,
-              }}
-            >
-              Add Photos
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-                textAlign: 'center',
-                marginBottom: 20,
-              }}
-            >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl p-5 pb-10">
+            <Text className="text-lg font-poppins-bold text-center mb-2">Add Photos</Text>
+            <Text className="text-sm font-poppins text-gray-600 text-center mb-5">
               Choose multiple images or take a photo
             </Text>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                alignItems: 'center',
-              }}
-            >
+            <View className="flex-row justify-around items-center">
               {/* Gallery Option */}
               <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  paddingVertical: 20,
-                  paddingHorizontal: 30,
-                }}
+                className="items-center py-5 px-8"
                 onPress={() => handleImageSourceSelection('gallery')}
               >
-                <View
-                  style={{
-                    width: 80,
-                    height: 80,
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 15,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginBottom: 10,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 3,
-                    elevation: 3,
-                  }}
-                >
+                <View className="w-20 h-20 bg-gray-100 rounded-2xl justify-center items-center mb-2 shadow-sm">
                   <Feather name="image" size={36} color="#333" />
                 </View>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#333',
-                  }}
-                >
-                  Gallery
-                </Text>
+                <Text className="text-base font-poppins-semibold text-gray-800">Gallery</Text>
               </TouchableOpacity>
 
               {/* Camera Option */}
-              <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  paddingVertical: 20,
-                  paddingHorizontal: 30,
-                }}
-                onPress={() => handleImageSourceSelection('camera')}
-              >
-                <View
-                  style={{
-                    width: 80,
-                    height: 80,
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 15,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginBottom: 10,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 3,
-                    elevation: 3,
-                  }}
-                >
+              <TouchableOpacity className="items-center py-5 px-8" onPress={() => handleImageSourceSelection('camera')}>
+                <View className="w-20 h-20 bg-gray-100 rounded-2xl justify-center items-center mb-2 shadow-sm">
                   <Feather name="camera" size={36} color="#333" />
                 </View>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#333',
-                  }}
-                >
-                  Camera
-                </Text>
+                <Text className="text-base font-poppins-semibold text-gray-800">Camera</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1148,101 +527,27 @@ export default function SellScreen() {
         animationType="fade"
         onRequestClose={handleCancelNavigation}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 20,
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: 12,
-              padding: 24,
-              width: '100%',
-              maxWidth: 320,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.25,
-              shadowRadius: 8,
-              elevation: 8,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                color: '#000',
-                marginBottom: 12,
-                textAlign: 'center',
-              }}
-            >
-              Unsaved Changes
-            </Text>
+        <View className="flex-1 bg-black/50 justify-center items-center px-5 shadow-2xl">
+          <View className="bg-white rounded-xl p-6 w-full max-w-xs">
+            <Text className="text-lg font-poppins-bold text-black mb-3 text-center">Unsaved Changes</Text>
 
-            <Text
-              style={{
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-                marginBottom: 24,
-                textAlign: 'center',
-                lineHeight: 20,
-              }}
-            >
+            <Text className="text-sm font-poppins text-gray-600 mb-6 text-center leading-5">
               Your changes will be lost if you leave this page. Do you want to continue?
             </Text>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                gap: 12,
-              }}
-            >
+            <View className="flex-row justify-between gap-3">
               <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  alignItems: 'center',
-                }}
+                className="flex-1 bg-gray-200 rounded-lg py-3 items-center"
                 onPress={handleCancelNavigation}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#000',
-                  }}
-                >
-                  Cancel
-                </Text>
+                <Text className="text-base font-poppins-semibold text-black">Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: '#ff4444',
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  alignItems: 'center',
-                }}
+                className="flex-1 bg-red-500 rounded-lg py-3 items-center"
                 onPress={handleContinueWithoutSaving}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#fff',
-                  }}
-                >
-                  Continue
-                </Text>
+                <Text className="text-base font-poppins-semibold text-white">Continue</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import '../global.css';
 
 import { authService } from '@/api';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -93,14 +94,15 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="seller" options={{ headerShown: false }} />
+            <Stack.Screen name="other" options={{ headerShown: false }} />
             <Stack.Screen name="product" options={{ headerShown: false }} />
             <Stack.Screen name="message" options={{ headerShown: false }} />
-            <Stack.Screen name="other" options={{ headerShown: false }} />
             <Stack.Screen name="basket" options={{ headerShown: false }} />
             <Stack.Screen name="checkout" options={{ headerShown: false }} />
           </Stack>
         </AuthWrapper>
-        <StatusBar style="auto" backgroundColor="black" />
+        <StatusBar style="auto" />
       </ThemeProvider>
     </ReduxProvider>
   );

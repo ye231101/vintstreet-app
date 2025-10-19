@@ -9,65 +9,15 @@ import Feather from '@expo/vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-// Mock data for products
-const trendingProducts = [
-  {
-    id: 1,
-    name: 'Lee Jeans Green - 14',
-    brand: 'Lee Jeans',
-    price: '£27.00',
-    images: [
-      require('@/assets/images/hero-banner.jpg'),
-      require('@/assets/images/homepage_slider/1.jpg'),
-      require('@/assets/images/homepage_slider/2.jpg'),
-    ],
-    likes: 0,
-  },
-  {
-    id: 2,
-    name: 'Armani Jeans, Straight Leg Jeans',
-    brand: 'Armani Jeans',
-    price: '£1,125.00',
-    images: [
-      require('@/assets/images/hero-banner.jpg'),
-      require('@/assets/images/homepage_slider/4.jpg'),
-      require('@/assets/images/homepage_slider/5.jpg'),
-    ],
-    likes: 0,
-  },
-  {
-    id: 3,
-    name: 'Victoria Beckham Skinny Jeans',
-    brand: 'Victoria Beckham',
-    price: '£1,125.00',
-    images: [
-      require('@/assets/images/hero-banner.jpg'),
-      require('@/assets/images/homepage_slider/3.jpg'),
-      require('@/assets/images/homepage_slider/6.jpg'),
-    ],
-    likes: 0,
-  },
-];
-
 const brands = [
   {
     name: "Levi's",
-    image:
-      'https://www.citypng.com/public/uploads/preview/levis-black-logo-hd-png-70175169470713089bqxrjlb3.png',
+    image: 'https://www.citypng.com/public/uploads/preview/levis-black-logo-hd-png-70175169470713089bqxrjlb3.png',
   },
   {
     name: 'Adidas',
@@ -165,43 +115,20 @@ interface Brand {
 
 const BrandCard = ({ brand }: { brand: Brand }) => (
   <View
+    className="bg-white rounded-lg mr-2 mb-2 border border-gray-200 items-center justify-center"
     style={{
       width: screenWidth / 3,
       height: (screenWidth / 3) * (3 / 4),
-      backgroundColor: '#fff',
-      borderRadius: 8,
-      marginRight: 8,
-      marginBottom: 8,
-      borderWidth: 1,
-      borderColor: '#e0e0e0',
-      alignItems: 'center',
-      justifyContent: 'center',
     }}
   >
-    <Image
-      source={{ uri: brand.image }}
-      style={{
-        width: '80%',
-        height: '60%',
-        resizeMode: 'contain',
-      }}
-    />
-    <Text
-      style={{
-        fontSize: 12,
-        fontFamily: 'Poppins-Regular',
-        marginTop: 8,
-      }}
-    >
-      {brand.name}
-    </Text>
+    <Image source={{ uri: brand.image }} className="w-4/5 h-3/5" resizeMode="contain" />
+    <Text className="text-xs font-poppins mt-2">{brand.name}</Text>
   </View>
 );
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { items: recentlyViewedItems, isInitialized: recentlyViewedInitialized } =
-    useRecentlyViewed();
+  const { items: recentlyViewedItems, isInitialized: recentlyViewedInitialized } = useRecentlyViewed();
   const [trendingProductsData, setTrendingProductsData] = useState<any[]>([]);
   const [isLoadingTrending, setIsLoadingTrending] = useState(true);
   const [recentlyAddedProductsData, setRecentlyAddedProductsData] = useState<any[]>([]);
@@ -234,10 +161,7 @@ export default function HomeScreen() {
         const listing = typesenseService.convertToVintStreetListing(hit.document);
 
         // Use thumbnail URLs for better performance, fallback to full images
-        const imageUrls =
-          listing.thumbnailImageUrls.length > 0
-            ? listing.thumbnailImageUrls
-            : listing.fullImageUrls;
+        const imageUrls = listing.thumbnailImageUrls.length > 0 ? listing.thumbnailImageUrls : listing.fullImageUrls;
 
         return {
           id: listing.id,
@@ -437,13 +361,13 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Search Bar */}
       <SearchBar value={searchText} onChangeText={handleSearchTextChange} onSearch={handleSearch} />
 
       {showSearchResults ? (
         // Search Results View
-        <View style={{ flex: 1 }}>
+        <View className="flex-1">
           {/* Filter and Sort Bar */}
           <FilterSortBar
             filterCount={filterCount}
@@ -453,18 +377,9 @@ export default function HomeScreen() {
           />
 
           {isSearching ? (
-            <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+            <View className="py-10 items-center">
               <ActivityIndicator size="large" color="#000" />
-              <Text
-                style={{
-                  marginTop: 12,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#666',
-                }}
-              >
-                Searching for "{searchText}"...
-              </Text>
+              <Text className="mt-3 text-sm font-poppins text-gray-600">Searching for "{searchText}"...</Text>
             </View>
           ) : searchResults.length > 0 ? (
             <FlatList
@@ -472,37 +387,17 @@ export default function HomeScreen() {
               keyExtractor={(item) => item.id.toString()}
               numColumns={2}
               renderItem={({ item }) => (
-                <ProductCard
-                  product={item}
-                  onPress={() => handleProductPress(item.id)}
-                  width={180}
-                  height={240}
-                />
+                <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
               )}
               contentContainerStyle={{ padding: 16 }}
               columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
             />
           ) : (
-            <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#666',
-                  textAlign: 'center',
-                }}
-              >
+            <View className="py-10 items-center">
+              <Text className="text-base font-poppins text-gray-600 text-center">
                 No results found for "{searchText}"
               </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#999',
-                  textAlign: 'center',
-                  marginTop: 8,
-                }}
-              >
+              <Text className="text-sm font-poppins text-gray-400 text-center mt-2">
                 Try different keywords or check your spelling
               </Text>
             </View>
@@ -510,66 +405,31 @@ export default function HomeScreen() {
         </View>
       ) : (
         // Home Content
-        <ScrollView style={{ flex: 1, paddingHorizontal: 8 }} showsVerticalScrollIndicator={false}>
+        <ScrollView className="flex-1 px-2" showsVerticalScrollIndicator={false}>
           {/* Banner Section */}
-          <View style={{ marginVertical: 16 }}>
-            <View
-              style={{
-                width: '100%',
-                aspectRatio: 16 / 5,
-                borderRadius: 12,
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              <Image
-                source={require('@/assets/images/hero-banner.jpg')}
-                style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
-              />
+          <View className="my-4">
+            <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>
+              <Image source={require('@/assets/images/hero-banner.jpg')} className="w-full h-full" resizeMode="cover" />
               <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.7)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                }}
+                className="absolute inset-0"
               />
             </View>
           </View>
 
           {/* Quick Links Section */}
-          <View style={{ marginBottom: 24 }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                color: 'black',
-                marginBottom: 12,
-              }}
-            >
-              QUICK LINKS
-            </Text>
+          <View className="mb-6">
+            <Text className="text-xs font-poppins-bold text-black mb-3">QUICK LINKS</Text>
             <ArticleCarousel />
           </View>
 
-          <View style={{ marginBottom: 24 }}>
+          <View className="mb-6">
             {isLoadingTrending ? (
               <View>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Bold',
-                    color: 'black',
-                    marginBottom: 12,
-                  }}
-                >
-                  TRENDING NOW
-                </Text>
-                <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+                <Text className="text-xs font-poppins-bold text-black mb-3">TRENDING NOW</Text>
+                <View className="py-10 items-center">
                   <ActivityIndicator size="large" color="#000" />
                 </View>
               </View>
@@ -581,25 +441,8 @@ export default function HomeScreen() {
               />
             ) : (
               <View>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Bold',
-                    color: 'black',
-                    marginBottom: 12,
-                  }}
-                >
-                  TRENDING NOW
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#666',
-                    textAlign: 'center',
-                    paddingVertical: 20,
-                  }}
-                >
+                <Text className="text-xs font-poppins-bold text-black mb-3">TRENDING NOW</Text>
+                <Text className="text-xs font-poppins text-gray-600 text-center py-5">
                   No trending products available
                 </Text>
               </View>
@@ -607,77 +450,33 @@ export default function HomeScreen() {
           </View>
 
           {/* RECENTLY ADDS */}
-          <View style={{ marginBottom: 24 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 12,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'Poppins-Bold',
-                  color: '#000',
-                }}
-              >
-                RECENTLY ADDED
-              </Text>
+          <View className="mb-6">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-xs font-poppins-bold text-black">RECENTLY ADDED</Text>
               <Pressable>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#007AFF',
-                  }}
-                >
-                  See All
-                </Text>
+                <Text className="text-xs font-poppins text-blue-500">See All</Text>
               </Pressable>
             </View>
             {isLoadingRecentlyAdded ? (
-              <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+              <View className="py-10 items-center">
                 <ActivityIndicator size="large" color="#000" />
               </View>
             ) : recentlyAddedProductsData.length > 0 ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {recentlyAddedProductsData.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onPress={() => handleProductPress(product.id)}
-                  />
+                  <ProductCard key={product.id} product={product} onPress={() => handleProductPress(product.id)} />
                 ))}
               </ScrollView>
             ) : (
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#666',
-                  textAlign: 'center',
-                  paddingVertical: 20,
-                }}
-              >
+              <Text className="text-xs font-poppins text-gray-600 text-center py-5">
                 No recently added products available
               </Text>
             )}
           </View>
 
           {/* Top Categories Section */}
-          <View style={{ marginBottom: 24 }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                color: '#000',
-                marginBottom: 12,
-              }}
-            >
-              TOP CATEGORIES
-            </Text>
+          <View className="mb-6">
+            <Text className="text-xs font-poppins-bold text-black mb-3">TOP CATEGORIES</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {topCategories.map((cat) => {
                 const cardWidth = screenWidth / 2;
@@ -686,70 +485,26 @@ export default function HomeScreen() {
                   <Pressable
                     key={cat.title}
                     onPress={() => handleCategoryPress(cat.title)}
+                    className="mr-2 rounded-lg overflow-hidden relative border border-gray-200"
                     style={{
                       width: cardWidth,
                       height: cardHeight,
-                      marginRight: 8,
-                      borderRadius: 8,
-                      overflow: 'hidden',
-                      position: 'relative',
-                      borderWidth: 1,
-                      borderColor: 'rgba(128,128,128,0.2)',
                     }}
                   >
-                    <Image
-                      source={cat.image}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        resizeMode: 'cover',
-                      }}
-                    />
+                    <Image source={cat.image} className="w-full h-full" resizeMode="cover" />
                     {/* 3-step gradient overlay */}
-                    <View
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
-                        backgroundColor: 'transparent',
-                      }}
-                    >
+                    <View className="absolute inset-0 bg-transparent">
                       <LinearGradient
                         colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0)']}
                         start={{ x: 0, y: 1 }}
                         end={{ x: 0, y: 0 }}
                         locations={[0.0, 0.5, 0.8]}
-                        style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                        }}
+                        className="absolute inset-0"
                       />
                     </View>
                     {/* Title with arrow */}
-                    <View
-                      style={{
-                        position: 'absolute',
-                        left: 12,
-                        right: 12,
-                        bottom: 12,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 16,
-                          fontFamily: 'Poppins-Bold',
-                          color: 'white',
-                        }}
-                        numberOfLines={1}
-                      >
+                    <View className="absolute left-3 right-3 bottom-3 flex-row justify-between items-center">
+                      <Text className="text-base font-poppins-bold text-white" numberOfLines={1}>
                         {cat.title}
                       </Text>
                       <Feather name="chevron-right" size={16} color="white" />
@@ -761,18 +516,9 @@ export default function HomeScreen() {
           </View>
 
           {/* Explore the Eras Section */}
-          <View style={{ marginBottom: 24 }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                color: '#000',
-                marginBottom: 12,
-              }}
-            >
-              EXPLORE THE ERAS
-            </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+          <View className="mb-6">
+            <Text className="text-xs font-poppins-bold text-black mb-3">EXPLORE THE ERAS</Text>
+            <View className="flex-row flex-wrap">
               {eras.map((era, idx) => {
                 const cardWidth = screenWidth / 2 - (16 + 12) / 2;
                 const cardHeight = cardWidth * (7 / 16);
@@ -780,55 +526,18 @@ export default function HomeScreen() {
                 return (
                   <View
                     key={era.name}
+                    className={`rounded-lg overflow-hidden ${isLeft ? 'mr-3' : 'mr-0'} mb-3`}
                     style={{
                       width: cardWidth,
                       height: cardHeight,
-                      marginRight: isLeft ? 12 : 0,
-                      marginBottom: 12,
-                      borderRadius: 8,
-                      overflow: 'hidden',
-                      shadowColor: era.color,
-                      shadowOpacity: 0.3,
-                      shadowRadius: 4,
-                      shadowOffset: { width: 0, height: 2 },
-                      elevation: 2,
                     }}
                   >
-                    <Image
-                      source={era.image}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        resizeMode: 'cover',
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
-                        backgroundColor: era.color,
-                        opacity: 0.5,
-                      }}
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
+                    <Image source={era.image} className="w-full h-full" resizeMode="cover" />
+                    <View className="absolute inset-0 opacity-50" style={{ backgroundColor: era.color }} />
+                    <View className="absolute inset-0 items-center justify-center">
                       <Text
+                        className="text-xl font-poppins-bold text-white"
                         style={{
-                          fontSize: 20,
-                          fontFamily: 'Poppins-Bold',
-                          color: 'white',
                           textShadowColor: 'rgba(0,0,0,0.5)',
                           textShadowOffset: { width: 1, height: 1 },
                           textShadowRadius: 2,
@@ -837,10 +546,8 @@ export default function HomeScreen() {
                         {era.name}
                       </Text>
                       <Text
+                        className="text-sm font-poppins text-white"
                         style={{
-                          fontSize: 14,
-                          fontFamily: 'Poppins-Regular',
-                          color: 'white',
                           textShadowColor: 'rgba(0,0,0,0.5)',
                           textShadowOffset: { width: 1, height: 1 },
                           textShadowRadius: 2,
@@ -856,17 +563,8 @@ export default function HomeScreen() {
           </View>
 
           {/* Brands Section */}
-          <View style={{ marginBottom: 24 }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                color: '#000',
-                marginBottom: 12,
-              }}
-            >
-              Brands you may like
-            </Text>
+          <View className="mb-6">
+            <Text className="text-xs font-poppins-bold text-black mb-3">Brands you may like</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {Array.from({ length: Math.ceil(brands.length / 2) }).map((_, colIndex) => {
                 const first = brands[colIndex * 2];
@@ -883,24 +581,9 @@ export default function HomeScreen() {
 
           {/* Recently Viewed Section */}
           {recentlyViewedInitialized && recentlyViewedItems.length > 0 && (
-            <View style={{ marginBottom: 24 }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 12,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Bold',
-                    color: '#000',
-                  }}
-                >
-                  RECENTLY VIEWED
-                </Text>
+            <View className="mb-6">
+              <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-xs font-poppins-bold text-black">RECENTLY VIEWED</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {recentlyViewedItems.map((listing) => {
@@ -945,38 +628,15 @@ export default function HomeScreen() {
           )}
 
           {/* Indie Items Section */}
-          <View style={{ marginBottom: 24 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 12,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'Poppins-Bold',
-                  color: '#000',
-                }}
-              >
-                INDIE ITEMS
-              </Text>
+          <View className="mb-6">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-xs font-poppins-bold text-black">INDIE ITEMS</Text>
               <Pressable>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#007AFF',
-                  }}
-                >
-                  See All
-                </Text>
+                <Text className="text-xs font-poppins text-blue-500">See All</Text>
               </Pressable>
             </View>
             {isLoadingIndieItems ? (
-              <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+              <View className="py-10 items-center">
                 <ActivityIndicator size="large" color="#000" />
               </View>
             ) : indieItemsData.length > 0 ? (
@@ -992,21 +652,11 @@ export default function HomeScreen() {
                 ))}
               </ScrollView>
             ) : (
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#666',
-                  textAlign: 'center',
-                  paddingVertical: 20,
-                }}
-              >
-                No indie items available
-              </Text>
+              <Text className="text-xs font-poppins text-gray-600 text-center py-5">No indie items available</Text>
             )}
           </View>
 
-          <View style={{ height: 40 }} />
+          <View className="h-10" />
         </ScrollView>
       )}
     </SafeAreaView>

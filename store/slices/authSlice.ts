@@ -116,11 +116,7 @@ export const registerUser = createAsyncThunk(
     phone?: string;
     termsAccepted?: boolean;
   }) => {
-    if (
-      data.username.trim().length < 3 ||
-      data.email.trim().length === 0 ||
-      data.password.trim().length < 6
-    ) {
+    if (data.username.trim().length < 3 || data.email.trim().length === 0 || data.password.trim().length < 6) {
       throw new Error('Invalid registration data');
     }
 

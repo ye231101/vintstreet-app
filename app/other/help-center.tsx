@@ -43,8 +43,7 @@ export default function HelpCenterScreen() {
     },
     {
       question: 'When will I receive my refund?',
-      answer:
-        'Refunds are typically processed within 5-7 business days after we receive your return.',
+      answer: 'Refunds are typically processed within 5-7 business days after we receive your return.',
     },
     {
       question: 'How do I track my order?',
@@ -78,36 +77,11 @@ export default function HelpCenterScreen() {
     subtitle: string;
     onPress: () => void;
   }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-      }}
-    >
+    <TouchableOpacity onPress={onPress} className="flex-row items-center py-3 px-4">
       <Feather name={icon as any} color="#fff" size={24} />
-      <View style={{ marginLeft: 16, flex: 1 }}>
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            marginBottom: 4,
-          }}
-        >
-          {title}
-        </Text>
-        <Text
-          style={{
-            color: '#999',
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-          }}
-        >
-          {subtitle}
-        </Text>
+      <View className="ml-4 flex-1">
+        <Text className="text-white text-base font-poppins-bold mb-1">{title}</Text>
+        <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
       </View>
       <Feather name="chevron-right" size={16} color="#999" />
     </TouchableOpacity>
@@ -125,107 +99,36 @@ export default function HelpCenterScreen() {
     onToggle: () => void;
   }) => (
     <View>
-      <TouchableOpacity
-        onPress={onToggle}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-        }}
-      >
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 16,
-            fontFamily: 'Poppins-Regular',
-            flex: 1,
-          }}
-        >
-          {question}
-        </Text>
+      <TouchableOpacity onPress={onToggle} className="flex-row items-center py-3 px-4">
+        <Text className="text-white text-base font-poppins flex-1">{question}</Text>
         <Feather name={isExpanded ? 'chevron-up' : 'chevron-down'} size={16} color="#999" />
       </TouchableOpacity>
       {isExpanded && (
-        <View
-          style={{
-            paddingHorizontal: 16,
-            paddingBottom: 12,
-          }}
-        >
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              lineHeight: 20,
-            }}
-          >
-            {answer}
-          </Text>
+        <View className="px-4 pb-3">
+          <Text className="text-gray-400 text-sm font-poppins leading-5">{answer}</Text>
         </View>
       )}
     </View>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Help Center
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Help Center</Text>
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
-        <View style={{ padding: 16 }}>
+      <ScrollView className="flex-1">
+        <View className="p-4">
           {/* Search Bar */}
-          <View
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: 12,
-              marginBottom: 24,
-            }}
-          >
+          <View className="bg-gray-800 rounded-xl flex-row items-center px-3 mb-6">
             <Feather name="search" size={20} color="#999" />
             <TextInput
-              style={{
-                flex: 1,
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                paddingVertical: 16,
-                paddingHorizontal: 12,
-              }}
+              className="flex-1 text-white text-base font-poppins py-4 px-3"
               placeholder="Search help articles..."
               placeholderTextColor="#999"
               value={searchQuery}
@@ -236,18 +139,7 @@ export default function HelpCenterScreen() {
           </View>
 
           {/* Popular Topics Section */}
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 12,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            POPULAR TOPICS
-          </Text>
+          <Text className="text-gray-400 text-xs font-poppins-bold mb-3 uppercase">POPULAR TOPICS</Text>
 
           {popularTopics.map((topic, index) => (
             <HelpTopic
@@ -260,27 +152,10 @@ export default function HelpCenterScreen() {
           ))}
 
           {/* Divider */}
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#333',
-              marginVertical: 24,
-            }}
-          />
+          <View className="h-px bg-gray-700 my-6" />
 
           {/* FAQ Section */}
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 12,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            FREQUENTLY ASKED QUESTIONS
-          </Text>
+          <Text className="text-gray-400 text-xs font-poppins-bold mb-3 uppercase">FREQUENTLY ASKED QUESTIONS</Text>
 
           {faqItems.map((item, index) => (
             <FAQItem
@@ -293,41 +168,14 @@ export default function HelpCenterScreen() {
           ))}
 
           {/* Divider */}
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#333',
-              marginVertical: 24,
-            }}
-          />
+          <View className="h-px bg-gray-700 my-6" />
         </View>
       </ScrollView>
 
       {/* Contact Support Button */}
-      <View
-        style={{
-          padding: 16,
-          backgroundColor: '#000',
-        }}
-      >
-        <TouchableOpacity
-          onPress={handleContactSupport}
-          style={{
-            backgroundColor: '#007AFF',
-            borderRadius: 12,
-            paddingVertical: 16,
-            alignItems: 'center',
-          }}
-        >
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-            }}
-          >
-            Contact Support
-          </Text>
+      <View className="p-4 bg-black">
+        <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
+          <Text className="text-white text-base font-poppins-bold">Contact Support</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

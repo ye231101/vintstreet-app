@@ -97,14 +97,12 @@ export default function ArticleCarousel() {
   };
 
   return (
-    <View style={{ alignItems: 'center' }}>
+    <View className="items-center">
       <View
+        className="rounded-xl overflow-hidden relative"
         style={{
           width: screenWidth - 16,
           aspectRatio: 16 / 7,
-          position: 'relative',
-          borderRadius: 12,
-          overflow: 'hidden',
         }}
       >
         <ScrollView
@@ -114,89 +112,32 @@ export default function ArticleCarousel() {
           showsHorizontalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
-          style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+          className="absolute inset-0"
         >
           {articles.map((item) => (
             <View key={item.id} style={{ width: screenWidth - 16 }}>
-              <Pressable
-                onPress={() => handleTap(item)}
-                style={{
-                  width: '100%',
-                  aspectRatio: 16 / 7,
-                  position: 'relative',
-                }}
-              >
-                <Image
-                  source={item.image}
-                  style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
-                />
+              <Pressable onPress={() => handleTap(item)} className="w-full relative" style={{ aspectRatio: 16 / 7 }}>
+                <Image source={item.image} resizeMode="cover" className="w-full h-full" />
                 <LinearGradient
                   colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.7)']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                  }}
+                  className="absolute inset-0"
                 />
-                <View
-                  style={{
-                    position: 'absolute',
-                    left: 16,
-                    right: 16,
-                    bottom: 24,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 24,
-                      fontFamily: 'Poppins-Bold',
-                      color: 'white',
-                      marginBottom: 12,
-                    }}
-                  >
-                    {item.title}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
-                      color: '#ffffff',
-                      opacity: 0.95,
-                    }}
-                  >
-                    {item.subtitle}
-                  </Text>
+                <View className="absolute left-4 right-4 bottom-6">
+                  <Text className="text-2xl font-poppins-bold text-white mb-3">{item.title}</Text>
+                  <Text className="text-base font-poppins text-white opacity-95">{item.subtitle}</Text>
                 </View>
               </Pressable>
             </View>
           ))}
         </ScrollView>
-        <View
-          pointerEvents="none"
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 12,
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View pointerEvents="none" className="absolute left-0 right-0 bottom-3 flex-row justify-center items-center">
           {articles.map((_, i) => (
             <View
               key={i}
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: 3,
-                marginHorizontal: 3,
-                backgroundColor: i === index ? '#ffffff' : 'rgba(255,255,255,0.5)',
-              }}
+              className="w-1.5 h-1.5 rounded-full mx-0.75"
+              style={{ backgroundColor: i === index ? '#ffffff' : 'rgba(255,255,255,0.5)' }}
             />
           ))}
         </View>

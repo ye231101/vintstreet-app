@@ -33,39 +33,11 @@ export default function AppSettingsScreen() {
     value: boolean;
     onValueChange: (value: boolean) => void;
   }) => (
-    <View
-      style={{
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <View style={{ flex: 1, marginRight: 16 }}>
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 4,
-            }}
-          >
-            {title}
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-            }}
-          >
-            {subtitle}
-          </Text>
+    <View className="px-4 py-3">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1 mr-4">
+          <Text className="text-white text-base font-poppins-bold mb-1">{title}</Text>
+          <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
         </View>
         <Switch
           value={value}
@@ -77,85 +49,20 @@ export default function AppSettingsScreen() {
     </View>
   );
 
-  const SettingsDropdown = ({
-    title,
-    value,
-    onPress,
-  }: {
-    title: string;
-    value: string;
-    onPress: () => void;
-  }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Text
-        style={{
-          color: '#fff',
-          fontSize: 16,
-          fontFamily: 'Poppins-Bold',
-        }}
-      >
-        {title}
-      </Text>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <Text
-          style={{
-            color: '#999',
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-            marginRight: 8,
-          }}
-        >
-          {value}
-        </Text>
+  const SettingsDropdown = ({ title, value, onPress }: { title: string; value: string; onPress: () => void }) => (
+    <TouchableOpacity onPress={onPress} className="px-4 py-4 flex-row items-center justify-between">
+      <Text className="text-white text-base font-poppins-bold">{title}</Text>
+      <View className="flex-row items-center">
+        <Text className="text-gray-400 text-sm font-poppins mr-2">{value}</Text>
         <Feather name="chevron-down" size={16} color="#999" />
       </View>
     </TouchableOpacity>
   );
 
   const InfoTile = ({ title, value }: { title: string; value: string }) => (
-    <View
-      style={{
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Text
-        style={{
-          color: '#fff',
-          fontSize: 16,
-          fontFamily: 'Poppins-Bold',
-        }}
-      >
-        {title}
-      </Text>
-      <Text
-        style={{
-          color: '#999',
-          fontSize: 14,
-          fontFamily: 'Poppins-Regular',
-        }}
-      >
-        {value}
-      </Text>
+    <View className="px-4 py-4 border-b border-gray-700 flex-row items-center justify-between">
+      <Text className="text-white text-base font-poppins-bold">{title}</Text>
+      <Text className="text-gray-400 text-sm font-poppins">{value}</Text>
     </View>
   );
 
@@ -177,40 +84,10 @@ export default function AppSettingsScreen() {
     if (!visible) return null;
 
     return (
-      <View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 1000,
-        }}
-      >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.3)',
-          }}
-          onPress={onClose}
-          activeOpacity={1}
-        />
+      <View className="absolute inset-0 z-50">
+        <TouchableOpacity className="flex-1 bg-black/30" onPress={onClose} activeOpacity={1} />
         {/* Dropdown positioned to the right */}
-        <View
-          style={{
-            position: 'absolute',
-            top: topPosition,
-            right: 16,
-            backgroundColor: '#333',
-            borderRadius: 8,
-            minWidth: 120,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
-          }}
-        >
+        <View className="absolute right-4 bg-gray-800 rounded-lg min-w-30 shadow-2xl" style={{ top: topPosition }}>
           {items.map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -218,23 +95,11 @@ export default function AppSettingsScreen() {
                 onSelect(item);
                 onClose();
               }}
-              style={{
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                borderBottomWidth: index < items.length - 1 ? 1 : 0,
-                borderBottomColor: '#444',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
+              className={`px-4 py-3 flex-row items-center justify-between ${
+                index < items.length - 1 ? 'border-b border-gray-600' : ''
+              }`}
             >
-              <Text
-                style={{
-                  color: selectedValue === item ? '#007AFF' : '#fff',
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                }}
-              >
+              <Text className={`text-sm font-poppins ${selectedValue === item ? 'text-blue-500' : 'text-white'}`}>
                 {item}
               </Text>
               {selectedValue === item && <Feather name="check" size={16} color="#007AFF" />}
@@ -245,141 +110,22 @@ export default function AppSettingsScreen() {
     );
   };
 
-  const DropdownModal = ({
-    visible,
-    onClose,
-    title,
-    items,
-    selectedValue,
-    onSelect,
-  }: {
-    visible: boolean;
-    onClose: () => void;
-    title: string;
-    items: string[];
-    selectedValue: string;
-    onSelect: (value: string) => void;
-  }) => (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          justifyContent: 'flex-end',
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: '#1C1C1E',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            paddingTop: 20,
-            paddingBottom: 40,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingHorizontal: 20,
-              marginBottom: 20,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              {title}
-            </Text>
-            <TouchableOpacity onPress={onClose}>
-              <Feather name="x" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-          {items.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                onSelect(item);
-                onClose();
-              }}
-              style={{
-                paddingHorizontal: 20,
-                paddingVertical: 16,
-                borderBottomWidth: index < items.length - 1 ? 1 : 0,
-                borderBottomColor: '#333',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text
-                style={{
-                  color: selectedValue === item ? '#007AFF' : '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
-                }}
-              >
-                {item}
-              </Text>
-              {selectedValue === item && <Feather name="check" size={20} color="#007AFF" />}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </Modal>
-  );
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          App Settings
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">App Settings</Text>
       </View>
 
-      <View style={{ flex: 1, position: 'relative' }}>
-        <ScrollView style={{ flex: 1 }}>
+      <View className="flex-1 relative">
+        <ScrollView className="flex-1">
           {/* Notifications Section */}
-          <View style={{ marginTop: 16 }}>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                marginLeft: 16,
-                marginBottom: 8,
-                textTransform: 'uppercase',
-              }}
-            >
-              NOTIFICATIONS
-            </Text>
+          <View className="mt-4">
+            <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">NOTIFICATIONS</Text>
 
             <SettingsSwitch
               title="Push Notifications"
@@ -397,29 +143,11 @@ export default function AppSettingsScreen() {
           </View>
 
           {/* Divider */}
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#333',
-              marginHorizontal: 16,
-              marginVertical: 16,
-            }}
-          />
+          <View className="h-px bg-gray-700 mx-4 my-4" />
 
           {/* Appearance Section */}
           <View>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                marginLeft: 16,
-                marginBottom: 8,
-                textTransform: 'uppercase',
-              }}
-            >
-              APPEARANCE
-            </Text>
+            <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">APPEARANCE</Text>
 
             <SettingsSwitch
               title="Dark Mode"
@@ -430,29 +158,11 @@ export default function AppSettingsScreen() {
           </View>
 
           {/* Divider */}
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#333',
-              marginHorizontal: 16,
-              marginVertical: 16,
-            }}
-          />
+          <View className="h-px bg-gray-700 mx-4 my-4" />
 
           {/* Language & Region Section */}
           <View>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                marginLeft: 16,
-                marginBottom: 8,
-                textTransform: 'uppercase',
-              }}
-            >
-              LANGUAGE & REGION
-            </Text>
+            <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">LANGUAGE & REGION</Text>
 
             <SettingsDropdown
               title="Language"
@@ -468,29 +178,11 @@ export default function AppSettingsScreen() {
           </View>
 
           {/* Divider */}
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#333',
-              marginHorizontal: 16,
-              marginVertical: 16,
-            }}
-          />
+          <View className="h-px bg-gray-700 mx-4 my-4" />
 
           {/* App Info Section */}
           <View>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-                marginLeft: 16,
-                marginBottom: 8,
-                textTransform: 'uppercase',
-              }}
-            >
-              APP INFO
-            </Text>
+            <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">APP INFO</Text>
 
             <InfoTile title="Version" value="1.0.0 (Build 123)" />
 
@@ -498,26 +190,12 @@ export default function AppSettingsScreen() {
           </View>
 
           {/* Clear Data Button */}
-          <View style={{ padding: 16 }}>
+          <View className="p-4">
             <TouchableOpacity
               onPress={() => setShowClearDataModal(true)}
-              style={{
-                backgroundColor: '#FF3B30',
-                paddingVertical: 16,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-                alignItems: 'center',
-              }}
+              className="bg-red-500 py-4 px-6 rounded-xl items-center"
             >
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Bold',
-                }}
-              >
-                Clear App Data
-              </Text>
+              <Text className="text-white text-base font-poppins-bold">Clear App Data</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -550,53 +228,18 @@ export default function AppSettingsScreen() {
         animationType="slide"
         onRequestClose={() => setShowClearDataModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#1C1C1E',
-              borderRadius: 12,
-              padding: 20,
-              margin: 20,
-              width: '90%',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 12,
-              }}
-            >
-              Clear App Data
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-white text-lg font-poppins-bold mb-3">Clear App Data</Text>
+            <Text className="text-gray-400 text-sm font-poppins mb-5">
+              This will clear all app data including saved preferences. This action cannot be undone.
             </Text>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                marginBottom: 20,
-              }}
-            >
-              This will clear all app data including saved preferences. This action cannot be
-              undone.
-            </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-              <TouchableOpacity
-                onPress={() => setShowClearDataModal(false)}
-                style={{ marginRight: 16 }}
-              >
-                <Text style={{ color: '#999', fontSize: 16 }}>Cancel</Text>
+            <View className="flex-row justify-end">
+              <TouchableOpacity onPress={() => setShowClearDataModal(false)} className="mr-4">
+                <Text className="text-gray-400 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleClearData}>
-                <Text style={{ color: '#FF3B30', fontSize: 16 }}>Clear Data</Text>
+                <Text className="text-red-500 text-base">Clear Data</Text>
               </TouchableOpacity>
             </View>
           </View>

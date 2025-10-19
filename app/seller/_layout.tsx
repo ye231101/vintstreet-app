@@ -1,0 +1,50 @@
+import { Stack } from 'expo-router';
+import React from 'react';
+
+export default function SellerLayout() {
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        presentation: 'card',
+        animation: 'slide_from_right',
+      }}
+    >
+      <Stack.Screen
+        name="dashboard"
+        options={{
+          title: 'Seller Dashboard',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="listings"
+        options={{
+          title: 'My Listings',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="orders"
+        options={{
+          title: 'Orders',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="offers"
+        options={{
+          title: 'Offers',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="reviews"
+        options={{
+          title: 'Reviews',
+          headerShown: false,
+        }}
+      />
+    </Stack>
+  );
+}

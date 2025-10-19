@@ -1,16 +1,7 @@
 import Feather from '@expo/vector-icons/Feather';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  Alert,
-  Modal,
-  ScrollView,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, Modal, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PrivacySecurityScreen() {
@@ -67,10 +58,7 @@ export default function PrivacySecurityScreen() {
   };
 
   const confirmDownloadData = () => {
-    Alert.alert(
-      'Success',
-      "Data download request submitted. You'll receive an email within 48 hours."
-    );
+    Alert.alert('Success', "Data download request submitted. You'll receive an email within 48 hours.");
     setShowDownloadDataModal(false);
   };
 
@@ -92,39 +80,11 @@ export default function PrivacySecurityScreen() {
     value: boolean;
     onValueChange: (value: boolean) => void;
   }) => (
-    <View
-      style={{
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <View style={{ flex: 1, marginRight: 16 }}>
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 4,
-            }}
-          >
-            {title}
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-            }}
-          >
-            {subtitle}
-          </Text>
+    <View className="px-4 py-3">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1 mr-4">
+          <Text className="text-white text-base font-poppins-bold mb-1">{title}</Text>
+          <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
         </View>
         <Switch
           value={value}
@@ -137,74 +97,27 @@ export default function PrivacySecurityScreen() {
   );
 
   const SettingsItem = ({ title, onPress }: { title: string; onPress: () => void }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Text
-        style={{
-          color: '#fff',
-          fontSize: 16,
-          fontFamily: 'Poppins-Bold',
-        }}
-      >
-        {title}
-      </Text>
+    <TouchableOpacity onPress={onPress} className="px-4 py-4 flex-row items-center justify-between">
+      <Text className="text-white text-base font-poppins-bold">{title}</Text>
       <Feather name="chevron-right" size={16} color="#999" />
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Privacy & Security
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Privacy & Security</Text>
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView className="flex-1">
         {/* Security Section */}
-        <View style={{ marginTop: 16 }}>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              marginLeft: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-            }}
-          >
-            SECURITY
-          </Text>
+        <View className="mt-4">
+          <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">SECURITY</Text>
 
           <SettingsSwitch
             title="Two-Factor Authentication"
@@ -224,29 +137,11 @@ export default function PrivacySecurityScreen() {
         </View>
 
         {/* Divider */}
-        <View
-          style={{
-            height: 1,
-            backgroundColor: '#333',
-            marginHorizontal: 16,
-            marginVertical: 16,
-          }}
-        />
+        <View className="h-px bg-gray-700 mx-4 my-4" />
 
         {/* Privacy Section */}
         <View>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              marginLeft: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-            }}
-          >
-            PRIVACY
-          </Text>
+          <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">PRIVACY</Text>
 
           <SettingsSwitch
             title="Location Services"
@@ -271,29 +166,11 @@ export default function PrivacySecurityScreen() {
         </View>
 
         {/* Divider */}
-        <View
-          style={{
-            height: 1,
-            backgroundColor: '#333',
-            marginHorizontal: 16,
-            marginVertical: 16,
-          }}
-        />
+        <View className="h-px bg-gray-700 mx-4 my-4" />
 
         {/* Data & Privacy Section */}
         <View>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              marginLeft: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-            }}
-          >
-            DATA & PRIVACY
-          </Text>
+          <Text className="text-gray-400 text-xs font-poppins-bold ml-4 mb-2 uppercase">DATA & PRIVACY</Text>
 
           <SettingsItem
             title="Privacy Policy"
@@ -309,26 +186,9 @@ export default function PrivacySecurityScreen() {
         </View>
 
         {/* Delete Account Button */}
-        <View style={{ padding: 16 }}>
-          <TouchableOpacity
-            onPress={handleDeleteAccount}
-            style={{
-              backgroundColor: '#FF3B30',
-              paddingVertical: 16,
-              paddingHorizontal: 24,
-              borderRadius: 12,
-              alignItems: 'center',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Delete Account
-            </Text>
+        <View className="p-4">
+          <TouchableOpacity onPress={handleDeleteAccount} className="bg-red-500 py-4 px-6 rounded-xl items-center">
+            <Text className="text-white text-base font-poppins-bold">Delete Account</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -340,55 +200,24 @@ export default function PrivacySecurityScreen() {
         animationType="slide"
         onRequestClose={() => setShowTwoFactorModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#1C1C1E',
-              borderRadius: 12,
-              padding: 20,
-              margin: 20,
-              width: '90%',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 12,
-              }}
-            >
-              Set Up Two-Factor Authentication
-            </Text>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                marginBottom: 20,
-              }}
-            >
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-white text-lg font-poppins-bold mb-3">Set Up Two-Factor Authentication</Text>
+            <Text className="text-gray-400 text-sm font-poppins mb-5">
               We'll send you a verification code via SMS when you log in from a new device.
             </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <View className="flex-row justify-end">
               <TouchableOpacity
                 onPress={() => {
                   setTwoFactorAuth(false);
                   setShowTwoFactorModal(false);
                 }}
-                style={{ marginRight: 16 }}
+                className="mr-4"
               >
-                <Text style={{ color: '#999', fontSize: 16 }}>Cancel</Text>
+                <Text className="text-gray-400 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowTwoFactorModal(false)}>
-                <Text style={{ color: '#007AFF', fontSize: 16 }}>Continue</Text>
+                <Text className="text-blue-500 text-base">Continue</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -402,43 +231,12 @@ export default function PrivacySecurityScreen() {
         animationType="slide"
         onRequestClose={() => setShowChangePasswordModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#1C1C1E',
-              borderRadius: 12,
-              padding: 20,
-              margin: 20,
-              width: '90%',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 20,
-              }}
-            >
-              Change Password
-            </Text>
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-white text-lg font-poppins-bold mb-5">Change Password</Text>
 
             <TextInput
-              style={{
-                backgroundColor: '#333',
-                borderRadius: 8,
-                padding: 12,
-                color: '#fff',
-                marginBottom: 12,
-                fontFamily: 'Poppins-Regular',
-              }}
+              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-poppins"
               placeholder="Current Password"
               placeholderTextColor="#999"
               value={currentPassword}
@@ -447,14 +245,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              style={{
-                backgroundColor: '#333',
-                borderRadius: 8,
-                padding: 12,
-                color: '#fff',
-                marginBottom: 12,
-                fontFamily: 'Poppins-Regular',
-              }}
+              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-poppins"
               placeholder="New Password"
               placeholderTextColor="#999"
               value={newPassword}
@@ -463,14 +254,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              style={{
-                backgroundColor: '#333',
-                borderRadius: 8,
-                padding: 12,
-                color: '#fff',
-                marginBottom: 20,
-                fontFamily: 'Poppins-Regular',
-              }}
+              className="bg-gray-700 rounded-lg p-3 text-white mb-5 font-poppins"
               placeholder="Confirm New Password"
               placeholderTextColor="#999"
               value={confirmPassword}
@@ -478,15 +262,12 @@ export default function PrivacySecurityScreen() {
               secureTextEntry
             />
 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-              <TouchableOpacity
-                onPress={() => setShowChangePasswordModal(false)}
-                style={{ marginRight: 16 }}
-              >
-                <Text style={{ color: '#999', fontSize: 16 }}>Cancel</Text>
+            <View className="flex-row justify-end">
+              <TouchableOpacity onPress={() => setShowChangePasswordModal(false)} className="mr-4">
+                <Text className="text-gray-400 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={confirmChangePassword}>
-                <Text style={{ color: '#007AFF', fontSize: 16 }}>Change Password</Text>
+                <Text className="text-blue-500 text-base">Change Password</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -500,53 +281,18 @@ export default function PrivacySecurityScreen() {
         animationType="slide"
         onRequestClose={() => setShowDownloadDataModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#1C1C1E',
-              borderRadius: 12,
-              padding: 20,
-              margin: 20,
-              width: '90%',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 12,
-              }}
-            >
-              Download My Data
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-white text-lg font-poppins-bold mb-3">Download My Data</Text>
+            <Text className="text-gray-400 text-sm font-poppins mb-5">
+              We'll prepare your data and send it to your registered email address. This may take up to 48 hours.
             </Text>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                marginBottom: 20,
-              }}
-            >
-              We'll prepare your data and send it to your registered email address. This may take up
-              to 48 hours.
-            </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-              <TouchableOpacity
-                onPress={() => setShowDownloadDataModal(false)}
-                style={{ marginRight: 16 }}
-              >
-                <Text style={{ color: '#999', fontSize: 16 }}>Cancel</Text>
+            <View className="flex-row justify-end">
+              <TouchableOpacity onPress={() => setShowDownloadDataModal(false)} className="mr-4">
+                <Text className="text-gray-400 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={confirmDownloadData}>
-                <Text style={{ color: '#007AFF', fontSize: 16 }}>Request Data</Text>
+                <Text className="text-blue-500 text-base">Request Data</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -560,52 +306,18 @@ export default function PrivacySecurityScreen() {
         animationType="slide"
         onRequestClose={() => setShowDeleteAccountModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: '#1C1C1E',
-              borderRadius: 12,
-              padding: 20,
-              margin: 20,
-              width: '90%',
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 12,
-              }}
-            >
-              Delete Account
-            </Text>
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                marginBottom: 20,
-              }}
-            >
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-white text-lg font-poppins-bold mb-3">Delete Account</Text>
+            <Text className="text-gray-400 text-sm font-poppins mb-5">
               This action cannot be undone. All your data will be permanently deleted.
             </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-              <TouchableOpacity
-                onPress={() => setShowDeleteAccountModal(false)}
-                style={{ marginRight: 16 }}
-              >
-                <Text style={{ color: '#999', fontSize: 16 }}>Cancel</Text>
+            <View className="flex-row justify-end">
+              <TouchableOpacity onPress={() => setShowDeleteAccountModal(false)} className="mr-4">
+                <Text className="text-gray-400 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={confirmDeleteAccount}>
-                <Text style={{ color: '#FF3B30', fontSize: 16 }}>Delete</Text>
+                <Text className="text-red-500 text-base">Delete</Text>
               </TouchableOpacity>
             </View>
           </View>

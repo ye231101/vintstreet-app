@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 export default function AccountScreen() {
   const { logout, user } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -18,446 +19,162 @@ export default function AccountScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-      <ScrollView style={{ flex: 1 }}>
+    <SafeAreaView className="flex-1 bg-black">
+      <ScrollView className="flex-1">
         {/* Profile Header Section */}
-        <View style={{ padding: 16, paddingTop: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View className="p-4 pt-4">
+          <View className="flex-row items-center">
             {/* Profile Avatar */}
-            <View
-              style={{
-                width: 70,
-                height: 70,
-                backgroundColor: '#333',
-                borderRadius: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 16,
-              }}
-            >
+            <View className="w-[70px] h-[70px] bg-gray-800 rounded-[10px] justify-center items-center mr-4">
               <Feather name="user" size={32} color="#fff" />
             </View>
 
             {/* User Info */}
-            <View style={{ flex: 1 }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontFamily: 'Poppins-Bold',
-                    color: '#fff',
-                  }}
-                >
+            <View className="flex-1">
+              <View className="flex-row justify-between items-center">
+                <Text className="text-lg font-poppins-bold text-white">
                   {user?.firstName || user?.username || 'Guest User'}
                 </Text>
-                <TouchableOpacity
-                  onPress={() => router.push('/basket')}
-                  style={{
-                    padding: 8,
-                  }}
-                >
+                <TouchableOpacity onPress={() => router.push('/basket')} className="p-2">
                   <Feather name="shopping-bag" size={24} color="#fff" />
                 </TouchableOpacity>
               </View>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#999',
-                  marginTop: 4,
-                }}
-              >
-                {user?.email || 'Not signed in'}
-              </Text>
-              <Pressable style={{ marginTop: 4 }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#007AFF',
-                  }}
-                >
-                  Edit Profile
-                </Text>
+              <Text className="text-sm font-poppins text-gray-400 mt-1">{user?.email || 'Not signed in'}</Text>
+              <Pressable className="mt-1">
+                <Text className="text-sm font-poppins text-blue-500">Edit Profile</Text>
               </Pressable>
             </View>
           </View>
         </View>
 
         {/* Divider */}
-        <View
-          style={{
-            height: 1,
-            backgroundColor: '#333',
-            marginHorizontal: 16,
-            marginVertical: 16,
-          }}
-        />
+        <View className="h-px bg-gray-800 mx-4 my-4" />
 
         {/* Seller Hub Section */}
-        <View style={{ marginBottom: 16 }}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              color: '#999',
-              marginLeft: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-            }}
-          >
-            SELLER HUB
-          </Text>
+        <View className="mb-4">
+          <Text className="text-xs font-poppins-bold text-gray-400 ml-4 mb-2 uppercase">SELLER HUB</Text>
 
-          <Pressable
-            onPress={() => router.push('/other/seller-dashboard')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/seller/dashboard')} className="flex-row items-center py-3 px-4">
             <Feather name="shopping-cart" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Seller Dashboard
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Seller Dashboard</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push('/other/payment-setup')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/seller/orders')} className="flex-row items-center py-3 px-4">
+            <Feather name="grid" size={24} color="#fff" />
+            <Text className="text-base font-poppins text-white ml-4 flex-1">My Listings</Text>
+            <Feather name="chevron-right" size={16} color="#999" />
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center py-3 px-4">
+            <Feather name="list" size={24} color="#fff" />
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Orders</Text>
+            <Feather name="chevron-right" size={16} color="#999" />
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/seller/offers')} className="flex-row items-center py-3 px-4">
+            <Feather name="tag" size={24} color="#fff" />
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Offers</Text>
+            <Feather name="chevron-right" size={16} color="#999" />
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/seller/reviews')} className="flex-row items-center py-3 px-4">
+            <Feather name="star" size={24} color="#fff" />
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Reviews</Text>
+            <Feather name="chevron-right" size={16} color="#999" />
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/other/payment-setup')} className="flex-row items-center py-3 px-4">
             <Feather name="credit-card" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Payment Setup
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Payment Setup</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
         </View>
 
         {/* Divider */}
-        <View
-          style={{
-            height: 1,
-            backgroundColor: '#333',
-            marginHorizontal: 16,
-            marginVertical: 16,
-          }}
-        />
+        <View className="h-px bg-gray-800 mx-4 my-4" />
 
         {/* Shopping Section */}
-        <View style={{ marginBottom: 16 }}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              color: '#999',
-              marginLeft: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-            }}
-          >
-            SHOPPING
-          </Text>
+        <View className="mb-4">
+          <Text className="text-xs font-poppins-bold text-gray-400 ml-4 mb-2 uppercase">SHOPPING</Text>
 
-          <Pressable
-            onPress={() => router.push('/other/orders')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/orders')} className="flex-row items-center py-3 px-4">
             <Feather name="shopping-cart" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Orders
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">My Orders</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push('/other/favourites')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/offers')} className="flex-row items-center py-3 px-4">
+            <Feather name="tag" size={24} color="#fff" />
+            <Text className="text-base font-poppins text-white ml-4 flex-1">My Offers</Text>
+            <Feather name="chevron-right" size={16} color="#999" />
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/other/favourites')} className="flex-row items-center py-3 px-4">
             <Feather name="heart" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Favourites
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Favourites</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push('/other/payment-methods')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/payment-methods')} className="flex-row items-center py-3 px-4">
             <Feather name="credit-card" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Payment Methods
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Payment Methods</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push('/other/addresses')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/addresses')} className="flex-row items-center py-3 px-4">
             <Feather name="map-pin" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Addresses
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Addresses</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
         </View>
 
         {/* Divider */}
-        <View
-          style={{
-            height: 1,
-            backgroundColor: '#333',
-            marginHorizontal: 16,
-            marginVertical: 16,
-          }}
-        />
+        <View className="h-px bg-gray-800 mx-4 my-4" />
 
         {/* Support Section */}
-        <View style={{ marginBottom: 16 }}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              color: '#999',
-              marginLeft: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-            }}
-          >
-            SUPPORT
-          </Text>
+        <View className="mb-4">
+          <Text className="text-xs font-poppins-bold text-gray-400 ml-4 mb-2 uppercase">SUPPORT</Text>
 
-          <Pressable
-            onPress={() => router.push('/other/help-center')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/help-center')} className="flex-row items-center py-3 px-4">
             <Feather name="help-circle" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Help Center
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Help Center</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push('/other/contact-support')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/contact-support')} className="flex-row items-center py-3 px-4">
             <Feather name="message-circle" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Contact Support
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Contact Support</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
         </View>
 
         {/* Divider */}
-        <View
-          style={{
-            height: 1,
-            backgroundColor: '#333',
-            marginHorizontal: 16,
-            marginVertical: 16,
-          }}
-        />
+        <View className="h-px bg-gray-800 mx-4 my-4" />
 
         {/* Settings Section */}
-        <View style={{ marginBottom: 16 }}>
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: 'Poppins-Bold',
-              color: '#999',
-              marginLeft: 16,
-              marginBottom: 8,
-              textTransform: 'uppercase',
-            }}
-          >
-            SETTINGS
-          </Text>
+        <View className="mb-4">
+          <Text className="text-xs font-poppins-bold text-gray-400 ml-4 mb-2 uppercase">SETTINGS</Text>
 
-          <Pressable
-            onPress={() => router.push('/other/app-settings')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/app-settings')} className="flex-row items-center py-3 px-4">
             <Feather name="settings" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              App Settings
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">App Settings</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable
-            onPress={() => router.push('/other/privacy-security')}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={() => router.push('/other/privacy-security')} className="flex-row items-center py-3 px-4">
             <Feather name="shield" size={24} color="#fff" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Privacy & Security
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Privacy & Security</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable
-            onPress={showLogoutConfirmation}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-            }}
-          >
+          <Pressable onPress={showLogoutConfirmation} className="flex-row items-center py-3 px-4">
             <Feather name="log-out" size={24} color="#ff4444" />
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#fff',
-                marginLeft: 16,
-                flex: 1,
-              }}
-            >
-              Logout
-            </Text>
+            <Text className="text-base font-poppins text-white ml-4 flex-1">Logout</Text>
           </Pressable>
         </View>
 
-        <View style={{ height: 32 }} />
+        <View className="h-8" />
       </ScrollView>
 
       {/* Logout Confirmation Modal */}
@@ -467,98 +184,21 @@ export default function AccountScreen() {
         animationType="fade"
         onRequestClose={() => setShowLogoutModal(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 12,
-              padding: 24,
-              width: '100%',
-              maxWidth: 320,
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 20,
-                fontFamily: 'Poppins-Bold',
-                color: '#000',
-                marginBottom: 16,
-                textAlign: 'center',
-              }}
-            >
-              Logout
-            </Text>
+        <View className="flex-1 bg-black/50 justify-center items-center p-5">
+          <View className="bg-white rounded-xl p-6 w-full max-w-80 shadow-lg">
+            <Text className="text-xl font-poppins-bold text-black mb-4 text-center">Logout</Text>
 
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-                color: '#666',
-                marginBottom: 24,
-                textAlign: 'center',
-                lineHeight: 22,
-              }}
-            >
+            <Text className="text-base font-poppins text-gray-600 mb-6 text-center leading-6">
               Are you sure you want to logout?
             </Text>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                gap: 12,
-              }}
-            >
-              <Pressable
-                onPress={() => setShowLogoutModal(false)}
-                style={{
-                  paddingVertical: 12,
-                  paddingHorizontal: 20,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#666',
-                  }}
-                >
-                  Cancel
-                </Text>
+            <View className="flex-row justify-end gap-3">
+              <Pressable onPress={() => setShowLogoutModal(false)} className="py-3 px-5">
+                <Text className="text-base font-poppins text-gray-600">Cancel</Text>
               </Pressable>
 
-              <Pressable
-                onPress={handleLogout}
-                style={{
-                  paddingVertical: 12,
-                  paddingHorizontal: 20,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-SemiBold',
-                    color: '#ff4444',
-                  }}
-                >
-                  Logout
-                </Text>
+              <Pressable onPress={handleLogout} className="py-3 px-5">
+                <Text className="text-base font-poppins-semibold text-red-500">Logout</Text>
               </Pressable>
             </View>
           </View>

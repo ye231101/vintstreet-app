@@ -219,20 +219,13 @@ export default function RegisterScreen() {
     showPasswordToggle?: boolean;
     onTogglePassword?: () => void;
   }) => (
-    <View style={{ marginBottom: 16 }}>
+    <View className="mb-4">
       <View
-        style={{
-          borderWidth: 1,
-          borderRadius: 8,
-          borderColor: error ? '#ff6b6b' : '#e0e0e0',
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 12,
-          height: 52,
-          backgroundColor: '#fff',
-        }}
+        className={`border rounded-lg flex-row items-center px-3 h-13 bg-white ${
+          error ? 'border-red-400' : 'border-gray-300'
+        }`}
       >
-        <Text style={{ marginRight: 8 }}>
+        <Text className="mr-2">
           <Feather name={icon as any} size={24} color="black" />
         </Text>
         <TextInput
@@ -243,13 +236,7 @@ export default function RegisterScreen() {
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
           keyboardType={keyboardType}
-          style={{
-            flex: 1,
-            fontFamily: 'Poppins-Regular',
-            fontSize: 16,
-            height: 52,
-            textAlignVertical: 'center',
-          }}
+          className="flex-1 font-poppins text-base h-13"
         />
         {showPasswordToggle && (
           <Pressable onPress={onTogglePassword} hitSlop={8}>
@@ -257,89 +244,42 @@ export default function RegisterScreen() {
           </Pressable>
         )}
       </View>
-      {error && (
-        <Text
-          style={{
-            color: '#ff6b6b',
-            fontSize: 12,
-            marginTop: 4,
-            fontFamily: 'Poppins-Regular',
-          }}
-        >
-          {error}
-        </Text>
-      )}
+      {error && <Text className="text-red-400 text-xs mt-1 font-poppins">{error}</Text>}
     </View>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, padding: 24 }}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        className="p-6"
       >
-        <View style={{ flex: 1 }}>
+        <View className="flex-1">
           {/* Header */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginBottom: 20,
-            }}
-          >
+          <View className="flex-row items-center mb-5">
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="black" />
             </Pressable>
-            <Text
-              style={{
-                fontSize: 20,
-                fontFamily: 'Poppins-Bold',
-                flex: 1,
-                textAlign: 'center',
-                marginRight: 24, // Offset for the back button
-              }}
-            >
-              Create Account
-            </Text>
+            <Text className="text-xl font-poppins-bold flex-1 text-center mr-6">Create Account</Text>
           </View>
 
           {/* Logo */}
-          <View style={{ alignItems: 'center', marginBottom: 30 }}>
-            <Image
-              source={require('@/assets/images/splash-logo.png')}
-              style={{ width: 160, height: 160, resizeMode: 'contain' }}
-            />
+          <View className="items-center mb-8">
+            <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
           </View>
 
           {/* Error message */}
           {error && (
-            <View
-              style={{
-                backgroundColor: '#ffe5e5',
-                borderColor: '#ff9c9c',
-                borderWidth: 1,
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 16,
-              }}
-            >
-              <Text style={{ fontFamily: 'Poppins-Regular', color: '#b00020' }}>{error}</Text>
+            <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
+              <Text className="font-poppins text-red-700">{error}</Text>
             </View>
           )}
 
-          <View style={{ width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+          <View className="w-full max-w-lg self-center">
             {/* Account Information Section */}
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 8,
-                marginTop: 8,
-              }}
-            >
-              Account Information
-            </Text>
+            <Text className="text-lg font-poppins-bold mb-2 mt-2">Account Information</Text>
 
             <InputField
               label="Username"
@@ -389,16 +329,7 @@ export default function RegisterScreen() {
             />
 
             {/* Personal Information Section */}
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 8,
-                marginTop: 8,
-              }}
-            >
-              Personal Information
-            </Text>
+            <Text className="text-lg font-poppins-bold mb-2 mt-2">Personal Information</Text>
 
             <InputField
               label="First Name"
@@ -428,16 +359,7 @@ export default function RegisterScreen() {
             />
 
             {/* Address Information Section */}
-            <Text
-              style={{
-                fontSize: 18,
-                fontFamily: 'Poppins-Bold',
-                marginBottom: 8,
-                marginTop: 8,
-              }}
-            >
-              Address Information
-            </Text>
+            <Text className="text-lg font-poppins-bold mb-2 mt-2">Address Information</Text>
 
             <InputField
               label="Address Line 1"
@@ -502,41 +424,19 @@ export default function RegisterScreen() {
             />
 
             {/* Terms and Conditions */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                marginTop: 24,
-                marginBottom: 24,
-              }}
-            >
+            <View className="flex-row items-start mt-6 mb-6">
               <Pressable
                 onPress={() => setTermsAccepted(!termsAccepted)}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderWidth: 1,
-                  borderColor: '#e0e0e0',
-                  borderRadius: 4,
-                  marginRight: 12,
-                  marginTop: 2,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: termsAccepted ? '#000' : '#fff',
-                }}
+                className={`w-5 h-5 border rounded mr-3 mt-0.5 items-center justify-center ${
+                  termsAccepted ? 'bg-black border-black' : 'bg-white border-gray-300'
+                }`}
               >
                 {termsAccepted && <Feather name="check" size={16} color="white" />}
               </Pressable>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontFamily: 'Poppins-Regular', lineHeight: 20 }}>
+              <View className="flex-1">
+                <Text className="font-poppins leading-5">
                   I have read and agree to the{' '}
-                  <Text
-                    style={{
-                      color: '#007AFF',
-                      textDecorationLine: 'underline',
-                    }}
-                    onPress={openTermsAndConditions}
-                  >
+                  <Text className="text-blue-500 underline" onPress={openTermsAndConditions}>
                     Terms and Conditions
                   </Text>
                 </Text>
@@ -547,45 +447,18 @@ export default function RegisterScreen() {
             <Pressable
               onPress={handleSubmit}
               disabled={loading}
-              style={{
-                height: 50,
-                borderRadius: 8,
-                backgroundColor: loading ? '#9e9e9e' : '#000',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 24,
-              }}
+              className={`h-12 rounded-lg items-center justify-center mb-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text
-                style={{
-                  fontFamily: 'Poppins-Regular',
-                  color: '#fff',
-                  fontSize: 16,
-                }}
-              >
+              <Text className="font-poppins text-white text-base">
                 {loading ? 'Creating Account...' : 'Create Account'}
               </Text>
             </Pressable>
 
             {/* Login Link */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ fontFamily: 'Poppins-Regular' }}>Already have an account? </Text>
+            <View className="flex-row justify-center items-center">
+              <Text className="font-poppins">Already have an account? </Text>
               <Pressable onPress={() => router.back()}>
-                <Text
-                  style={{
-                    fontFamily: 'Poppins-Regular',
-                    color: '#222',
-                    fontWeight: '500',
-                  }}
-                >
-                  Login
-                </Text>
+                <Text className="font-poppins text-gray-800 font-medium">Login</Text>
               </Pressable>
             </View>
           </View>

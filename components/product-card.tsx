@@ -1,6 +1,6 @@
 import Feather from '@expo/vector-icons/Feather';
 import React from 'react';
-import { Dimensions, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Pressable, Text, View } from 'react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -33,113 +33,42 @@ const ProductCard: React.FC<ProductCardProps> = ({
   height = width * (4 / 3),
 }) => {
   return (
-    <Pressable style={[styles.container, { width }]} onPress={onPress}>
-      <View style={styles.imageContainer}>
-        <Image source={product.image} style={[styles.image, { height }]} resizeMode="cover" />
+    <Pressable className="mr-2 bg-white overflow-hidden" style={{ width }} onPress={onPress}>
+      <View className="relative">
+        <Image source={product.image} className="w-full rounded-lg" style={{ height }} resizeMode="cover" />
 
         {/* Like Button */}
-        <View style={styles.likeButton}>
-          <Text style={styles.likeText}>{product.likes}</Text>
+        <View className="absolute bottom-2 right-2 bg-white/60 rounded-xl px-1.5 py-0.5 flex-row items-center">
+          <Text className="text-black text-xs mr-2">{product.likes}</Text>
           <Feather name="heart" size={12} color="black" />
         </View>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.productName} numberOfLines={2}>
+      <View className="p-3">
+        <Text className="text-xs font-poppins mb-1 leading-4" numberOfLines={2}>
           {product.name}
         </Text>
 
-        <Text style={styles.brand} numberOfLines={1}>
+        <Text className="text-xs font-poppins text-gray-600 mb-1" numberOfLines={1}>
           {product.brand}
         </Text>
 
         {showSize && product.size && (
-          <Text style={styles.size} numberOfLines={1}>
+          <Text className="text-xs font-poppins text-gray-600 mb-1" numberOfLines={1}>
             {product.size}
           </Text>
         )}
 
-        <Text style={styles.price}>{product.price}</Text>
+        <Text className="text-sm font-poppins-semibold mb-0.5 text-black">{product.price}</Text>
 
         {showProtectionFee && product.protectionFee && (
-          <Text style={styles.protectionFee}>({product.protectionFee} Protection Fee)</Text>
+          <Text className="text-xs font-poppins text-gray-600 mb-0.5">({product.protectionFee} Protection Fee)</Text>
         )}
 
-        <Text style={styles.officialText}>(Official Vint Street Product)</Text>
+        <Text className="text-xs font-poppins text-gray-600 mt-0.5">(Official Vint Street Product)</Text>
       </View>
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginRight: 8,
-    backgroundColor: 'white',
-    overflow: 'hidden',
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  image: {
-    width: '100%',
-    resizeMode: 'cover',
-    borderRadius: 8,
-  },
-  likeButton: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    borderRadius: 12,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  likeText: {
-    color: 'black',
-    fontSize: 10,
-    marginRight: 8,
-  },
-  content: {
-    padding: 12,
-  },
-  productName: {
-    fontSize: 12,
-    fontFamily: 'Poppins-Regular',
-    marginBottom: 4,
-    lineHeight: 16,
-  },
-  brand: {
-    fontSize: 12,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-    marginBottom: 4,
-  },
-  size: {
-    fontSize: 12,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 14,
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: 2,
-    color: '#000',
-  },
-  protectionFee: {
-    fontSize: 10,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-    marginBottom: 2,
-  },
-  officialText: {
-    fontSize: 10,
-    fontFamily: 'Poppins-Regular',
-    color: '#666',
-    marginTop: 2,
-  },
-});
 
 export default ProductCard;

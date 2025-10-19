@@ -31,8 +31,7 @@ class AuthService {
         return {
           user: null,
           session: null,
-          error:
-            'An account with this email already exists. Please use a different email or try logging in.',
+          error: 'An account with this email already exists. Please use a different email or try logging in.',
         };
       }
 
@@ -61,8 +60,7 @@ class AuthService {
           return {
             user: null,
             session: null,
-            error:
-              'An account with this email already exists. Please use a different email or try logging in.',
+            error: 'An account with this email already exists. Please use a different email or try logging in.',
           };
         }
 
@@ -78,8 +76,7 @@ class AuthService {
         return {
           user: null,
           session: null,
-          error:
-            'An account with this email already exists. Please use a different email or try logging in.',
+          error: 'An account with this email already exists. Please use a different email or try logging in.',
         };
       }
 
@@ -273,10 +270,7 @@ class AuthService {
    * @param type - Type of OTP (signup, email, etc.)
    * @returns ResendOTPResponse
    */
-  async resendOTP(
-    email: string,
-    type: 'signup' | 'email_change' = 'signup'
-  ): Promise<ResendOTPResponse> {
+  async resendOTP(email: string, type: 'signup' | 'email_change' = 'signup'): Promise<ResendOTPResponse> {
     try {
       const { error } = await supabase.auth.resend({
         type: type as 'signup' | 'email_change',

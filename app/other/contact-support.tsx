@@ -48,9 +48,9 @@ Please get back to me as soon as possible.
 Thank you,
 [Your Name]`;
 
-      const emailUri = `mailto:support@vintstreet.com?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
+      const emailUri = `mailto:support@vintstreet.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+        body
+      )}`;
 
       const canOpen = await Linking.canOpenURL(emailUri);
       if (canOpen) {
@@ -145,39 +145,13 @@ Thank you,
     if (!showCategoryDropdown) return null;
 
     return (
-      <View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 1000,
-        }}
-      >
+      <View className="absolute inset-0 z-50">
         <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0,0,0,0.3)',
-          }}
+          className="flex-1 bg-black/30"
           onPress={() => setShowCategoryDropdown(false)}
           activeOpacity={1}
         />
-        <View
-          style={{
-            position: 'absolute',
-            top: 100,
-            left: 16,
-            right: 16,
-            backgroundColor: '#333',
-            borderRadius: 8,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
-          }}
-        >
+        <View className="absolute top-25 left-4 right-4 bg-gray-800 rounded-lg shadow-2xl">
           {supportCategories.map((category, index) => (
             <TouchableOpacity
               key={index}
@@ -185,22 +159,12 @@ Thank you,
                 setSelectedCategory(category);
                 setShowCategoryDropdown(false);
               }}
-              style={{
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                borderBottomWidth: index < supportCategories.length - 1 ? 1 : 0,
-                borderBottomColor: '#444',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
+              className={`px-4 py-3 flex-row items-center justify-between ${
+                index < supportCategories.length - 1 ? 'border-b border-gray-600' : ''
+              }`}
             >
               <Text
-                style={{
-                  color: selectedCategory === category ? '#007AFF' : '#fff',
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                }}
+                className={`text-sm font-poppins ${selectedCategory === category ? 'text-blue-500' : 'text-white'}`}
               >
                 {category}
               </Text>
@@ -228,230 +192,84 @@ Thank you,
     <TouchableOpacity
       onPress={isTappable ? onPress : undefined}
       disabled={!isTappable}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 4,
-      }}
+      className="flex-row items-center py-1"
     >
       <Feather name={icon as any} color="#999" size={20} />
-      <View style={{ marginLeft: 12, flex: 1 }}>
-        <Text
-          style={{
-            color: '#999',
-            fontSize: 12,
-            fontFamily: 'Poppins-Regular',
-          }}
-        >
-          {title}
-        </Text>
-        <Text
-          style={{
-            color: isTappable ? '#007AFF' : '#fff',
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-            textDecorationLine: isTappable ? 'underline' : 'none',
-          }}
-        >
-          {value}
-        </Text>
+      <View className="ml-3 flex-1">
+        <Text className="text-gray-400 text-xs font-poppins">{title}</Text>
+        <Text className={`text-sm font-poppins ${isTappable ? 'text-blue-500 underline' : 'text-white'}`}>{value}</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Contact Support
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Contact Support</Text>
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
-        <View style={{ padding: 16 }}>
+      <ScrollView className="flex-1">
+        <View className="p-4">
           {/* Support Categories */}
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 8,
-            }}
-          >
-            What can we help you with?
-          </Text>
+          <Text className="text-white text-base font-poppins-bold mb-2">What can we help you with?</Text>
 
           <TouchableOpacity
             onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              paddingHorizontal: 12,
-              paddingVertical: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
+            className="bg-gray-700 rounded-xl px-3 py-4 flex-row items-center justify-between"
           >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Regular',
-              }}
-            >
-              {selectedCategory}
-            </Text>
+            <Text className="text-white text-base font-poppins">{selectedCategory}</Text>
             <Feather name="chevron-down" size={20} color="#999" />
           </TouchableOpacity>
 
-          <View style={{ height: 24 }} />
+          <View className="h-6" />
 
           {/* Message Field */}
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 8,
-            }}
-          >
-            Describe your issue
-          </Text>
+          <Text className="text-white text-base font-poppins-bold mb-2">Describe your issue</Text>
 
           <TextInput
             value={message}
             onChangeText={setMessage}
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              padding: 16,
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Regular',
-              textAlignVertical: 'top',
-              minHeight: 120,
-            }}
+            className="bg-gray-700 rounded-xl p-4 text-white text-base font-poppins min-h-30"
             placeholder="Please provide as much detail as possible..."
             placeholderTextColor="#999"
             multiline
             numberOfLines={5}
+            textAlignVertical="top"
           />
 
-          <View style={{ height: 24 }} />
+          <View className="h-6" />
 
           {/* Quick Email Button */}
           <TouchableOpacity
             onPress={handleQuickEmail}
-            style={{
-              backgroundColor: 'transparent',
-              borderWidth: 1,
-              borderColor: '#007AFF',
-              borderRadius: 12,
-              paddingVertical: 16,
-              alignItems: 'center',
-              marginBottom: 16,
-            }}
+            className="border border-blue-500 rounded-xl py-4 items-center mb-4"
           >
-            <Text
-              style={{
-                color: '#007AFF',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Send Quick Email
-            </Text>
+            <Text className="text-blue-500 text-base font-poppins-bold">Send Quick Email</Text>
           </TouchableOpacity>
 
           {/* Submit Button */}
           <TouchableOpacity
             onPress={handleSubmitRequest}
             disabled={isSubmitting}
-            style={{
-              backgroundColor: isSubmitting ? '#666' : '#007AFF',
-              borderRadius: 12,
-              paddingVertical: 16,
-              alignItems: 'center',
-              marginBottom: 24,
-            }}
+            className={`rounded-xl py-4 items-center mb-6 ${isSubmitting ? 'bg-gray-600' : 'bg-blue-500'}`}
           >
             {isSubmitting ? (
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Bold',
-                }}
-              >
-                Submitting...
-              </Text>
+              <Text className="text-white text-base font-poppins-bold">Submitting...</Text>
             ) : (
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Bold',
-                }}
-              >
-                Submit Request
-              </Text>
+              <Text className="text-white text-base font-poppins-bold">Submit Request</Text>
             )}
           </TouchableOpacity>
 
           {/* Contact Info Card */}
-          <View
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              padding: 16,
-            }}
-          >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 12,
-              }}
-            >
+          <View className="bg-gray-700 rounded-xl p-4">
+            <View className="flex-row items-center mb-3">
               <Feather name="info" size={20} color="#007AFF" />
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Bold',
-                  marginLeft: 8,
-                }}
-              >
-                Other Ways to Contact Us
-              </Text>
+              <Text className="text-white text-base font-poppins-bold ml-2">Other Ways to Contact Us</Text>
             </View>
 
             <ContactMethod
@@ -462,7 +280,7 @@ Thank you,
               onPress={handleEmailContact}
             />
 
-            <View style={{ height: 8 }} />
+            <View className="h-2" />
 
             <ContactMethod
               icon="phone"
@@ -472,7 +290,7 @@ Thank you,
               onPress={handlePhoneContact}
             />
 
-            <View style={{ height: 8 }} />
+            <View className="h-2" />
 
             <ContactMethod icon="clock" title="Hours" value="Mon-Fri, 9:00 AM - 6:00 PM EST" />
           </View>

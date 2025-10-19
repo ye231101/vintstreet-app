@@ -154,9 +154,7 @@ class TypesenseService {
       sku: document.sku,
       shortDescription: document.short_description,
       stockStatus: document.stock_status || 'instock',
-      categories: Array.isArray(document.categories)
-        ? document.categories.map((item) => item.toString())
-        : [],
+      categories: Array.isArray(document.categories) ? document.categories.map((item) => item.toString()) : [],
       categorySlugs: Array.isArray(document.category_slugs)
         ? document.category_slugs.map((item) => item.toString())
         : [],
@@ -252,14 +250,7 @@ class TypesenseService {
    */
   private async systemSearch(params: SearchParams): Promise<TypesenseSearchResponse> {
     try {
-      const {
-        query,
-        queryBy = 'name,description,brand,categories',
-        filterBy,
-        sortBy,
-        perPage = 20,
-        page = 1,
-      } = params;
+      const { query, queryBy = 'name,description,brand,categories', filterBy, sortBy, perPage = 20, page = 1 } = params;
 
       // Create base filter conditions
       const defaultFilterConditions = 'post_status:="publish" && catalog_visibility:!="hidden"';
@@ -355,9 +346,7 @@ class TypesenseService {
         if (popularQueryStrings.length >= limit) break;
       }
 
-      console.log(
-        `Extracted ${popularQueryStrings.length} popular queries: ${popularQueryStrings.join(', ')}`
-      );
+      console.log(`Extracted ${popularQueryStrings.length} popular queries: ${popularQueryStrings.join(', ')}`);
 
       if (popularQueryStrings.length === 0) {
         return await this.getTrendingProducts(limit);
@@ -384,10 +373,7 @@ class TypesenseService {
             sortBy: '_text_match:desc',
           });
 
-          const response = (await Promise.race([
-            searchPromise2,
-            timeoutPromise2,
-          ])) as TypesenseSearchResponse;
+          const response = (await Promise.race([searchPromise2, timeoutPromise2])) as TypesenseSearchResponse;
 
           const hits = response.hits || [];
           console.log(`Query "${query}" returned ${hits.length} products`);

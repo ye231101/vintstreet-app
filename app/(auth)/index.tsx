@@ -17,69 +17,30 @@ export default function IndexScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, padding: 24 }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        className="p-6"
       >
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <View style={{ width: '100%', maxWidth: 520 }}>
-            <View style={{ paddingBottom: 40, alignItems: 'center' }}>
-              <Image
-                source={require('@/assets/images/splash-logo.png')}
-                style={{ width: 160, height: 160, resizeMode: 'contain' }}
-              />
-              <Text
-                style={{
-                  fontSize: 24,
-                  fontFamily: 'Poppins-Bold',
-                  marginTop: 16,
-                  textAlign: 'center',
-                }}
-              >
-                Welcome to Vint Street
-              </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#8e8e8e',
-                  marginTop: 8,
-                  textAlign: 'center',
-                }}
-              >
-                Sign in to continue
-              </Text>
+        <View className="flex-1 items-center justify-center">
+          <View className="w-full max-w-lg">
+            <View className="pb-10 items-center">
+              <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
+              <Text className="text-2xl font-poppins-bold mt-4 text-center">Welcome to Vint Street</Text>
+              <Text className="text-base font-poppins text-gray-500 mt-2 text-center">Sign in to continue</Text>
             </View>
 
             {Boolean(error) && (
-              <View
-                style={{
-                  backgroundColor: '#ffe5e5',
-                  borderColor: '#ff9c9c',
-                  borderWidth: 1,
-                  padding: 10,
-                  borderRadius: 8,
-                  marginBottom: 16,
-                }}
-              >
-                <Text style={{ fontFamily: 'Poppins-Regular', color: '#b00020' }}>{error}</Text>
+              <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
+                <Text className="font-poppins text-red-700">{error}</Text>
               </View>
             )}
 
-            <View style={{ width: '100%', marginTop: 0 }}>
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderRadius: 8,
-                  borderColor: '#e0e0e0',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingHorizontal: 12,
-                  height: 52,
-                }}
-              >
-                <Text style={{ marginRight: 8 }}>
+            <View className="w-full">
+              <View className="border border-gray-300 rounded-lg flex-row items-center px-3 h-13">
+                <Text className="mr-2">
                   <Feather name="mail" size={24} color="black" />
                 </Text>
                 <TextInput
@@ -89,31 +50,15 @@ export default function IndexScreen() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="email-address"
-                  style={{
-                    flex: 1,
-                    fontFamily: 'Poppins-Regular',
-                    fontSize: 16,
-                    height: 52,
-                    textAlignVertical: 'center',
-                  }}
+                  className="flex-1 font-poppins text-base h-13"
                   returnKeyType="next"
                 />
               </View>
             </View>
 
-            <View style={{ width: '100%', marginTop: 16 }}>
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderRadius: 8,
-                  borderColor: '#e0e0e0',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingHorizontal: 12,
-                  height: 52,
-                }}
-              >
-                <Text style={{ marginRight: 8 }}>
+            <View className="w-full mt-4">
+              <View className="border border-gray-300 rounded-lg flex-row items-center px-3 h-13">
+                <Text className="mr-2">
                   <Feather name="lock" size={24} color="black" />
                 </Text>
                 <TextInput
@@ -123,18 +68,12 @@ export default function IndexScreen() {
                   secureTextEntry={secure}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  style={{
-                    flex: 1,
-                    fontFamily: 'Poppins-Regular',
-                    fontSize: 16,
-                    height: 52,
-                    textAlignVertical: 'center',
-                  }}
+                  className="flex-1 font-poppins text-base h-13"
                   returnKeyType="done"
                   onSubmitEditing={onSubmit}
                 />
                 <Pressable onPress={() => setSecure((s) => !s)} hitSlop={8}>
-                  <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular' }}>
+                  <Text className="text-base font-poppins">
                     {secure ? (
                       <Feather name="eye" size={24} color="black" />
                     ) : (
@@ -145,55 +84,24 @@ export default function IndexScreen() {
               </View>
             </View>
 
-            <View style={{ alignItems: 'flex-end', marginTop: 16 }}>
+            <View className="items-end mt-4">
               <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
-                <Text style={{ fontFamily: 'Poppins-Regular', color: '#222' }}>
-                  Forgot Password?
-                </Text>
+                <Text className="font-poppins text-gray-800">Forgot Password?</Text>
               </Pressable>
             </View>
 
             <Pressable
               onPress={onSubmit}
               disabled={loading}
-              style={{
-                height: 50,
-                borderRadius: 8,
-                backgroundColor: loading ? '#9e9e9e' : '#000',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 24,
-              }}
+              className={`h-12 rounded-lg items-center justify-center mt-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text
-                style={{
-                  fontFamily: 'Poppins-Regular',
-                  color: '#fff',
-                  fontSize: 16,
-                }}
-              >
-                {loading ? '...' : 'Login'}
-              </Text>
+              <Text className="font-poppins text-white text-base">{loading ? '...' : 'Login'}</Text>
             </Pressable>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: 24,
-              }}
-            >
-              <Text style={{ fontFamily: 'Poppins-Regular' }}>Don't have an account? </Text>
+            <View className="flex-row justify-center mt-6">
+              <Text className="font-poppins">Don't have an account? </Text>
               <Pressable onPress={() => router.push('/(auth)/register')}>
-                <Text
-                  style={{
-                    fontFamily: 'Poppins-Regular',
-                    color: '#222',
-                    fontWeight: '500',
-                  }}
-                >
-                  Register
-                </Text>
+                <Text className="font-poppins text-gray-800 font-medium">Register</Text>
               </Pressable>
             </View>
           </View>

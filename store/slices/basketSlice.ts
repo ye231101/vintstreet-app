@@ -101,10 +101,7 @@ const basketSlice = createSlice({
   initialState,
   reducers: {
     // Add item to basket
-    addToBasket: (
-      state,
-      action: PayloadAction<Omit<BasketItem, 'id' | 'lineTotal' | 'protectionFee'>>
-    ) => {
+    addToBasket: (state, action: PayloadAction<Omit<BasketItem, 'id' | 'lineTotal' | 'protectionFee'>>) => {
       const itemData = action.payload;
 
       // Check if item already exists in basket
@@ -239,14 +236,7 @@ const basketSlice = createSlice({
   },
 });
 
-export const {
-  addToBasket,
-  removeFromBasket,
-  updateQuantity,
-  clearBasket,
-  setLoading,
-  setError,
-  clearError,
-} = basketSlice.actions;
+export const { addToBasket, removeFromBasket, updateQuantity, clearBasket, setLoading, setError, clearError } =
+  basketSlice.actions;
 
 export default basketSlice.reducer;

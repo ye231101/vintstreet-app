@@ -1,15 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface PaymentMethod {
@@ -109,105 +101,30 @@ export default function PaymentMethodsScreen() {
     onSetDefault: () => void;
     onDelete: () => void;
   }) => (
-    <View
-      style={{
-        backgroundColor: '#333',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 16,
-        }}
-      >
+    <View className="bg-gray-700 rounded-xl p-4 mb-3">
+      <View className="flex-row items-center mb-4">
         <Feather name="credit-card" color="#fff" size={24} />
-        <View style={{ marginLeft: 12, flex: 1 }}>
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 4,
-            }}
-          >
+        <View className="ml-3 flex-1">
+          <Text className="text-white text-base font-poppins-bold mb-1">
             {cardType} •••• {lastFour}
           </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-            }}
-          >
-            Expires {expiryDate}
-          </Text>
+          <Text className="text-gray-400 text-sm font-poppins">Expires {expiryDate}</Text>
         </View>
         {isDefault && (
-          <View
-            style={{
-              backgroundColor: 'rgba(0, 122, 255, 0.2)',
-              borderRadius: 4,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-            }}
-          >
-            <Text
-              style={{
-                color: '#007AFF',
-                fontSize: 12,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Default
-            </Text>
+          <View className="bg-blue-500/20 rounded px-2 py-1">
+            <Text className="text-blue-500 text-xs font-poppins-bold">Default</Text>
           </View>
         )}
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-        }}
-      >
+      <View className="flex-row justify-end">
         {!isDefault && (
-          <TouchableOpacity
-            onPress={onSetDefault}
-            style={{
-              marginRight: 16,
-              paddingVertical: 8,
-            }}
-          >
-            <Text
-              style={{
-                color: '#007AFF',
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-              }}
-            >
-              Set as Default
-            </Text>
+          <TouchableOpacity onPress={onSetDefault} className="mr-4 py-2">
+            <Text className="text-blue-500 text-sm font-poppins">Set as Default</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          onPress={onDelete}
-          style={{
-            paddingVertical: 8,
-          }}
-        >
-          <Text
-            style={{
-              color: '#ff4444',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-            }}
-          >
-            Delete
-          </Text>
+        <TouchableOpacity onPress={onDelete} className="py-2">
+          <Text className="text-red-500 text-sm font-poppins">Delete</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -226,34 +143,11 @@ export default function PaymentMethodsScreen() {
     value: boolean;
     onValueChange: (value: boolean) => void;
   }) => (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
-      }}
-    >
+    <View className="flex-row items-center py-3">
       <Feather name={icon as any} color="#fff" size={24} />
-      <View style={{ marginLeft: 16, flex: 1 }}>
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 16,
-            fontFamily: 'Poppins-Bold',
-            marginBottom: 4,
-          }}
-        >
-          {title}
-        </Text>
-        <Text
-          style={{
-            color: '#999',
-            fontSize: 14,
-            fontFamily: 'Poppins-Regular',
-          }}
-        >
-          {subtitle}
-        </Text>
+      <View className="ml-4 flex-1">
+        <Text className="text-white text-base font-poppins-bold mb-1">{title}</Text>
+        <Text className="text-gray-400 text-sm font-poppins">{subtitle}</Text>
       </View>
       <Switch
         value={value}
@@ -266,46 +160,16 @@ export default function PaymentMethodsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Payment Methods
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Methods</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </SafeAreaView>
@@ -314,88 +178,21 @@ export default function PaymentMethodsScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#000',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#333',
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 16,
-            }}
-          >
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text
-            style={{
-              flex: 1,
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              color: '#fff',
-            }}
-          >
-            Payment Methods
-          </Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Methods</Text>
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-          }}
-        >
+        <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 18,
-              fontFamily: 'Poppins-Bold',
-              marginTop: 16,
-              marginBottom: 8,
-            }}
-          >
-            Error loading payment methods
-          </Text>
-          <Text
-            style={{
-              color: '#999',
-              fontSize: 14,
-              fontFamily: 'Poppins-Regular',
-              textAlign: 'center',
-              marginBottom: 16,
-            }}
-          >
-            {error}
-          </Text>
-          <TouchableOpacity
-            onPress={loadPaymentMethods}
-            style={{
-              backgroundColor: '#007AFF',
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 24,
-            }}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontFamily: 'Poppins-Bold',
-              }}
-            >
-              Retry
-            </Text>
+          <Text className="text-white text-lg font-poppins-bold mt-4 mb-2">Error loading payment methods</Text>
+          <Text className="text-gray-400 text-sm font-poppins text-center mb-4">{error}</Text>
+          <TouchableOpacity onPress={loadPaymentMethods} className="bg-blue-500 rounded-lg py-3 px-6">
+            <Text className="text-white text-base font-poppins-bold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -403,95 +200,30 @@ export default function PaymentMethodsScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#000',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#333',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            marginRight: 16,
-          }}
-        >
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text
-          style={{
-            flex: 1,
-            fontSize: 18,
-            fontFamily: 'Poppins-Bold',
-            color: '#fff',
-          }}
-        >
-          Payment Methods
-        </Text>
+        <Text className="flex-1 text-lg font-poppins-bold text-white">Payment Methods</Text>
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
-        <View style={{ padding: 16 }}>
+      <ScrollView className="flex-1">
+        <View className="p-4">
           {/* Add New Payment Method */}
-          <View
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 24,
-            }}
-          >
-            <Text
-              style={{
-                color: '#999',
-                fontSize: 14,
-                fontFamily: 'Poppins-Regular',
-                marginBottom: 16,
-              }}
-            >
-              Add a new payment method
-            </Text>
-            <TouchableOpacity
-              onPress={addPaymentMethod}
-              style={{
-                backgroundColor: '#007AFF',
-                borderRadius: 8,
-                paddingVertical: 12,
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Bold',
-                }}
-              >
-                Add Payment Method
-              </Text>
+          <View className="bg-gray-700 rounded-xl p-4 mb-6">
+            <Text className="text-gray-400 text-sm font-poppins mb-4">Add a new payment method</Text>
+            <TouchableOpacity onPress={addPaymentMethod} className="bg-blue-500 rounded-lg py-3 items-center">
+              <Text className="text-white text-base font-poppins-bold">Add Payment Method</Text>
             </TouchableOpacity>
           </View>
 
           {/* Saved Cards Section */}
           {paymentMethods.length > 0 ? (
             <>
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 20,
-                  fontFamily: 'Poppins-Bold',
-                  marginBottom: 16,
-                }}
-              >
-                Saved Cards
-              </Text>
+              <Text className="text-white text-2xl font-poppins-bold mb-4">Saved Cards</Text>
 
               {paymentMethods.map((method) => (
                 <SavedCard
@@ -506,62 +238,17 @@ export default function PaymentMethodsScreen() {
               ))}
             </>
           ) : (
-            <View
-              style={{
-                backgroundColor: '#333',
-                borderRadius: 12,
-                padding: 20,
-                borderWidth: 1,
-                borderColor: '#555',
-                borderStyle: 'solid',
-                alignItems: 'center',
-                marginBottom: 24,
-              }}
-            >
+            <View className="bg-gray-700 rounded-xl p-5 border border-gray-600 items-center mb-6">
               <Feather name="credit-card" color="#666" size={32} />
-              <Text
-                style={{
-                  color: '#999',
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Medium',
-                  marginTop: 12,
-                  marginBottom: 8,
-                }}
-              >
-                No payment methods saved
-              </Text>
-              <Text
-                style={{
-                  color: '#777',
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  textAlign: 'center',
-                }}
-              >
-                Add a payment method to continue
-              </Text>
+              <Text className="text-gray-400 text-base font-poppins-medium mt-3 mb-2">No payment methods saved</Text>
+              <Text className="text-gray-500 text-sm font-poppins text-center">Add a payment method to continue</Text>
             </View>
           )}
 
           {/* Payment Settings */}
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 20,
-              fontFamily: 'Poppins-Bold',
-              marginBottom: 16,
-            }}
-          >
-            Payment Settings
-          </Text>
+          <Text className="text-white text-2xl font-poppins-bold mb-4">Payment Settings</Text>
 
-          <View
-            style={{
-              backgroundColor: '#333',
-              borderRadius: 12,
-              padding: 16,
-            }}
-          >
+          <View className="bg-gray-700 rounded-xl p-4">
             <SettingsItem
               icon="lock"
               title="Save Payment Info"
@@ -570,13 +257,7 @@ export default function PaymentMethodsScreen() {
               onValueChange={setSavePaymentInfo}
             />
 
-            <View
-              style={{
-                height: 1,
-                backgroundColor: '#555',
-                marginVertical: 16,
-              }}
-            />
+            <View className="h-px bg-gray-600 my-4" />
 
             <SettingsItem
               icon="credit-card"

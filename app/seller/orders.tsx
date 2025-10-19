@@ -41,7 +41,7 @@ export default function OrdersScreen() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
 
-  const tabs = ['All', 'Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
+  const tabs = ['Orders To Fulfil', 'All Orders', 'Pending', 'Shipped', 'Delivered', 'Cancelled'];
 
   useEffect(() => {
     loadOrders();
@@ -149,17 +149,19 @@ export default function OrdersScreen() {
 
   const getFilteredOrders = () => {
     switch (activeTab) {
-      case 1: // Pending
+      case 0: // Orders To Fulfil (Pending + Processing)
+        return orders.filter((order) => order.status === 'pending' || order.status === 'processing');
+      case 1: // All Orders
+        return orders;
+      case 2: // Pending
         return orders.filter((order) => order.status === 'pending');
-      case 2: // Processing
-        return orders.filter((order) => order.status === 'processing');
       case 3: // Shipped
         return orders.filter((order) => order.status === 'shipped');
-      case 4: // Completed
+      case 4: // Delivered (Completed)
         return orders.filter((order) => order.status === 'completed');
       case 5: // Cancelled
         return orders.filter((order) => order.status === 'cancelled');
-      default: // All
+      default:
         return orders;
     }
   };
@@ -170,7 +172,7 @@ export default function OrdersScreen() {
       <View className="p-4">
         <View className="flex-row justify-between items-start">
           <View className="flex-1">
-            <Text className="text-white text-base font-poppins-bold mb-1">Order {order.id}</Text>
+            <Text className="text-white font-poppins-bold text-base mb-1">Order {order.id}</Text>
             <Text className="text-gray-400 text-sm font-poppins">{formatDate(order.createdAt)}</Text>
           </View>
           <View className="rounded-full px-3 py-1.5" style={{ backgroundColor: `rgba(${order.statusColor}, 0.1)` }}>
@@ -185,44 +187,44 @@ export default function OrdersScreen() {
       </View>
 
       {/* Divider */}
-      <View className="h-px bg-gray-700" />
+      <View className="h-px bg-gray-600" />
 
       {/* Order items */}
       {order.items.map((item, index) => (
         <View key={index}>
           <View className="flex-row items-center px-4 py-2">
-            <View className="w-15 h-15 rounded-lg bg-gray-700 mr-4 overflow-hidden">
+            <View className="w-15 h-15 rounded-lg bg-gray-600 mr-4 overflow-hidden">
               {item.imageUrl ? (
                 <Image source={{ uri: item.imageUrl }} className="w-15 h-15" resizeMode="cover" />
               ) : (
-                <View className="w-15 h-15 bg-gray-700 justify-center items-center">
+                <View className="w-15 h-15 bg-gray-600 justify-center items-center">
                   <Feather name="image" color="#999" size={24} />
                 </View>
               )}
             </View>
 
             <View className="flex-1">
-              <Text className="text-white text-base font-poppins-medium mb-1">{item.name}</Text>
+              <Text className="text-white font-poppins-medium text-base mb-1">{item.name}</Text>
               <Text className="text-gray-400 text-sm font-poppins mb-1">Quantity: {item.quantity}</Text>
-              <Text className="text-white text-base font-poppins-bold">£{item.price.toFixed(2)}</Text>
+              <Text className="text-white font-poppins-bold text-base">£{item.price.toFixed(2)}</Text>
             </View>
           </View>
         </View>
       ))}
 
       {/* Divider */}
-      <View className="h-px bg-gray-700" />
+      <View className="h-px bg-gray-600" />
 
       {/* Order actions */}
       <View className="flex-row justify-between items-center p-4">
-        <Text className="text-white text-base font-poppins-bold">Total: £{order.totals.total.toFixed(2)}</Text>
+        <Text className="text-white font-poppins-bold text-base">Total: £{order.totals.total.toFixed(2)}</Text>
         <View className="flex-row gap-2">
           {order.status === 'pending' && (
             <TouchableOpacity
               onPress={() => {
                 Alert.alert('Accept Order', 'Order has been accepted and moved to processing');
               }}
-              className="bg-green-500 rounded px-3 py-1.5"
+              className="bg-green-500 rounded-md py-1.5 px-3"
             >
               <Text className="text-white text-xs font-poppins-bold">Accept</Text>
             </TouchableOpacity>
@@ -232,7 +234,7 @@ export default function OrdersScreen() {
               onPress={() => {
                 Alert.alert('Mark as Shipped', 'Order has been marked as shipped');
               }}
-              className="bg-blue-500 rounded px-3 py-1.5"
+              className="bg-blue-500 rounded-md py-1.5 px-3"
             >
               <Text className="text-white text-xs font-poppins-bold">Ship</Text>
             </TouchableOpacity>
@@ -254,10 +256,10 @@ export default function OrdersScreen() {
     if (orders.length === 0) {
       return (
         <View className="flex-1 justify-center items-center px-8">
-          <Feather name="truck" color="#999" size={64} />
-          <Text className="text-gray-400 text-lg font-poppins-medium mt-4">No orders yet</Text>
-          <Text className="text-gray-600 text-sm font-poppins mt-2 text-center">
-            Orders from buyers will appear here
+          <Feather name="package" color="#999" size={64} />
+          <Text className="text-white text-lg font-poppins-bold mt-4">No processing orders.</Text>
+          <Text className="text-gray-400 text-sm font-poppins mt-2 text-center">
+            No orders with processing status found.
           </Text>
         </View>
       );
@@ -284,7 +286,7 @@ export default function OrdersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">My Orders</Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Orders</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -302,7 +304,7 @@ export default function OrdersScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-poppins-bold text-white">My Orders</Text>
+          <Text className="flex-1 text-lg font-poppins-bold text-white">Orders</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
@@ -320,35 +322,52 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
-        </TouchableOpacity>
+      <View className="bg-black px-4 py-5 border-b border-gray-700">
+        <View className="flex-row items-center mb-2">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+            <Feather name="arrow-left" size={24} color="#fff" />
+          </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-poppins-bold text-white">My Orders</Text>
+          <Text className="flex-1 text-2xl font-poppins-bold text-white">Orders</Text>
+        </View>
+
+        <Text className="text-sm font-poppins text-gray-400 ml-10">Manage your customer orders and shipping.</Text>
       </View>
 
-      {/* Tabs */}
-      <View className="bg-black border-b border-gray-700">
+      {/* Filter Buttons */}
+      <View className="bg-gray-700 px-4 py-4">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
-            paddingHorizontal: 16,
+            paddingRight: 16,
           }}
         >
           {tabs.map((tab, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => setActiveTab(index)}
-              className={`py-4 px-5 mr-2 border-b-2 ${activeTab === index ? 'border-white' : 'border-transparent'}`}
+              className={`py-2 px-4 mr-2 rounded border border-gray-600 ${
+                activeTab === index ? 'bg-black' : 'bg-gray-600'
+              }`}
             >
-              <Text className={`text-base font-poppins ${activeTab === index ? 'text-white' : 'text-gray-400'}`}>
+              <Text className={`text-sm font-poppins-medium ${activeTab === index ? 'text-white' : 'text-gray-400'}`}>
                 {tab}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
+
+        {/* Export Button */}
+        <TouchableOpacity
+          onPress={() => {
+            Alert.alert('Export Excel', 'Orders data will be exported to Excel format');
+          }}
+          className="flex-row items-center bg-gray-600 py-3 px-4 rounded-md border border-gray-500 mt-3 self-start"
+        >
+          <Feather name="download" size={16} color="#999" className="mr-2" />
+          <Text className="text-gray-400 text-sm font-poppins-medium">Export Excel</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Orders List */}
