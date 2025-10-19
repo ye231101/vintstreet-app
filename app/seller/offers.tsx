@@ -3,44 +3,41 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { offersService, Offer } from '../../api/services/offers.service';
+import { useAuth } from '../../hooks/use-auth';
 
-interface Offer {
-  id: string;
-  buyerName: string;
-  productName: string;
-  offerAmount: number;
-  originalPrice: number;
-  status: 'pending' | 'accepted' | 'rejected' | 'expired';
-  createdAt: string;
-  expiresAt: string;
-  message?: string;
-}
+// Interfaces are now imported from the offers service
 
 export default function OffersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'pending' | 'completed'>('pending');
+  const { user } = useAuth();
 
   useEffect(() => {
-    loadOffers();
-  }, []);
+    if (user?.id) {
+      loadOffers();
+    }
+  }, [user?.id]);
 
   const loadOffers = async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock data - replace with actual data fetching
-      const mockOffers: Offer[] = [
-        // Empty for now to show empty state
-      ];
-      setOffers(mockOffers);
+      // Fetch offers from the API
+      const fetchedOffers = await offersService.getOffers(user.id, 'seller');
+      setOffers(fetchedOffers);
     } catch (err) {
-      setError('Error loading offers');
+      console.error('Error loading offers:', err);
+      setError(err instanceof Error ? err.message : 'Error loading offers');
     } finally {
       setIsLoading(false);
     }
@@ -111,16 +108,28 @@ export default function OffersScreen() {
         {offer.status === 'pending' && (
           <View className="flex-row gap-2">
             <TouchableOpacity
-              onPress={() => {
-                Alert.alert('Accept Offer', 'Offer has been accepted');
+              onPress={async () => {
+                try {
+                  await offersService.updateOfferStatus(offer.id, 'accepted');
+                  Alert.alert('Offer Accepted', 'Offer has been accepted');
+                  loadOffers(); // Refresh the offers list
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to accept offer. Please try again.');
+                }
               }}
               className="bg-green-500 rounded px-3 py-1.5"
             >
               <Text className="text-white text-xs font-inter-bold">Accept</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
-                Alert.alert('Reject Offer', 'Offer has been rejected');
+              onPress={async () => {
+                try {
+                  await offersService.updateOfferStatus(offer.id, 'declined');
+                  Alert.alert('Offer Rejected', 'Offer has been rejected');
+                  loadOffers(); // Refresh the offers list
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to reject offer. Please try again.');
+                }
               }}
               className="bg-red-500 rounded px-3 py-1.5"
             >

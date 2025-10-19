@@ -12,123 +12,43 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ordersService, Order } from '../../api/services/orders.service';
+import { useAuth } from '../../hooks/use-auth';
 
-interface OrderItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
-}
-
-interface OrderTotals {
-  total: number;
-}
-
-interface Order {
-  id: string;
-  createdAt: string;
-  status: string;
-  displayStatus: string;
-  statusColor: number;
-  items: OrderItem[];
-  totals: OrderTotals;
-}
+// Interfaces are now imported from the orders service
 
 export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const { user } = useAuth();
 
   const tabs = ['Orders To Fulfil', 'All Orders', 'Pending', 'Shipped', 'Delivered', 'Cancelled'];
 
   useEffect(() => {
-    loadOrders();
-  }, []);
+    if (user?.id) {
+      loadOrders();
+    }
+  }, [user?.id]);
 
   const loadOrders = async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock data - replace with actual data fetching
-      const mockOrders: Order[] = [
-        {
-          id: 'ORD-001',
-          createdAt: '2024-01-15T10:30:00Z',
-          status: 'processing',
-          displayStatus: 'Processing',
-          statusColor: 0x007aff,
-          items: [
-            {
-              id: '1',
-              name: 'Vintage Nike Air Max 90',
-              price: 89.99,
-              quantity: 1,
-              imageUrl: 'https://example.com/nike-air-max.jpg',
-            },
-          ],
-          totals: { total: 89.99 },
-        },
-        {
-          id: 'ORD-002',
-          createdAt: '2024-01-14T14:20:00Z',
-          status: 'shipped',
-          displayStatus: 'Shipped',
-          statusColor: 0x34c759,
-          items: [
-            {
-              id: '2',
-              name: 'Retro Adidas Jacket',
-              price: 125.5,
-              quantity: 1,
-              imageUrl: 'https://example.com/adidas-jacket.jpg',
-            },
-          ],
-          totals: { total: 125.5 },
-        },
-        {
-          id: 'ORD-003',
-          createdAt: '2024-01-13T09:15:00Z',
-          status: 'pending',
-          displayStatus: 'Pending',
-          statusColor: 0xffcc00,
-          items: [
-            {
-              id: '3',
-              name: "Vintage Levi's Jeans",
-              price: 75.0,
-              quantity: 2,
-              imageUrl: 'https://example.com/levis-jeans.jpg',
-            },
-          ],
-          totals: { total: 150.0 },
-        },
-        {
-          id: 'ORD-004',
-          createdAt: '2024-01-12T16:45:00Z',
-          status: 'completed',
-          displayStatus: 'Completed',
-          statusColor: 0x34c759,
-          items: [
-            {
-              id: '4',
-              name: 'Classic Converse Chuck Taylor',
-              price: 65.0,
-              quantity: 1,
-              imageUrl: 'https://example.com/converse.jpg',
-            },
-          ],
-          totals: { total: 65.0 },
-        },
-      ];
-      setOrders(mockOrders);
+      // Fetch orders from the API
+      const fetchedOrders = await ordersService.getOrders(user.id, 'seller');
+      setOrders(fetchedOrders);
     } catch (err) {
-      setError('Error loading orders');
+      console.error('Error loading orders:', err);
+      setError(err instanceof Error ? err.message : 'Error loading orders');
     } finally {
       setIsLoading(false);
     }
@@ -221,8 +141,14 @@ export default function OrdersScreen() {
         <View className="flex-row gap-2">
           {order.status === 'pending' && (
             <TouchableOpacity
-              onPress={() => {
-                Alert.alert('Accept Order', 'Order has been accepted and moved to processing');
+              onPress={async () => {
+                try {
+                  await ordersService.updateOrderStatus(order.id, 'processing');
+                  Alert.alert('Order Accepted', 'Order has been accepted and moved to processing');
+                  loadOrders(); // Refresh the orders list
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to accept order. Please try again.');
+                }
               }}
               className="bg-green-500 rounded-md py-1.5 px-3"
             >
@@ -231,8 +157,14 @@ export default function OrdersScreen() {
           )}
           {order.status === 'processing' && (
             <TouchableOpacity
-              onPress={() => {
-                Alert.alert('Mark as Shipped', 'Order has been marked as shipped');
+              onPress={async () => {
+                try {
+                  await ordersService.updateOrderStatus(order.id, 'shipped');
+                  Alert.alert('Order Shipped', 'Order has been marked as shipped');
+                  loadOrders(); // Refresh the orders list
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to mark order as shipped. Please try again.');
+                }
               }}
               className="bg-blue-500 rounded-md py-1.5 px-3"
             >

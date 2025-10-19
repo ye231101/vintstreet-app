@@ -3,75 +3,48 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { offersService, Offer } from '../../api/services/offers.service';
+import { useAuth } from '../../hooks/use-auth';
 
-interface Offer {
-  id: string;
-  productName: string;
-  sellerName: string;
-  originalPrice: number;
-  offerPrice: number;
-  discount: number;
-  status: 'active' | 'expired' | 'accepted' | 'declined';
-  expiryDate: string;
-  imageUrl?: string;
-  description?: string;
-}
+// Interfaces are now imported from the offers service
 
 export default function MyOffersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('active');
+  const [activeTab, setActiveTab] = useState('pending');
+  const { user } = useAuth();
 
   const tabs = [
-    { key: 'active', label: 'Active Offers' },
-    { key: 'expired', label: 'Expired' },
+    { key: 'pending', label: 'Pending' },
     { key: 'accepted', label: 'Accepted' },
-    { key: 'declined', label: 'Declined' },
+    { key: 'rejected', label: 'Declined' },
+    { key: 'expired', label: 'Expired' },
   ];
 
   useEffect(() => {
-    loadOffers();
-  }, []);
+    if (user?.id) {
+      loadOffers();
+    }
+  }, [user?.id, activeTab]);
 
   const loadOffers = async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock data - replace with actual data fetching
-      const mockOffers: Offer[] = [
-        {
-          id: '1',
-          productName: 'Vintage Nike Air Jordan 1',
-          sellerName: 'SneakerHead_Store',
-          originalPrice: 150,
-          offerPrice: 120,
-          discount: 20,
-          status: 'active',
-          expiryDate: '2024-02-15',
-          description: 'Great condition, worn only a few times',
-        },
-        {
-          id: '2',
-          productName: '90s Denim Jacket',
-          sellerName: 'RetroFashion',
-          originalPrice: 80,
-          offerPrice: 65,
-          discount: 18.75,
-          status: 'expired',
-          expiryDate: '2024-01-20',
-          description: 'Authentic vintage denim',
-        },
-        // Add more mock offers as needed
-      ];
-
-      setOffers(mockOffers);
+      // Fetch offers from the API for the buyer
+      const fetchedOffers = await offersService.getOffers(user.id, 'buyer');
+      setOffers(fetchedOffers);
     } catch (err) {
-      setError('Error loading offers');
+      console.error('Error loading offers:', err);
+      setError(err instanceof Error ? err.message : 'Error loading offers');
     } finally {
       setIsLoading(false);
     }
@@ -83,14 +56,14 @@ export default function MyOffersScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return '#34C759';
-      case 'expired':
+      case 'pending':
         return '#FF9500';
       case 'accepted':
-        return '#007AFF';
-      case 'declined':
+        return '#34C759';
+      case 'rejected':
         return '#FF3B30';
+      case 'expired':
+        return '#999';
       default:
         return '#999';
     }
@@ -98,14 +71,14 @@ export default function MyOffersScreen() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'Active';
-      case 'expired':
-        return 'Expired';
+      case 'pending':
+        return 'Pending';
       case 'accepted':
         return 'Accepted';
-      case 'declined':
+      case 'rejected':
         return 'Declined';
+      case 'expired':
+        return 'Expired';
       default:
         return status;
     }
@@ -116,48 +89,66 @@ export default function MyOffersScreen() {
       <View className="flex-row justify-between items-start mb-3">
         <View className="flex-1">
           <Text className="text-white font-inter-bold text-base mb-1">{offer.productName}</Text>
-          <Text className="text-gray-400 text-sm font-inter mb-2">by {offer.sellerName}</Text>
+          <Text className="text-gray-400 text-sm font-inter mb-2">by {offer.buyerName}</Text>
         </View>
-        <View className={`rounded-xl px-2 py-1 bg-[#${getStatusColor(offer.status)}]`}>
+        <View className={`rounded-xl px-2 py-1`} style={{ backgroundColor: getStatusColor(offer.status) }}>
           <Text className="text-white text-xs font-inter-bold">{getStatusText(offer.status).toUpperCase()}</Text>
         </View>
       </View>
 
-      {offer.description && (
-        <Text className="text-gray-300 text-sm font-inter mb-3 leading-5">{offer.description}</Text>
+      {offer.message && (
+        <Text className="text-gray-300 text-sm font-inter mb-3 leading-5">"{offer.message}"</Text>
       )}
 
       <View className="flex-row justify-between items-center mb-3">
         <View>
           <Text className="text-gray-400 text-xs font-inter line-through">£{offer.originalPrice.toFixed(2)}</Text>
-          <Text className="text-white text-lg font-inter-bold">£{offer.offerPrice.toFixed(2)}</Text>
+          <Text className="text-white text-lg font-inter-bold">£{offer.offerAmount.toFixed(2)}</Text>
         </View>
         <View className="bg-green-500 rounded-lg px-2 py-1">
-          <Text className="text-white text-xs font-inter-bold">{offer.discount}% OFF</Text>
+          <Text className="text-white text-xs font-inter-bold">
+            {Math.round(((offer.originalPrice - offer.offerAmount) / offer.originalPrice) * 100)}% OFF
+          </Text>
         </View>
       </View>
 
       <View className="flex-row justify-between items-center mb-3">
         <Text className="text-gray-400 text-xs font-inter">
-          Expires: {new Date(offer.expiryDate).toLocaleDateString()}
+          Expires: {new Date(offer.expiresAt).toLocaleDateString()}
         </Text>
-        {offer.status === 'active' && (
+        {offer.status === 'pending' && (
           <View className="flex-row gap-2">
             <TouchableOpacity
               onPress={() => {
-                Alert.alert('Accept Offer', 'Are you sure you want to accept this offer?');
+                Alert.alert('Offer Status', 'This offer is pending seller response');
+              }}
+              className="bg-gray-500 rounded-md py-1.5 px-3"
+            >
+              <Text className="text-white text-xs font-inter-bold">Waiting</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {offer.status === 'accepted' && (
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert('Offer Accepted', 'Congratulations! Your offer has been accepted');
               }}
               className="bg-green-500 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-inter-bold">Accept</Text>
+              <Text className="text-white text-xs font-inter-bold">View Details</Text>
             </TouchableOpacity>
+          </View>
+        )}
+        {offer.status === 'rejected' && (
+          <View className="flex-row gap-2">
             <TouchableOpacity
               onPress={() => {
-                Alert.alert('Decline Offer', 'Are you sure you want to decline this offer?');
+                Alert.alert('Offer Declined', 'This offer was declined by the seller');
               }}
               className="bg-red-500 rounded-md py-1.5 px-3"
             >
-              <Text className="text-white text-xs font-inter-bold">Decline</Text>
+              <Text className="text-white text-xs font-inter-bold">Declined</Text>
             </TouchableOpacity>
           </View>
         )}

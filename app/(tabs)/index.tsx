@@ -791,8 +791,8 @@ export default function HomeScreen() {
                 onPress={() => handleSortChange(option)}
               >
                 <Text
-                  className={`text-sm font-poppins text-gray-800 flex-1 ${
-                    sortBy === option ? 'font-poppins-semibold text-black' : ''
+                  className={`text-sm font-inter text-gray-800 flex-1 ${
+                    sortBy === option ? 'font-inter-semibold text-black' : ''
                   }`}
                 >
                   {option}
