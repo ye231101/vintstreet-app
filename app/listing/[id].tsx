@@ -1,5 +1,5 @@
 import { listingsService } from '@/api/services/listings.service';
-import { useBasket } from '@/hooks/use-basket';
+import { useCart } from '@/hooks/use-cart';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
@@ -8,7 +8,7 @@ export default function ListingDetailsScreen() {
 	const router = useRouter();
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const navigation = useNavigation();
-	const { addItem } = useBasket();
+	const { addItem } = useCart();
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [listing, setListing] = useState<any>(null);

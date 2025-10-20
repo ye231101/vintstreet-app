@@ -35,7 +35,7 @@ export default function AccountScreen() {
                 <Text className="text-lg font-inter-bold text-white">
                   {user?.firstName || user?.username || 'Guest User'}
                 </Text>
-                <TouchableOpacity onPress={() => router.push('/basket')} className="p-2">
+                <TouchableOpacity onPress={() => router.push('/cart')} className="p-2">
                   <Feather name="shopping-bag" size={24} color="#fff" />
                 </TouchableOpacity>
               </View>

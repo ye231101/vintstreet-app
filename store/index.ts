@@ -2,20 +2,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import authReducer from './slices/authSlice';
-import basketReducer from './slices/basketSlice';
+import cartReducer from './slices/cartSlice';
 
 // Redux Persist configuration
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'basket'], // Persist auth and basket state
+  whitelist: ['auth', 'cart'], // Persist auth and cart state
   blacklist: [], // Don't persist these reducers
 };
 
 // Combine reducers
 const rootReducer = combineReducers({
   auth: authReducer,
-  basket: basketReducer,
+  cart: cartReducer,
 });
 
 // Create persisted reducer

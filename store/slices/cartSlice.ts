@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Alert } from 'react-native';
 
-export interface BasketItem {
+export interface CartItem {
   id: string;
   productId: number;
   name: string;
@@ -21,11 +21,11 @@ export interface Vendor {
   itemCount: number;
 }
 
-export interface Basket {
-  items: BasketItem[];
+export interface Cart {
+  items: CartItem[];
   vendors: { [key: number]: Vendor };
   vendorIds: number[];
-  vendorItems: { [key: number]: BasketItem[] };
+  vendorItems: { [key: number]: CartItem[] };
   subtotal: number;
   formattedSubtotal: string;
   totalProtectionFee: number;
@@ -34,13 +34,13 @@ export interface Basket {
   formattedTotal: string;
 }
 
-export interface BasketState {
-  basket: Basket;
+export interface CartState {
+  cart: Cart;
   isLoading: boolean;
   error: string | null;
 }
 
-const initialBasket: Basket = {
+const initialCart: Cart = {
   items: [],
   vendors: {},
   vendorIds: [],
@@ -53,14 +53,14 @@ const initialBasket: Basket = {
   formattedTotal: '£0.00',
 };
 
-const initialState: BasketState = {
-  basket: initialBasket,
+const initialState: CartState = {
+  cart: initialCart,
   isLoading: false,
   error: null,
 };
 
 // Helper functions
-const calculateTotals = (items: BasketItem[]) => {
+const calculateTotals = (items: CartItem[]) => {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalProtectionFee = items.reduce((sum, item) => sum + item.protectionFee, 0);
   const total = subtotal + totalProtectionFee;
@@ -75,9 +75,9 @@ const calculateTotals = (items: BasketItem[]) => {
   };
 };
 
-const updateVendorData = (items: BasketItem[]) => {
+const updateVendorData = (items: CartItem[]) => {
   const vendors: { [key: number]: Vendor } = {};
-  const vendorItems: { [key: number]: BasketItem[] } = {};
+  const vendorItems: { [key: number]: CartItem[] } = {};
   const vendorIds: number[] = [];
 
   items.forEach((item) => {
@@ -97,24 +97,24 @@ const updateVendorData = (items: BasketItem[]) => {
   return { vendors, vendorItems, vendorIds };
 };
 
-const basketSlice = createSlice({
-  name: 'basket',
+const cartSlice = createSlice({
+  name: 'cart',
   initialState,
   reducers: {
-    // Add item to basket
-    addToBasket: (state, action: PayloadAction<Omit<BasketItem, 'id' | 'lineTotal' | 'protectionFee'>>) => {
+    // Add item to cart
+    addToCart: (state, action: PayloadAction<Omit<CartItem, 'id' | 'lineTotal' | 'protectionFee'>>) => {
       const itemData = action.payload;
 
-      // Check if item already exists in basket
-      const existingItemIndex = state.basket.items.findIndex(
+      // Check if item already exists in cart
+      const existingItemIndex = state.cart.items.findIndex(
         (item) => item.productId === itemData.productId && item.vendorId === itemData.vendorId
       );
 
-      let updatedItems: BasketItem[];
+      let updatedItems: CartItem[];
 
       if (existingItemIndex >= 0) {
         // Update existing item quantity
-        updatedItems = [...state.basket.items];
+        updatedItems = [...state.cart.items];
         const existingItem = updatedItems[existingItemIndex];
         const newQuantity = existingItem.quantity + itemData.quantity;
         const newLineTotal = itemData.price * newQuantity;
@@ -128,21 +128,21 @@ const basketSlice = createSlice({
         };
       } else {
         // Add new item
-        const newItem: BasketItem = {
+        const newItem: CartItem = {
           ...itemData,
           id: `${itemData.productId}_${itemData.vendorId}_${Date.now()}`,
           lineTotal: itemData.price * itemData.quantity,
           protectionFee: itemData.price * itemData.quantity * itemData.protectionFeePercentage,
         };
-        updatedItems = [...state.basket.items, newItem];
+        updatedItems = [...state.cart.items, newItem];
       }
 
       const totals = calculateTotals(updatedItems);
       const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
 
-      Alert.alert('Item added to basket', `${itemData.name} has been added to your basket.`);
+      Alert.alert('Item added to cart', `${itemData.name} has been added to your cart.`);
 
-      state.basket = {
+      state.cart = {
         items: updatedItems,
         vendors,
         vendorItems,
@@ -152,14 +152,14 @@ const basketSlice = createSlice({
       state.error = null;
     },
 
-    // Remove item from basket
-    removeFromBasket: (state, action: PayloadAction<string>) => {
+    // Remove item from cart
+    removeFromCart: (state, action: PayloadAction<string>) => {
       const itemId = action.payload;
-      const updatedItems = state.basket.items.filter((item) => item.id !== itemId);
+      const updatedItems = state.cart.items.filter((item) => item.id !== itemId);
       const totals = calculateTotals(updatedItems);
       const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
 
-      state.basket = {
+      state.cart = {
         items: updatedItems,
         vendors,
         vendorItems,
@@ -175,11 +175,11 @@ const basketSlice = createSlice({
 
       if (quantity <= 0) {
         // Remove item if quantity is 0 or negative
-        const updatedItems = state.basket.items.filter((item) => item.id !== itemId);
+        const updatedItems = state.cart.items.filter((item) => item.id !== itemId);
         const totals = calculateTotals(updatedItems);
         const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
 
-        state.basket = {
+        state.cart = {
           items: updatedItems,
           vendors,
           vendorItems,
@@ -188,7 +188,7 @@ const basketSlice = createSlice({
         };
       } else {
         // Update quantity
-        const updatedItems = state.basket.items.map((item) => {
+        const updatedItems = state.cart.items.map((item) => {
           if (item.id === itemId) {
             const newLineTotal = item.price * quantity;
             const newProtectionFee = newLineTotal * item.protectionFeePercentage;
@@ -205,7 +205,7 @@ const basketSlice = createSlice({
         const totals = calculateTotals(updatedItems);
         const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
 
-        state.basket = {
+        state.cart = {
           items: updatedItems,
           vendors,
           vendorItems,
@@ -216,9 +216,9 @@ const basketSlice = createSlice({
       state.error = null;
     },
 
-    // Clear entire basket
-    clearBasket: (state) => {
-      state.basket = initialBasket;
+    // Clear entire cart
+    clearCart: (state) => {
+      state.cart = initialCart;
       state.error = null;
     },
 
@@ -239,7 +239,7 @@ const basketSlice = createSlice({
   },
 });
 
-export const { addToBasket, removeFromBasket, updateQuantity, clearBasket, setLoading, setError, clearError } =
-  basketSlice.actions;
+export const { addToCart, removeFromCart, updateQuantity, clearCart, setLoading, setError, clearError } =
+  cartSlice.actions;
 
-export default basketSlice.reducer;
+export default cartSlice.reducer;

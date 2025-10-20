@@ -121,11 +121,11 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="listing" options={{ headerShown: false }} />
+            <Stack.Screen name="message" options={{ headerShown: false }} />
             <Stack.Screen name="seller" options={{ headerShown: false }} />
             <Stack.Screen name="other" options={{ headerShown: false }} />
-            <Stack.Screen name="product" options={{ headerShown: false }} />
-            <Stack.Screen name="message" options={{ headerShown: false }} />
-            <Stack.Screen name="basket" options={{ headerShown: false }} />
+            <Stack.Screen name="cart" options={{ headerShown: false }} />
             <Stack.Screen name="checkout" options={{ headerShown: false }} />
           </Stack>
         </AuthWrapper>
