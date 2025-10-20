@@ -1,4 +1,5 @@
 import { listingsService } from '@/api/services/listings.service';
+import ArticleCarousel from '@/components/article-carousel';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -91,27 +92,29 @@ export default function HomeScreen() {
           data={listings}
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
-          renderItem={({ item }) => (
-            <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
-          )}
+          renderItem={({ item }) => <ProductCard product={item} onPress={() => handleProductPress(item.id)} />}
           ListHeaderComponent={
-            <View>
-              <View className="my-2">
-                <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>
-                  <Image
-                    source={require('@/assets/images/hero-banner.jpg')}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                  />
-                  <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.7)']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                    className="absolute inset-0"
-                  />
-                </View>
+            <View className="flex-col my-2 gap-6">
+              <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>
+                <Image
+                  source={require('@/assets/images/hero-banner.jpg')}
+                  className="w-full h-full"
+                  resizeMode="cover"
+                />
+                <LinearGradient
+                  colors={['transparent', 'rgba(0,0,0,0.7)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  className="absolute inset-0"
+                />
               </View>
-              <View className="flex-row justify-between items-center my-2">
+
+              <View className="flex-col gap-2">
+                <Text className="text-xs font-inter-bold text-black">QUICK LINKS</Text>
+                <ArticleCarousel />
+              </View>
+
+              <View className="flex-col gap-2">
                 <Text className="text-xs font-inter-bold text-black">LISTINGS</Text>
               </View>
             </View>

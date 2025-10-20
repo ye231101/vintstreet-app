@@ -29,11 +29,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   showSize = false,
   showProtectionFee = false,
   onPress,
-  width = screenWidth / 2 - 20,
+  width = screenWidth / 2 - 12,
   height = width * (4 / 3),
 }) => {
   return (
-    <Pressable className="mr-2 bg-white overflow-hidden" style={{ width }} onPress={onPress}>
+    <Pressable className="bg-white overflow-hidden" style={{ width }} onPress={onPress}>
       <View className="relative">
         <Image source={product.image} className="w-full rounded-lg" style={{ height }} resizeMode="cover" />
 
