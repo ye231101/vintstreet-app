@@ -1,41 +1,27 @@
 import { useAuth } from '@/hooks/use-auth';
 import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import React, { memo, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface FormData {
-  username: string;
   email: string;
+  fullName: string;
+  username: string;
+  accountType: string;
   password: string;
   confirmPassword: string;
-  firstName: string;
-  lastName: string;
-  shopName: string;
-  address1: string;
-  address2: string;
-  city: string;
-  postcode: string;
-  country: string;
-  state: string;
-  phone: string;
 }
 
 interface FormErrors {
-  username?: string;
   email?: string;
+  fullName?: string;
+  username?: string;
+  accountType?: string;
   password?: string;
   confirmPassword?: string;
-  firstName?: string;
-  lastName?: string;
-  shopName?: string;
-  address1?: string;
-  city?: string;
-  postcode?: string;
-  country?: string;
-  phone?: string;
 }
 
 interface InputFieldProps {
@@ -50,6 +36,16 @@ interface InputFieldProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   showPasswordToggle?: boolean;
   onTogglePassword?: () => void;
+}
+
+interface DropdownFieldProps {
+  label: string;
+  value: string;
+  onSelect: (value: string) => void;
+  placeholder: string;
+  icon: string;
+  error?: string;
+  options: { label: string; value: string }[];
 }
 
 const InputField = memo(
@@ -96,30 +92,94 @@ const InputField = memo(
   )
 );
 
+const DropdownField = memo(({ label, value, onSelect, placeholder, icon, error, options }: DropdownFieldProps) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <View className="mb-4">
+      <View style={{ position: 'relative' }}>
+        <DropDownPicker
+          open={open}
+          value={value}
+          items={options}
+          setOpen={setOpen}
+          listMode="SCROLLVIEW"
+          setValue={(callback) => {
+            const newValue = typeof callback === 'function' ? callback(value) : callback;
+            onSelect(newValue);
+          }}
+          placeholder={placeholder}
+          style={{
+            backgroundColor: 'white',
+            borderColor: error ? '#f87171' : '#d1d5db',
+            borderWidth: 1,
+            borderRadius: 8,
+            height: 56,
+            paddingLeft: 46,
+          }}
+          dropDownContainerStyle={{
+            backgroundColor: 'white',
+            borderColor: '#d1d5db',
+            borderWidth: 1,
+            borderRadius: 8,
+          }}
+          textStyle={{
+            fontSize: 14,
+            fontFamily: 'Inter',
+            color: '#000000',
+          }}
+          placeholderStyle={{
+            fontSize: 14,
+            fontFamily: 'Inter',
+            color: '#6b7280',
+          }}
+          listItemLabelStyle={{
+            fontSize: 14,
+            fontFamily: 'Inter',
+            color: '#000000',
+          }}
+          arrowIconStyle={{
+            width: 20,
+            height: 20,
+          }}
+          tickIconStyle={{
+            width: 16,
+            height: 16,
+          }}
+          searchable={false}
+          zIndex={3000}
+          zIndexInverse={1000}
+        />
+        <View pointerEvents="none" className="absolute" style={{ left: 12, top: 16, zIndex: 9999, elevation: 5 }}>
+          <Feather name={icon as any} size={24} color={error ? '#f87171' : 'black'} />
+        </View>
+      </View>
+      {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
+    </View>
+  );
+});
+
 export default function RegisterScreen() {
   const router = useRouter();
   const { register, loading, error } = useAuth();
   const [formData, setFormData] = useState<FormData>({
-    username: '',
     email: '',
+    fullName: '',
+    username: '',
+    accountType: '',
     password: '',
     confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    shopName: '',
-    address1: '',
-    address2: '',
-    city: '',
-    postcode: '',
-    country: '',
-    state: '',
-    phone: '',
   });
+
+  const accountTypeOptions = [
+    { label: 'Buyer - I want to shop', value: 'buyer' },
+    { label: 'Seller - I want to sell', value: 'seller' },
+    { label: 'Both - Buy and sell', value: 'both' },
+  ];
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [obscurePassword, setObscurePassword] = useState(true);
   const [obscureConfirmPassword, setObscureConfirmPassword] = useState(true);
-  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const validateUsername = (username: string): string | undefined => {
     if (!username) return 'Username is required';
@@ -175,51 +235,34 @@ export default function RegisterScreen() {
   const validateForm = async (): Promise<boolean> => {
     const newErrors: FormErrors = {};
 
-    newErrors.username = validateUsername(formData.username);
     newErrors.email = validateEmail(formData.email);
+    newErrors.fullName = validateRequired(formData.fullName, 'Full Name');
+    newErrors.username = validateUsername(formData.username);
+    newErrors.accountType = validateRequired(formData.accountType, 'Account Type');
     newErrors.password = validatePassword(formData.password);
     newErrors.confirmPassword = validateConfirmPassword(formData.confirmPassword);
-    newErrors.firstName = validateRequired(formData.firstName, 'First Name');
-    newErrors.lastName = validateRequired(formData.lastName, 'Last Name');
-    newErrors.shopName = validateRequired(formData.shopName, 'Shop Name');
-    newErrors.address1 = validateRequired(formData.address1, 'Address Line 1');
-    newErrors.city = validateRequired(formData.city, 'City / Town');
-    newErrors.postcode = validateRequired(formData.postcode, 'Post/ZIP Code');
-    newErrors.country = validateRequired(formData.country, 'Country');
-    newErrors.phone = validateRequired(formData.phone, 'Phone Number');
 
     // Check email uniqueness if email is valid
-    if (!newErrors.email && formData.email) {
-      const emailUniquenessError = await validateEmailUniqueness(formData.email);
-      if (emailUniquenessError) {
-        newErrors.email = emailUniquenessError;
-      }
-    }
+    // if (!newErrors.email && formData.email) {
+    //   const emailUniquenessError = await validateEmailUniqueness(formData.email);
+    //   if (emailUniquenessError) {
+    //     newErrors.email = emailUniquenessError;
+    //   }
+    // }
 
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== undefined);
   };
 
   const handleSubmit = async () => {
-    if (!termsAccepted) {
-      Alert.alert('Terms Required', 'You must accept the terms and conditions');
-      return;
-    }
-
     if (await validateForm()) {
-      const result = await register(formData.username, formData.email, formData.password, {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        shopName: formData.shopName,
-        address1: formData.address1,
-        address2: formData.address2,
-        city: formData.city,
-        postcode: formData.postcode,
-        country: formData.country,
-        state: formData.state,
-        phone: formData.phone,
-        termsAccepted: termsAccepted,
-      });
+      const result = await register(
+        formData.email,
+        formData.fullName,
+        formData.username,
+        formData.accountType,
+        formData.password
+      );
 
       // If registration requires email verification, navigate to check-email screen
       if (result?.requiresVerification) {
@@ -236,14 +279,6 @@ export default function RegisterScreen() {
     }
   };
 
-  const openTermsAndConditions = async () => {
-    try {
-      await WebBrowser.openBrowserAsync('https://vintstreet.com/terms-and-conditions/');
-    } catch (error) {
-      Alert.alert('Error', 'Could not open terms and conditions');
-    }
-  };
-
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
@@ -253,23 +288,22 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 flex-col gap-6 bg-white p-6">
+      {/* Header */}
+      <View className="w-full flex-row items-center">
+        <Pressable onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="black" />
+        </Pressable>
+        <Text className="text-xl font-inter-bold flex-1 ml-6">Create Account</Text>
+      </View>
+
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
-        className="p-6"
       >
         <View className="flex-1 items-center justify-center">
           <View className="w-full max-w-lg">
-            {/* Header */}
-            <View className="w-full flex-row items-center mb-5">
-              <Pressable onPress={() => router.back()} hitSlop={8}>
-                <Feather name="arrow-left" size={24} color="black" />
-              </Pressable>
-              <Text className="text-xl font-inter-bold flex-1 ml-6">Create Account</Text>
-            </View>
-
             {/* Logo */}
             <View className="items-center mb-10">
               <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
@@ -282,24 +316,11 @@ export default function RegisterScreen() {
               </View>
             )}
 
-            {/* Account Information Section */}
-            <Text className="text-lg font-inter-bold mb-2 mt-2">Account Information</Text>
-
-            <InputField
-              label="Username"
-              value={formData.username}
-              onChangeText={(text) => updateFormData('username', text)}
-              placeholder="Username"
-              icon="user"
-              error={errors.username}
-              autoCapitalize="none"
-            />
-
             <InputField
               label="Email"
               value={formData.email}
               onChangeText={(text) => updateFormData('email', text)}
-              placeholder="Email"
+              placeholder="Enter your email"
               icon="mail"
               error={errors.email}
               keyboardType="email-address"
@@ -307,10 +328,39 @@ export default function RegisterScreen() {
             />
 
             <InputField
+              label="Full Name"
+              value={formData.fullName}
+              onChangeText={(text) => updateFormData('fullName', text)}
+              placeholder="Enter your full name"
+              icon="user"
+              error={errors.fullName}
+            />
+
+            <InputField
+              label="Username"
+              value={formData.username}
+              onChangeText={(text) => updateFormData('username', text)}
+              placeholder="Choose a username"
+              icon="user"
+              error={errors.username}
+              autoCapitalize="none"
+            />
+
+            <DropdownField
+              label="Account Type"
+              value={formData.accountType}
+              onSelect={(value) => updateFormData('accountType', value)}
+              placeholder="Choose your account type"
+              icon="users"
+              error={errors.accountType}
+              options={accountTypeOptions}
+            />
+
+            <InputField
               label="Password"
               value={formData.password}
               onChangeText={(text) => updateFormData('password', text)}
-              placeholder="Password"
+              placeholder="Create a password (min 6 characters)"
               icon="lock"
               error={errors.password}
               secureTextEntry={obscurePassword}
@@ -323,7 +373,7 @@ export default function RegisterScreen() {
               label="Confirm Password"
               value={formData.confirmPassword}
               onChangeText={(text) => updateFormData('confirmPassword', text)}
-              placeholder="Confirm Password"
+              placeholder="Confirm your password"
               icon="lock"
               error={errors.confirmPassword}
               secureTextEntry={obscureConfirmPassword}
@@ -332,129 +382,14 @@ export default function RegisterScreen() {
               onTogglePassword={() => setObscureConfirmPassword(!obscureConfirmPassword)}
             />
 
-            {/* Personal Information Section */}
-            <Text className="text-lg font-inter-bold mb-2 mt-2">Personal Information</Text>
-
-            <InputField
-              label="First Name"
-              value={formData.firstName}
-              onChangeText={(text) => updateFormData('firstName', text)}
-              placeholder="First Name"
-              icon="user"
-              error={errors.firstName}
-            />
-
-            <InputField
-              label="Last Name"
-              value={formData.lastName}
-              onChangeText={(text) => updateFormData('lastName', text)}
-              placeholder="Last Name"
-              icon="user"
-              error={errors.lastName}
-            />
-
-            <InputField
-              label="Shop Name"
-              value={formData.shopName}
-              onChangeText={(text) => updateFormData('shopName', text)}
-              placeholder="Shop Name"
-              icon="shopping-bag"
-              error={errors.shopName}
-            />
-
-            {/* Address Information Section */}
-            <Text className="text-lg font-inter-bold mb-2 mt-2">Address Information</Text>
-
-            <InputField
-              label="Address Line 1"
-              value={formData.address1}
-              onChangeText={(text) => updateFormData('address1', text)}
-              placeholder="Address Line 1"
-              icon="home"
-              error={errors.address1}
-            />
-
-            <InputField
-              label="Address Line 2"
-              value={formData.address2}
-              onChangeText={(text) => updateFormData('address2', text)}
-              placeholder="Address Line 2"
-              icon="home"
-            />
-
-            <InputField
-              label="City / Town"
-              value={formData.city}
-              onChangeText={(text) => updateFormData('city', text)}
-              placeholder="City / Town"
-              icon="map-pin"
-              error={errors.city}
-            />
-
-            <InputField
-              label="Post/ZIP Code"
-              value={formData.postcode}
-              onChangeText={(text) => updateFormData('postcode', text)}
-              placeholder="Post/ZIP Code"
-              icon="mail"
-              error={errors.postcode}
-            />
-
-            <InputField
-              label="Country"
-              value={formData.country}
-              onChangeText={(text) => updateFormData('country', text)}
-              placeholder="Country"
-              icon="globe"
-              error={errors.country}
-            />
-
-            <InputField
-              label="State/County"
-              value={formData.state}
-              onChangeText={(text) => updateFormData('state', text)}
-              placeholder="State/County"
-              icon="map"
-            />
-
-            <InputField
-              label="Phone Number"
-              value={formData.phone}
-              onChangeText={(text) => updateFormData('phone', text)}
-              placeholder="Phone Number"
-              icon="phone"
-              error={errors.phone}
-              keyboardType="phone-pad"
-            />
-
-            {/* Terms and Conditions */}
-            <View className="flex-row items-start mt-6 mb-6">
-              <Pressable
-                onPress={() => setTermsAccepted(!termsAccepted)}
-                className={`w-5 h-5 border rounded mr-3 mt-0.5 items-center justify-center ${
-                  termsAccepted ? 'bg-black border-black' : 'bg-white border-gray-300'
-                }`}
-              >
-                {termsAccepted && <Feather name="check" size={16} color="white" />}
-              </Pressable>
-              <View className="flex-1">
-                <Text className="font-inter leading-5">
-                  I have read and agree to the{' '}
-                  <Text className="text-blue-500 underline" onPress={openTermsAndConditions}>
-                    Terms and Conditions
-                  </Text>
-                </Text>
-              </View>
-            </View>
-
             {/* Create Account Button */}
             <Pressable
               onPress={handleSubmit}
               disabled={loading}
-              className={`h-12 rounded-lg items-center justify-center mb-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
+              className={`h-14 rounded-lg items-center justify-center mb-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
               <Text className="font-inter text-white text-base">
-                {loading ? 'Creating Account...' : 'Create Account'}
+                {loading ? <ActivityIndicator size="small" color="white" /> : 'Create Account'}
               </Text>
             </Pressable>
 

@@ -106,32 +106,26 @@ export default function CheckEmailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 flex-col gap-6 bg-white p-6">
+      {/* Header */}
+      <View className="w-full flex-row items-center">
+        <Pressable onPress={() => router.replace('/(auth)')} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="black" />
+        </Pressable>
+        <Text className="text-xl font-inter-bold flex-1 ml-6">Check Your Email</Text>
+      </View>
+
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
-        className="p-6"
       >
         <View className="flex-1">
-          {/* Header */}
-          <View className="flex-row items-center mb-5 w-full pt-2.5">
-            <Pressable onPress={() => router.replace('/(auth)')} hitSlop={8}>
-              <Feather name="arrow-left" size={24} color="black" />
-            </Pressable>
-            <Text className="text-xl font-inter-bold flex-1 text-center mr-6">Check Your Email</Text>
-          </View>
-
           <View className="flex-1 items-center justify-center">
             <View className="w-full max-w-lg items-center">
               {/* Logo */}
               <View className="items-center mb-8">
                 <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
-              </View>
-
-              {/* Success Icon */}
-              <View className="w-25 h-25 rounded-full bg-green-50 items-center justify-center mb-8">
-                <Feather name="mail" size={50} color="#4CAF50" />
               </View>
 
               {/* Title */}

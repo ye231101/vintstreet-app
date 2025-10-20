@@ -26,14 +26,14 @@ class AuthService {
       const { email, password, username, full_name, ...additionalData } = data;
 
       // Check if email already exists before attempting signup
-      const emailExists = await this.checkEmailExists(email);
-      if (emailExists) {
-        return {
-          user: null,
-          session: null,
-          error: 'An account with this email already exists. Please use a different email or try logging in.',
-        };
-      }
+      // const emailExists = await this.checkEmailExists(email);
+      // if (emailExists) {
+      //   return {
+      //     user: null,
+      //     session: null,
+      //     error: 'An account with this email already exists. Please use a different email or try logging in.',
+      //   };
+      // }
 
       const { data: authData, error } = await supabase.auth.signUp({
         email,

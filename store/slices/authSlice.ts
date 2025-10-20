@@ -101,20 +101,11 @@ export const loginUser = createAsyncThunk(
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (data: {
-    username: string;
     email: string;
+    fullName: string;
+    username: string;
+    accountType: string;
     password: string;
-    firstName?: string;
-    lastName?: string;
-    shopName?: string;
-    address1?: string;
-    address2?: string;
-    city?: string;
-    postcode?: string;
-    country?: string;
-    state?: string;
-    phone?: string;
-    termsAccepted?: boolean;
   }) => {
     if (data.username.trim().length < 3 || data.email.trim().length === 0 || data.password.trim().length < 6) {
       throw new Error('Invalid registration data');
@@ -128,18 +119,8 @@ export const registerUser = createAsyncThunk(
       email: data.email,
       password: data.password,
       username: data.username,
-      full_name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
-      firstName: data.firstName,
-      lastName: data.lastName,
-      shopName: data.shopName,
-      address1: data.address1,
-      address2: data.address2,
-      city: data.city,
-      postcode: data.postcode,
-      country: data.country,
-      state: data.state,
-      phone: data.phone,
-      termsAccepted: data.termsAccepted,
+      full_name: data.fullName,
+      accountType: data.accountType,
     });
 
     if (authError || !authUser) {

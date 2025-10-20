@@ -11,22 +11,11 @@ export const useAuth = () => {
   };
 
   const register = async (
-    username: string,
     email: string,
-    password: string,
-    data: {
-      firstName?: string;
-      lastName?: string;
-      shopName?: string;
-      address1?: string;
-      address2?: string;
-      city?: string;
-      postcode?: string;
-      country?: string;
-      state?: string;
-      phone?: string;
-      termsAccepted?: boolean;
-    }
+    fullName: string,
+    username: string,
+    accountType: string,
+    password: string
   ) => {
     if (loading) return;
 
@@ -34,8 +23,9 @@ export const useAuth = () => {
       registerUser({
         username,
         email,
+        fullName,
+        accountType,
         password,
-        ...data,
       })
     );
 

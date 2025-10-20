@@ -19,20 +19,10 @@ export interface AuthUser {
 
 export interface SignUpData {
   email: string;
-  password: string;
-  username?: string;
   full_name?: string;
-  firstName?: string;
-  lastName?: string;
-  shopName?: string;
-  phone?: string;
-  address1?: string;
-  address2?: string;
-  city?: string;
-  postcode?: string;
-  country?: string;
-  state?: string;
-  termsAccepted?: boolean;
+  username?: string;
+  accountType?: string;
+  password: string;
 }
 
 export interface SignInData {
