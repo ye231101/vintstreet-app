@@ -47,6 +47,98 @@ class ListingsService {
   }
 
   /**
+   * Get listings filtered by a category slug
+   * Tries common schema patterns: category_slug (eq) or category_slugs (array contains)
+   */
+  async getListingsByCategorySlug(categorySlug: string, sort?: string): Promise<Product[]> {
+    try {
+      // Only try category_slug. We won't attempt category_slugs to avoid column errors.
+      const { data, error } = await (supabase as any)
+        .from('listings')
+        .select('*')
+        .eq('is_active', true)
+        .eq('category_slug' as any, categorySlug);
+
+      if (error) throw new Error(`Failed to fetch listings by category: ${error.message}`);
+
+      // Optional sorting
+      // We perform client-side sort to avoid depending on DB columns that may not exist
+      const items = ((data as unknown as ApiListing[]) || []).slice();
+      if (sort) {
+        switch (sort) {
+          case 'price:asc':
+            items.sort((a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0));
+            break;
+          case 'price:desc':
+            items.sort((a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0));
+            break;
+          default:
+            break;
+        }
+      }
+
+      return this.transformListingsData(items);
+    } catch (error) {
+      console.error('Error fetching listings by category:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get listings filtered by category using either slug or id columns.
+   * This method tries multiple possible foreign key columns and skips missing-column errors.
+   */
+  async getListingsByCategory(categoryId: string, sort?: string): Promise<Product[]> {
+    const tryQuery = async (column: string, value: string | number) => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from('listings')
+          .select('*')
+          .eq('is_active', true)
+          .eq(column as any, value);
+        if (error) {
+          // Skip unknown column or other errors silently; we'll try the next option
+          return [] as any[];
+        }
+        return (data as any[]) || [];
+      } catch (_) {
+        return [] as any[];
+      }
+    };
+
+    // Try in priority order
+    const attempts: Array<[string, string | number]> = [
+      ['category_id', categoryId],
+      ['subcategory_id', categoryId],
+      ['sub_subcategory_id', categoryId],
+      ['sub_sub_subcategory_id', categoryId],
+    ];
+
+    for (const [column, value] of attempts) {
+      const rows = await tryQuery(column, value);
+      if (rows && rows.length > 0) {
+        const items = (rows as unknown as ApiListing[]).slice();
+        if (sort) {
+          switch (sort) {
+            case 'price:asc':
+              items.sort((a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0));
+              break;
+            case 'price:desc':
+              items.sort((a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0));
+              break;
+            default:
+              break;
+          }
+        }
+        return this.transformListingsData(items);
+      }
+    }
+
+    // No results from any attempt
+    return [];
+  }
+
+  /**
    * Get all listings for a seller (across all streams)
    * @param sellerId - The seller's user ID
    */

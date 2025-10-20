@@ -24,48 +24,22 @@ export interface FilterModalProps {
 }
 
 const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApplyFilters }) => {
-  const [selectedCategory, setSelectedCategory] = useState('brand');
+  const [selectedCategory, setSelectedCategory] = useState('price');
   const [selectedFilters, setSelectedFilters] = useState<{
     [key: string]: string[];
   }>({});
 
-  // Mock filter data
+  // Supported filters for current DB schema: Price only
   const filterCategories: FilterCategory[] = [
-    {
-      id: 'brand',
-      name: 'Brand',
-      icon: 'check',
-      options: [
-        { id: 'veefriends', name: 'VeeFriends', count: 856 },
-        { id: 'nike', name: 'Nike', count: 357 },
-        { id: 'adidas', name: 'adidas', count: 190 },
-        { id: 'tommy-hilfiger', name: 'Tommy Hilfiger', count: 167 },
-        { id: 'nintendo', name: 'Nintendo', count: 160 },
-        { id: 'burberry', name: 'Burberry', count: 91 },
-        { id: 'ralph-lauren', name: 'Ralph Lauren', count: 79 },
-      ],
-    },
-    {
-      id: 'size',
-      name: 'Size',
-      icon: 'check',
-      options: [
-        { id: 'xs', name: 'XS', count: 45 },
-        { id: 's', name: 'S', count: 123 },
-        { id: 'm', name: 'M', count: 234 },
-        { id: 'l', name: 'L', count: 189 },
-        { id: 'xl', name: 'XL', count: 98 },
-      ],
-    },
     {
       id: 'price',
       name: 'Price',
       icon: 'check',
       options: [
-        { id: 'under-50', name: 'Under $50', count: 234 },
-        { id: '50-100', name: '$50 - $100', count: 456 },
-        { id: '100-200', name: '$100 - $200', count: 321 },
-        { id: 'over-200', name: 'Over $200', count: 189 },
+        { id: 'under-50', name: 'Under £50', count: 0 },
+        { id: '50-100', name: '£50 - £100', count: 0 },
+        { id: '100-200', name: '£100 - £200', count: 0 },
+        { id: 'over-200', name: 'Over £200', count: 0 },
       ],
     },
   ];
@@ -94,7 +68,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApplyFilt
   };
 
   const getTotalFilterCount = () => {
-    return Object.values(selectedFilters).reduce((total, filters) => total + filters.length, 0);
+    return (selectedFilters.price?.length || 0);
   };
 
   const renderFilterOption = ({ item }: { item: FilterOption }) => {

@@ -1,4 +1,4 @@
-import { categoriesService, typesenseService } from '@/api/services';
+import { categoriesService, typesenseService, listingsService } from '@/api/services';
 import { Category } from '@/api/types/category.types';
 import FilterModal from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
@@ -80,56 +80,8 @@ export default function DiscoveryScreen() {
       setIsLoadingProducts(true);
       setProductsError(null);
 
-      // Build filter for the category
-      let filterBy = `category_slugs:=${category.slug}`;
-
-      // Add additional filters if provided
-      if (filters && Object.keys(filters).length > 0) {
-        const additionalFilters: string[] = [];
-
-        // Brand filter
-        if (filters.brand && filters.brand.length > 0) {
-          const brandFilters = filters.brand.map((brand: string) => `brand:=${brand}`).join(' || ');
-          additionalFilters.push(`(${brandFilters})`);
-        }
-
-        // Size filter
-        if (filters.size && filters.size.length > 0) {
-          const sizeFilters = filters.size.map((size: string) => `pa_size:=${size}`).join(' || ');
-          additionalFilters.push(`(${sizeFilters})`);
-        }
-
-        // Price filter
-        if (filters.price && filters.price.length > 0) {
-          const priceFilters: string[] = [];
-          filters.price.forEach((priceRange: string) => {
-            switch (priceRange) {
-              case 'under-50':
-                priceFilters.push('price:<50');
-                break;
-              case '50-100':
-                priceFilters.push('price:>=50 && price:<100');
-                break;
-              case '100-200':
-                priceFilters.push('price:>=100 && price:<200');
-                break;
-              case 'over-200':
-                priceFilters.push('price:>=200');
-                break;
-            }
-          });
-          if (priceFilters.length > 0) {
-            additionalFilters.push(`(${priceFilters.join(' || ')})`);
-          }
-        }
-
-        if (additionalFilters.length > 0) {
-          filterBy = `(${filterBy}) && (${additionalFilters.join(' && ')})`;
-        }
-      }
-
-      // Determine sort order
-      let sortOrder = '';
+      // Map UI sort to service sort key
+      let sortOrder: string | undefined;
       if (sortBy) {
         switch (sortBy) {
           case 'Price: Low to High':
@@ -138,62 +90,25 @@ export default function DiscoveryScreen() {
           case 'Price: High to Low':
             sortOrder = 'price:desc';
             break;
-          case 'Newest First':
-            sortOrder = 'created_at:desc';
-            break;
-          case 'Oldest First':
-            sortOrder = 'created_at:asc';
-            break;
-          case 'Most Popular':
-            sortOrder = 'favorites_count:desc';
-            break;
-          case 'Most Relevant':
           default:
-            // No sort order for relevance
+            sortOrder = undefined;
             break;
         }
       }
 
-      const response = await typesenseService.search({
-        query: '*',
-        queryBy: 'name,description,short_description,brand,categories,category_slugs',
-        filterBy: filterBy,
-        sortBy: sortOrder,
-        perPage: 20,
-        page: 1,
-      });
+      // Query by category UUID against known id columns
+      const apiProducts = await listingsService.getListingsByCategory(category.id, sortOrder);
+      const mapped = apiProducts.map((p) => ({
+        id: p.id,
+        name: p.title,
+        brand: '',
+        price: `£${Number(p.price || 0).toFixed(2)}`,
+        image: p.imageUrl ? { uri: p.imageUrl } : undefined,
+        likes: p.likes ?? 0,
+      }));
 
-      // Convert Typesense results to product card format
-      const products = response.hits.map((hit) => {
-        const listing = typesenseService.convertToVintStreetListing(hit.document);
-
-        // Use thumbnail URLs for better performance, fallback to full images
-        const imageUrl =
-          listing.thumbnailImageUrls.length > 0
-            ? listing.thumbnailImageUrls[0]
-            : listing.fullImageUrls.length > 0
-            ? listing.fullImageUrls[0]
-            : null;
-
-        // Get first available size
-        const size =
-          listing.attributes.pa_size && listing.attributes.pa_size.length > 0
-            ? listing.attributes.pa_size[0]
-            : undefined;
-
-        return {
-          id: listing.id,
-          name: listing.name,
-          brand: listing.brand || 'No Brand',
-          price: `£${listing.price.toFixed(2)}`,
-          image: imageUrl ? { uri: imageUrl } : undefined,
-          likes: listing.favoritesCount,
-          size: size,
-        };
-      });
-
-      setProducts(products);
-      console.log(`Loaded ${products.length} products for category: ${category.name}`);
+      setProducts(mapped);
+      console.log(`Loaded ${mapped.length} products for category: ${category.name}`);
     } catch (err) {
       console.error('Error loading products for category:', err);
       setProductsError('Failed to load products for this category');

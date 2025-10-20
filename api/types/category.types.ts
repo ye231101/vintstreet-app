@@ -4,11 +4,11 @@
  */
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   children: Category[];
-  parentId?: number;
+  parentId?: string;
   count: number;
   description: string;
   image?: string;
