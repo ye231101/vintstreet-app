@@ -77,7 +77,7 @@ export default function FavouritesScreen() {
   };
 
   const navigateToProduct = (itemId: string) => {
-    router.push(`/product/${itemId}`);
+    router.push(`/listing/${itemId}` as any);
   };
 
   const FavouriteCard = ({ item }: { item: FavouriteItem }) => (

@@ -1,4 +1,4 @@
-import { categoriesService, typesenseService, listingsService } from '@/api/services';
+import { categoriesService, listingsService } from '@/api/services';
 import { Category } from '@/api/types/category.types';
 import FilterModal from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
@@ -25,7 +25,6 @@ export default function DiscoveryScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Search functionality
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -171,44 +170,7 @@ export default function DiscoveryScreen() {
       setIsSearching(true);
       setShowSearchResults(true);
 
-      const response = await typesenseService.search({
-        query: searchText,
-        queryBy: 'name,description,short_description,brand,categories,category_slugs',
-        perPage: 20,
-        page: 1,
-      });
-
-      // Convert Typesense results to product card format
-      const products = response.hits.map((hit) => {
-        const listing = typesenseService.convertToVintStreetListing(hit.document);
-
-        // Use thumbnail URLs for better performance, fallback to full images
-        const imageUrl =
-          listing.thumbnailImageUrls.length > 0
-            ? listing.thumbnailImageUrls[0]
-            : listing.fullImageUrls.length > 0
-            ? listing.fullImageUrls[0]
-            : null;
-
-        // Get first available size
-        const size =
-          listing.attributes.pa_size && listing.attributes.pa_size.length > 0
-            ? listing.attributes.pa_size[0]
-            : undefined;
-
-        return {
-          id: listing.id,
-          name: listing.name,
-          brand: listing.brand || 'No Brand',
-          price: `£${listing.price.toFixed(2)}`,
-          image: imageUrl ? { uri: imageUrl } : undefined,
-          likes: listing.favoritesCount,
-          size: size,
-        };
-      });
-
-      setSearchResults(products);
-      console.log(`Search for "${searchText}" returned ${products.length} results`);
+      setSearchResults([]);
     } catch (error) {
       console.error('Error searching products:', error);
       Alert.alert('Search Error', 'Failed to search products. Please try again.');
@@ -251,7 +213,7 @@ export default function DiscoveryScreen() {
 
   const handleProductPress = (productId: number) => {
     // Navigate to product detail
-    router.push(`/product/${productId}` as any);
+    router.push(`/listing/${productId}` as any);
   };
 
   const getCurrentTitle = () => {
