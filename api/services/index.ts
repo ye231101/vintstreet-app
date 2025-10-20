@@ -4,7 +4,6 @@
  */
 
 export { authService } from './auth.service';
-export { typesenseService } from './typesense.service';
 export { categoriesService } from './categories.service';
 export { ordersService } from './orders.service';
 export { offersService } from './offers.service';

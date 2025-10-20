@@ -3,13 +3,12 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import authReducer from './slices/authSlice';
 import basketReducer from './slices/basketSlice';
-import recentlyViewedReducer from './slices/recentlyViewedSlice';
 
 // Redux Persist configuration
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'basket', 'recentlyViewed'], // Persist auth, basket, and recently viewed state
+  whitelist: ['auth', 'basket'], // Persist auth and basket state
   blacklist: [], // Don't persist these reducers
 };
 
@@ -17,7 +16,6 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   basket: basketReducer,
-  recentlyViewed: recentlyViewedReducer,
 });
 
 // Create persisted reducer

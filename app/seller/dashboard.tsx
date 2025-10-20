@@ -169,7 +169,7 @@ export default function DashboardScreen() {
   };
 
   const navigateToProduct = (productId: string) => {
-    router.push(`/product/${productId}`);
+    router.push(`/listing/${productId}` as any);
   };
 
   const navigateToEditProduct = (productId: string) => {
