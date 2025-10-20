@@ -1,298 +1,60 @@
-import { typesenseService } from '@/api/services';
-import ArticleCarousel from '@/components/article-carousel';
-import FilterModal from '@/components/filter-modal';
-import FilterSortBar from '@/components/filter-sort-bar';
-import PopularProductsCarousel from '@/components/popular-products-carousel';
+import { listingsService } from '@/api/services/listings.service';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
-import { useRecentlyViewed } from '@/hooks/use-recently-viewed';
-import Feather from '@expo/vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width: screenWidth } = Dimensions.get('window');
-
-const topCategories = [
-  {
-    title: 'Caps',
-    image: require('@/assets/images/cat_caps.jpg'),
-  },
-  {
-    title: 'Denim',
-    image: require('@/assets/images/cat_denim.jpg'),
-  },
-  {
-    title: 'Vinyl',
-    image: require('@/assets/images/cat_vinyl.jpg'),
-  },
-  {
-    title: 'Football Shirts',
-    image: require('@/assets/images/cat_football_shirts.jpg'),
-  },
-  {
-    title: 'Gaming',
-    image: require('@/assets/images/cat_gaming.jpg'),
-  },
-  {
-    title: "Levi's",
-    image: require('@/assets/images/cat_levis.jpg'),
-  },
-  {
-    title: 'Nike',
-    image: require('@/assets/images/cat_nike.jpg'),
-  },
-  {
-    title: 'Tees',
-    image: require('@/assets/images/cat_tees.jpg'),
-  },
-  {
-    title: 'VeeFriends',
-    image: require('@/assets/images/cat_veefriends.jpg'),
-  },
-  {
-    title: 'Y2K',
-    image: require('@/assets/images/cat_y2k.jpg'),
-  },
-];
-
-const eras = [
-  {
-    name: '70s',
-    decade: '1970s',
-    color: '#E91E63',
-    image: require('@/assets/images/70s.jpg'),
-  },
-  {
-    name: '80s',
-    decade: '1980s',
-    color: '#9C27B0',
-    image: require('@/assets/images/80s.jpg'),
-  },
-  {
-    name: '90s',
-    decade: '1990s',
-    color: '#2196F3',
-    image: require('@/assets/images/90s.jpg'),
-  },
-  {
-    name: '00s',
-    decade: '2000s',
-    color: '#4CAF50',
-    image: require('@/assets/images/00s.jpg'),
-  },
-];
-
-const brands = [
-  {
-    name: "Levi's",
-    image: 'https://1000logos.net/wp-content/uploads/2017/03/Levis-Logo.png',
-  },
-  {
-    name: 'Adidas',
-    image: 'https://1000logos.net/wp-content/uploads/2016/10/Adidas-Logo.png',
-  },
-  {
-    name: 'H&M',
-    image: 'https://1000logos.net/wp-content/uploads/2017/02/Hennes-logo.jpg',
-  },
-  {
-    name: 'Nike',
-    image: 'https://1000logos.net/wp-content/uploads/2021/11/Nike-Logo.png',
-  },
-  {
-    name: 'Zara',
-    image: 'https://1000logos.net/wp-content/uploads/2017/05/Zara-logo.jpg',
-  },
-  {
-    name: 'Gucci',
-    image: 'https://1000logos.net/wp-content/uploads/2017/01/Gucci-Logo.jpg',
-  },
-];
-
-interface Brand {
-  name: string;
-  image: any;
-}
-
-const BrandCard = ({ brand }: { brand: Brand }) => (
-  <View
-    className="bg-white rounded-lg mr-2 mb-2 border border-gray-200 items-center justify-center"
-    style={{
-      width: screenWidth / 3,
-      height: (screenWidth / 3) * (3 / 4),
-    }}
-  >
-    <Image source={{ uri: brand.image }} className="w-4/5 h-3/5" resizeMode="contain" />
-    <Text className="text-xs font-inter mt-2">{brand.name}</Text>
-  </View>
-);
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { items: recentlyViewedItems, isInitialized: recentlyViewedInitialized } = useRecentlyViewed();
-  const [trendingProductsData, setTrendingProductsData] = useState<any[]>([]);
-  const [isLoadingTrending, setIsLoadingTrending] = useState(true);
-  const [recentlyAddedProductsData, setRecentlyAddedProductsData] = useState<any[]>([]);
-  const [isLoadingRecentlyAdded, setIsLoadingRecentlyAdded] = useState(true);
-  const [indieItemsData, setIndieItemsData] = useState<any[]>([]);
-  const [isLoadingIndieItems, setIsLoadingIndieItems] = useState(true);
+  // Listings state from Supabase
+  const [listings, setListings] = useState<any[]>([]);
+  const [isLoadingListings, setIsLoadingListings] = useState(true);
+  const [listingsError, setListingsError] = useState<string | null>(null);
 
   // Search functionality
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [filterCount, setFilterCount] = useState(0);
-  const [sortBy, setSortBy] = useState('Most Relevant');
-  
-  // Filter and sort state
-  const [appliedFilters, setAppliedFilters] = useState<any>({});
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showSortModal, setShowSortModal] = useState(false);
 
-  // Fetch all product sections on mount
+  // Fetch listings on mount
   useEffect(() => {
-    fetchTrendingProducts();
-    fetchRecentlyAddedProducts();
-    fetchIndieItems();
+    fetchListings();
   }, []);
 
-  const fetchTrendingProducts = async () => {
+  const fetchListings = async () => {
     try {
-      setIsLoadingTrending(true);
-      const response = await typesenseService.getPopularProducts(30);
-
-      // Convert Typesense results to carousel format
-      const products = response.hits.map((hit) => {
-        const listing = typesenseService.convertToVintStreetListing(hit.document);
-
-        // Use thumbnail URLs for better performance, fallback to full images
-        const imageUrls = listing.thumbnailImageUrls.length > 0 ? listing.thumbnailImageUrls : listing.fullImageUrls;
-
-        return {
-          id: listing.id,
-          name: listing.name,
-          brand: listing.brand || 'No Brand',
-          price: `£${listing.price.toFixed(2)}`,
-          images: imageUrls.map((url) => ({ uri: url })),
-          likes: listing.favoritesCount,
-        };
-      });
-
-      setTrendingProductsData(products);
-      console.log(`Loaded ${products.length} trending products`);
-    } catch (error) {
-      console.error('Error fetching trending products:', error);
-      // Keep empty array on error, carousel will show nothing
-      setTrendingProductsData([]);
+      setIsLoadingListings(true);
+      setListingsError(null);
+      const defaultStreamId = 'shop';
+      if (!defaultStreamId) {
+        throw new Error('Missing EXPO_PUBLIC_DEFAULT_STREAM_ID');
+      }
+      const apiProducts = await listingsService.getListings(defaultStreamId);
+      // Map to ProductCard format
+      const mapped = apiProducts.map((p) => ({
+        id: p.id,
+        name: p.title,
+        brand: '',
+        price: `£${Number(p.price || 0).toFixed(2)}`,
+        image: p.imageUrl ? { uri: p.imageUrl } : undefined,
+        likes: p.likes ?? 0,
+      }));
+      setListings(mapped);
+    } catch (err) {
+      console.error('Error loading listings:', err);
+      setListings([]);
+      setListingsError(err instanceof Error ? err.message : 'Failed to load listings');
     } finally {
-      setIsLoadingTrending(false);
+      setIsLoadingListings(false);
     }
   };
 
-  const fetchRecentlyAddedProducts = async () => {
-    try {
-      setIsLoadingRecentlyAdded(true);
-      const response = await typesenseService.getRecentlyAddedProducts(10);
-
-      // Convert Typesense results to product card format
-      const products = response.hits.map((hit) => {
-        const listing = typesenseService.convertToVintStreetListing(hit.document);
-
-        // Use thumbnail URLs for better performance, fallback to full images
-        const imageUrl =
-          listing.thumbnailImageUrls.length > 0
-            ? listing.thumbnailImageUrls[0]
-            : listing.fullImageUrls.length > 0
-            ? listing.fullImageUrls[0]
-            : null;
-
-        return {
-          id: listing.id,
-          name: listing.name,
-          brand: listing.brand || 'No Brand',
-          price: `£${listing.price.toFixed(2)}`,
-          image: imageUrl ? { uri: imageUrl } : undefined,
-          likes: listing.favoritesCount,
-        };
-      });
-
-      setRecentlyAddedProductsData(products);
-      console.log(`Loaded ${products.length} recently added products`);
-    } catch (error) {
-      console.error('Error fetching recently added products:', error);
-      // Keep empty array on error
-      setRecentlyAddedProductsData([]);
-    } finally {
-      setIsLoadingRecentlyAdded(false);
-    }
-  };
-
-  const fetchIndieItems = async () => {
-    try {
-      setIsLoadingIndieItems(true);
-      // Fetch indie items - products where vendor_id is NOT 42 (matching Flutter)
-      const response = await typesenseService.search({
-        query: '*',
-        queryBy: 'name,description,short_description,brand,categories,category_slugs',
-        filterBy: 'vendor_id:!=42',
-        perPage: 10,
-        page: 1,
-      });
-
-      // Convert Typesense results to product card format with additional fields
-      const products = response.hits.map((hit) => {
-        const listing = typesenseService.convertToVintStreetListing(hit.document);
-
-        // Use thumbnail URLs for better performance, fallback to full images
-        const imageUrl =
-          listing.thumbnailImageUrls.length > 0
-            ? listing.thumbnailImageUrls[0]
-            : listing.fullImageUrls.length > 0
-            ? listing.fullImageUrls[0]
-            : null;
-
-        // Get first available size
-        const size =
-          listing.attributes.pa_size && listing.attributes.pa_size.length > 0
-            ? listing.attributes.pa_size[0]
-            : undefined;
-
-        // Calculate protection fee (example: 7.2% of price, matching typical marketplace fees)
-        const protectionFee = (listing.price * 0.072).toFixed(2);
-
-        return {
-          id: listing.id,
-          name: listing.name,
-          brand: listing.brand || 'No Brand',
-          price: `£${listing.price.toFixed(2)}`,
-          image: imageUrl ? { uri: imageUrl } : undefined,
-          likes: listing.favoritesCount,
-          size: size,
-          protectionFee: `£${protectionFee}`,
-        };
-      });
-
-      setIndieItemsData(products);
-      console.log(`Loaded ${products.length} indie items`);
-    } catch (error) {
-      console.error('Error fetching indie items:', error);
-      // Keep empty array on error
-      setIndieItemsData([]);
-    } finally {
-      setIsLoadingIndieItems(false);
-    }
-  };
-
-  const handleProductPress = (productId: number) => {
-    router.push(`/product/${productId}`);
-  };
-
-  const handleCategoryPress = (categoryName: string) => {
-    router.push(`/(tabs)/discovery?category=${encodeURIComponent(categoryName)}`);
+  const handleProductPress = (productId: string | number) => {
+    router.push(`/listing/${productId}` as any);
   };
 
   const handleSearch = async () => {
@@ -300,129 +62,8 @@ export default function HomeScreen() {
       setShowSearchResults(false);
       return;
     }
-
-    try {
-      setIsSearching(true);
-      setShowSearchResults(true);
-
-      // Build filter query
-      let filterBy = '';
-      if (appliedFilters && Object.keys(appliedFilters).length > 0) {
-        const additionalFilters: string[] = [];
-
-        // Brand filter
-        if (appliedFilters.brand && appliedFilters.brand.length > 0) {
-          const brandFilters = appliedFilters.brand.map((brand: string) => `brand:=${brand}`).join(' || ');
-          additionalFilters.push(`(${brandFilters})`);
-        }
-
-        // Size filter
-        if (appliedFilters.size && appliedFilters.size.length > 0) {
-          const sizeFilters = appliedFilters.size.map((size: string) => `pa_size:=${size}`).join(' || ');
-          additionalFilters.push(`(${sizeFilters})`);
-        }
-
-        // Price filter
-        if (appliedFilters.price && appliedFilters.price.length > 0) {
-          const priceFilters: string[] = [];
-          appliedFilters.price.forEach((priceRange: string) => {
-            switch (priceRange) {
-              case 'under-50':
-                priceFilters.push('price:<50');
-                break;
-              case '50-100':
-                priceFilters.push('price:>=50 && price:<100');
-                break;
-              case '100-200':
-                priceFilters.push('price:>=100 && price:<200');
-                break;
-              case 'over-200':
-                priceFilters.push('price:>=200');
-                break;
-            }
-          });
-          if (priceFilters.length > 0) {
-            additionalFilters.push(`(${priceFilters.join(' || ')})`);
-          }
-        }
-
-        if (additionalFilters.length > 0) {
-          filterBy = additionalFilters.join(' && ');
-        }
-      }
-
-      // Determine sort order
-      let sortOrder = '';
-      if (sortBy) {
-        switch (sortBy) {
-          case 'Price: Low to High':
-            sortOrder = 'price:asc';
-            break;
-          case 'Price: High to Low':
-            sortOrder = 'price:desc';
-            break;
-          case 'Newest First':
-            sortOrder = 'created_at:desc';
-            break;
-          case 'Oldest First':
-            sortOrder = 'created_at:asc';
-            break;
-          case 'Most Popular':
-            sortOrder = 'favorites_count:desc';
-            break;
-          case 'Most Relevant':
-          default:
-            // No sort order for relevance
-            break;
-        }
-      }
-
-      const response = await typesenseService.search({
-        query: searchText,
-        queryBy: 'name,description,short_description,brand,categories,category_slugs',
-        filterBy: filterBy,
-        sortBy: sortOrder,
-        perPage: 20,
-        page: 1,
-      });
-
-      // Convert Typesense results to product card format
-      const products = response.hits.map((hit) => {
-        const listing = typesenseService.convertToVintStreetListing(hit.document);
-
-        // Use thumbnail URLs for better performance, fallback to full images
-        const imageUrl =
-          listing.thumbnailImageUrls.length > 0
-            ? listing.thumbnailImageUrls[0]
-            : listing.fullImageUrls.length > 0
-            ? listing.fullImageUrls[0]
-            : null;
-
-        // Get first available size
-        const size =
-          listing.attributes.pa_size && listing.attributes.pa_size.length > 0
-            ? listing.attributes.pa_size[0]
-            : undefined;
-
-        return {
-          id: listing.id,
-          name: listing.name,
-          brand: listing.brand || 'No Brand',
-          price: `£${listing.price.toFixed(2)}`,
-          image: imageUrl ? { uri: imageUrl } : undefined,
-          likes: listing.favoritesCount,
-          size: size,
-        };
-      });
-
-      setSearchResults(products);
-      console.log(`Search for "${searchText}" returned ${products.length} results`);
-    } catch (error) {
-      console.error('Error searching products:', error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
+    setIsSearching(false);
+    setShowSearchResults(false);
   };
 
   const handleSearchTextChange = (text: string) => {
@@ -433,379 +74,52 @@ export default function HomeScreen() {
     }
   };
 
-  const handleFilterPress = () => {
-    setShowFilterModal(true);
-  };
-
-  const handleSortPress = () => {
-    setShowSortModal(true);
-  };
-
-  const handleApplyFilters = (filters: any) => {
-    console.log('Applied filters:', filters);
-    setAppliedFilters(filters);
-
-    // Update filter count based on applied filters
-    const totalFilters = Object.values(filters).reduce((total: number, options: any) => total + options.length, 0);
-    setFilterCount(totalFilters);
-
-    // Re-run search with new filters if we're showing search results
-    if (showSearchResults) {
-      handleSearch();
-    }
-  };
-
-  const handleSortChange = (sortOption: string) => {
-    setSortBy(sortOption);
-    setShowSortModal(false);
-
-    // Re-run search with new sort if we're showing search results
-    if (showSearchResults) {
-      handleSearch();
-    }
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Search Bar */}
       <SearchBar value={searchText} onChangeText={handleSearchTextChange} onSearch={handleSearch} />
 
-      {showSearchResults ? (
-        // Search Results View
-        <View className="flex-1">
-          {/* Filter and Sort Bar */}
-          <FilterSortBar
-            filterCount={filterCount}
-            sortBy={sortBy}
-            onFilterPress={handleFilterPress}
-            onSortPress={handleSortPress}
-          />
-
-          {isSearching ? (
-            <View className="py-10 items-center">
-              <ActivityIndicator size="large" color="#000" />
-              <Text className="mt-3 text-sm font-inter text-gray-600">Searching for "{searchText}"...</Text>
-            </View>
-          ) : searchResults.length > 0 ? (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={2}
-              renderItem={({ item }) => (
-                <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
-              )}
-              showsVerticalScrollIndicator={false}
-              columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
-              className="p-4 mb-4"
-            />
-          ) : (
-            <View className="py-10 items-center">
-              <Text className="text-base font-inter text-gray-600 text-center">
-                No results found for "{searchText}"
-              </Text>
-              <Text className="text-sm font-inter text-gray-400 text-center mt-2">
-                Try different keywords or check your spelling
-              </Text>
-            </View>
-          )}
+      {/* Home Content: FlatList with header to avoid nesting issues */}
+      {isLoadingListings ? (
+        <View className="py-10 items-center">
+          <ActivityIndicator size="large" color="#000" />
         </View>
+      ) : listingsError ? (
+        <Text className="text-xs font-inter text-red-600 text-center py-5">{listingsError}</Text>
       ) : (
-        // Home Content
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-2">
-          {/* Banner Section */}
-          <View className="my-4">
-            <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>
-              <Image source={require('@/assets/images/hero-banner.jpg')} className="w-full h-full" resizeMode="cover" />
-              <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.7)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                className="absolute inset-0"
-              />
-            </View>
-          </View>
-
-          {/* Quick Links Section */}
-          <View className="mb-6">
-            <Text className="text-xs font-inter-bold text-black mb-3">QUICK LINKS</Text>
-            <ArticleCarousel />
-          </View>
-
-          {/* TRENDING NOW */}
-          <View className="mb-6">
-            {isLoadingTrending ? (
-              <View>
-                <Text className="text-xs font-inter-bold text-black mb-3">TRENDING NOW</Text>
-                <View className="py-10 items-center">
-                  <ActivityIndicator size="large" color="#000" />
+        <FlatList
+          data={listings}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          renderItem={({ item }) => (
+            <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
+          )}
+          ListHeaderComponent={
+            <View className="px-2">
+              <View className="my-4">
+                <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>
+                  <Image
+                    source={require('@/assets/images/hero-banner.jpg')}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                  <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.7)']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    className="absolute inset-0"
+                  />
                 </View>
               </View>
-            ) : trendingProductsData.length > 0 ? (
-              <PopularProductsCarousel
-                title="TRENDING NOW"
-                items={trendingProductsData}
-                onPressItem={(item) => handleProductPress(Number(item.id))}
-              />
-            ) : (
-              <View>
-                <Text className="text-xs font-inter-bold text-black mb-3">TRENDING NOW</Text>
-                <Text className="text-xs font-inter text-gray-600 text-center py-5">
-                  No trending products available
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* RECENTLY ADDED */}
-          <View className="mb-6">
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-xs font-inter-bold text-black">RECENTLY ADDED</Text>
-              <Pressable>
-                <Text className="text-xs font-inter text-blue-500">See All</Text>
-              </Pressable>
-            </View>
-            {isLoadingRecentlyAdded ? (
-              <View className="py-10 items-center">
-                <ActivityIndicator size="large" color="#000" />
-              </View>
-            ) : recentlyAddedProductsData.length > 0 ? (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {recentlyAddedProductsData.map((product) => (
-                  <ProductCard key={product.id} product={product} onPress={() => handleProductPress(product.id)} />
-                ))}
-              </ScrollView>
-            ) : (
-              <Text className="text-xs font-inter text-gray-600 text-center py-5">
-                No recently added products available
-              </Text>
-            )}
-          </View>
-
-          {/* TOP CATEGORIES */}
-          <View className="mb-6">
-            <Text className="text-xs font-inter-bold text-black mb-3">TOP CATEGORIES</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {topCategories.map((cat) => {
-                const cardWidth = screenWidth / 2;
-                const cardHeight = cardWidth * (9 / 16);
-                return (
-                  <Pressable
-                    key={cat.title}
-                    onPress={() => handleCategoryPress(cat.title)}
-                    className="mr-2 rounded-lg overflow-hidden relative border border-gray-200"
-                    style={{
-                      width: cardWidth,
-                      height: cardHeight,
-                    }}
-                  >
-                    <Image source={cat.image} className="w-full h-full" resizeMode="cover" />
-
-                    <View className="absolute inset-0 bg-transparent">
-                      <LinearGradient
-                        colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0)']}
-                        start={{ x: 0, y: 1 }}
-                        end={{ x: 0, y: 0 }}
-                        locations={[0.0, 0.5, 0.8]}
-                        className="absolute inset-0"
-                      />
-                    </View>
-
-                    <View className="absolute left-3 right-3 bottom-3 flex-row justify-between items-center">
-                      <Text className="flex-1text-base font-inter-bold text-white" numberOfLines={1}>
-                        {cat.title}
-                      </Text>
-                      <Feather name="chevron-right" size={16} color="white" />
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </View>
-
-          {/* EXPLORE THE ERAS */}
-          <View className="mb-6">
-            <Text className="text-xs font-inter-bold text-black mb-3">EXPLORE THE ERAS</Text>
-            <View className="flex-row flex-wrap">
-              {eras.map((era, idx) => {
-                const cardWidth = screenWidth / 2 - 14;
-                const cardHeight = cardWidth * (7 / 16);
-                const isLeft = idx % 2 === 0;
-                return (
-                  <View
-                    key={era.name}
-                    className={`rounded-lg overflow-hidden ${isLeft ? 'mr-3' : 'mr-0'} mb-3`}
-                    style={{
-                      width: cardWidth,
-                      height: cardHeight,
-                    }}
-                  >
-                    <Image source={era.image} resizeMode="cover" className="w-full h-full" />
-                    <View className="absolute inset-0 opacity-50" style={{ backgroundColor: era.color }} />
-                    <View className="absolute inset-0 items-center justify-center">
-                      <Text
-                        className="text-xl font-inter-bold text-white"
-                        style={{
-                          textShadowColor: 'rgba(0,0,0,0.5)',
-                          textShadowOffset: { width: 1, height: 1 },
-                          textShadowRadius: 2,
-                        }}
-                      >
-                        {era.name}
-                      </Text>
-                      <Text
-                        className="text-sm font-inter text-white"
-                        style={{
-                          textShadowColor: 'rgba(0,0,0,0.5)',
-                          textShadowOffset: { width: 1, height: 1 },
-                          textShadowRadius: 2,
-                        }}
-                      >
-                        {era.decade}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-
-          {/* BRANDS YOU MAY LIKE */}
-          <View className="mb-6">
-            <Text className="text-xs font-inter-bold text-black mb-3">Brands you may like</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {Array.from({ length: Math.ceil(brands.length / 2) }).map((_, colIndex) => {
-                const first = brands[colIndex * 2];
-                const second = brands[colIndex * 2 + 1];
-                return (
-                  <View key={colIndex}>
-                    {first && <BrandCard brand={first} />}
-                    {second && <BrandCard brand={second} />}
-                  </View>
-                );
-              })}
-            </ScrollView>
-          </View>
-
-          {/* RECENTLY VIEWED */}
-          {recentlyViewedInitialized && recentlyViewedItems.length > 0 && (
-            <View className="mb-6">
               <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-xs font-inter-bold text-black">RECENTLY VIEWED</Text>
+                <Text className="text-xs font-inter-bold text-black">LISTINGS</Text>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {recentlyViewedItems.map((listing) => {
-                  // Convert listing to product card format
-                  const imageUrl =
-                    listing.thumbnailImageUrls.length > 0
-                      ? listing.thumbnailImageUrls[0]
-                      : listing.fullImageUrls.length > 0
-                      ? listing.fullImageUrls[0]
-                      : null;
-
-                  const size =
-                    listing.attributes.pa_size && listing.attributes.pa_size.length > 0
-                      ? listing.attributes.pa_size[0]
-                      : undefined;
-
-                  const protectionFee = (listing.price * 0.072).toFixed(2);
-
-                  const product = {
-                    id: listing.id,
-                    name: listing.name,
-                    brand: listing.brand || 'No Brand',
-                    price: `£${listing.price.toFixed(2)}`,
-                    image: imageUrl ? { uri: imageUrl } : undefined,
-                    likes: listing.favoritesCount,
-                    size: size,
-                    protectionFee: `£${protectionFee}`,
-                  };
-
-                  return (
-                    <ProductCard
-                      key={listing.id}
-                      product={product}
-                      showSize={true}
-                      showProtectionFee={true}
-                      onPress={() => handleProductPress(listing.id)}
-                    />
-                  );
-                })}
-              </ScrollView>
             </View>
-          )}
-
-          {/* INDIE ITEMS */}
-          <View className="mb-6">
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-xs font-inter-bold text-black">INDIE ITEMS</Text>
-              <Pressable>
-                <Text className="text-xs font-inter text-blue-500">See All</Text>
-              </Pressable>
-            </View>
-            {isLoadingIndieItems ? (
-              <View className="py-10 items-center">
-                <ActivityIndicator size="large" color="#000" />
-              </View>
-            ) : indieItemsData.length > 0 ? (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {indieItemsData.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    showSize={true}
-                    showProtectionFee={true}
-                    onPress={() => handleProductPress(product.id)}
-                  />
-                ))}
-              </ScrollView>
-            ) : (
-              <Text className="text-xs font-inter text-gray-600 text-center py-5">No indie items available</Text>
-            )}
-          </View>
-
-          <View className="h-10" />
-        </ScrollView>
-      )}
-
-      {/* Filter Modal */}
-      <FilterModal
-        visible={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        onApplyFilters={handleApplyFilters}
-      />
-
-      {/* Sort Dropdown */}
-      {showSortModal && (
-        <>
-          <Pressable className="absolute top-0 left-0 right-0 bottom-0 z-50" onPress={() => setShowSortModal(false)} />
-          <View className="absolute top-12 right-5 w-60 bg-white rounded-lg shadow-lg z-50">
-            {[
-              'Most Relevant',
-              'Price: Low to High',
-              'Price: High to Low',
-              'Newest First',
-              'Oldest First',
-              'Most Popular',
-            ].map((option) => (
-              <Pressable
-                key={option}
-                className={`flex-row justify-between items-center px-4 py-3 border-b border-gray-100 ${
-                  sortBy === option ? 'bg-gray-50' : ''
-                }`}
-                onPress={() => handleSortChange(option)}
-              >
-                <Text
-                  className={`text-sm font-inter text-gray-800 flex-1 ${
-                    sortBy === option ? 'font-inter-semibold text-black' : ''
-                  }`}
-                >
-                  {option}
-                </Text>
-                {sortBy === option && <Feather name="check" size={16} color="#000" />}
-              </Pressable>
-            ))}
-          </View>
-        </>
+          }
+          contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 40 }}
+          columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
+          showsVerticalScrollIndicator={false}
+        />
       )}
     </SafeAreaView>
   );

@@ -70,6 +70,28 @@ class ListingsService {
   }
 
   /**
+   * Get a single listing by id
+   */
+  async getListingById(listingId: string): Promise<ApiListing | null> {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .select('*')
+        .eq('id', listingId)
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to fetch listing: ${error.message}`);
+      }
+
+      return (data as unknown as ApiListing) || null;
+    } catch (error) {
+      console.error('Error fetching listing by id:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get listings by status
    * @param sellerId - The seller's user ID
    * @param status - Listing status to filter by
@@ -143,12 +165,19 @@ class ListingsService {
         'false': 'private'
       };
 
+      // Prefer primary image, fall back to first in product_images
+      const primaryImage: string | undefined =
+        (apiListing as any).product_image ||
+        (((apiListing as any).product_images && (apiListing as any).product_images.length > 0)
+          ? (apiListing as any).product_images[0]
+          : undefined);
+
       return {
         id: apiListing.id,
         title: apiListing.product_name,
         price: apiListing.current_bid || apiListing.starting_price,
         status: statusMap[apiListing.is_active.toString()] || 'draft',
-        imageUrl: undefined, // Would need to fetch from product data
+        imageUrl: primaryImage,
         dateCreated: new Date().toISOString(), // Mock date - would need to fetch from API
         views: Math.floor(Math.random() * 100), // Mock views - would need to fetch from analytics
         likes: Math.floor(Math.random() * 50) // Mock likes - would need to fetch from analytics

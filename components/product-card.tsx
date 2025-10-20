@@ -5,7 +5,7 @@ import { Dimensions, Image, Pressable, Text, View } from 'react-native';
 const { width: screenWidth } = Dimensions.get('window');
 
 export interface Product {
-  id: number;
+  id: string | number;
   name: string;
   brand: string;
   price: string;
