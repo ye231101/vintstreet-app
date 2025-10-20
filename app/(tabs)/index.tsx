@@ -95,8 +95,8 @@ export default function HomeScreen() {
             <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
           )}
           ListHeaderComponent={
-            <View className="px-2">
-              <View className="my-4">
+            <View>
+              <View className="my-2">
                 <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>
                   <Image
                     source={require('@/assets/images/hero-banner.jpg')}
@@ -111,7 +111,7 @@ export default function HomeScreen() {
                   />
                 </View>
               </View>
-              <View className="flex-row justify-between items-center mb-3">
+              <View className="flex-row justify-between items-center my-2">
                 <Text className="text-xs font-inter-bold text-black">LISTINGS</Text>
               </View>
             </View>
