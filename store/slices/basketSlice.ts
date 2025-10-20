@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Alert } from 'react-native';
 
 export interface BasketItem {
   id: string;
@@ -138,6 +139,8 @@ const basketSlice = createSlice({
 
       const totals = calculateTotals(updatedItems);
       const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
+
+      Alert.alert('Item added to basket', `${itemData.name} has been added to your basket.`);
 
       state.basket = {
         items: updatedItems,

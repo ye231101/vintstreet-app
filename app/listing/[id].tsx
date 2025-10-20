@@ -1,12 +1,14 @@
+import { listingsService } from '@/api/services/listings.service';
+import { useBasket } from '@/hooks/use-basket';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
-import { listingsService } from '@/api/services/listings.service';
 
 export default function ListingDetailsScreen() {
 	const router = useRouter();
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const navigation = useNavigation();
+	const { addItem } = useBasket();
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [listing, setListing] = useState<any>(null);
@@ -74,6 +76,24 @@ export default function ListingDetailsScreen() {
 	const sellerId = (listing as any).seller_id || '';
 	const productType = (listing as any).product_type || '';
 
+	const handleAddToCart = () => {
+		try {
+			const vendorIdNum = Number(sellerId) || 0;
+			addItem({
+				productId: Number(id) || 0,
+				name: title,
+				price: Number(priceToShow) || 0,
+				quantity: 1,
+				image: imageUrl || '',
+				vendorId: vendorIdNum,
+				vendorName: String(sellerId || 'Seller'),
+				protectionFeePercentage: vendorIdNum === 42 ? 0 : 0.072,
+			});
+		} catch {
+			// no-op
+		}
+	};
+
 const formattedDate = (() => {
 	try {
 		if (!createdAt) return '';
@@ -131,7 +151,7 @@ const formattedDate = (() => {
 						)}
 					</View>
 					<View className="flex-row items-center">
-						<Pressable className="bg-black px-4 py-3 rounded-lg mr-2">
+						<Pressable className="bg-black px-4 py-3 rounded-lg mr-2" onPress={handleAddToCart}>
 							<Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
 						</Pressable>
 						<Pressable className="bg-gray-100 px-4 py-3 rounded-lg">
