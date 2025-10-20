@@ -2,6 +2,7 @@ import { listingsService } from '@/api/services/listings.service';
 import ArticleCarousel from '@/components/article-carousel';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
+import Feather from '@expo/vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -80,13 +81,15 @@ export default function HomeScreen() {
       {/* Search Bar */}
       <SearchBar value={searchText} onChangeText={handleSearchTextChange} onSearch={handleSearch} />
 
-      {/* Home Content: FlatList with header to avoid nesting issues */}
       {isLoadingListings ? (
-        <View className="py-10 items-center">
+        <View className="flex-1 items-center justify-center p-2">
           <ActivityIndicator size="large" color="#000" />
         </View>
       ) : listingsError ? (
-        <Text className="text-xs font-inter text-red-600 text-center py-5">{listingsError}</Text>
+        <View className="flex-1 items-center justify-center gap-2 p-2">
+          <Feather name="alert-circle" size={64} color="#ff4444" />
+          <Text className="text-lg font-inter-bold text-red-600 text-center">{listingsError}</Text>
+        </View>
       ) : (
         <FlatList
           data={listings}
@@ -110,12 +113,12 @@ export default function HomeScreen() {
               </View>
 
               <View className="flex-col gap-2">
-                <Text className="text-xs font-inter-bold text-black">QUICK LINKS</Text>
+                <Text className="text-base font-inter-bold text-black">Quick Links</Text>
                 <ArticleCarousel />
               </View>
 
               <View className="flex-col gap-2">
-                <Text className="text-xs font-inter-bold text-black">LISTINGS</Text>
+                <Text className="text-base font-inter-bold text-black">Shop Products</Text>
               </View>
             </View>
           }
