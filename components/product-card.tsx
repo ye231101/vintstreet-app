@@ -1,6 +1,8 @@
+import { blurhash } from '@/utils';
 import Feather from '@expo/vector-icons/Feather';
+import { Image } from 'expo-image';
 import React from 'react';
-import { Dimensions, Image, Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, View } from 'react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -9,6 +11,7 @@ export interface Product {
   name: string;
   brand: string;
   price: string;
+  originalPrice?: string;
   image: any;
   likes: number;
   size?: string;
@@ -17,55 +20,58 @@ export interface Product {
 
 export interface ProductCardProps {
   product: Product;
-  showSize?: boolean;
-  showProtectionFee?: boolean;
   onPress?: () => void;
+  onAddToCart?: () => void;
   width?: number;
   height?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  showSize = false,
-  showProtectionFee = false,
   onPress,
+  onAddToCart,
   width = screenWidth / 2 - 12,
   height = width * (4 / 3),
 }) => {
   return (
-    <Pressable className="bg-white overflow-hidden" style={{ width }} onPress={onPress}>
+    <Pressable onPress={onPress} className="bg-white rounded-2xl overflow-hidden shadow-sm" style={{ width }}>
       <View className="relative">
-        <Image source={product.image} className="w-full rounded-lg" style={{ height }} resizeMode="cover" />
+        <Image
+          source={product.image}
+          contentFit="cover"
+          placeholder={{ blurhash }}
+          style={{ width, height }}
+          transition={1000}
+        />
 
-        {/* Like Button */}
-        <View className="absolute bottom-2 right-2 bg-white/60 rounded-xl px-1.5 py-0.5 flex-row items-center">
-          <Text className="text-black text-xs mr-2">{product.likes}</Text>
-          <Feather name="heart" size={12} color="black" />
+        <View className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm">
+          <Feather name="heart" size={18} color="black" />
         </View>
       </View>
 
-      <View className="p-3">
-        <Text className="text-xs font-inter mb-1 leading-4" numberOfLines={2}>
+      <View className="p-4">
+        <Text className="text-sm font-inter mb-3 leading-5" numberOfLines={1}>
           {product.name}
         </Text>
 
-        <Text className="text-xs font-inter text-gray-600 mb-1" numberOfLines={1}>
-          {product.brand}
-        </Text>
+        <View className="flex-row items-center justify-between">
+          <View>
+            <Text className="text-xl font-inter-bold text-black mb-1">{product.price}</Text>
+            {product.originalPrice && (
+              <Text className="text-sm font-inter text-gray-400 line-through">{product.originalPrice}</Text>
+            )}
+          </View>
 
-        {showSize && product.size && (
-          <Text className="text-xs font-inter text-gray-600 mb-1" numberOfLines={1}>
-            {product.size}
-          </Text>
-        )}
-
-        <Text className="text-sm font-inter-semibold mb-0.5 text-black">{product.price}</Text>
-
-        {showProtectionFee && product.protectionFee && (
-          <Text className="text-xs font-inter text-gray-600 mb-0.5">({product.protectionFee} Protection Fee)</Text>
-        )}
-
-        <Text className="text-xs font-inter text-gray-600 mt-0.5">(Official Vint Street Product)</Text>
+          <Pressable 
+            onPress={(e) => {
+              e?.stopPropagation();
+              onAddToCart?.();
+            }}
+            className="bg-white border border-gray-200 rounded-lg w-10 h-10 items-center justify-center"
+          >
+            <Feather name="plus" size={20} color="black" />
+          </Pressable>
+        </View>
       </View>
     </Pressable>
   );
