@@ -10,6 +10,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#999',
         headerShown: false,
         tabBarStyle: {
+          position: 'absolute',
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#e0e0e0',
@@ -19,7 +20,7 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 10,
-          fontFamily: 'inter-Regular',
+          fontFamily: 'inter-regular',
         },
       }}
     >
