@@ -1,3 +1,5 @@
+import { Product } from '@/api/services/listings.service';
+import { useCart } from '@/hooks/use-cart';
 import { blurhash } from '@/utils';
 import Feather from '@expo/vector-icons/Feather';
 import { Image } from 'expo-image';
@@ -6,22 +8,9 @@ import { Dimensions, Pressable, Text, View } from 'react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-export interface Product {
-  id: string | number;
-  name: string;
-  brand: string;
-  price: string;
-  originalPrice?: string;
-  image: any;
-  likes: number;
-  size?: string;
-  protectionFee?: string;
-}
-
 export interface ProductCardProps {
   product: Product;
   onPress?: () => void;
-  onAddToCart?: () => void;
   width?: number;
   height?: number;
 }
@@ -29,15 +18,16 @@ export interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onPress,
-  onAddToCart,
   width = screenWidth / 2 - 12,
   height = width * (4 / 3),
 }) => {
+  const { addItem } = useCart();
+
   return (
     <Pressable onPress={onPress} className="bg-white rounded-2xl overflow-hidden shadow-sm" style={{ width }}>
       <View className="relative">
         <Image
-          source={product.image}
+          source={product.product_image}
           contentFit="cover"
           placeholder={{ blurhash }}
           style={{ width, height }}
@@ -51,21 +41,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       <View className="p-4">
         <Text className="text-sm font-inter mb-3 leading-5" numberOfLines={1}>
-          {product.name}
+          {product.product_name}
         </Text>
 
         <View className="flex-row items-center justify-between">
           <View>
-            <Text className="text-xl font-inter-bold text-black mb-1">{product.price}</Text>
-            {product.originalPrice && (
-              <Text className="text-sm font-inter text-gray-400 line-through">{product.originalPrice}</Text>
+            <Text className="text-xl font-inter-bold text-black mb-1">
+              £{product.starting_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </Text>
+            {product.discounted_price && (
+              <Text className="text-sm font-inter text-gray-400 line-through">
+                £
+                {product.discounted_price.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Text>
             )}
           </View>
 
-          <Pressable 
+          <Pressable
             onPress={(e) => {
               e?.stopPropagation();
-              onAddToCart?.();
+              // addItem(product);
             }}
             className="bg-white border border-gray-200 rounded-lg w-10 h-10 items-center justify-center"
           >

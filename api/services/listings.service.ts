@@ -2,21 +2,30 @@ import { supabase } from '../config/supabase';
 
 export interface Product {
   id: string;
-  title: string;
-  price: number;
-  status: 'published' | 'draft';
-  imageUrl?: string;
-  dateCreated: string;
-  views?: number;
-  likes?: number;
-}
-
-export interface ApiListing {
-  id: string;
   product_name: string;
   starting_price: number;
-  current_bid: number;
-  status: 'published' | 'draft';
+  discounted_price: number | null;
+  product_image: string | null;
+  product_description: string | null;
+  seller_id: string;
+  category_id: string | null;
+  subcategory_id: string | null;
+  sub_subcategory_id: string | null;
+  sub_sub_subcategory_id: string | null;
+  brand_id: string | null;
+  status: 'draft' | 'published' | 'private';
+  created_at: string;
+  product_categories: {
+    id: string;
+    name: string;
+  } | null;
+  seller_info_view: {
+    shop_name: string;
+    display_name_format?: string;
+    full_name: string;
+    username: string;
+    avatar_url: string | null;
+  } | null;
 }
 
 class ListingsService {
@@ -24,13 +33,13 @@ class ListingsService {
    * Get listings for a specific stream
    * @param streamId - The stream ID to fetch listings for
    */
-  async getListings(streamId: string): Promise<Product[]> {
-    console.log('getListings', streamId);
+  async getListings(): Promise<Product[]> {
     try {
       const { data, error } = await supabase
         .from('listings')
         .select('*')
-        .eq('stream_id', streamId);
+        .eq('product_type', 'shop')
+        .eq('status', 'published');
 
       console.log('listings data', data);
       if (error) {
@@ -38,7 +47,7 @@ class ListingsService {
       }
 
       // Transform API data to match the UI interface
-      return this.transformListingsData((data as unknown as ApiListing[]) || []);
+      return this.transformListingsData((data as unknown as Product[]) || []);
     } catch (error) {
       console.error('Error fetching listings:', error);
       throw error;
@@ -61,14 +70,18 @@ class ListingsService {
 
       // Optional sorting
       // We perform client-side sort to avoid depending on DB columns that may not exist
-      const items = ((data as unknown as ApiListing[]) || []).slice();
+      const items = ((data as unknown as Product[]) || []).slice();
       if (sort) {
         switch (sort) {
           case 'price:asc':
-            items.sort((a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0));
+            items.sort(
+              (a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0)
+            );
             break;
           case 'price:desc':
-            items.sort((a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0));
+            items.sort(
+              (a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0)
+            );
             break;
           default:
             break;
@@ -114,14 +127,18 @@ class ListingsService {
     for (const [column, value] of attempts) {
       const rows = await tryQuery(column, value);
       if (rows && rows.length > 0) {
-        const items = (rows as unknown as ApiListing[]).slice();
+        const items = (rows as unknown as Product[]).slice();
         if (sort) {
           switch (sort) {
             case 'price:asc':
-              items.sort((a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0));
+              items.sort(
+                (a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0)
+              );
               break;
             case 'price:desc':
-              items.sort((a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0));
+              items.sort(
+                (a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0)
+              );
               break;
             default:
               break;
@@ -151,7 +168,7 @@ class ListingsService {
         throw new Error(`Failed to fetch seller listings: ${error.message}`);
       }
 
-      return this.transformListingsData((data as unknown as ApiListing[]) || []);
+      return this.transformListingsData((data as unknown as Product[]) || []);
     } catch (error) {
       console.error('Error fetching seller listings:', error);
       throw error;
@@ -161,19 +178,15 @@ class ListingsService {
   /**
    * Get a single listing by id
    */
-  async getListingById(listingId: string): Promise<ApiListing | null> {
+  async getListingById(listingId: string): Promise<Product | null> {
     try {
-      const { data, error } = await supabase
-        .from('listings')
-        .select('*')
-        .eq('id', listingId)
-        .single();
+      const { data, error } = await supabase.from('listings').select('*').eq('id', listingId).single();
 
       if (error) {
         throw new Error(`Failed to fetch listing: ${error.message}`);
       }
 
-      return (data as unknown as ApiListing) || null;
+      return (data as unknown as Product) || null;
     } catch (error) {
       console.error('Error fetching listing by id:', error);
       throw error;
@@ -208,7 +221,7 @@ class ListingsService {
         throw new Error(`Failed to fetch listings by status: ${error.message}`);
       }
 
-      return this.transformListingsData((data as unknown as ApiListing[]) || []);
+      return this.transformListingsData((data as unknown as Product[]) || []);
     } catch (error) {
       console.error('Error fetching listings by status:', error);
       throw error;
@@ -222,10 +235,7 @@ class ListingsService {
    */
   async updateListingStatus(listingId: string, isActive: boolean): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('listings')
-        .update({ is_active: isActive })
-        .eq('id', listingId);
+      const { error } = await supabase.from('listings').update({ is_active: isActive }).eq('id', listingId);
 
       if (error) {
         throw new Error(`Failed to update listing status: ${error.message}`);
@@ -240,24 +250,32 @@ class ListingsService {
    * Transform API data to match UI interface
    * @param apiListings - Raw listings data from API
    */
-  private transformListingsData(apiListings: ApiListing[]): Product[] {
-    return apiListings.map((apiListing) => {
+  private transformListingsData(apiListings: Product[]): Product[] {
+    return apiListings.map((apiListing: Product) => {
       // Prefer primary image, fall back to first in product_images
       const primaryImage: string | undefined =
         (apiListing as any).product_image ||
-        (((apiListing as any).product_images && (apiListing as any).product_images.length > 0)
+        ((apiListing as any).product_images && (apiListing as any).product_images.length > 0
           ? (apiListing as any).product_images[0]
           : undefined);
 
       return {
         id: apiListing.id,
-        title: apiListing.product_name,
-        price: apiListing.current_bid || apiListing.starting_price,
-        status: apiListing.status as 'published' | 'draft',
-        imageUrl: primaryImage,
-        dateCreated: new Date().toISOString(), // Mock date - would need to fetch from API
-        views: Math.floor(Math.random() * 100), // Mock views - would need to fetch from analytics
-        likes: Math.floor(Math.random() * 50) // Mock likes - would need to fetch from analytics
+        product_name: apiListing.product_name,
+        starting_price: apiListing.starting_price,
+        discounted_price: apiListing.discounted_price,
+        product_image: apiListing.product_image,
+        product_description: apiListing.product_description,
+        seller_id: apiListing.seller_id,
+        category_id: apiListing.category_id,
+        subcategory_id: apiListing.subcategory_id,
+        sub_subcategory_id: apiListing.sub_subcategory_id,
+        sub_sub_subcategory_id: apiListing.sub_sub_subcategory_id,
+        brand_id: apiListing.brand_id,
+        status: apiListing.status as 'draft' | 'published' | 'private',
+        created_at: apiListing.created_at,
+        product_categories: apiListing.product_categories,
+        seller_info_view: apiListing.seller_info_view,
       };
     });
   }

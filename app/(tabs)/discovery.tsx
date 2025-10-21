@@ -96,17 +96,7 @@ export default function DiscoveryScreen() {
 
       // Query by category UUID against known id columns
       const apiProducts = await listingsService.getListingsByCategory(category.id, sortOrder);
-      const mapped = apiProducts.map((p) => ({
-        id: p.id,
-        name: p.title,
-        brand: '',
-        price: `£${Number(p.price || 0).toFixed(2)}`,
-        image: p.imageUrl ? { uri: p.imageUrl } : undefined,
-        likes: p.likes ?? 0,
-      }));
-
-      setProducts(mapped);
-      console.log(`Loaded ${mapped.length} products for category: ${category.name}`);
+      setProducts(apiProducts);
     } catch (err) {
       console.error('Error loading products for category:', err);
       setProductsError('Failed to load products for this category');

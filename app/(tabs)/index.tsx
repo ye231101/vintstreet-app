@@ -1,12 +1,10 @@
 import { listingsService } from '@/api/services/listings.service';
-import ArticleCarousel from '@/components/article-carousel';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
 import Feather from '@expo/vector-icons/Feather';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -31,21 +29,8 @@ export default function HomeScreen() {
     try {
       setIsLoadingListings(true);
       setListingsError(null);
-      const defaultStreamId = 'shop';
-      if (!defaultStreamId) {
-        throw new Error('Missing EXPO_PUBLIC_DEFAULT_STREAM_ID');
-      }
-      const apiProducts = await listingsService.getListings(defaultStreamId);
-      // Map to ProductCard format
-      const mapped = apiProducts.map((p) => ({
-        id: p.id,
-        name: p.title,
-        brand: '',
-        price: `£${Number(p.price || 0).toFixed(2)}`,
-        image: p.imageUrl ? { uri: p.imageUrl } : undefined,
-        likes: p.likes ?? 0,
-      }));
-      setListings(mapped);
+      const apiProducts = await listingsService.getListings();
+      setListings(apiProducts);
     } catch (err) {
       console.error('Error loading listings:', err);
       setListings([]);
@@ -96,33 +81,7 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           renderItem={({ item }) => <ProductCard product={item} onPress={() => handleProductPress(item.id)} />}
-          ListHeaderComponent={
-            <View className="flex-col my-2 gap-6">
-              <View className="w-full relative rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 5 }}>
-                <Image
-                  source={require('@/assets/images/hero-banner.jpg')}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
-                <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.7)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  className="absolute inset-0"
-                />
-              </View>
-
-              <View className="flex-col gap-2">
-                <Text className="text-base font-inter-bold text-black">Quick Links</Text>
-                <ArticleCarousel />
-              </View>
-
-              <View className="flex-col gap-2">
-                <Text className="text-base font-inter-bold text-black">Shop Products</Text>
-              </View>
-            </View>
-          }
-          contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 40 }}
+          contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 8, paddingBottom: 44 }}
           columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
           showsVerticalScrollIndicator={false}
         />
