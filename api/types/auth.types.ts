@@ -5,16 +5,11 @@ export interface AuthUser {
   email: string;
   username?: string;
   full_name?: string;
-  firstName?: string;
-  lastName?: string;
-  shopName?: string;
-  phone?: string;
-  address1?: string;
-  address2?: string;
-  city?: string;
-  postcode?: string;
-  country?: string;
-  state?: string;
+  avatar_url?: string;
+  user_type?: string;
+  bio?: string;
+  preferred_currency?: string;
+  is_blocked?: string;
 }
 
 export interface SignUpData {
@@ -68,15 +63,10 @@ export function mapSupabaseUserToAuthUser(supabaseUser: SupabaseUser | null): Au
     email: supabaseUser.email || '',
     username: supabaseUser.user_metadata?.username,
     full_name: supabaseUser.user_metadata?.full_name,
-    firstName: supabaseUser.user_metadata?.firstName,
-    lastName: supabaseUser.user_metadata?.lastName,
-    shopName: supabaseUser.user_metadata?.shopName,
-    phone: supabaseUser.user_metadata?.phone,
-    address1: supabaseUser.user_metadata?.address1,
-    address2: supabaseUser.user_metadata?.address2,
-    city: supabaseUser.user_metadata?.city,
-    postcode: supabaseUser.user_metadata?.postcode,
-    country: supabaseUser.user_metadata?.country,
-    state: supabaseUser.user_metadata?.state,
+    avatar_url: supabaseUser.user_metadata?.avatar_url,
+    user_type: supabaseUser.user_metadata?.user_type,
+    bio: supabaseUser.user_metadata?.bio,
+    preferred_currency: supabaseUser.user_metadata?.preferred_currency,
+    is_blocked: supabaseUser.user_metadata?.is_blocked,
   };
 }

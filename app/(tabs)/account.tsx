@@ -2,7 +2,7 @@ import { useAuth } from '@/hooks/use-auth';
 import Feather from '@expo/vector-icons/Feather';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AccountScreen() {
@@ -19,39 +19,39 @@ export default function AccountScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-black pb-16">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         {/* Profile Header Section */}
-        <View className="p-4 pt-4">
-          <View className="flex-row items-center">
-            {/* Profile Avatar */}
-            <View className="w-[70px] h-[70px] bg-gray-800 rounded-[10px] justify-center items-center mr-4">
-              <Feather name="user" size={32} color="#fff" />
-            </View>
+        <View className="flex-row items-center px-2">
+          {/* Profile Avatar */}
+          <View className="w-24 h-24 bg-gray-200 rounded-xl justify-center items-center mr-4">
+            <Image
+              source={user?.avatar_url ? { uri: user.avatar_url } : require('@/assets/images/default_user_icon.png')}
+              style={{ width: '100%', height: '100%' }}
+              resizeMode="cover"
+            />
+          </View>
 
-            {/* User Info */}
-            <View className="flex-1">
-              <View className="flex-row justify-between items-center">
-                <Text className="text-lg font-inter-bold text-white">
-                  {user?.firstName || user?.username || 'Guest User'}
-                </Text>
-                <TouchableOpacity onPress={() => router.push('/cart')} className="p-2">
-                  <Feather name="shopping-bag" size={24} color="#fff" />
-                </TouchableOpacity>
-              </View>
-              <Text className="text-sm font-inter text-gray-400 mt-1">{user?.email || 'Not signed in'}</Text>
-              <Pressable className="mt-1">
-                <Text className="text-sm font-inter text-blue-500">Edit Profile</Text>
-              </Pressable>
+          {/* User Info */}
+          <View className="flex-1">
+            <View className="flex-row justify-between items-center">
+              <Text className="text-lg font-inter-bold text-white">{user?.full_name || 'Guest User'}</Text>
+              <TouchableOpacity onPress={() => router.push('/cart')} className="p-2">
+                <Feather name="shopping-bag" size={24} color="#fff" />
+              </TouchableOpacity>
             </View>
+            <Text className="text-sm font-inter text-gray-400">{user?.email || 'Not signed in'}</Text>
+            <Pressable className="mt-1">
+              <Text className="text-sm font-inter text-blue-500">Edit Profile</Text>
+            </Pressable>
           </View>
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 mx-4 my-4" />
+        <View className="h-px bg-gray-800 my-4" />
 
         {/* Seller Hub Section */}
-        <View className="mb-4">
+        <View className="px-2">
           <Text className="text-xs font-inter-bold text-gray-400 ml-4 mb-2 uppercase">SELLER HUB</Text>
 
           <Pressable onPress={() => router.push('/seller/dashboard')} className="flex-row items-center py-3 px-4">
@@ -92,10 +92,10 @@ export default function AccountScreen() {
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 mx-4 my-4" />
+        <View className="h-px bg-gray-800 my-4" />
 
         {/* Shopping Section */}
-        <View className="mb-4">
+        <View className="px-2">
           <Text className="text-xs font-inter-bold text-gray-400 ml-4 mb-2 uppercase">SHOPPING</Text>
 
           <Pressable onPress={() => router.push('/other/orders')} className="flex-row items-center py-3 px-4">
@@ -130,10 +130,10 @@ export default function AccountScreen() {
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 mx-4 my-4" />
+        <View className="h-px bg-gray-800 my-4" />
 
         {/* Support Section */}
-        <View className="mb-4">
+        <View className="px-2">
           <Text className="text-xs font-inter-bold text-gray-400 ml-4 mb-2 uppercase">SUPPORT</Text>
 
           <Pressable onPress={() => router.push('/other/help-center')} className="flex-row items-center py-3 px-4">
@@ -150,10 +150,10 @@ export default function AccountScreen() {
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 mx-4 my-4" />
+        <View className="h-px bg-gray-800 my-4" />
 
         {/* Settings Section */}
-        <View className="mb-4">
+        <View className="px-2">
           <Text className="text-xs font-inter-bold text-gray-400 ml-4 mb-2 uppercase">SETTINGS</Text>
 
           <Pressable onPress={() => router.push('/other/app-settings')} className="flex-row items-center py-3 px-4">
@@ -173,8 +173,6 @@ export default function AccountScreen() {
             <Text className="text-base font-inter text-white ml-4 flex-1">Logout</Text>
           </Pressable>
         </View>
-
-        <View className="h-8" />
       </ScrollView>
 
       {/* Logout Confirmation Modal */}
