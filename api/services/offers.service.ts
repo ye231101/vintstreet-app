@@ -6,7 +6,7 @@ export interface Offer {
   productName: string;
   offerAmount: number;
   originalPrice: number;
-  status: 'pending' | 'accepted' | 'rejected' | 'expired';
+  status: 'pending' | 'accepted' | 'declined';
   createdAt: string;
   expiresAt: string;
   message?: string;
@@ -16,7 +16,12 @@ export interface ApiOffer {
   id: string;
   offer_amount: number;
   status: 'pending' | 'accepted' | 'declined';
-  message: string;
+  message?: string;
+  listing_id?: string;
+  buyer_id?: string;
+  seller_id?: string;
+  created_at?: string;
+  expires_at?: string;
 }
 
 class OffersService {
@@ -89,6 +94,43 @@ class OffersService {
   }
 
   /**
+   * Create a new offer
+   */
+  async createOffer(params: {
+    listing_id: string;
+    buyer_id: string;
+    seller_id: string;
+    offer_amount: number;
+    message?: string;
+    expires_at?: string;
+  }): Promise<ApiOffer | null> {
+    try {
+      const { data, error } = await supabase
+        .from('offers')
+        .insert({
+          listing_id: params.listing_id,
+          buyer_id: params.buyer_id,
+          seller_id: params.seller_id,
+          offer_amount: params.offer_amount,
+          message: params.message ?? null,
+          expires_at: params.expires_at ?? null,
+          status: 'pending',
+        })
+        .select('*')
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to create offer: ${error.message}`);
+      }
+
+      return (data as unknown as ApiOffer) ?? null;
+    } catch (error) {
+      console.error('Error creating offer:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Update offer status
    * @param offerId - The offer ID to update
    * @param status - New status ('accepted' or 'declined')
@@ -116,10 +158,10 @@ class OffersService {
   private transformOffersData(apiOffers: ApiOffer[]): Offer[] {
     return apiOffers.map((apiOffer) => {
       // Map API status to UI status
-      const statusMap: Record<string, 'pending' | 'accepted' | 'rejected' | 'expired'> = {
+      const statusMap: Record<string, 'pending' | 'accepted' | 'declined'> = {
         'pending': 'pending',
         'accepted': 'accepted',
-        'declined': 'rejected'
+        'declined': 'declined'
       };
 
       return {
@@ -129,8 +171,8 @@ class OffersService {
         offerAmount: apiOffer.offer_amount,
         originalPrice: apiOffer.offer_amount * 1.2, // Mock original price - would need to fetch from product data
         status: statusMap[apiOffer.status] || 'pending',
-        createdAt: new Date().toISOString(), // Mock date - would need to fetch from API
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Mock expiry (7 days from now)
+        createdAt: apiOffer.created_at ?? new Date().toISOString(),
+        expiresAt: apiOffer.expires_at ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         message: apiOffer.message || undefined
       };
     });

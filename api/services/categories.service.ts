@@ -3,17 +3,10 @@
  * Service for fetching and managing category data
  */
 
-import { Category, CategoryResponse } from '../types/category.types';
 import { supabase } from '../config/supabase';
+import { Category } from '../types/category.types';
 
 class CategoriesService {
-  private baseUrl: string;
-
-  constructor() {
-    // Use the same base URL as other services
-    this.baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://vintstreet.com/wp-json';
-  }
-
   /**
    * Fetch hierarchical categories from Supabase tables
    * product_categories -> product_subcategories -> product_sub_subcategories -> product_sub_sub_subcategories
@@ -23,7 +16,7 @@ class CategoriesService {
       console.log('CategoriesService - Fetching categories from Supabase');
 
       const [topRes, subRes, sub2Res, sub3Res] = await Promise.all([
-        supabase.from('product_categories').select('*').eq('is_active', true).order('name'),
+        supabase.from('product_categories').select('*').eq('is_active', true).order('display_order'),
         supabase.from('product_subcategories').select('*').eq('is_active', true).order('name'),
         supabase.from('product_sub_subcategories').select('*').eq('is_active', true).order('name'),
         supabase.from('product_sub_sub_subcategories').select('*').eq('is_active', true).order('name'),
@@ -219,27 +212,6 @@ class CategoriesService {
         category.description.toLowerCase().includes(term) ||
         this.filterCategories(category.children, searchTerm).length > 0
     );
-  }
-
-  /**
-   * Sort categories by weight/priority
-   */
-  sortCategoriesByWeight(categories: Category[]): Category[] {
-    const weights: { [key: string]: number } = {
-      mens: 10,
-      womens: 9,
-      juniors: 8,
-      footwear: 7,
-      games: 6,
-      collectibles: 4,
-      uncategorised: 0,
-    };
-
-    return [...categories].sort((a, b) => {
-      const weightA = weights[a.slug.toLowerCase()] || 5;
-      const weightB = weights[b.slug.toLowerCase()] || 5;
-      return weightB - weightA;
-    });
   }
 }
 

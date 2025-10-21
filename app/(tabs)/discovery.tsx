@@ -64,8 +64,7 @@ export default function DiscoveryScreen() {
       setIsLoading(true);
       setError(null);
       const fetchedCategories = await categoriesService.getCategories();
-      const sortedCategories = categoriesService.sortCategoriesByWeight(fetchedCategories);
-      setCategories(sortedCategories);
+      setCategories(fetchedCategories);
     } catch (err) {
       setError('Failed to load categories');
       console.error('Error loading categories:', err);

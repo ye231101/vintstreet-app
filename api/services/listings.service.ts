@@ -4,7 +4,7 @@ export interface Product {
   id: string;
   title: string;
   price: number;
-  status: 'live' | 'private' | 'sold' | 'draft';
+  status: 'published' | 'draft';
   imageUrl?: string;
   dateCreated: string;
   views?: number;
@@ -16,7 +16,7 @@ export interface ApiListing {
   product_name: string;
   starting_price: number;
   current_bid: number;
-  is_active: boolean;
+  status: 'published' | 'draft';
 }
 
 class ListingsService {
@@ -30,8 +30,7 @@ class ListingsService {
       const { data, error } = await supabase
         .from('listings')
         .select('*')
-        .eq('stream_id', streamId)
-        .eq('is_active', true);
+        .eq('stream_id', streamId);
 
       console.log('listings data', data);
       if (error) {
@@ -56,7 +55,6 @@ class ListingsService {
       const { data, error } = await (supabase as any)
         .from('listings')
         .select('*')
-        .eq('is_active', true)
         .eq('category_slug' as any, categorySlug);
 
       if (error) throw new Error(`Failed to fetch listings by category: ${error.message}`);
@@ -94,7 +92,6 @@ class ListingsService {
         const { data, error } = await (supabase as any)
           .from('listings')
           .select('*')
-          .eq('is_active', true)
           .eq(column as any, value);
         if (error) {
           // Skip unknown column or other errors silently; we'll try the next option
@@ -197,17 +194,11 @@ class ListingsService {
         .order('created_at', { ascending: false });
 
       // Apply status filter
-      if (status === 'live') {
-        query = query.eq('is_active', true);
-      } else if (status === 'private') {
-        query = query.eq('is_active', false);
-      } else if (status === 'sold') {
-        // This would need additional logic to determine sold status
-        // For now, we'll filter by is_active = false as a placeholder
-        query = query.eq('is_active', false);
+      if (status === 'published') {
+        query = query.eq('status', 'published');
       } else if (status === 'draft') {
-        // This would need additional logic to determine draft status
-        // For now, we'll return all listings
+        query = query.eq('status', 'draft');
+      } else {
         query = query;
       }
 
@@ -251,12 +242,6 @@ class ListingsService {
    */
   private transformListingsData(apiListings: ApiListing[]): Product[] {
     return apiListings.map((apiListing) => {
-      // Map API status to UI status
-      const statusMap: Record<string, 'live' | 'private' | 'sold' | 'draft'> = {
-        'true': 'live',
-        'false': 'private'
-      };
-
       // Prefer primary image, fall back to first in product_images
       const primaryImage: string | undefined =
         (apiListing as any).product_image ||
@@ -268,7 +253,7 @@ class ListingsService {
         id: apiListing.id,
         title: apiListing.product_name,
         price: apiListing.current_bid || apiListing.starting_price,
-        status: statusMap[apiListing.is_active.toString()] || 'draft',
+        status: apiListing.status as 'published' | 'draft',
         imageUrl: primaryImage,
         dateCreated: new Date().toISOString(), // Mock date - would need to fetch from API
         views: Math.floor(Math.random() * 100), // Mock views - would need to fetch from analytics

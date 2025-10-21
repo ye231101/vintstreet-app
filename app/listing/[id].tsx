@@ -1,8 +1,10 @@
 import { listingsService } from '@/api/services/listings.service';
+import { offersService } from '@/api/services/offers.service';
 import { useCart } from '@/hooks/use-cart';
+import { useAppSelector } from '@/store/hooks';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 export default function ListingDetailsScreen() {
 	const router = useRouter();
@@ -13,6 +15,14 @@ export default function ListingDetailsScreen() {
 	const [error, setError] = useState<string | null>(null);
 	const [listing, setListing] = useState<any>(null);
 	const [activeTab, setActiveTab] = useState<'description' | 'details' | 'seller'>('description');
+	const { user } = useAppSelector((state) => state.auth);
+
+	// Offer modal state
+	const [isOfferOpen, setIsOfferOpen] = useState(false);
+	const [offerAmount, setOfferAmount] = useState<string>('');
+	const [offerMessage, setOfferMessage] = useState<string>('');
+	const [isSubmittingOffer, setIsSubmittingOffer] = useState(false);
+	const [offerError, setOfferError] = useState<string | null>(null);
 
 	useEffect(() => {
 		const load = async () => {
@@ -94,6 +104,44 @@ export default function ListingDetailsScreen() {
 		}
 	};
 
+	const openOffer = () => {
+		setOfferError(null);
+		setOfferAmount('');
+		setOfferMessage('');
+		setIsOfferOpen(true);
+	};
+
+	const submitOffer = async () => {
+		try {
+			setOfferError(null);
+			if (!user?.id) {
+				setOfferError('Please sign in to make an offer.');
+				return;
+			}
+			const sellerIdStr = String(sellerId || '');
+			const listingIdStr = String(id || '');
+			const amountNum = Number(offerAmount);
+			if (!amountNum || amountNum <= 0) {
+				setOfferError('Enter a valid amount.');
+				return;
+			}
+			setIsSubmittingOffer(true);
+			await offersService.createOffer({
+				listing_id: listingIdStr,
+				buyer_id: user.id,
+				seller_id: sellerIdStr,
+				offer_amount: amountNum,
+				message: offerMessage || undefined,
+				expires_at: new Date(Date.now() + 7*24*60*60*1000).toISOString(),
+			});
+			setIsOfferOpen(false);
+		} catch (e) {
+			setOfferError(e instanceof Error ? e.message : 'Failed to submit offer');
+		} finally {
+			setIsSubmittingOffer(false);
+		}
+	};
+
 const formattedDate = (() => {
 	try {
 		if (!createdAt) return '';
@@ -154,7 +202,7 @@ const formattedDate = (() => {
 						<Pressable className="bg-black px-4 py-3 rounded-lg mr-2" onPress={handleAddToCart}>
 							<Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
 						</Pressable>
-						<Pressable className="bg-gray-100 px-4 py-3 rounded-lg">
+					<Pressable className="bg-gray-100 px-4 py-3 rounded-lg" onPress={openOffer}>
 							<Text className="text-sm font-inter text-gray-900">Make Offer</Text>
 						</Pressable>
 					</View>
@@ -200,6 +248,54 @@ const formattedDate = (() => {
 			</View>
 
 			<View className="h-8" />
+
+			{/* Make Offer Modal */}
+			<Modal visible={isOfferOpen} transparent animationType="fade" onRequestClose={() => setIsOfferOpen(false)}>
+				<View className="flex-1 items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+					<View className="bg-white w-11/12 rounded-xl p-4">
+						<Text className="text-lg font-inter-semibold mb-3">Make an Offer</Text>
+						<View className="bg-gray-50 rounded-lg p-3 mb-3">
+							<Text className="text-sm font-inter text-gray-800" numberOfLines={1}>{title}</Text>
+							<Text className="text-xs font-inter text-gray-500">Current price: £{Number(priceToShow).toFixed(2)}</Text>
+						</View>
+						<Text className="text-sm font-inter mb-2">Your Offer (£)</Text>
+						<TextInput
+							keyboardType="decimal-pad"
+							placeholder="Enter your offer amount"
+							className="border border-gray-300 rounded-lg px-3 py-2 mb-3"
+							value={offerAmount}
+							onChangeText={setOfferAmount}
+						/>
+						<View className="flex-row mb-3">
+							{[0.85, 0.9, 0.95].map((mult) => {
+								const suggested = (Number(priceToShow) * mult);
+								return (
+									<Pressable key={String(mult)} className="bg-gray-100 px-3 py-2 rounded-lg mr-2" onPress={() => setOfferAmount(suggested.toFixed(2))}>
+										<Text className="text-sm font-inter">£{suggested.toFixed(2)}</Text>
+									</Pressable>
+								);
+							})}
+						</View>
+						<Text className="text-sm font-inter mb-1">Message (Optional)</Text>
+						<TextInput
+							placeholder="Add a message to the seller..."
+							className="border border-gray-300 rounded-lg px-3 py-2 mb-3"
+							multiline
+							value={offerMessage}
+							onChangeText={setOfferMessage}
+						/>
+						{offerError ? <Text className="text-xs font-inter text-red-600 mb-2">{offerError}</Text> : null}
+						<View className="flex-row justify-end">
+							<Pressable className="px-4 py-2 rounded-lg mr-2 border border-gray-300" disabled={isSubmittingOffer} onPress={() => setIsOfferOpen(false)}>
+								<Text className="text-sm font-inter">Cancel</Text>
+							</Pressable>
+							<Pressable className="px-4 py-2 rounded-lg bg-black" disabled={isSubmittingOffer} onPress={submitOffer}>
+								<Text className="text-sm font-inter text-white">{isSubmittingOffer ? 'Submitting...' : 'Submit Offer'}</Text>
+							</Pressable>
+						</View>
+					</View>
+				</View>
+			</Modal>
 		</ScrollView>
 	);
 }

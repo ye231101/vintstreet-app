@@ -62,7 +62,7 @@ export default function ListingsScreen() {
             <Text className="text-white font-inter-bold text-base mb-1">{product.title}</Text>
             <Text className="text-gray-400 text-sm font-inter">£{product.price.toFixed(2)}</Text>
           </View>
-          <View className={`${product.status === 'live' ? 'bg-green-500' : 'bg-orange-500'} rounded-full px-3 py-1.5`}>
+          <View className={`${product.status === 'published' ? 'bg-green-500' : 'bg-orange-500'} rounded-full px-3 py-1.5`}>
             <Text className="text-white font-inter-bold text-xs">
               {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
             </Text>
@@ -74,7 +74,7 @@ export default function ListingsScreen() {
             Created: {new Date(product.dateCreated).toLocaleDateString()}
           </Text>
           <View className="flex-row gap-2">
-            {product.status === 'live' && (
+            {product.status === 'published' && (
               <TouchableOpacity
                 onPress={async () => {
                   try {
@@ -90,7 +90,7 @@ export default function ListingsScreen() {
                 <Text className="text-white text-xs font-inter-bold">Make Private</Text>
               </TouchableOpacity>
             )}
-            {product.status === 'private' && (
+            {product.status === 'draft' && (
               <TouchableOpacity
                 onPress={async () => {
                   try {
