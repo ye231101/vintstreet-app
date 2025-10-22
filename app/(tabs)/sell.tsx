@@ -2,17 +2,19 @@ import { Feather } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import { Alert, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../api/config/supabase';
 import { listingsService } from '../../api/services/listings.service';
 import { brandsService } from '../../api/services/brands.service';
 import { attributesService } from '../../api/services/attributes.service';
+import { StorageService } from '../../api/services/storage.service';
 import { CategoryAttributesCard } from '../../components/CategoryAttributesCard';
 
 export default function SellScreen() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('0.00');
-  const [salePrice, setSalePrice] = useState('0.00');
+  const [price, setPrice] = useState('');
+  const [salePrice, setSalePrice] = useState('');
   const [brand, setBrand] = useState('');
   const [category, setCategory] = useState('');
   const [itemType, setItemType] = useState('Single Item');
@@ -53,6 +55,11 @@ export default function SellScreen() {
   >('category');
   const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, any>>({});
   const [attributes, setAttributes] = useState<any[]>([]);
+  const [productImages, setProductImages] = useState<string[]>([]);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
+  const [showImagePickerModal, setShowImagePickerModal] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const statusOptions = ['Published', 'Draft'];
   const visibilityOptions = ['Visible', 'Hidden'];
@@ -132,9 +139,9 @@ export default function SellScreen() {
 
   // Handle dynamic attribute changes
   const handleAttributeChange = (attributeId: string, value: any) => {
-    setDynamicAttributes(prev => ({
+    setDynamicAttributes((prev) => ({
       ...prev,
-      [attributeId]: value
+      [attributeId]: value,
     }));
   };
 
@@ -154,6 +161,111 @@ export default function SellScreen() {
   // Get selected brand info
   const selectedBrand = brands.find((brand) => brand.id === selectedBrandId);
 
+  // Image picker functions
+  const pickImageFromGallery = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.8,
+        allowsEditing: false,
+        base64: true, // Required for Supabase upload
+      });
+
+      if (!result.canceled && result.assets) {
+        const newImages = result.assets.map((asset) => asset.uri);
+        setProductImages((prev) => [...prev, ...newImages]);
+        setShowImagePickerModal(false);
+
+        // Upload images to Supabase storage
+        await uploadImagesToStorage(newImages);
+      }
+    } catch (error) {
+      console.error('Error picking images:', error);
+      Alert.alert('Error', 'Failed to pick images from gallery');
+    }
+  };
+
+  const takePhotoWithCamera = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        allowsEditing: true,
+        aspect: [4, 3],
+        base64: true, // Required for Supabase upload
+      });
+
+      if (!result.canceled && result.assets) {
+        const newImages = result.assets.map((asset) => asset.uri);
+        setProductImages((prev) => [...prev, ...newImages]);
+        setShowImagePickerModal(false);
+
+        // Upload images to Supabase storage
+        await uploadImagesToStorage(newImages);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo');
+    }
+  };
+
+  // Upload images to Supabase storage
+  const uploadImagesToStorage = async (imageUris: string[]) => {
+    if (imageUris.length === 0) return;
+
+    setIsUploadingImages(true);
+    setUploadProgress(0);
+
+    try {
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        Alert.alert('Error', 'You must be logged in to upload images');
+        return;
+      }
+
+      // Upload images to Supabase storage
+      const uploadResult = await StorageService.uploadMultipleImages(imageUris, user.id);
+
+      if (uploadResult.success && uploadResult.urls) {
+        setUploadedImageUrls((prev) => [...prev, ...uploadResult.urls!]);
+        setUploadProgress(100);
+        Alert.alert('Success', `${uploadResult.urls.length} image(s) uploaded successfully!`);
+      } else {
+        const errorMessage = uploadResult.errors?.join(', ') || 'Failed to upload images';
+        Alert.alert('Upload Error', errorMessage);
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert('Error', 'Failed to upload images to storage');
+    } finally {
+      setIsUploadingImages(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const removeImage = async (index: number) => {
+    const imageToRemove = productImages[index];
+    const urlToRemove = uploadedImageUrls[index];
+
+    // Remove from local state
+    setProductImages((prev) => prev.filter((_, i) => i !== index));
+
+    // If there's a corresponding uploaded URL, delete from storage
+    if (urlToRemove) {
+      try {
+        await StorageService.deleteImage(urlToRemove);
+        setUploadedImageUrls((prev) => prev.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error('Error deleting image from storage:', error);
+        // Don't show error to user as the image is already removed from UI
+      }
+    }
+  };
 
   const handleSaveDraft = async () => {
     if (isSubmitting) return;
@@ -177,8 +289,8 @@ export default function SellScreen() {
         product_description: description || null,
         starting_price: price ? parseFloat(price) : null,
         discounted_price: salePrice ? parseFloat(salePrice) : null,
-        product_image: null,
-        product_images: [],
+        product_image: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
+        product_images: uploadedImageUrls,
         offers_enabled: enableOffers,
         product_type: 'shop',
         stream_id: 'shop',
@@ -202,15 +314,33 @@ export default function SellScreen() {
 
       Alert.alert('Success', 'Draft saved successfully!');
 
-      // Clear form
+      // Reset all form fields to initial state
       setTitle('');
       setDescription('');
-      setPrice('0.00');
-      setSalePrice('0.00');
+      setPrice('');
+      setSalePrice('');
       setBrand('');
       setCategory('');
+      setItemType('Single Item');
+      setEnableOffers(true);
+      setStockManagement(false);
+      setPurchaseNote('');
+      setProductStatus('Published');
+      setVisibility('Visible');
+      setProductImages([]);
+      setUploadedImageUrls([]);
       setDynamicAttributes({});
       setAttributes([]);
+      setSelectedCategoryId('');
+      setSelectedSubcategoryId('');
+      setSelectedSubSubcategoryId('');
+      setSelectedSubSubSubcategoryId('');
+      setSelectedBrandId('');
+      setSubcategories([]);
+      setSubSubcategories([]);
+      setSubSubSubcategories([]);
+      setCurrentCategoryLevel('category');
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error saving draft:', error);
       Alert.alert('Error', 'Failed to save draft. Please try again.');
@@ -246,8 +376,8 @@ export default function SellScreen() {
         product_description: description || null,
         starting_price: parseFloat(price),
         discounted_price: salePrice ? parseFloat(salePrice) : null,
-        product_image: null,
-        product_images: [],
+        product_image: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
+        product_images: uploadedImageUrls,
         offers_enabled: enableOffers,
         product_type: 'shop',
         stream_id: 'shop',
@@ -271,15 +401,33 @@ export default function SellScreen() {
 
       Alert.alert('Success', 'Product published to marketplace successfully!');
 
-      // Clear form
+      // Reset all form fields to initial state
       setTitle('');
       setDescription('');
-      setPrice('0.00');
-      setSalePrice('0.00');
+      setPrice('');
+      setSalePrice('');
       setBrand('');
       setCategory('');
+      setItemType('Single Item');
+      setEnableOffers(true);
+      setStockManagement(false);
+      setPurchaseNote('');
+      setProductStatus('Published');
+      setVisibility('Visible');
+      setProductImages([]);
+      setUploadedImageUrls([]);
       setDynamicAttributes({});
       setAttributes([]);
+      setSelectedCategoryId('');
+      setSelectedSubcategoryId('');
+      setSelectedSubSubcategoryId('');
+      setSelectedSubSubSubcategoryId('');
+      setSelectedBrandId('');
+      setSubcategories([]);
+      setSubSubcategories([]);
+      setSubSubSubcategories([]);
+      setCurrentCategoryLevel('category');
+      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error publishing product:', error);
       Alert.alert('Error', 'Failed to publish product. Please try again.');
@@ -288,12 +436,9 @@ export default function SellScreen() {
     }
   };
 
-
   // Track if there are unsaved changes
   const checkForUnsavedChanges = () => {
-    const hasChanges = Boolean(
-      title || description || price || brand || category || purchaseNote || stockManagement
-    );
+    const hasChanges = Boolean(title || description || price || brand || category || purchaseNote || stockManagement);
     setHasUnsavedChanges(hasChanges);
     return hasChanges;
   };
@@ -349,6 +494,75 @@ export default function SellScreen() {
           }}
         >
           <View className="p-4">
+            {/* Product Images Section */}
+            <View className="bg-white rounded-lg p-4 mb-4">
+              <Text className="text-lg font-inter-bold text-black mb-4">Product Images (Multiple)</Text>
+
+              {/* Upload Area */}
+              <TouchableOpacity
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 items-center mb-4"
+                onPress={() => setShowImagePickerModal(true)}
+                disabled={isUploadingImages}
+              >
+                {isUploadingImages ? (
+                  <>
+                    <Feather name="loader" size={32} color="#666" />
+                    <Text className="text-sm font-inter text-gray-600 mt-2">Uploading images...</Text>
+                    <Text className="text-xs font-inter text-gray-400 mt-1">{uploadProgress}% complete</Text>
+                    <View className="bg-gray-200 rounded-lg py-2 px-4 mt-3 opacity-50">
+                      <Text className="text-sm font-inter-semibold text-gray-700">Uploading...</Text>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Feather name="upload" size={32} color="#666" />
+                    <Text className="text-sm font-inter text-gray-600 mt-2">Upload product images</Text>
+                    <Text className="text-xs font-inter text-gray-400 mt-1">
+                      Up to 10MB each, multiple images supported
+                    </Text>
+                    <TouchableOpacity 
+                      className="bg-gray-200 rounded-lg py-2 px-4 mt-3"
+                      onPress={() => setShowImagePickerModal(true)}
+                    >
+                      <Text className="text-sm font-inter-semibold text-gray-700">Choose Images</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Image Previews */}
+              {productImages.length > 0 && (
+                <View className="flex-row flex-wrap gap-2">
+                  {productImages.map((imageUri, index) => {
+                    const isUploaded = uploadedImageUrls[index];
+                    return (
+                      <TouchableOpacity key={index} className="relative">
+                        <Image source={{ uri: imageUri }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
+
+                        {/* Upload Status Indicator */}
+                        {isUploaded ? (
+                          <View className="absolute -top-2 -left-2 bg-green-500 rounded-full w-6 h-6 items-center justify-center">
+                            <Feather name="check" size={14} color="#fff" />
+                          </View>
+                        ) : (
+                          <View className="absolute -top-2 -left-2 bg-yellow-500 rounded-full w-6 h-6 items-center justify-center">
+                            <Feather name="clock" size={14} color="#fff" />
+                          </View>
+                        )}
+
+                        {/* Remove Button */}
+                        <TouchableOpacity
+                          className="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
+                          onPress={() => removeImage(index)}
+                        >
+                          <Feather name="x" size={14} color="#fff" />
+                        </TouchableOpacity>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
 
             {/* Product Information Section */}
             <View className="bg-white rounded-lg p-4 mb-4">
@@ -671,7 +885,8 @@ export default function SellScreen() {
                         }}
                       >
                         <Text className="text-white font-inter-semibold">
-                          Continue with {subcategories.find((s) => s.id === selectedSubcategoryId)?.name || 'Subcategory'}
+                          Continue with{' '}
+                          {subcategories.find((s) => s.id === selectedSubcategoryId)?.name || 'Subcategory'}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -705,7 +920,8 @@ export default function SellScreen() {
                         onPress={() => setShowCategoryModal(false)}
                       >
                         <Text className="text-white font-inter-semibold">
-                          Use {subSubcategories.find((s) => s.id === selectedSubSubcategoryId)?.name || 'Sub-subcategory'}
+                          Use{' '}
+                          {subSubcategories.find((s) => s.id === selectedSubSubcategoryId)?.name || 'Sub-subcategory'}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -730,7 +946,6 @@ export default function SellScreen() {
           </View>
         </View>
       </Modal>
-
 
       {/* Unsaved Changes Modal */}
       <Modal
@@ -850,6 +1065,61 @@ export default function SellScreen() {
                 <Text className="text-sm font-inter-semibold text-black">Clear Selection</Text>
               </TouchableOpacity>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Image Picker Modal */}
+      <Modal
+        visible={showImagePickerModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowImagePickerModal(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl pt-2 px-5 pb-5">
+            {/* Modal Handle */}
+            <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-5" />
+
+            {/* Header */}
+            <View className="flex-row justify-between items-center mb-5">
+              <Text className="text-lg font-inter-bold text-black">Add Product Images</Text>
+              <TouchableOpacity
+                onPress={() => setShowImagePickerModal(false)}
+                className="w-6 h-6 justify-center items-center"
+              >
+                <Feather name="x" size={20} color="#000" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Options */}
+            <View className="space-y-3">
+              <TouchableOpacity
+                className="bg-gray-100 rounded-lg py-4 px-4 flex-row items-center"
+                onPress={pickImageFromGallery}
+              >
+                <Feather name="image" size={24} color="#666" className="mr-4" />
+                <View className="flex-1">
+                  <Text className="text-base font-inter-semibold text-black">Choose from Gallery</Text>
+                  <Text className="text-sm font-inter text-gray-600">
+                    Select multiple images from your photo library
+                  </Text>
+                </View>
+                <Feather name="chevron-right" size={20} color="#999" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="bg-gray-100 rounded-lg py-4 px-4 flex-row items-center"
+                onPress={takePhotoWithCamera}
+              >
+                <Feather name="camera" size={24} color="#666" className="mr-4" />
+                <View className="flex-1">
+                  <Text className="text-base font-inter-semibold text-black">Take Photo</Text>
+                  <Text className="text-sm font-inter text-gray-600">Capture a new photo with your camera</Text>
+                </View>
+                <Feather name="chevron-right" size={20} color="#999" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
