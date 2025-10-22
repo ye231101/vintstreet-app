@@ -27,7 +27,7 @@ class WishlistService {
       if (!wishlist || wishlist.length === 0) return [];
 
       // Fetch listings for wishlist items
-      const listingIds = wishlist.map((item) => item.listing_id);
+      const listingIds = wishlist.map((item: any) => item.listing_id);
       const { data: listings, error: listingsError } = await supabase
         .from('listings')
         .select(`
@@ -53,17 +53,17 @@ class WishlistService {
       if (listingsError) throw listingsError;
 
       // Fetch seller profiles
-      const sellerIds = [...new Set((listings || []).map((item) => item.seller_id))];
+      const sellerIds = [...new Set((listings || []).map((item: any) => item.seller_id))];
       const { data: sellers } = await supabase
         .from('seller_info_view')
         .select('*')
         .in('user_id', sellerIds);
 
-      const sellersMap = new Map(sellers?.map((s) => [s.user_id, s]) || []);
-      const listingsMap = new Map((listings || []).map((l) => [l.id, l]));
+      const sellersMap = new Map(sellers?.map((s: any) => [s.user_id, s]) || []);
+      const listingsMap = new Map((listings || []).map((l: any) => [l.id, l]));
 
       return wishlist
-        .map((item) => {
+        .map((item: any) => {
           const listing = listingsMap.get(item.listing_id);
           if (!listing) return null;
 

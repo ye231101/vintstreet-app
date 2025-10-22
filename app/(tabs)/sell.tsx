@@ -1,12 +1,12 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useState, useEffect } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useEffect, useState } from 'react';
 import { Alert, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../api/config/supabase';
-import { listingsService } from '../../api/services/listings.service';
-import { brandsService } from '../../api/services/brands.service';
 import { attributesService } from '../../api/services/attributes.service';
+import { brandsService } from '../../api/services/brands.service';
+import { listingsService } from '../../api/services/listings.service';
 import { StorageService } from '../../api/services/storage.service';
 import { CategoryAttributesCard } from '../../components/category-attributes-card';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { CategorySelectionForm } from './category-selection-form';
 import { DynamicAttributesForm } from './dynamic-attributes-form';
 

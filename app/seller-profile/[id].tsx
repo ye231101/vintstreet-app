@@ -1,13 +1,13 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View, FlatList } from 'react-native';
-import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '@/api/config/supabase';
 import { listingsService, Product } from '@/api/services/listings.service';
-import { reviewsService, Review, ReviewStats } from '@/api/services/reviews.service';
-import { useAppSelector } from '@/store/hooks';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Review, reviewsService, ReviewStats } from '@/api/services/reviews.service';
 import { ContactSellerModal } from '@/components/contact-seller-modal';
+import { useAppSelector } from '@/store/hooks';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SellerProfile {
   user_id: string;

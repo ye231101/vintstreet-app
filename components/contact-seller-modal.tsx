@@ -1,7 +1,7 @@
+import { supabase } from '@/api/config/supabase';
+import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { supabase } from '@/api/config/supabase';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 interface ContactSellerModalProps {

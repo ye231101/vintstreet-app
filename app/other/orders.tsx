@@ -1,21 +1,20 @@
-import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../hooks/use-auth';
 import { supabase } from '../../api/config/supabase';
-import { WriteReviewModal } from '../../components/write-review-modal';
 import { ContactSellerModal } from '../../components/contact-seller-modal';
+import { WriteReviewModal } from '../../components/write-review-modal';
+import { useAuth } from '../../hooks/use-auth';
 
 interface Order {
   id: string;

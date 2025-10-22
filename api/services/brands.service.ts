@@ -48,7 +48,7 @@ class BrandsService {
         throw new Error(`Failed to fetch brands: ${error.message}`);
       }
 
-      return (data as Brand[]) || [];
+      return (data as unknown as Brand[]) || [];
     } catch (error) {
       console.error('Error fetching brands:', error);
       throw error;
@@ -108,7 +108,7 @@ class BrandsService {
         throw new Error(`Failed to fetch brand: ${error.message}`);
       }
 
-      return data as Brand;
+      return data as unknown as Brand;
     } catch (error) {
       console.error('Error fetching brand by ID:', error);
       throw error;
@@ -137,7 +137,7 @@ class BrandsService {
         throw new Error(`Failed to create brand: ${error.message}`);
       }
 
-      return data as Brand;
+      return data as unknown as Brand;
     } catch (error) {
       console.error('Error creating brand:', error);
       throw error;
@@ -171,7 +171,7 @@ class BrandsService {
         throw new Error(`Failed to update brand: ${error.message}`);
       }
 
-      return data as Brand;
+      return data as unknown as Brand;
     } catch (error) {
       console.error('Error updating brand:', error);
       throw error;

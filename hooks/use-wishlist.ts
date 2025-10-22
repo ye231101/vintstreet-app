@@ -1,12 +1,11 @@
 import { Product } from '@/api/services/listings.service';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  fetchWishlist,
   addToWishlistAsync,
-  removeFromWishlistAsync,
-  toggleWishlistAsync,
   clearWishlistAsync,
-  clearWishlistLocal,
+  fetchWishlist,
+  removeFromWishlistAsync,
+  toggleWishlistAsync
 } from '@/store/slices/wishlistSlice';
 import { useCallback, useEffect } from 'react';
 
