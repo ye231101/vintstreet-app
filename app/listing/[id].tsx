@@ -51,16 +51,16 @@ export default function ListingDetailsScreen() {
   useEffect(() => {
     const loadAttributes = async () => {
       if (!id) return;
-      
+
       try {
         setAttributesLoading(true);
         const { data, error } = await supabase
           .from('product_attribute_values')
           .select(`*, attributes (id, name, data_type)`)
           .eq('product_id', id);
-        
+
         if (error) throw error;
-		console.log("**************************************************", data);
+        console.log('**************************************************', data);
         setProductAttributes(data || []);
       } catch (error) {
         console.error('Error loading product attributes:', error);
@@ -217,11 +217,15 @@ export default function ListingDetailsScreen() {
           {(['description', 'details', 'seller'] as const).map((t) => (
             <Pressable
               key={t}
-              className={`flex-1 px-4 py-3 ${activeTab === t ? 'bg-white' : 'bg-gray-50'} border-r border-gray-200 items-center justify-center`}
+              className={`flex-1 px-4 py-3 ${
+                activeTab === t ? 'bg-white' : 'bg-gray-50'
+              } border-r border-gray-200 items-center justify-center`}
               onPress={() => setActiveTab(t)}
             >
               <Text
-                className={`text-sm font-inter text-center ${activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'}`}
+                className={`text-sm font-inter text-center ${
+                  activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'
+                }`}
               >
                 {t === 'description' ? 'Description' : t === 'details' ? 'Details' : 'Seller'}
               </Text>
@@ -259,22 +263,21 @@ export default function ListingDetailsScreen() {
                     };
 
                     return (
-                      <View key={index} className="flex-row justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                      <View
+                        key={index}
+                        className="flex-row justify-between items-center py-3 border-b border-gray-100 last:border-b-0"
+                      >
                         <Text className="text-sm font-inter text-gray-600 flex-1">
                           {attribute.attributes?.name || 'Attribute'}
                         </Text>
-                        <Text className="text-sm font-inter text-gray-800 flex-1 text-right">
-                          {getValue()}
-                        </Text>
+                        <Text className="text-sm font-inter text-gray-800 flex-1 text-right">{getValue()}</Text>
                       </View>
                     );
                   })}
                 </View>
               ) : (
                 <View>
-                  <Text className="text-sm font-inter text-gray-600">
-                    No additional details available.
-                  </Text>
+                  <Text className="text-sm font-inter text-gray-600">No additional details available.</Text>
                 </View>
               )}
             </View>
@@ -286,13 +289,12 @@ export default function ListingDetailsScreen() {
                 <View className="flex-row items-center mb-3">
                   <View className="w-10 h-10 rounded-full bg-gray-200 items-center justify-center mr-3">
                     {listing.seller_info_view?.avatar_url ? (
-                      <Image 
-                        source={{ uri: listing.seller_info_view.avatar_url }} 
-                        className="w-10 h-10 rounded-full"
-                      />
+                      <Image source={{ uri: listing.seller_info_view.avatar_url }} className="w-10 h-10 rounded-full" />
                     ) : (
                       <Text className="text-sm font-inter text-gray-700">
-                        {listing.seller_info_view?.shop_name?.charAt(0) || listing.seller_info_view?.full_name?.charAt(0) || 'S'}
+                        {listing.seller_info_view?.shop_name?.charAt(0) ||
+                          listing.seller_info_view?.full_name?.charAt(0) ||
+                          'S'}
                       </Text>
                     )}
                   </View>
@@ -305,11 +307,10 @@ export default function ListingDetailsScreen() {
                     ) : null}
                   </View>
                   <Pressable className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center">
-                    <Text className="text-sm font-inter text-gray-800 mr-1">👁</Text>
                     <Text className="text-sm font-inter text-gray-800">View Shop</Text>
                   </Pressable>
                 </View>
-                
+
                 {/* Contact Seller Section */}
                 <View className="border-t border-gray-200 pt-3">
                   <Text className="text-base font-inter-semibold text-gray-800 mb-3">Contact Seller</Text>
