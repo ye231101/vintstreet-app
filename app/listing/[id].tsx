@@ -5,6 +5,7 @@ import { useAppSelector } from '@/store/hooks';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { supabase } from '@/api/config/supabase';
 
 export default function ListingDetailsScreen() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function ListingDetailsScreen() {
   const [offerMessage, setOfferMessage] = useState<string>('');
   const [isSubmittingOffer, setIsSubmittingOffer] = useState(false);
   const [offerError, setOfferError] = useState<string | null>(null);
+  const [productAttributes, setProductAttributes] = useState<any[]>([]);
+  const [attributesLoading, setAttributesLoading] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -42,6 +45,32 @@ export default function ListingDetailsScreen() {
       }
     };
     load();
+  }, [id]);
+
+  // Load product attributes
+  useEffect(() => {
+    const loadAttributes = async () => {
+      if (!id) return;
+      
+      try {
+        setAttributesLoading(true);
+        const { data, error } = await supabase
+          .from('product_attribute_values')
+          .select(`*, attributes (id, name, data_type)`)
+          .eq('product_id', id);
+        
+        if (error) throw error;
+		console.log("**************************************************", data);
+        setProductAttributes(data || []);
+      } catch (error) {
+        console.error('Error loading product attributes:', error);
+        setProductAttributes([]);
+      } finally {
+        setAttributesLoading(false);
+      }
+    };
+
+    loadAttributes();
   }, [id]);
 
   // Keep header title in sync with listing name (safe even when listing is null)
@@ -121,7 +150,10 @@ export default function ListingDetailsScreen() {
     try {
       if (!listing.created_at) return '';
       const d = new Date(listing.created_at);
-      return d.toLocaleDateString();
+      const day = d.getDate();
+      const month = d.toLocaleDateString('en-US', { month: 'short' });
+      const year = d.getFullYear();
+      return `${day} ${month} ${year}`;
     } catch {
       return '';
     }
@@ -143,23 +175,9 @@ export default function ListingDetailsScreen() {
         </View>
       )}
 
-      {/* Title and seller row */}
+      {/* Title */}
       <View className="px-4 pt-4">
         <Text className="text-2xl font-inter-bold text-black mb-2">{listing.product_name}</Text>
-        <View className="flex-row items-center mb-3">
-          <View className="w-7 h-7 rounded-full bg-gray-200 items-center justify-center mr-2">
-            <Text className="text-xs font-inter text-gray-700">S</Text>
-          </View>
-          <View className="flex-1">
-            <Text className="text-xs font-inter text-gray-800" numberOfLines={1}>
-              By {listing.seller_info_view?.shop_name || 'Seller'}
-            </Text>
-            {formattedDate ? <Text className="text-xs font-inter text-gray-500">Listed {formattedDate}</Text> : null}
-          </View>
-          <Pressable className="px-3 py-1.5 border border-gray-300 rounded-lg">
-            <Text className="text-xs font-inter text-gray-800">View Shop</Text>
-          </Pressable>
-        </View>
 
         {/* Tag */}
         {listing.product_categories?.name ? (
@@ -199,11 +217,11 @@ export default function ListingDetailsScreen() {
           {(['description', 'details', 'seller'] as const).map((t) => (
             <Pressable
               key={t}
-              className={`flex-1 px-4 py-3 ${activeTab === t ? 'bg-white' : 'bg-gray-50'} border-r border-gray-200`}
+              className={`flex-1 px-4 py-3 ${activeTab === t ? 'bg-white' : 'bg-gray-50'} border-r border-gray-200 items-center justify-center`}
               onPress={() => setActiveTab(t)}
             >
               <Text
-                className={`text-sm font-inter ${activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'}`}
+                className={`text-sm font-inter text-center ${activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'}`}
               >
                 {t === 'description' ? 'Description' : t === 'details' ? 'Details' : 'Seller'}
               </Text>
@@ -217,21 +235,90 @@ export default function ListingDetailsScreen() {
           )}
           {activeTab === 'details' && (
             <View>
-              <Text className="text-sm font-inter text-gray-800 mb-2">
-                Product Type: {listing.product_categories?.name || '-'}
-              </Text>
-              <Text className="text-sm font-inter text-gray-800 mb-2">
-                Current Bid: £{Number(listing.starting_price).toFixed(2)}
-              </Text>
-              <Text className="text-sm font-inter text-gray-800">Listing Id: {String(id)}</Text>
+              {attributesLoading ? (
+                <View className="flex-row items-center justify-center py-4">
+                  <ActivityIndicator size="small" color="#000" />
+                  <Text className="text-sm font-inter text-gray-600 ml-2">Loading attributes...</Text>
+                </View>
+              ) : productAttributes.length > 0 ? (
+                <View>
+                  {productAttributes.map((attribute: any, index: number) => {
+                    // Extract the correct value based on data type
+                    const getValue = () => {
+                      if (attribute.value_text !== null) return attribute.value_text;
+                      if (attribute.value_number !== null) return attribute.value_number.toString();
+                      if (attribute.value_boolean !== null) return attribute.value_boolean ? 'Yes' : 'No';
+                      if (attribute.value_date !== null) {
+                        try {
+                          return new Date(attribute.value_date).toLocaleDateString();
+                        } catch {
+                          return attribute.value_date;
+                        }
+                      }
+                      return '-';
+                    };
+
+                    return (
+                      <View key={index} className="flex-row justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                        <Text className="text-sm font-inter text-gray-600 flex-1">
+                          {attribute.attributes?.name || 'Attribute'}
+                        </Text>
+                        <Text className="text-sm font-inter text-gray-800 flex-1 text-right">
+                          {getValue()}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              ) : (
+                <View>
+                  <Text className="text-sm font-inter text-gray-600">
+                    No additional details available.
+                  </Text>
+                </View>
+              )}
             </View>
           )}
           {activeTab === 'seller' && (
             <View>
-              <Text className="text-sm font-inter text-gray-800">Seller Id: {listing.seller_id || '-'}</Text>
-              {formattedDate ? (
-                <Text className="text-sm font-inter text-gray-800 mt-2">Joined/Listed: {formattedDate}</Text>
-              ) : null}
+              {/* Seller Profile Section */}
+              <View className="bg-white p-4 mb-4">
+                <View className="flex-row items-center mb-3">
+                  <View className="w-10 h-10 rounded-full bg-gray-200 items-center justify-center mr-3">
+                    {listing.seller_info_view?.avatar_url ? (
+                      <Image 
+                        source={{ uri: listing.seller_info_view.avatar_url }} 
+                        className="w-10 h-10 rounded-full"
+                      />
+                    ) : (
+                      <Text className="text-sm font-inter text-gray-700">
+                        {listing.seller_info_view?.shop_name?.charAt(0) || listing.seller_info_view?.full_name?.charAt(0) || 'S'}
+                      </Text>
+                    )}
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={1}>
+                      {listing.seller_info_view?.shop_name || listing.seller_info_view?.full_name || 'Seller'}
+                    </Text>
+                    {formattedDate ? (
+                      <Text className="text-sm font-inter text-gray-500">Listed {formattedDate}</Text>
+                    ) : null}
+                  </View>
+                  <Pressable className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center">
+                    <Text className="text-sm font-inter text-gray-800 mr-1">👁</Text>
+                    <Text className="text-sm font-inter text-gray-800">View Shop</Text>
+                  </Pressable>
+                </View>
+                
+                {/* Contact Seller Section */}
+                <View className="border-t border-gray-200 pt-3">
+                  <Text className="text-base font-inter-semibold text-gray-800 mb-3">Contact Seller</Text>
+                  <Pressable className="bg-black px-4 py-3 rounded-lg flex-row items-center justify-center">
+                    <Text className="text-white text-sm font-inter-semibold mr-2">💬</Text>
+                    <Text className="text-white text-sm font-inter-semibold">Send Message</Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
           )}
         </View>
