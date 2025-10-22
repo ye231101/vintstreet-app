@@ -158,13 +158,23 @@ export default function DiscoveryScreen() {
     try {
       setIsSearching(true);
       setShowSearchResults(true);
-
-      setSearchResults([]);
+      
+      const results = await listingsService.searchListings(searchText.trim());
+      setSearchResults(results);
     } catch (error) {
       console.error('Error searching products:', error);
       Alert.alert('Search Error', 'Failed to search products. Please try again.');
+      setSearchResults([]);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const handleSearchTextChange = (text: string) => {
+    setSearchText(text);
+    if (text.trim() === '') {
+      setShowSearchResults(false);
+      setSearchResults([]);
     }
   };
 
@@ -275,24 +285,34 @@ export default function DiscoveryScreen() {
               <ActivityIndicator size="large" color="#000" />
               <Text className="mt-4 text-base font-inter text-gray-600">Searching products...</Text>
             </View>
+          ) : searchResults.length > 0 ? (
+            <View className="flex-1">
+              <View className="px-4 py-2 bg-gray-100">
+                <Text className="text-sm text-gray-600">
+                  {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchText}"
+                </Text>
+              </View>
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id.toString()}
+                numColumns={2}
+                renderItem={({ item }) => (
+                  <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
+                )}
+                className="p-4 mb-4"
+                columnWrapperStyle={{ justifyContent: 'space-between' }}
+              />
+            </View>
           ) : (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={2}
-              renderItem={({ item }) => (
-                <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
-              )}
-              className="p-4 mb-4"
-              columnWrapperStyle={{ justifyContent: 'space-between' }}
-              ListEmptyComponent={
-                <View className="flex-1 justify-center items-center p-10">
-                  <Text className="text-base font-inter text-gray-600 text-center">
-                    No products found for "{searchText}"
-                  </Text>
-                </View>
-              }
-            />
+            <View className="flex-1 justify-center items-center p-10">
+              <Feather name="search" size={64} color="#ccc" />
+              <Text className="text-lg font-inter-bold text-gray-500 text-center mt-4">
+                No results found
+              </Text>
+              <Text className="text-gray-400 text-center mt-2">
+                Try searching with different keywords
+              </Text>
+            </View>
           )}
         </View>
       );
@@ -423,7 +443,7 @@ export default function DiscoveryScreen() {
       {/* Search Bar */}
       <SearchBar
         value={searchText}
-        onChangeText={setSearchText}
+        onChangeText={handleSearchTextChange}
         onSearch={handleSearch}
         placeholder="Search products..."
       />

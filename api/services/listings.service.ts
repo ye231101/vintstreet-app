@@ -366,7 +366,7 @@ class ListingsService {
       const { data: seller } = await supabase
         .from('seller_info_view')
         .select('*')
-        .eq('user_id', data.seller_id)
+        .eq('user_id', (data as any).seller_id)
         .single();
       
       const productWithSeller = {
@@ -458,6 +458,61 @@ class ListingsService {
       }
     } catch (error) {
       console.error('Error updating listing status:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Search listings by product name and description
+   * @param searchTerm - The search term to look for
+   */
+  async searchListings(searchTerm: string): Promise<Product[]> {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .select(`
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `)
+        .eq('product_type', 'shop')
+        .eq('status', 'published')
+        .or(`product_name.ilike.%${searchTerm}%,product_description.ilike.%${searchTerm}%`)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(`Failed to search listings: ${error.message}`);
+      }
+
+      // Optimized: Fetch seller info using the new view (single query instead of 2)
+      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const { data: sellers } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .in('user_id', sellerIds);
+      
+      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      
+      const productsWithSellers = (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: sellersMap.get(product.seller_id) || null
+      })) as Product[];
+
+      return productsWithSellers;
+    } catch (error) {
+      console.error('Error searching listings:', error);
       throw error;
     }
   }
