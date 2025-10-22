@@ -69,7 +69,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <Text className="text-xl font-inter-bold text-black mb-1">
               £{product.starting_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Text>
-            {product.discounted_price && (
+            {product.discounted_price !== null && (
               <Text className="text-sm font-inter text-gray-400 line-through">
                 £
                 {product.discounted_price.toLocaleString('en-US', {

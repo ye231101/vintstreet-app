@@ -162,9 +162,7 @@ export default function MessageDetailScreen() {
   const renderMessage = (message: Message) => (
     <View key={message.id} className={`${message.isSent ? 'items-end' : 'items-start'} my-1 mx-2`}>
       <View className={`max-w-3/4 py-2 px-3 rounded-2xl shadow-sm ${message.isSent ? 'bg-black' : 'bg-gray-100'}`}>
-        <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-inter`}>
-          {message.content}
-        </Text>
+        <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-inter`}>{message.content}</Text>
       </View>
 
       <Text className={`text-xs font-inter text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
@@ -176,21 +174,19 @@ export default function MessageDetailScreen() {
   const messageItems = groupMessagesByDate(messages);
 
   return (
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <SafeAreaView className="bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
-          </TouchableOpacity>
+      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+          <Feather name="arrow-left" size={24} color="#fff" />
+        </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Hello</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Hello</Text>
 
-          <TouchableOpacity onPress={() => Alert.alert('Refresh', 'Refreshing messages...')} className="ml-4">
-            <Feather name="refresh-cw" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+        <TouchableOpacity onPress={() => Alert.alert('Refresh', 'Refreshing messages...')} className="ml-4">
+          <Feather name="refresh-cw" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
       {/* Messages Area */}
       <View className="flex-1 bg-white">
@@ -253,6 +249,6 @@ export default function MessageDetailScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }

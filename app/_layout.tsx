@@ -135,6 +135,7 @@ export default function RootLayout() {
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="product" options={{ headerShown: false }} />
+              <Stack.Screen name="seller-profile" options={{ headerShown: false }} />
               <Stack.Screen name="message" options={{ headerShown: false }} />
               <Stack.Screen name="seller" options={{ headerShown: false }} />
               <Stack.Screen name="other" options={{ headerShown: false }} />
