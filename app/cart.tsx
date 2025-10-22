@@ -2,16 +2,9 @@ import { useCart } from '@/hooks/use-cart';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Modal, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
+import { blurhash } from '@/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Use the interfaces from the cart slice
@@ -80,8 +73,10 @@ export default function CartScreen() {
             {/* Product Image */}
             <View className="w-20 h-20 rounded-lg bg-gray-100 mr-3 overflow-hidden">
               <Image
-                source={{ uri: cartItem.product.product_image || undefined }}
-                resizeMode="cover"
+                source={cartItem.product.product_image}
+                contentFit="cover"
+                placeholder={{ blurhash }}
+                transition={1000}
                 style={{ width: '100%', height: '100%' }}
               />
             </View>

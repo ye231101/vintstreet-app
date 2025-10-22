@@ -1,4 +1,4 @@
-import { listingsService } from '@/api/services/listings.service';
+import { listingsService, Product } from '@/api/services/listings.service';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
 import Feather from '@expo/vector-icons/Feather';
@@ -10,13 +10,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
   const router = useRouter();
   // Listings state from Supabase
-  const [listings, setListings] = useState<any[]>([]);
+  const [listings, setListings] = useState<Product[]>([]);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
   const [listingsError, setListingsError] = useState<string | null>(null);
 
   // Search functionality
   const [searchText, setSearchText] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
@@ -40,8 +40,8 @@ export default function HomeScreen() {
     }
   };
 
-  const handleProductPress = (productId: string | number) => {
-    router.push(`/listing/${productId}` as any);
+  const handleProductPress = (productId: string) => {
+    router.push(`/product/${productId}` as any);
   };
 
   const handleSearch = async () => {
