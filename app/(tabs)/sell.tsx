@@ -8,7 +8,7 @@ import { listingsService } from '../../api/services/listings.service';
 import { brandsService } from '../../api/services/brands.service';
 import { attributesService } from '../../api/services/attributes.service';
 import { StorageService } from '../../api/services/storage.service';
-import { CategoryAttributesCard } from '../../components/CategoryAttributesCard';
+import { CategoryAttributesCard } from '../../components/category-attributes-card';
 
 export default function SellScreen() {
   const [title, setTitle] = useState('');
