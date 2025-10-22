@@ -1,53 +1,90 @@
 import { Product } from '@/api/services/listings.service';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  addToWishlist,
-  clearWishlist,
-  removeFromWishlist,
-  toggleWishlist,
+  fetchWishlist,
+  addToWishlistAsync,
+  removeFromWishlistAsync,
+  toggleWishlistAsync,
+  clearWishlistAsync,
+  clearWishlistLocal,
 } from '@/store/slices/wishlistSlice';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 export const useWishlist = () => {
   const dispatch = useAppDispatch();
-  const { items, isLoading, error } = useAppSelector((state) => state.wishlist);
+  const { items, wishlistMap = {}, isLoading, error } = useAppSelector((state) => state.wishlist);
+  const { user } = useAppSelector((state) => state.auth);
+
+  // Fetch wishlist on mount if user is authenticated
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(fetchWishlist(user.id));
+    }
+  }, [user?.id, dispatch]);
 
   // Add item to wishlist
   const addItem = useCallback(
-    (product: Product) => {
-      dispatch(addToWishlist(product));
+    async (product: Product) => {
+      if (!user?.id) {
+        console.warn('User not authenticated');
+        return;
+      }
+      await dispatch(addToWishlistAsync({ userId: user.id, product }));
     },
-    [dispatch]
+    [dispatch, user?.id]
   );
 
   // Remove item from wishlist
   const removeItem = useCallback(
-    (productId: string) => {
-      dispatch(removeFromWishlist(productId));
+    async (productId: string, productName?: string) => {
+      if (!user?.id) {
+        console.warn('User not authenticated');
+        return;
+      }
+      await dispatch(
+        removeFromWishlistAsync({ userId: user.id, listingId: productId, productName })
+      );
     },
-    [dispatch]
+    [dispatch, user?.id]
   );
 
   // Toggle item in wishlist (add if not exists, remove if exists)
   const toggleItem = useCallback(
-    (product: Product) => {
-      dispatch(toggleWishlist(product));
+    async (product: Product) => {
+      if (!user?.id) {
+        console.warn('User not authenticated');
+        return;
+      }
+      await dispatch(toggleWishlistAsync({ userId: user.id, product }));
     },
-    [dispatch]
+    [dispatch, user?.id]
   );
 
   // Check if product is in wishlist
   const isInWishlist = useCallback(
     (productId: string) => {
-      return items.some((item) => item.id === productId);
+      return !!(wishlistMap && wishlistMap[productId]);
     },
-    [items]
+    [wishlistMap]
   );
 
   // Clear wishlist
-  const clearAll = useCallback(() => {
-    dispatch(clearWishlist());
-  }, [dispatch]);
+  const clearAll = useCallback(async () => {
+    if (!user?.id) {
+      console.warn('User not authenticated');
+      return;
+    }
+    await dispatch(clearWishlistAsync(user.id));
+  }, [dispatch, user?.id]);
+
+  // Refresh wishlist
+  const refresh = useCallback(async () => {
+    if (!user?.id) {
+      console.warn('User not authenticated');
+      return;
+    }
+    await dispatch(fetchWishlist(user.id));
+  }, [dispatch, user?.id]);
 
   // Get wishlist count
   const wishlistCount = items.length;
@@ -61,7 +98,7 @@ export const useWishlist = () => {
     toggleItem,
     isInWishlist,
     clearAll,
+    refresh,
     wishlistCount,
   };
 };
-
