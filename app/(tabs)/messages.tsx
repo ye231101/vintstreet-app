@@ -1,5 +1,5 @@
 import SearchBar from '@/components/search-bar';
-import Feather from '@expo/vector-icons/Feather';
+import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
