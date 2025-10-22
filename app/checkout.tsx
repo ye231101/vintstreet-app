@@ -2,7 +2,7 @@ import { useCart } from '@/hooks/use-cart';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -136,8 +136,10 @@ const InputField = memo(
 
 export default function CheckoutScreen() {
   const { cart, isLoading, isEmpty } = useCart();
+  const { items: itemsParam } = useLocalSearchParams();
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [total, setTotal] = useState(0);
+  const [checkoutTitle, setCheckoutTitle] = useState('Checkout All Items');
 
   // Step completion tracking
   const [stepCompleted, setStepCompleted] = useState([false, false, false]);
@@ -193,15 +195,32 @@ export default function CheckoutScreen() {
       return;
     }
     loadCheckoutData();
-  }, [cart]);
+  }, [cart, itemsParam]);
 
   useEffect(() => {
     updateStepCompletion();
   }, [shippingAddress, billingAddress, cardDetails, isBillingDifferent]);
 
   const loadCheckoutData = () => {
+    // Filter cart items based on query parameter
+    let filteredItems = cart.items;
+    
+    if (itemsParam) {
+      const itemIds = Array.isArray(itemsParam) ? itemsParam : [itemsParam];
+      filteredItems = cart.items.filter((item) => itemIds.includes(item.product.id));
+      
+      // Update checkout title for single item checkout
+      if (filteredItems.length === 1) {
+        setCheckoutTitle(`Checkout with ${filteredItems[0].product.product_name}`);
+      } else if (filteredItems.length > 1) {
+        setCheckoutTitle(`Checkout ${filteredItems.length} Items`);
+      }
+    } else {
+      setCheckoutTitle('Checkout All Items');
+    }
+
     // Transform cart items to checkout items
-    const items: CheckoutItem[] = cart.items.map((item) => ({
+    const items: CheckoutItem[] = filteredItems.map((item) => ({
       id: item.product.id,
       name: item.product.product_name,
       brand: item.product.product_categories?.name || 'Unknown Brand',
@@ -211,8 +230,11 @@ export default function CheckoutScreen() {
       lineTotal: item.subtotal,
     }));
 
+    // Calculate total for filtered items
+    const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+
     setCheckoutItems(items);
-    setTotal(cart.total);
+    setTotal(itemsTotal);
   };
 
   // Update functions that clear errors when typing
@@ -858,7 +880,7 @@ export default function CheckoutScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Checkout All Items</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-white">{checkoutTitle}</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -876,7 +898,7 @@ export default function CheckoutScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Checkout All Items</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">{checkoutTitle}</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-gray-50">

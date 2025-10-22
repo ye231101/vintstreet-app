@@ -53,6 +53,10 @@ export default function CartScreen() {
     router.push('/checkout');
   };
 
+  const handleVendorCheckout = (productId: string) => {
+    router.push(`/checkout?items=${productId}`);
+  };
+
   const VendorItemSection = ({
     cartItem,
     onQuantityChanged,
@@ -130,7 +134,10 @@ export default function CartScreen() {
             </Text>
           </View>
 
-          <TouchableOpacity className="bg-black rounded-lg py-3 px-6 items-center">
+          <TouchableOpacity
+            onPress={() => handleVendorCheckout(cartItem.product.id)}
+            className="bg-black rounded-lg py-3 px-6 items-center"
+          >
             <Text className="text-white text-base font-inter-bold">Checkout with {cartItem.product.product_name}</Text>
           </TouchableOpacity>
         </View>
