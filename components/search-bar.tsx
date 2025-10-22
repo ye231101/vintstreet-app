@@ -23,6 +23,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
           onChangeText={onChangeText}
           onSubmitEditing={onSearch}
           returnKeyType="search"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         {value && value.length > 0 && (
           <Pressable onPress={() => onChangeText?.('')}>
