@@ -1,4 +1,4 @@
-import { listingsService } from '@/api/services/listings.service';
+import { listingsService, Product } from '@/api/services/listings.service';
 import { offersService } from '@/api/services/offers.service';
 import { useCart } from '@/hooks/use-cart';
 import { useAppSelector } from '@/store/hooks';
@@ -7,14 +7,14 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { supabase } from '@/api/config/supabase';
 
-export default function ListingDetailsScreen() {
+export default function ProductDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const { addItem } = useCart();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [listing, setListing] = useState<any>(null);
+  const [listing, setListing] = useState<Product | null>(null);
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'seller'>('description');
   const { user } = useAppSelector((state) => state.auth);
 
@@ -75,7 +75,7 @@ export default function ListingDetailsScreen() {
 
   // Keep header title in sync with listing name (safe even when listing is null)
   useLayoutEffect(() => {
-    const headerTitle = (listing as any)?.product_name || 'Listing';
+    const headerTitle = (listing as any)?.product_name || 'Product Detail';
     // @ts-ignore - expo-router navigation supports setOptions
     navigation.setOptions?.({ title: headerTitle });
   }, [navigation, listing]);

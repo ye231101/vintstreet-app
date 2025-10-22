@@ -1,4 +1,5 @@
 import { categoriesService, listingsService } from '@/api/services';
+import { Product } from '@/api/services/listings.service';
 import { Category } from '@/api/types/category.types';
 import FilterModal from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
@@ -25,12 +26,12 @@ export default function DiscoveryScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
   // Products state
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [productsError, setProductsError] = useState<string | null>(null);
 
@@ -210,9 +211,9 @@ export default function DiscoveryScreen() {
     }
   };
 
-  const handleProductPress = (productId: number) => {
+  const handleProductPress = (productId: string) => {
     // Navigate to product detail
-    router.push(`/listing/${productId}` as any);
+    router.push(`/product/${productId}` as any);
   };
 
   const getCurrentTitle = () => {
