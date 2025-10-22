@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/database.types';
 
@@ -13,6 +14,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
+    storage: AsyncStorage, // Use AsyncStorage for session persistence
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true, // Enable URL detection for email confirmation links
