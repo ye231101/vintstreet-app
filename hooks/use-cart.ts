@@ -1,8 +1,8 @@
+import { Product } from '@/api/services/listings.service';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   selectCart,
   selectCartError,
-  selectCartFormattedTotal,
   selectCartItemByProductId,
   selectCartItemCount,
   selectCartItemCountByProduct,
@@ -29,11 +29,16 @@ export const useCart = () => {
   const error = useAppSelector(selectCartError);
   const itemCount = useAppSelector(selectCartItemCount);
   const total = useAppSelector(selectCartTotal);
-  const formattedTotal = useAppSelector(selectCartFormattedTotal);
   const isEmpty = useAppSelector(selectIsCartEmpty);
 
   // Actions
-  const addItem = (itemData: Omit<CartItem, 'id' | 'lineTotal' | 'protectionFee'>) => {
+  const addItem = (product: Product, quantity: number = 1) => {
+    const subtotal = product.starting_price * quantity;
+    const itemData: CartItem = {
+      product,
+      quantity,
+      subtotal,
+    };
     dispatch(addToCart(itemData));
   };
 
@@ -58,12 +63,12 @@ export const useCart = () => {
   };
 
   // Utility functions
-  const getItemByProductId = (productId: number, vendorId: number) => {
-    return useAppSelector(selectCartItemByProductId(productId, vendorId));
+  const getItemByProductId = (productId: string) => {
+    return useAppSelector(selectCartItemByProductId(productId));
   };
 
-  const getItemCountByProduct = (productId: number, vendorId: number) => {
-    return useAppSelector(selectCartItemCountByProduct(productId, vendorId));
+  const getItemCountByProduct = (productId: string) => {
+    return useAppSelector(selectCartItemCountByProduct(productId));
   };
 
   return {
@@ -73,7 +78,6 @@ export const useCart = () => {
     error,
     itemCount,
     total,
-    formattedTotal,
     isEmpty,
 
     // Actions

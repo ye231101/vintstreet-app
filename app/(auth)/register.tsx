@@ -58,7 +58,7 @@ const InputField = memo(
     error,
     secureTextEntry,
     keyboardType = 'default',
-    autoCapitalize = 'sentences',
+    autoCapitalize = 'none',
     showPasswordToggle = false,
     onTogglePassword,
   }: InputFieldProps) => (
@@ -72,9 +72,9 @@ const InputField = memo(
           <Feather name={icon as any} size={24} color="black" />
         </Text>
         <TextInput
-          placeholder={placeholder}
           value={value}
           onChangeText={onChangeText}
+          placeholder={placeholder}
           secureTextEntry={secureTextEntry}
           autoCapitalize={autoCapitalize}
           autoCorrect={false}

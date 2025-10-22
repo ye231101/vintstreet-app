@@ -1,6 +1,9 @@
+import { useCart } from '@/hooks/use-cart';
+import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -27,6 +30,18 @@ interface ShippingAddress {
   country: string;
 }
 
+interface ShippingAddressErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  postcode?: string;
+}
+
 interface BillingAddress {
   firstName: string;
   lastName: string;
@@ -40,11 +55,88 @@ interface BillingAddress {
   country: string;
 }
 
+interface BillingAddressErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  postcode?: string;
+}
+
+interface CardDetails {
+  cardholderName: string;
+  cardNumber: string;
+  expiryDate: string;
+  cvc: string;
+  country: string;
+  zipCode: string;
+}
+
+interface CardDetailsErrors {
+  cardholderName?: string;
+  cardNumber?: string;
+  expiryDate?: string;
+  cvc?: string;
+  country?: string;
+  zipCode?: string;
+}
+
+interface InputFieldProps {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  icon?: string;
+  keyboardType?: 'default' | 'email-address' | 'numeric';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  required?: boolean;
+  error?: string;
+}
+
+const InputField = memo(
+  ({
+    label,
+    value,
+    onChangeText,
+    placeholder,
+    icon,
+    keyboardType = 'default',
+    autoCapitalize = 'none',
+    required = false,
+    error,
+  }: InputFieldProps) => (
+    <View className="mb-4">
+      <Text className="text-sm font-inter-bold text-gray-800 mb-2">
+        {label} {required && <Text className="text-red-500">*</Text>}
+      </Text>
+      <View
+        className={`flex-row items-center bg-white rounded-lg border px-3 ${
+          error ? 'border-red-400' : 'border-gray-200'
+        }`}
+      >
+        {icon && <Feather name={icon as any} color={error ? '#f87171' : '#666'} size={16} className="mr-2" />}
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          autoCapitalize={autoCapitalize}
+          autoCorrect={false}
+          keyboardType={keyboardType}
+          className="flex-1 py-3 text-base font-inter"
+        />
+      </View>
+      {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
+    </View>
+  )
+);
+
 export default function CheckoutScreen() {
-  const [isLoading, setIsLoading] = useState(false);
+  const { cart, isLoading, isEmpty } = useCart();
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
-  const [subtotal, setSubtotal] = useState(0);
-  const [protectionFee, setProtectionFee] = useState(0);
   const [total, setTotal] = useState(0);
 
   // Step completion tracking
@@ -64,6 +156,7 @@ export default function CheckoutScreen() {
     country: 'United Kingdom',
   });
 
+  const [isBillingDifferent, setIsBillingDifferent] = useState(false);
   const [billingAddress, setBillingAddress] = useState<BillingAddress>({
     firstName: '',
     lastName: '',
@@ -77,56 +170,75 @@ export default function CheckoutScreen() {
     country: 'United Kingdom',
   });
 
-  const [isBillingDifferent, setIsBillingDifferent] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('card');
-  const [cardDetails, setCardDetails] = useState({
+  const [cardDetails, setCardDetails] = useState<CardDetails>({
     cardholderName: '',
     cardNumber: '',
     expiryDate: '',
     cvc: '',
-    country: 'United States',
+    country: 'United Kingdom',
     zipCode: '',
   });
 
+  // Error states
+  const [shippingAddressErrors, setShippingAddressErrors] = useState<ShippingAddressErrors>({});
+  const [billingAddressErrors, setBillingAddressErrors] = useState<BillingAddressErrors>({});
+  const [cardDetailsErrors, setCardDetailsErrors] = useState<CardDetailsErrors>({});
+
   useEffect(() => {
+    if (isEmpty) {
+      Alert.alert('Empty Cart', 'Your cart is empty. Please add items before checking out.', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+      return;
+    }
     loadCheckoutData();
-  }, []);
+  }, [cart]);
 
   useEffect(() => {
     updateStepCompletion();
-  }, [shippingAddress, billingAddress, cardDetails]);
+  }, [shippingAddress, billingAddress, cardDetails, isBillingDifferent]);
 
-  const loadCheckoutData = async () => {
-    setIsLoading(true);
+  const loadCheckoutData = () => {
+    // Transform cart items to checkout items
+    const items: CheckoutItem[] = cart.items.map((item) => ({
+      id: item.product.id,
+      name: item.product.product_name,
+      brand: item.product.product_categories?.name || 'Unknown Brand',
+      price: item.product.starting_price,
+      quantity: item.quantity,
+      image: item.product.product_image || '',
+      lineTotal: item.subtotal,
+    }));
 
-    try {
-      // Mock data - replace with actual data fetching
-      const mockItems: CheckoutItem[] = [
-        {
-          id: '1',
-          name: 'D&G 2003 Bomber Jacket, Black - XXL',
-          brand: 'D&G',
-          price: 999.0,
-          quantity: 1,
-          image: 'https://via.placeholder.com/50x50/000000/FFFFFF?text=D&G',
-          lineTotal: 999.0,
-        },
-      ];
-
-      const mockSubtotal = 999.0;
-      const mockProtectionFee = 71.93;
-      const mockTotal = 1070.93;
-
-      setCheckoutItems(mockItems);
-      setSubtotal(mockSubtotal);
-      setProtectionFee(mockProtectionFee);
-      setTotal(mockTotal);
-    } catch (err) {
-      Alert.alert('Error', 'Failed to load checkout data');
-    } finally {
-      setIsLoading(false);
-    }
+    setCheckoutItems(items);
+    setTotal(cart.total);
   };
+
+  // Update functions that clear errors when typing
+  const updateShippingAddress = useCallback((field: keyof ShippingAddress, value: string) => {
+    setShippingAddress((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (shippingAddressErrors[field as keyof ShippingAddressErrors]) {
+      setShippingAddressErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  }, [shippingAddressErrors]);
+
+  const updateBillingAddress = useCallback((field: keyof BillingAddress, value: string) => {
+    setBillingAddress((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (billingAddressErrors[field as keyof BillingAddressErrors]) {
+      setBillingAddressErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  }, [billingAddressErrors]);
+
+  const updateCardDetails = useCallback((field: keyof typeof cardDetails, value: string) => {
+    setCardDetails((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (cardDetailsErrors[field as keyof CardDetailsErrors]) {
+      setCardDetailsErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  }, [cardDetailsErrors]);
 
   const updateStepCompletion = () => {
     const shippingComplete =
@@ -136,6 +248,7 @@ export default function CheckoutScreen() {
       shippingAddress.phone.trim() !== '' &&
       shippingAddress.address1.trim() !== '' &&
       shippingAddress.city.trim() !== '' &&
+      shippingAddress.state.trim() !== '' &&
       shippingAddress.postcode.trim() !== '';
 
     const billingComplete = isBillingDifferent
@@ -145,6 +258,7 @@ export default function CheckoutScreen() {
         billingAddress.phone.trim() !== '' &&
         billingAddress.address1.trim() !== '' &&
         billingAddress.city.trim() !== '' &&
+        billingAddress.state.trim() !== '' &&
         billingAddress.postcode.trim() !== ''
       : shippingComplete;
 
@@ -152,7 +266,9 @@ export default function CheckoutScreen() {
       cardDetails.cardholderName.trim() !== '' &&
       cardDetails.cardNumber.trim() !== '' &&
       cardDetails.expiryDate.trim() !== '' &&
-      cardDetails.cvc.trim() !== '';
+      cardDetails.cvc.trim() !== '' &&
+      cardDetails.country.trim() !== '' &&
+      cardDetails.zipCode.trim() !== '';
 
     setStepCompleted([shippingComplete, billingComplete, paymentComplete]);
   };
@@ -197,7 +313,13 @@ export default function CheckoutScreen() {
       {/* Items */}
       {checkoutItems.map((item) => (
         <View key={item.id} className="flex-row p-4 items-center">
-          <View className="w-12 h-12 rounded-lg bg-gray-100 mr-3" />
+          <Image
+            source={item.image}
+            contentFit="cover"
+            placeholder={{ blurhash }}
+            transition={1000}
+            style={{ width: 64, height: 64, borderRadius: 8, marginRight: 12 }}
+          />
 
           <View className="flex-1">
             <Text className="text-sm font-inter-bold text-gray-800 mb-1" numberOfLines={2}>
@@ -213,18 +335,6 @@ export default function CheckoutScreen() {
 
       {/* Totals */}
       <View className="p-4 bg-gray-50 rounded-b-xl">
-        <View className="flex-row justify-between mb-1">
-          <Text className="text-sm font-inter text-gray-600">Subtotal</Text>
-          <Text className="text-sm font-inter-bold text-gray-800">£{subtotal.toFixed(2)}</Text>
-        </View>
-
-        <View className="flex-row justify-between mb-2">
-          <Text className="text-sm font-inter text-gray-600">Protection Fee</Text>
-          <Text className="text-sm font-inter-bold text-gray-800">£{protectionFee.toFixed(2)}</Text>
-        </View>
-
-        <View className="h-px bg-gray-300 my-2" />
-
         <View className="flex-row justify-between">
           <Text className="text-base font-inter-bold text-gray-800">Total</Text>
           <Text className="text-lg font-inter-bold text-gray-800">£{total.toFixed(2)}</Text>
@@ -255,9 +365,7 @@ export default function CheckoutScreen() {
           />
         </View>
 
-        <Text
-          className={`text-xs ${progress === 1 ? 'font-inter-bold text-green-500' : 'font-inter text-gray-600'}`}
-        >
+        <Text className={`text-xs ${progress === 1 ? 'font-inter-bold text-green-500' : 'font-inter text-gray-600'}`}>
           {progress === 1
             ? 'All steps completed! You can now place your order.'
             : 'Complete all steps to place your order.'}
@@ -265,41 +373,6 @@ export default function CheckoutScreen() {
       </View>
     );
   };
-
-  const FormField = ({
-    label,
-    value,
-    onChangeText,
-    placeholder,
-    keyboardType = 'default',
-    required = false,
-    icon,
-  }: {
-    label: string;
-    value: string;
-    onChangeText: (text: string) => void;
-    placeholder: string;
-    keyboardType?: 'default' | 'email-address' | 'numeric';
-    required?: boolean;
-    icon?: string;
-  }) => (
-    <View className="mb-4">
-      <Text className="text-sm font-inter-bold text-gray-800 mb-2">
-        {label} {required && <Text className="text-red-500">*</Text>}
-      </Text>
-      <View className="flex-row items-center bg-white rounded-lg border border-gray-200 px-3">
-        {icon && <Feather name={icon as any} color="#666" size={16} className="mr-2" />}
-        <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="#999"
-          className="flex-1 py-3 text-base font-inter text-gray-800"
-          keyboardType={keyboardType}
-        />
-      </View>
-    </View>
-  );
 
   const ShippingAddressSection = () => (
     <View className="bg-white rounded-2xl m-4">
@@ -328,102 +401,119 @@ export default function CheckoutScreen() {
 
       {/* Section Content */}
       <View className="p-5">
-        <FormField
+        <InputField
           label="Enter Shipping Address"
           value=""
           onChangeText={() => {}}
           placeholder="Search for your address..."
+          autoCapitalize="none"
           icon="search"
         />
 
         <View className="flex-row mb-4">
           <View className="flex-1 mr-2">
-            <FormField
+            <InputField
               label="First Name"
               value={shippingAddress.firstName}
-              onChangeText={(text) => setShippingAddress({ ...shippingAddress, firstName: text })}
+              onChangeText={(text) => updateShippingAddress('firstName', text)}
               placeholder="First Name"
+              autoCapitalize="none"
               icon="user"
               required
+              error={shippingAddressErrors.firstName}
             />
           </View>
           <View className="flex-1 ml-2">
-            <FormField
+            <InputField
               label="Last Name"
               value={shippingAddress.lastName}
-              onChangeText={(text) => setShippingAddress({ ...shippingAddress, lastName: text })}
+              onChangeText={(text) => updateShippingAddress('lastName', text)}
               placeholder="Last Name"
+              autoCapitalize="none"
               required
+              error={shippingAddressErrors.lastName}
             />
           </View>
         </View>
 
         <View className="flex-row mb-4">
           <View className="flex-1 mr-2">
-            <FormField
+            <InputField
               label="Email"
               value={shippingAddress.email}
-              onChangeText={(text) => setShippingAddress({ ...shippingAddress, email: text })}
+              onChangeText={(text) => updateShippingAddress('email', text)}
               placeholder="Email"
               keyboardType="email-address"
+              autoCapitalize="none"
               icon="mail"
               required
+              error={shippingAddressErrors.email}
             />
           </View>
           <View className="flex-1 ml-2">
-            <FormField
+            <InputField
               label="Phone"
               value={shippingAddress.phone}
-              onChangeText={(text) => setShippingAddress({ ...shippingAddress, phone: text })}
+              onChangeText={(text) => updateShippingAddress('phone', text)}
               placeholder="Phone"
               keyboardType="numeric"
+              autoCapitalize="none"
               icon="phone"
               required
+              error={shippingAddressErrors.phone}
             />
           </View>
         </View>
 
-        <FormField
+        <InputField
           label="Address Line 1"
           value={shippingAddress.address1}
-          onChangeText={(text) => setShippingAddress({ ...shippingAddress, address1: text })}
+          onChangeText={(text) => updateShippingAddress('address1', text)}
           placeholder="Address Line 1"
+          autoCapitalize="none"
           icon="home"
           required
+          error={shippingAddressErrors.address1}
         />
 
-        <FormField
+        <InputField
           label="Address Line 2 (Optional)"
           value={shippingAddress.address2 || ''}
-          onChangeText={(text) => setShippingAddress({ ...shippingAddress, address2: text })}
+          onChangeText={(text) => updateShippingAddress('address2', text)}
           placeholder="Address Line 2 (Optional)"
+          autoCapitalize="none"
           icon="home"
         />
 
-        <FormField
+        <InputField
           label="City"
           value={shippingAddress.city}
-          onChangeText={(text) => setShippingAddress({ ...shippingAddress, city: text })}
+          onChangeText={(text) => updateShippingAddress('city', text)}
           placeholder="City"
+          autoCapitalize="none"
           required
+          error={shippingAddressErrors.city}
         />
 
         <View className="flex-row mb-4">
           <View className="flex-1 mr-2">
-            <FormField
+            <InputField
               label="State/Country"
               value={shippingAddress.state}
-              onChangeText={(text) => setShippingAddress({ ...shippingAddress, state: text })}
+              onChangeText={(text) => updateShippingAddress('state', text)}
               placeholder="State/Country"
+              autoCapitalize="none"
             />
           </View>
           <View className="flex-1 ml-2">
-            <FormField
+            <InputField
               label="Postcode"
               value={shippingAddress.postcode}
-              onChangeText={(text) => setShippingAddress({ ...shippingAddress, postcode: text })}
+              onChangeText={(text) => updateShippingAddress('postcode', text)}
               placeholder="Postcode"
+              autoCapitalize="none"
               required
+              error={shippingAddressErrors.postcode}
             />
           </View>
         </View>
@@ -472,7 +562,9 @@ export default function CheckoutScreen() {
         </View>
 
         <Text className="text-sm font-inter text-gray-600 mb-4">
-          Billing address will be the same as shipping address
+          {isBillingDifferent
+            ? 'Please enter your billing address below'
+            : 'Billing address will be the same as shipping address'}
         </Text>
 
         {isBillingDifferent && (
@@ -481,92 +573,108 @@ export default function CheckoutScreen() {
 
             <View className="flex-row mb-4">
               <View className="flex-1 mr-2">
-                <FormField
+                <InputField
                   label="First Name"
                   value={billingAddress.firstName}
-                  onChangeText={(text) => setBillingAddress({ ...billingAddress, firstName: text })}
+                  onChangeText={(text) => updateBillingAddress('firstName', text)}
                   placeholder="First Name"
+                  autoCapitalize="none"
                   icon="user"
                   required
+                  error={billingAddressErrors.firstName}
                 />
               </View>
               <View className="flex-1 ml-2">
-                <FormField
+                <InputField
                   label="Last Name"
                   value={billingAddress.lastName}
-                  onChangeText={(text) => setBillingAddress({ ...billingAddress, lastName: text })}
+                  onChangeText={(text) => updateBillingAddress('lastName', text)}
                   placeholder="Last Name"
+                  autoCapitalize="none"
                   required
+                  error={billingAddressErrors.lastName}
                 />
               </View>
             </View>
 
             <View className="flex-row mb-4">
               <View className="flex-1 mr-2">
-                <FormField
+                <InputField
                   label="Email"
                   value={billingAddress.email}
-                  onChangeText={(text) => setBillingAddress({ ...billingAddress, email: text })}
+                  onChangeText={(text) => updateBillingAddress('email', text)}
                   placeholder="Email"
                   keyboardType="email-address"
+                  autoCapitalize="none"
                   icon="mail"
                   required
+                  error={billingAddressErrors.email}
                 />
               </View>
               <View className="flex-1 ml-2">
-                <FormField
+                <InputField
                   label="Phone"
                   value={billingAddress.phone}
-                  onChangeText={(text) => setBillingAddress({ ...billingAddress, phone: text })}
+                  onChangeText={(text) => updateBillingAddress('phone', text)}
                   placeholder="Phone"
                   keyboardType="numeric"
+                  autoCapitalize="none"
                   icon="phone"
                   required
+                  error={billingAddressErrors.phone}
                 />
               </View>
             </View>
 
-            <FormField
+            <InputField
               label="Address Line 1"
               value={billingAddress.address1}
-              onChangeText={(text) => setBillingAddress({ ...billingAddress, address1: text })}
+              onChangeText={(text) => updateBillingAddress('address1', text)}
               placeholder="Address Line 1"
+              autoCapitalize="none"
               icon="home"
               required
+              error={billingAddressErrors.address1}
             />
 
-            <FormField
+            <InputField
               label="Address Line 2 (Optional)"
               value={billingAddress.address2 || ''}
-              onChangeText={(text) => setBillingAddress({ ...billingAddress, address2: text })}
+              onChangeText={(text) => updateBillingAddress('address2', text)}
               placeholder="Address Line 2 (Optional)"
+              autoCapitalize="none"
               icon="home"
             />
 
-            <FormField
+            <InputField
               label="City"
               value={billingAddress.city}
-              onChangeText={(text) => setBillingAddress({ ...billingAddress, city: text })}
+              onChangeText={(text) => updateBillingAddress('city', text)}
               placeholder="City"
+              autoCapitalize="none"
               required
+              error={billingAddressErrors.city}
             />
 
             <View className="flex-row mb-4">
               <View className="flex-1 mr-2">
-                <FormField
+                <InputField
                   label="State/Country"
                   value={billingAddress.state}
-                  onChangeText={(text) => setBillingAddress({ ...billingAddress, state: text })}
+                  onChangeText={(text) => updateBillingAddress('state', text)}
                   placeholder="State/Country"
+                  autoCapitalize="none"
                 />
               </View>
               <View className="flex-1 ml-2">
-                <FormField
+                <InputField
                   label="Postcode"
                   value={billingAddress.postcode}
-                  onChangeText={(text) => setBillingAddress({ ...billingAddress, postcode: text })}
+                  onChangeText={(text) => updateBillingAddress('postcode', text)}
                   placeholder="Postcode"
+                  autoCapitalize="none"
                   required
+                  error={billingAddressErrors.postcode}
                 />
               </View>
             </View>
@@ -649,9 +757,7 @@ export default function CheckoutScreen() {
             >
               Google Pay
             </Text>
-            <Text
-              className={`text-sm font-inter ${paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-600'}`}
-            >
+            <Text className={`text-sm font-inter ${paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-600'}`}>
               Google Pay (availability will be checked at payment)
             </Text>
           </View>
@@ -662,64 +768,73 @@ export default function CheckoutScreen() {
           <>
             <Text className="text-base font-inter-bold text-gray-800 mb-4">Card Details</Text>
 
-            <FormField
+            <InputField
               label="Cardholder Name"
               value={cardDetails.cardholderName}
-              onChangeText={(text) => setCardDetails({ ...cardDetails, cardholderName: text })}
+              onChangeText={(text) => updateCardDetails('cardholderName', text)}
               placeholder="Cardholder Name"
               icon="user"
               required
+              error={cardDetailsErrors.cardholderName}
             />
-
-            {cardDetails.cardholderName.trim() === '' && (
-              <Text className="text-xs font-inter text-gray-600 -mt-3 mb-4">Cardholder name is required</Text>
-            )}
 
             <Text className="text-base font-inter-bold text-gray-800 mb-4">Card Information</Text>
 
             <View className="bg-gray-50 rounded-lg p-4 mb-4">
-              <FormField
+              <InputField
                 label="Card Number"
                 value={cardDetails.cardNumber}
-                onChangeText={(text) => setCardDetails({ ...cardDetails, cardNumber: text })}
+                onChangeText={(text) => updateCardDetails('cardNumber', text)}
                 placeholder="Card number"
                 keyboardType="numeric"
+                autoCapitalize="none"
+                required
+                error={cardDetailsErrors.cardNumber}
               />
 
               <View className="flex-row mb-4">
                 <View className="flex-1 mr-2">
-                  <FormField
+                  <InputField
                     label="Expiry Date"
                     value={cardDetails.expiryDate}
-                    onChangeText={(text) => setCardDetails({ ...cardDetails, expiryDate: text })}
+                    onChangeText={(text) => updateCardDetails('expiryDate', text)}
                     placeholder="MM/YY"
                     keyboardType="numeric"
+                    autoCapitalize="none"
+                    required
+                    error={cardDetailsErrors.expiryDate}
                   />
                 </View>
                 <View className="flex-1 ml-2">
-                  <FormField
+                  <InputField
                     label="CVC"
                     value={cardDetails.cvc}
-                    onChangeText={(text) => setCardDetails({ ...cardDetails, cvc: text })}
+                    onChangeText={(text) => updateCardDetails('cvc', text)}
                     placeholder="CVC"
                     keyboardType="numeric"
+                    autoCapitalize="none"
+                    required
+                    error={cardDetailsErrors.cvc}
                   />
                 </View>
               </View>
 
-              <FormField
+              <InputField
                 label="Country"
                 value={cardDetails.country}
-                onChangeText={(text) => setCardDetails({ ...cardDetails, country: text })}
+                onChangeText={(text) => updateCardDetails('country', text)}
                 placeholder="Country"
+                autoCapitalize="none"
               />
 
-              <FormField
+              <InputField
                 label="ZIP Code"
                 value={cardDetails.zipCode}
-                onChangeText={(text) => setCardDetails({ ...cardDetails, zipCode: text })}
+                onChangeText={(text) => updateCardDetails('zipCode', text)}
                 placeholder="ZIP Code"
                 keyboardType="numeric"
+                autoCapitalize="none"
+                error={cardDetailsErrors.zipCode}
               />
             </View>
           </>

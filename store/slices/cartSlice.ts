@@ -1,37 +1,16 @@
+import { Product } from '@/api/services/listings.service';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Alert } from 'react-native';
 
 export interface CartItem {
-  id: string;
-  productId: number;
-  name: string;
-  price: number;
+  product: Product;
   quantity: number;
-  image: string;
-  vendorId: number;
-  vendorName: string;
-  lineTotal: number;
-  protectionFee: number;
-  protectionFeePercentage: number;
-}
-
-export interface Vendor {
-  id: number;
-  name: string;
-  itemCount: number;
+  subtotal: number;
 }
 
 export interface Cart {
   items: CartItem[];
-  vendors: { [key: number]: Vendor };
-  vendorIds: number[];
-  vendorItems: { [key: number]: CartItem[] };
-  subtotal: number;
-  formattedSubtotal: string;
-  totalProtectionFee: number;
-  formattedTotalProtectionFee: string;
   total: number;
-  formattedTotal: string;
 }
 
 export interface CartState {
@@ -42,15 +21,7 @@ export interface CartState {
 
 const initialCart: Cart = {
   items: [],
-  vendors: {},
-  vendorIds: [],
-  vendorItems: {},
-  subtotal: 0,
-  formattedSubtotal: '£0.00',
-  totalProtectionFee: 0,
-  formattedTotalProtectionFee: '£0.00',
   total: 0,
-  formattedTotal: '£0.00',
 };
 
 const initialState: CartState = {
@@ -61,40 +32,9 @@ const initialState: CartState = {
 
 // Helper functions
 const calculateTotals = (items: CartItem[]) => {
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalProtectionFee = items.reduce((sum, item) => sum + item.protectionFee, 0);
-  const total = subtotal + totalProtectionFee;
+  const total = items.reduce((sum, item) => sum + item.product.starting_price * item.quantity, 0);
 
-  return {
-    subtotal,
-    totalProtectionFee,
-    total,
-    formattedSubtotal: `£${subtotal.toFixed(2)}`,
-    formattedTotalProtectionFee: `£${totalProtectionFee.toFixed(2)}`,
-    formattedTotal: `£${total.toFixed(2)}`,
-  };
-};
-
-const updateVendorData = (items: CartItem[]) => {
-  const vendors: { [key: number]: Vendor } = {};
-  const vendorItems: { [key: number]: CartItem[] } = {};
-  const vendorIds: number[] = [];
-
-  items.forEach((item) => {
-    if (!vendors[item.vendorId]) {
-      vendors[item.vendorId] = {
-        id: item.vendorId,
-        name: item.vendorName,
-        itemCount: 0,
-      };
-      vendorItems[item.vendorId] = [];
-      vendorIds.push(item.vendorId);
-    }
-    vendors[item.vendorId].itemCount += item.quantity;
-    vendorItems[item.vendorId].push(item);
-  });
-
-  return { vendors, vendorItems, vendorIds };
+  return total;
 };
 
 const cartSlice = createSlice({
@@ -102,13 +42,11 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     // Add item to cart
-    addToCart: (state, action: PayloadAction<Omit<CartItem, 'id' | 'lineTotal' | 'protectionFee'>>) => {
+    addToCart: (state, action: PayloadAction<CartItem>) => {
       const itemData = action.payload;
 
       // Check if item already exists in cart
-      const existingItemIndex = state.cart.items.findIndex(
-        (item) => item.productId === itemData.productId && item.vendorId === itemData.vendorId
-      );
+      const existingItemIndex = state.cart.items.findIndex((item) => item.product.id === itemData.product.id);
 
       let updatedItems: CartItem[];
 
@@ -117,37 +55,29 @@ const cartSlice = createSlice({
         updatedItems = [...state.cart.items];
         const existingItem = updatedItems[existingItemIndex];
         const newQuantity = existingItem.quantity + itemData.quantity;
-        const newLineTotal = itemData.price * newQuantity;
-        const newProtectionFee = newLineTotal * itemData.protectionFeePercentage;
+        const newSubtotal = itemData.product.starting_price * newQuantity;
 
         updatedItems[existingItemIndex] = {
           ...existingItem,
           quantity: newQuantity,
-          lineTotal: newLineTotal,
-          protectionFee: newProtectionFee,
+          subtotal: newSubtotal,
         };
       } else {
         // Add new item
         const newItem: CartItem = {
           ...itemData,
-          id: `${itemData.productId}_${itemData.vendorId}_${Date.now()}`,
-          lineTotal: itemData.price * itemData.quantity,
-          protectionFee: itemData.price * itemData.quantity * itemData.protectionFeePercentage,
+          subtotal: itemData.product.starting_price * itemData.quantity,
         };
         updatedItems = [...state.cart.items, newItem];
       }
 
-      const totals = calculateTotals(updatedItems);
-      const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
+      const total = calculateTotals(updatedItems);
 
-      Alert.alert('Item added to cart', `${itemData.name} has been added to your cart.`);
+      Alert.alert('Item added to cart', `${itemData.product.product_name} has been added to your cart.`);
 
       state.cart = {
         items: updatedItems,
-        vendors,
-        vendorItems,
-        vendorIds,
-        ...totals,
+        total: total,
       };
       state.error = null;
     },
@@ -155,16 +85,12 @@ const cartSlice = createSlice({
     // Remove item from cart
     removeFromCart: (state, action: PayloadAction<string>) => {
       const itemId = action.payload;
-      const updatedItems = state.cart.items.filter((item) => item.id !== itemId);
-      const totals = calculateTotals(updatedItems);
-      const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
+      const updatedItems = state.cart.items.filter((item) => item.product.id !== itemId);
+      const total = calculateTotals(updatedItems);
 
       state.cart = {
         items: updatedItems,
-        vendors,
-        vendorItems,
-        vendorIds,
-        ...totals,
+        total: total,
       };
       state.error = null;
     },
@@ -175,42 +101,32 @@ const cartSlice = createSlice({
 
       if (quantity <= 0) {
         // Remove item if quantity is 0 or negative
-        const updatedItems = state.cart.items.filter((item) => item.id !== itemId);
-        const totals = calculateTotals(updatedItems);
-        const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
+        const updatedItems = state.cart.items.filter((item) => item.product.id !== itemId);
+        const total = calculateTotals(updatedItems);
 
         state.cart = {
           items: updatedItems,
-          vendors,
-          vendorItems,
-          vendorIds,
-          ...totals,
+          total: total,
         };
       } else {
         // Update quantity
         const updatedItems = state.cart.items.map((item) => {
-          if (item.id === itemId) {
-            const newLineTotal = item.price * quantity;
-            const newProtectionFee = newLineTotal * item.protectionFeePercentage;
+          if (item.product.id === itemId) {
+            const newSubtotal = item.product.starting_price * quantity;
             return {
               ...item,
               quantity,
-              lineTotal: newLineTotal,
-              protectionFee: newProtectionFee,
+              subtotal: newSubtotal,
             };
           }
           return item;
         });
 
-        const totals = calculateTotals(updatedItems);
-        const { vendors, vendorItems, vendorIds } = updateVendorData(updatedItems);
+        const total = calculateTotals(updatedItems);
 
         state.cart = {
           items: updatedItems,
-          vendors,
-          vendorItems,
-          vendorIds,
-          ...totals,
+          total: total,
         };
       }
       state.error = null;

@@ -23,6 +23,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addItem } = useCart();
 
+  const handleAddToCart = () => {
+    addItem(product);
+  };
+
   return (
     <Pressable onPress={onPress} className="bg-white rounded-2xl overflow-hidden shadow-sm" style={{ width }}>
       <View className="relative">
@@ -61,10 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </View>
 
           <Pressable
-            onPress={(e) => {
-              e?.stopPropagation();
-              // addItem(product);
-            }}
+            onPress={handleAddToCart}
             className="bg-white border border-gray-200 rounded-lg w-10 h-10 items-center justify-center"
           >
             <Feather name="plus" size={20} color="black" />

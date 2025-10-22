@@ -1,11 +1,4 @@
 import { useCart } from '@/hooks/use-cart';
-import { useAppSelector } from '@/store/hooks';
-import {
-  selectCartVendorIds,
-  selectCartVendorItems,
-  selectCartVendors,
-  selectVendorTotals,
-} from '@/store/selectors/cartSelectors';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -22,13 +15,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Use the interfaces from the cart slice
-import { Cart, CartItem, Vendor } from '@/store/slices/cartSlice';
+import { Cart, CartItem } from '@/store/slices/cartSlice';
 
 export default function CartScreen() {
   const { cart, isLoading, error, removeItem, updateItemQuantity, clearAll } = useCart();
-  const vendorIds = useAppSelector(selectCartVendorIds);
-  const vendors = useAppSelector(selectCartVendors);
-  const vendorItems = useAppSelector(selectCartVendorItems);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
@@ -63,100 +53,85 @@ export default function CartScreen() {
     router.push('/checkout');
   };
 
-  const VendorItemsSection = ({
-    vendor,
-    items,
+  const VendorItemSection = ({
+    cartItem,
     onQuantityChanged,
     onRemove,
   }: {
-    vendor: Vendor;
-    items: CartItem[];
-    onQuantityChanged: (item: CartItem, quantity: number) => void;
-    onRemove: (item: CartItem) => void;
+    cartItem: CartItem;
+    onQuantityChanged: (productId: string, quantity: number) => void;
+    onRemove: (productId: string) => void;
   }) => {
-    const vendorTotals = useAppSelector(selectVendorTotals(vendor.id));
-
     return (
       <View className="bg-white rounded-xl mb-4">
         {/* Vendor Header */}
         <View className="flex-row items-center p-4 border-b border-gray-100">
           <Feather name="shopping-bag" color="#333" size={20} />
-          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">{vendor.name}</Text>
-          <Text className="text-sm font-inter text-gray-600">
-            {vendor.itemCount} item{vendor.itemCount !== 1 ? 's' : ''}
-          </Text>
+          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">{cartItem.product.product_name}</Text>
         </View>
 
         {/* Items */}
-        {items.map((item, index) => (
-          <View key={item.id}>
-            <View className="flex-row p-4 items-center">
-              {/* Product Image */}
-              <View className="w-20 h-20 rounded-lg bg-gray-100 mr-3 overflow-hidden">
-                <Image source={{ uri: item.image }} className="w-full h-full" resizeMode="cover" />
-              </View>
-
-              {/* Product Details */}
-              <View className="flex-1">
-                <Text className="text-base font-inter-bold text-gray-800 mb-1" numberOfLines={2}>
-                  {item.name}
-                </Text>
-                <Text className="text-lg font-inter-bold text-gray-800 mb-1">£{item.price.toFixed(2)}</Text>
-                <Text className="text-xs font-inter text-gray-600">D&@</Text>
-              </View>
-
-              {/* Remove Button */}
-              <TouchableOpacity onPress={() => onRemove(item)} className="absolute top-4 right-4 p-1">
-                <Feather name="x" color="#999" size={20} />
-              </TouchableOpacity>
-
-              {/* Quantity Controls */}
-              <View className="flex-row items-center mt-2">
-                <TouchableOpacity
-                  onPress={() => onQuantityChanged(item, item.quantity - 1)}
-                  className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
-                >
-                  <Feather name="minus" color="#333" size={16} />
-                </TouchableOpacity>
-
-                <Text className="text-base font-inter-bold text-gray-800 mx-4 min-w-5 text-center">
-                  {item.quantity}
-                </Text>
-
-                <TouchableOpacity
-                  onPress={() => onQuantityChanged(item, item.quantity + 1)}
-                  className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
-                >
-                  <Feather name="plus" color="#333" size={16} />
-                </TouchableOpacity>
-              </View>
+        <View key={cartItem.product.id}>
+          <View className="flex-row p-4 items-center">
+            {/* Product Image */}
+            <View className="w-20 h-20 rounded-lg bg-gray-100 mr-3 overflow-hidden">
+              <Image
+                source={{ uri: cartItem.product.product_image || undefined }}
+                resizeMode="cover"
+                style={{ width: '100%', height: '100%' }}
+              />
             </View>
 
-            {index < items.length - 1 && <View className="h-px bg-gray-100 ml-4" />}
+            {/* Product Details */}
+            <View className="flex-1">
+              <Text className="text-base font-inter-bold text-gray-800 mb-1" numberOfLines={2}>
+                {cartItem.product.product_name}
+              </Text>
+              <Text className="text-lg font-inter-bold text-gray-800 mb-1">
+                £{cartItem.product.starting_price.toFixed(2)}
+              </Text>
+              <Text className="text-xs font-inter text-gray-600">D&@</Text>
+            </View>
+
+            {/* Remove Button */}
+            <TouchableOpacity onPress={() => onRemove(cartItem.product.id)} className="absolute top-4 right-4 p-1">
+              <Feather name="x" color="#999" size={20} />
+            </TouchableOpacity>
+
+            {/* Quantity Controls */}
+            <View className="flex-row items-center mt-2">
+              <TouchableOpacity
+                onPress={() => onQuantityChanged(cartItem.product.id, cartItem.quantity - 1)}
+                className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
+              >
+                <Feather name="minus" color="#333" size={16} />
+              </TouchableOpacity>
+
+              <Text className="text-base font-inter-bold text-gray-800 mx-4 min-w-5 text-center">
+                {cartItem.quantity}
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => onQuantityChanged(cartItem.product.id, cartItem.quantity + 1)}
+                className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
+              >
+                <Feather name="plus" color="#333" size={16} />
+              </TouchableOpacity>
+            </View>
           </View>
-        ))}
+        </View>
 
         {/* Vendor Totals */}
         <View className="p-4 border-t border-gray-100">
-          <View className="flex-row justify-between mb-2">
-            <Text className="text-sm font-inter text-gray-600">Subtotal</Text>
-            <Text className="text-sm font-inter text-gray-800">£{vendorTotals.subtotal.toFixed(2)}</Text>
-          </View>
-
-          <View className="flex-row justify-between mb-2">
-            <Text className="text-sm font-inter text-gray-600">Protection Fee</Text>
-            <Text className="text-sm font-inter text-gray-800">£{vendorTotals.protectionFee.toFixed(2)}</Text>
-          </View>
-
-          <View className="h-px bg-gray-100 my-2" />
-
           <View className="flex-row justify-between mb-4">
             <Text className="text-base font-inter-bold text-gray-800">Vendor Total</Text>
-            <Text className="text-base font-inter-bold text-gray-800">£{vendorTotals.total.toFixed(2)}</Text>
+            <Text className="text-base font-inter-bold text-gray-800">
+              £{cartItem.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </Text>
           </View>
 
           <TouchableOpacity className="bg-black rounded-lg py-3 px-6 items-center">
-            <Text className="text-white text-base font-inter-bold">Checkout with {vendor.name}</Text>
+            <Text className="text-white text-base font-inter-bold">Checkout with {cartItem.product.product_name}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -165,21 +140,9 @@ export default function CartScreen() {
 
   const CartSummary = ({ cart }: { cart: Cart }) => (
     <View className="bg-white p-4 border-t border-gray-100">
-      <View className="flex-row justify-between mb-2">
-        <Text className="text-base font-inter text-gray-800">Subtotal</Text>
-        <Text className="text-base font-inter-bold text-gray-800">{cart.formattedSubtotal}</Text>
-      </View>
-
-      <View className="flex-row justify-between mb-2">
-        <Text className="text-base font-inter text-gray-800">Protection Fee</Text>
-        <Text className="text-base font-inter-bold text-gray-800">{cart.formattedTotalProtectionFee}</Text>
-      </View>
-
-      <View className="h-px bg-gray-100 my-3" />
-
       <View className="flex-row justify-between mb-4">
         <Text className="text-lg font-inter-bold text-gray-800">Total</Text>
-        <Text className="text-lg font-inter-bold text-gray-800">{cart.formattedTotal}</Text>
+        <Text className="text-lg font-inter-bold text-gray-800">{cart.total.toFixed(2)}</Text>
       </View>
     </View>
   );
@@ -278,15 +241,16 @@ export default function CartScreen() {
         >
           <View className="p-4">
             {/* Display items by vendor */}
-            {vendorIds.map((vendorId) => (
-              <VendorItemsSection
-                key={vendorId}
-                vendor={vendors[vendorId]}
-                items={vendorItems[vendorId] || []}
-                onQuantityChanged={(item, quantity) => handleUpdateQuantity(item.id, quantity)}
-                onRemove={(item) => handleRemoveItem(item.id)}
-              />
-            ))}
+            <View className="flex-1">
+              {cart.items.map((item) => (
+                <VendorItemSection
+                  key={item.product.id}
+                  cartItem={item}
+                  onQuantityChanged={(productId, quantity) => handleUpdateQuantity(productId, quantity)}
+                  onRemove={(productId) => handleRemoveItem(productId)}
+                />
+              ))}
+            </View>
           </View>
         </ScrollView>
 
