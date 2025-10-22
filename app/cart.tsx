@@ -1,10 +1,10 @@
 import { useCart } from '@/hooks/use-cart';
+import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Modal, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { Image } from 'expo-image';
-import { blurhash } from '@/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Use the interfaces from the cart slice

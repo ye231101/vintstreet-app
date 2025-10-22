@@ -1,7 +1,7 @@
 import { Product } from '@/api/services/listings.service';
 import { wishlistService } from '@/api/services/wishlist.service';
-import { showSuccessToast, showErrorToast } from '@/utils/toast';
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface WishlistState {
   items: Product[];

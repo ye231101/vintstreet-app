@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { messagesService, Conversation } from '../../api/services/messages.service';
+import { Conversation, messagesService } from '../../api/services/messages.service';
 import { useAuth } from '../../hooks/use-auth';
 
 // Interfaces are now imported from the messages service

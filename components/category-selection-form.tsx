@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 interface CategorySelectionFormProps {
   selectedCategoryId: string;

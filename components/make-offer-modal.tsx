@@ -1,8 +1,8 @@
+import { offersService } from '@/api/services/offers.service';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { offersService } from '@/api/services/offers.service';
-import { showSuccessToast, showErrorToast } from '@/utils/toast';
 
 interface MakeOfferModalProps {
   isOpen: boolean;

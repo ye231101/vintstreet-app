@@ -1,6 +1,10 @@
-import { listingsService, Product } from '@/api/services/listings.service';
+import { supabase } from '@/api/config/supabase';
+import { listingsService } from '@/api/services/listings.service';
+import { ContactSellerModal } from '@/components/contact-seller-modal';
+import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';
 import { useAppSelector } from '@/store/hooks';
+import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
@@ -15,10 +19,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { supabase } from '@/api/config/supabase';
-import { Feather } from '@expo/vector-icons';
-import { ContactSellerModal } from '@/components/contact-seller-modal';
-import { MakeOfferModal } from '@/components/make-offer-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');

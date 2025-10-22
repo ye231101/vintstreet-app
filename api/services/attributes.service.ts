@@ -48,7 +48,7 @@ class AttributesService {
         // If level 3 has attributes, use those exclusively
         if (level3Data && level3Data.length > 0) {
           const attributesData = level3Data
-            .map((item) => item.attributes)
+            .map((item: any) => item.attributes)
             .filter(Boolean)
             .sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
 
@@ -80,7 +80,7 @@ class AttributesService {
       if (error) throw error;
 
       const attributesData = data
-        .map((item) => item.attributes)
+        .map((item: any) => item.attributes)
         .filter(Boolean)
         .sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
 

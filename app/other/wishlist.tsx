@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback } from 'react';
-import { FlatList, Pressable, RefreshControl, Text, View, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WishlistScreen() {

@@ -1,4 +1,9 @@
+import { supabase } from '@/api/config/supabase';
+import { MakeOfferModal } from '@/components/make-offer-modal';
+import { blurhash } from '@/utils';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -11,14 +16,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Offer, offersService } from '../../api/services/offers.service';
+import { Offer } from '../../api/services/offers.service';
 import { useAuth } from '../../hooks/use-auth';
-import { MakeOfferModal } from '@/components/make-offer-modal';
-import { showSuccessToast, showErrorToast } from '@/utils/toast';
-import { supabase } from '@/api/config/supabase';
-import { blurhash } from '@/utils';
 
 interface ExtendedOffer extends Offer {
   payment_completed?: boolean;
