@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { CategorySelectionForm } from './CategorySelectionForm';
-import { DynamicAttributesForm } from './DynamicAttributesForm';
+import { CategorySelectionForm } from './category-selection-form';
+import { DynamicAttributesForm } from './dynamic-attributes-form';
 
 interface Attribute {
   id: string;
