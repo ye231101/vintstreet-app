@@ -1,6 +1,6 @@
 import { Product } from '@/api/services/listings.service';
+import { showSuccessToast } from '@/utils/toast';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Alert } from 'react-native';
 
 export interface CartItem {
   product: Product;
@@ -73,7 +73,7 @@ const cartSlice = createSlice({
 
       const total = calculateTotals(updatedItems);
 
-      Alert.alert('Item added to cart', `${itemData.product.product_name} has been added to your cart.`);
+      showSuccessToast(`${itemData.product.product_name} has been added to your cart.`);
 
       state.cart = {
         items: updatedItems,

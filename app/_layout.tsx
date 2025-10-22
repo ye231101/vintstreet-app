@@ -16,6 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { ToastProvider, useToast } from 'react-native-toast-notifications';
 import '../global.css';
 
 import { authService } from '@/api';
@@ -24,6 +25,16 @@ import { ReduxProvider } from '@/providers/redux-provider';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { handleAuthStateChange, initializeAuth } from '@/store/slices/authSlice';
 import { removeStorageValue, setStorageValue } from '@/utils/storage';
+import { setToastRef } from '@/utils/toast';
+
+// Toast initializer component - must be inside ToastProvider
+function ToastInit() {
+  const toast = useToast();
+  useEffect(() => {
+    setToastRef(toast);
+  }, [toast]);
+  return null;
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -116,21 +127,24 @@ export default function RootLayout() {
 
   return (
     <ReduxProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AuthWrapper>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="listing" options={{ headerShown: false }} />
-            <Stack.Screen name="message" options={{ headerShown: false }} />
-            <Stack.Screen name="seller" options={{ headerShown: false }} />
-            <Stack.Screen name="other" options={{ headerShown: false }} />
-            <Stack.Screen name="cart" options={{ headerShown: false }} />
-            <Stack.Screen name="checkout" options={{ headerShown: false }} />
-          </Stack>
-        </AuthWrapper>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <ToastProvider offsetTop={100}>
+        <ToastInit />
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AuthWrapper>
+            <Stack>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="listing" options={{ headerShown: false }} />
+              <Stack.Screen name="message" options={{ headerShown: false }} />
+              <Stack.Screen name="seller" options={{ headerShown: false }} />
+              <Stack.Screen name="other" options={{ headerShown: false }} />
+              <Stack.Screen name="cart" options={{ headerShown: false }} />
+              <Stack.Screen name="checkout" options={{ headerShown: false }} />
+            </Stack>
+          </AuthWrapper>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </ToastProvider>
     </ReduxProvider>
   );
 }
