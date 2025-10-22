@@ -28,7 +28,103 @@ export interface Product {
   } | null;
 }
 
+export interface InfiniteQueryResult {
+  products: Product[];
+  nextPage: number | undefined;
+}
+
+export interface ListingsFilters {
+  activeCategory?: string;
+  activeSubcategory?: string;
+  activeSubSubcategory?: string;
+  activeSubSubSubcategory?: string;
+  selectedBrands?: Set<string>;
+  selectedColors?: Set<string>;
+}
+
 class ListingsService {
+  /**
+   * Get listings with infinite scroll support and optimized seller fetching
+   * @param pageParam - Current page offset
+   * @param filters - Filter options for listings
+   * @param productsPerPage - Number of products per page
+   */
+  async getListingsInfinite(
+    pageParam: number = 0,
+    filters: ListingsFilters = {},
+    productsPerPage: number = 20
+  ): Promise<InfiniteQueryResult> {
+    try {
+      let query = supabase
+        .from('listings')
+        .select(`
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `)
+        .eq('product_type', 'shop')
+        .eq('status', 'published');
+
+      // Apply server-side filters
+      if (filters.activeCategory) {
+        query = query.eq('category_id', filters.activeCategory);
+      }
+      if (filters.activeSubcategory) {
+        query = query.eq('subcategory_id', filters.activeSubcategory);
+      }
+      if (filters.activeSubSubcategory) {
+        query = query.eq('sub_subcategory_id', filters.activeSubSubcategory);
+      }
+      if (filters.activeSubSubSubcategory) {
+        query = query.eq('sub_sub_subcategory_id', filters.activeSubSubSubcategory);
+      }
+      if (filters.selectedBrands && filters.selectedBrands.size > 0) {
+        query = query.in('brand_id', Array.from(filters.selectedBrands));
+      }
+
+      query = query
+        .order('created_at', { ascending: false })
+        .range(pageParam, pageParam + productsPerPage - 1);
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      
+      // Optimized: Fetch seller info using the new view (single query instead of 2)
+      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const { data: sellers } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .in('user_id', sellerIds);
+      
+      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      
+      const productsWithSellers = (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: sellersMap.get(product.seller_id) || null
+      })) as Product[];
+
+      return {
+        products: productsWithSellers,
+        nextPage: data && data.length === productsPerPage ? pageParam + productsPerPage : undefined
+      };
+    } catch (error) {
+      console.error('Error fetching listings infinite:', error);
+      throw error;
+    }
+  }
+
   /**
    * Get listings for a specific stream
    * @param streamId - The stream ID to fetch listings for
@@ -37,17 +133,47 @@ class ListingsService {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select('*')
+        .select(`
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `)
         .eq('product_type', 'shop')
-        .eq('status', 'published');
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
 
       console.log('listings data', data);
       if (error) {
         throw new Error(`Failed to fetch listings: ${error.message}`);
       }
 
-      // Transform API data to match the UI interface
-      return this.transformListingsData((data as unknown as Product[]) || []);
+      // Optimized: Fetch seller info using the new view (single query instead of 2)
+      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const { data: sellers } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .in('user_id', sellerIds);
+      
+      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      
+      const productsWithSellers = (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: sellersMap.get(product.seller_id) || null
+      })) as Product[];
+
+      return productsWithSellers;
     } catch (error) {
       console.error('Error fetching listings:', error);
       throw error;
@@ -160,7 +286,23 @@ class ListingsService {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select('*')
+        .select(`
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `)
         .eq('seller_id', sellerId)
         .order('created_at', { ascending: false });
 
@@ -168,7 +310,19 @@ class ListingsService {
         throw new Error(`Failed to fetch seller listings: ${error.message}`);
       }
 
-      return this.transformListingsData((data as unknown as Product[]) || []);
+      // Optimized: Fetch seller info using the new view (single query instead of 2)
+      const { data: seller } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .eq('user_id', sellerId)
+        .single();
+      
+      const productsWithSeller = (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: seller || null
+      })) as Product[];
+
+      return productsWithSeller;
     } catch (error) {
       console.error('Error fetching seller listings:', error);
       throw error;
@@ -180,13 +334,47 @@ class ListingsService {
    */
   async getListingById(listingId: string): Promise<Product | null> {
     try {
-      const { data, error } = await supabase.from('listings').select('*').eq('id', listingId).single();
+      const { data, error } = await supabase
+        .from('listings')
+        .select(`
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `)
+        .eq('id', listingId)
+        .single();
 
       if (error) {
         throw new Error(`Failed to fetch listing: ${error.message}`);
       }
 
-      return (data as unknown as Product) || null;
+      if (!data) return null;
+
+      // Optimized: Fetch seller info using the new view
+      const { data: seller } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .eq('user_id', data.seller_id)
+        .single();
+      
+      const productWithSeller = {
+        ...(data as any),
+        seller_info_view: seller || null
+      } as Product;
+
+      return productWithSeller;
     } catch (error) {
       console.error('Error fetching listing by id:', error);
       throw error;
@@ -202,7 +390,23 @@ class ListingsService {
     try {
       let query = supabase
         .from('listings')
-        .select('*')
+        .select(`
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `)
         .eq('seller_id', sellerId)
         .order('created_at', { ascending: false });
 
@@ -221,7 +425,19 @@ class ListingsService {
         throw new Error(`Failed to fetch listings by status: ${error.message}`);
       }
 
-      return this.transformListingsData((data as unknown as Product[]) || []);
+      // Optimized: Fetch seller info using the new view (single query instead of 2)
+      const { data: seller } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .eq('user_id', sellerId)
+        .single();
+      
+      const productsWithSeller = (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: seller || null
+      })) as Product[];
+
+      return productsWithSeller;
     } catch (error) {
       console.error('Error fetching listings by status:', error);
       throw error;
