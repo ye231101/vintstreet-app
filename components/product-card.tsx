@@ -1,7 +1,9 @@
 import { Product } from '@/api/services/listings.service';
 import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash } from '@/utils';
 import Feather from '@expo/vector-icons/Feather';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
@@ -22,9 +24,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   height = width * (4 / 3),
 }) => {
   const { addItem } = useCart();
+  const { toggleItem, isInWishlist } = useWishlist();
+
+  const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCart = () => {
     addItem(product);
+  };
+
+  const handleToggleWishlist = () => {
+    toggleItem(product);
   };
 
   return (
@@ -38,9 +47,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
           transition={1000}
         />
 
-        <View className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm">
-          <Feather name="heart" size={18} color="black" />
-        </View>
+        <Pressable
+          onPress={handleToggleWishlist}
+          className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm"
+        >
+          <FontAwesome
+            name={isWishlisted ? 'heart' : 'heart-o'}
+            size={18}
+            color={isWishlisted ? '#ef4444' : 'black'}
+            fill={isWishlisted ? '#ef4444' : 'transparent'}
+          />
+        </Pressable>
       </View>
 
       <View className="p-4">

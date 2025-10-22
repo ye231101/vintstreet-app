@@ -3,12 +3,13 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import authReducer from './slices/authSlice';
 import cartReducer from './slices/cartSlice';
+import wishlistReducer from './slices/wishlistSlice';
 
 // Redux Persist configuration
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'cart'], // Persist auth and cart state
+  whitelist: ['auth', 'cart', 'wishlist'], // Persist auth, cart and wishlist state
   blacklist: [], // Don't persist these reducers
 };
 
@@ -16,6 +17,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   cart: cartReducer,
+  wishlist: wishlistReducer,
 });
 
 // Create persisted reducer

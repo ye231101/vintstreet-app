@@ -32,9 +32,9 @@ export default function OtherLayout() {
         }}
       />
       <Stack.Screen
-        name="favourites"
+        name="wishlist"
         options={{
-          title: 'Favourites',
+          title: 'My Wishlist',
           headerShown: false,
         }}
       />

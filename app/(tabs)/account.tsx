@@ -110,9 +110,9 @@ export default function AccountScreen() {
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/favourites')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/wishlist')} className="flex-row items-center py-3 px-4">
             <Feather name="heart" size={24} color="#fff" />
-            <Text className="text-base font-inter text-white ml-4 flex-1">Favourites</Text>
+            <Text className="text-base font-inter text-white ml-4 flex-1">My Wishlist</Text>
             <Feather name="chevron-right" size={16} color="#999" />
           </Pressable>
 
