@@ -19,7 +19,7 @@ export default function AccountScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black pb-16">
+    <SafeAreaView className="flex-1 bg-black">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         {/* Profile Header Section */}
         <View className="flex-row items-center px-2">

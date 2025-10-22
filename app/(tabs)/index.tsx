@@ -81,7 +81,7 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           renderItem={({ item }) => <ProductCard product={item} onPress={() => handleProductPress(item.id)} />}
-          contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 8, paddingBottom: 44 }}
+          contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 8 }}
           columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
           showsVerticalScrollIndicator={false}
         />
