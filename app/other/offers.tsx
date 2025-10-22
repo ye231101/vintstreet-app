@@ -18,7 +18,7 @@ export default function MyOffersScreen() {
   const tabs = [
     { key: 'pending', label: 'Pending' },
     { key: 'accepted', label: 'Accepted' },
-    { key: 'rejected', label: 'Declined' },
+    { key: 'declined', label: 'Declined' },
     { key: 'expired', label: 'Expired' },
   ];
 
@@ -85,11 +85,11 @@ export default function MyOffersScreen() {
   };
 
   const OfferCard = ({ offer }: { offer: Offer }) => (
-    <View className="bg-gray-800 rounded-xl mb-4 p-4 border border-gray-600">
+    <View className="bg-white rounded-xl mb-4 p-4 border border-gray-200 shadow-sm">
       <View className="flex-row justify-between items-start mb-3">
         <View className="flex-1">
-          <Text className="text-white font-inter-bold text-base mb-1">{offer.productName}</Text>
-          <Text className="text-gray-400 text-sm font-inter mb-2">by {offer.buyerName}</Text>
+          <Text className="text-gray-900 font-inter-bold text-base mb-1">{offer.productName}</Text>
+          <Text className="text-gray-600 text-sm font-inter mb-2">by {offer.buyerName}</Text>
         </View>
         <View className={`rounded-xl px-2 py-1`} style={{ backgroundColor: getStatusColor(offer.status) }}>
           <Text className="text-white text-xs font-inter-bold">{getStatusText(offer.status).toUpperCase()}</Text>
@@ -97,13 +97,13 @@ export default function MyOffersScreen() {
       </View>
 
       {offer.message && (
-        <Text className="text-gray-300 text-sm font-inter mb-3 leading-5">"{offer.message}"</Text>
+        <Text className="text-gray-600 text-sm font-inter mb-3 leading-5">"{offer.message}"</Text>
       )}
 
       <View className="flex-row justify-between items-center mb-3">
         <View>
-          <Text className="text-gray-400 text-xs font-inter line-through">£{offer.originalPrice.toFixed(2)}</Text>
-          <Text className="text-white text-lg font-inter-bold">£{offer.offerAmount.toFixed(2)}</Text>
+          <Text className="text-gray-600 text-xs font-inter line-through">£{offer.originalPrice.toFixed(2)}</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold">£{offer.offerAmount.toFixed(2)}</Text>
         </View>
         <View className="bg-green-500 rounded-lg px-2 py-1">
           <Text className="text-white text-xs font-inter-bold">
@@ -113,7 +113,7 @@ export default function MyOffersScreen() {
       </View>
 
       <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-gray-400 text-xs font-inter">
+        <Text className="text-gray-600 text-xs font-inter">
           Expires: {new Date(offer.expiresAt).toLocaleDateString()}
         </Text>
         {offer.status === 'pending' && (
@@ -140,7 +140,7 @@ export default function MyOffersScreen() {
             </TouchableOpacity>
           </View>
         )}
-        {offer.status === 'rejected' && (
+        {offer.status === 'declined' && (
           <View className="flex-row gap-2">
             <TouchableOpacity
               onPress={() => {
@@ -160,8 +160,8 @@ export default function MyOffersScreen() {
     if (offers.length === 0) {
       return (
         <View className="flex-1 justify-center items-center px-8">
-          <Feather name="tag" color="#999" size={64} />
-          <Text className="text-white text-lg font-inter-medium mt-4">No offers found</Text>
+          <Feather name="tag" color="#666" size={64} />
+          <Text className="text-gray-900 text-lg font-inter-medium mt-4">No offers found</Text>
         </View>
       );
     }
@@ -181,13 +181,13 @@ export default function MyOffersScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">My Offers</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Offers</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -199,19 +199,19 @@ export default function MyOffersScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">My Offers</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Offers</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading offers</Text>
-          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading offers</Text>
+          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOffers} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -221,26 +221,26 @@ export default function MyOffersScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">My Offers</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Offers</Text>
       </View>
 
       {/* Filter Tabs */}
-      <View className="bg-black px-4">
+      <View className="bg-gray-50 px-4 border-b border-gray-200">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {tabs.map((tab) => (
             <TouchableOpacity
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
-              className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-white' : 'border-transparent'}`}
+              className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
             >
-              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-white' : 'text-gray-400'}`}>
+              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
                 {tab.label}
               </Text>
             </TouchableOpacity>

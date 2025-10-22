@@ -98,7 +98,7 @@ export default function WishlistScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-white px-4 py-3 border-b border-gray-200">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <Pressable onPress={() => router.back()} className="mr-4">
           <Feather name="arrow-left" size={24} color="#000" />
         </Pressable>

@@ -36,13 +36,13 @@ export default function AppSettingsScreen() {
     <View className="px-4 py-3">
       <View className="flex-row items-center justify-between">
         <View className="flex-1 mr-4">
-          <Text className="text-white text-base font-inter-bold mb-1">{title}</Text>
-          <Text className="text-gray-400 text-sm font-inter">{subtitle}</Text>
+          <Text className="text-gray-900 text-base font-inter-bold mb-1">{title}</Text>
+          <Text className="text-gray-600 text-sm font-inter">{subtitle}</Text>
         </View>
         <Switch
           value={value}
           onValueChange={onValueChange}
-          trackColor={{ false: '#333', true: '#007AFF' }}
+          trackColor={{ false: '#E5E7EB', true: '#007AFF' }}
           thumbColor={value ? '#fff' : '#999'}
         />
       </View>
@@ -51,18 +51,18 @@ export default function AppSettingsScreen() {
 
   const SettingsDropdown = ({ title, value, onPress }: { title: string; value: string; onPress: () => void }) => (
     <TouchableOpacity onPress={onPress} className="px-4 py-4 flex-row items-center justify-between">
-      <Text className="text-white text-base font-inter-bold">{title}</Text>
+      <Text className="text-gray-900 text-base font-inter-bold">{title}</Text>
       <View className="flex-row items-center">
-        <Text className="text-gray-400 text-sm font-inter mr-2">{value}</Text>
-        <Feather name="chevron-down" size={16} color="#999" />
+        <Text className="text-gray-600 text-sm font-inter mr-2">{value}</Text>
+        <Feather name="chevron-down" size={16} color="#666" />
       </View>
     </TouchableOpacity>
   );
 
   const InfoTile = ({ title, value }: { title: string; value: string }) => (
-    <View className="px-4 py-4 border-b border-gray-700 flex-row items-center justify-between">
-      <Text className="text-white text-base font-inter-bold">{title}</Text>
-      <Text className="text-gray-400 text-sm font-inter">{value}</Text>
+    <View className="px-4 py-4 border-b border-gray-200 flex-row items-center justify-between">
+      <Text className="text-gray-900 text-base font-inter-bold">{title}</Text>
+      <Text className="text-gray-600 text-sm font-inter">{value}</Text>
     </View>
   );
 
@@ -87,7 +87,7 @@ export default function AppSettingsScreen() {
       <View className="absolute inset-0 z-50">
         <TouchableOpacity className="flex-1 bg-black/30" onPress={onClose} activeOpacity={1} />
         {/* Dropdown positioned to the right */}
-        <View className="absolute right-4 bg-gray-800 rounded-lg min-w-30 shadow-2xl" style={{ top: topPosition }}>
+        <View className="absolute right-4 bg-white rounded-lg min-w-30 shadow-2xl" style={{ top: topPosition }}>
           {items.map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -96,10 +96,10 @@ export default function AppSettingsScreen() {
                 onClose();
               }}
               className={`px-4 py-3 flex-row items-center justify-between ${
-                index < items.length - 1 ? 'border-b border-gray-600' : ''
+                index < items.length - 1 ? 'border-b border-gray-200' : ''
               }`}
             >
-              <Text className={`text-sm font-inter ${selectedValue === item ? 'text-blue-500' : 'text-white'}`}>
+              <Text className={`text-sm font-inter ${selectedValue === item ? 'text-blue-500' : 'text-gray-900'}`}>
                 {item}
               </Text>
               {selectedValue === item && <Feather name="check" size={16} color="#007AFF" />}
@@ -111,21 +111,21 @@ export default function AppSettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">App Settings</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">App Settings</Text>
       </View>
 
       <View className="flex-1 relative">
         <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
           {/* Notifications Section */}
           <View className="mt-4">
-            <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">NOTIFICATIONS</Text>
+            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">NOTIFICATIONS</Text>
 
             <SettingsSwitch
               title="Push Notifications"
@@ -143,11 +143,11 @@ export default function AppSettingsScreen() {
           </View>
 
           {/* Divider */}
-          <View className="h-px bg-gray-700 mx-4 my-4" />
+          <View className="h-px bg-gray-200 mx-4 my-4" />
 
           {/* Appearance Section */}
           <View>
-            <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">APPEARANCE</Text>
+            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">APPEARANCE</Text>
 
             <SettingsSwitch
               title="Dark Mode"
@@ -158,11 +158,11 @@ export default function AppSettingsScreen() {
           </View>
 
           {/* Divider */}
-          <View className="h-px bg-gray-700 mx-4 my-4" />
+          <View className="h-px bg-gray-200 mx-4 my-4" />
 
           {/* Language & Region Section */}
           <View>
-            <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">LANGUAGE & REGION</Text>
+            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">LANGUAGE & REGION</Text>
 
             <SettingsDropdown
               title="Language"
@@ -178,11 +178,11 @@ export default function AppSettingsScreen() {
           </View>
 
           {/* Divider */}
-          <View className="h-px bg-gray-700 mx-4 my-4" />
+          <View className="h-px bg-gray-200 mx-4 my-4" />
 
           {/* App Info Section */}
           <View>
-            <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">APP INFO</Text>
+            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">APP INFO</Text>
 
             <InfoTile title="Version" value="1.0.0 (Build 123)" />
 
@@ -229,14 +229,14 @@ export default function AppSettingsScreen() {
         onRequestClose={() => setShowClearDataModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-inter-bold mb-3">Clear App Data</Text>
-            <Text className="text-gray-400 text-sm font-inter mb-5">
+          <View className="bg-white rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Clear App Data</Text>
+            <Text className="text-gray-600 text-sm font-inter mb-5">
               This will clear all app data including saved preferences. This action cannot be undone.
             </Text>
             <View className="flex-row justify-end">
               <TouchableOpacity onPress={() => setShowClearDataModal(false)} className="mr-4">
-                <Text className="text-gray-400 text-base">Cancel</Text>
+                <Text className="text-gray-600 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleClearData}>
                 <Text className="text-red-500 text-base">Clear Data</Text>

@@ -151,7 +151,7 @@ Thank you,
           onPress={() => setShowCategoryDropdown(false)}
           activeOpacity={1}
         />
-        <View className="absolute top-25 left-4 right-4 bg-gray-800 rounded-lg shadow-2xl">
+        <View className="absolute top-25 left-4 right-4 bg-white rounded-lg shadow-2xl">
           {supportCategories.map((category, index) => (
             <TouchableOpacity
               key={index}
@@ -160,11 +160,11 @@ Thank you,
                 setShowCategoryDropdown(false);
               }}
               className={`px-4 py-3 flex-row items-center justify-between ${
-                index < supportCategories.length - 1 ? 'border-b border-gray-600' : ''
+                index < supportCategories.length - 1 ? 'border-b border-gray-200' : ''
               }`}
             >
               <Text
-                className={`text-sm font-inter ${selectedCategory === category ? 'text-blue-500' : 'text-white'}`}
+                className={`text-sm font-inter ${selectedCategory === category ? 'text-blue-500' : 'text-gray-900'}`}
               >
                 {category}
               </Text>
@@ -194,47 +194,47 @@ Thank you,
       disabled={!isTappable}
       className="flex-row items-center py-1"
     >
-      <Feather name={icon as any} color="#999" size={20} />
+      <Feather name={icon as any} color="#666" size={20} />
       <View className="ml-3 flex-1">
-        <Text className="text-gray-400 text-xs font-inter">{title}</Text>
-        <Text className={`text-sm font-inter ${isTappable ? 'text-blue-500 underline' : 'text-white'}`}>{value}</Text>
+        <Text className="text-gray-600 text-xs font-inter">{title}</Text>
+        <Text className={`text-sm font-inter ${isTappable ? 'text-blue-500 underline' : 'text-gray-900'}`}>{value}</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Contact Support</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Contact Support</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Support Categories */}
-          <Text className="text-white text-base font-inter-bold mb-2">What can we help you with?</Text>
+          <Text className="text-gray-900 text-base font-inter-bold mb-2">What can we help you with?</Text>
 
           <TouchableOpacity
             onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
-            className="bg-gray-700 rounded-xl px-3 py-4 flex-row items-center justify-between"
+            className="bg-white rounded-xl px-3 py-4 flex-row items-center justify-between shadow-sm"
           >
-            <Text className="text-white text-base font-inter">{selectedCategory}</Text>
-            <Feather name="chevron-down" size={20} color="#999" />
+            <Text className="text-gray-900 text-base font-inter">{selectedCategory}</Text>
+            <Feather name="chevron-down" size={20} color="#666" />
           </TouchableOpacity>
 
           <View className="h-6" />
 
           {/* Message Field */}
-          <Text className="text-white text-base font-inter-bold mb-2">Describe your issue</Text>
+          <Text className="text-gray-900 text-base font-inter-bold mb-2">Describe your issue</Text>
 
           <TextInput
             value={message}
             onChangeText={setMessage}
-            className="bg-gray-700 rounded-xl p-4 text-white text-base font-inter min-h-30"
+            className="bg-white rounded-xl p-4 text-gray-900 text-base font-inter min-h-30 shadow-sm"
             placeholder="Please provide as much detail as possible..."
             placeholderTextColor="#999"
             multiline
@@ -256,7 +256,7 @@ Thank you,
           <TouchableOpacity
             onPress={handleSubmitRequest}
             disabled={isSubmitting}
-            className={`rounded-xl py-4 items-center mb-6 ${isSubmitting ? 'bg-gray-600' : 'bg-blue-500'}`}
+            className={`rounded-xl py-4 items-center mb-6 ${isSubmitting ? 'bg-gray-400' : 'bg-blue-500'}`}
           >
             {isSubmitting ? (
               <Text className="text-white text-base font-inter-bold">Submitting...</Text>
@@ -266,10 +266,10 @@ Thank you,
           </TouchableOpacity>
 
           {/* Contact Info Card */}
-          <View className="bg-gray-700 rounded-xl p-4">
+          <View className="bg-white rounded-xl p-4 shadow-sm">
             <View className="flex-row items-center mb-3">
               <Feather name="info" size={20} color="#007AFF" />
-              <Text className="text-white text-base font-inter-bold ml-2">Other Ways to Contact Us</Text>
+              <Text className="text-gray-900 text-base font-inter-bold ml-2">Other Ways to Contact Us</Text>
             </View>
 
             <ContactMethod

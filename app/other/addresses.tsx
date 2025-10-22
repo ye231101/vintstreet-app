@@ -104,15 +104,15 @@ export default function AddressesScreen() {
     onEdit: () => void;
     onDelete: () => void;
   }) => (
-    <View className="bg-gray-800 rounded-xl p-4 mb-4">
+    <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
       {/* Section Header */}
       <View className="flex-row items-center mb-4">
         <View className="bg-blue-500/10 rounded-lg p-2 mr-3">
           <Feather name={icon as any} color="#007AFF" size={20} />
         </View>
         <View className="flex-1">
-          <Text className="text-white text-lg font-inter-bold mb-1">{title}</Text>
-          <Text className="text-gray-400 text-sm font-inter">{subtitle}</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mb-1">{title}</Text>
+          <Text className="text-gray-600 text-sm font-inter">{subtitle}</Text>
         </View>
       </View>
 
@@ -128,10 +128,10 @@ export default function AddressesScreen() {
           onDelete={onDelete}
         />
       ) : (
-        <View className="bg-gray-700 rounded-lg p-5 border border-gray-600">
+        <View className="bg-gray-50 rounded-lg p-5 border border-gray-200">
           <View className="items-center">
             <Feather name={icon as any} color="#666" size={32} />
-            <Text className="text-gray-400 text-base font-inter-medium mt-3 mb-2">
+            <Text className="text-gray-600 text-base font-inter-medium mt-3 mb-2">
               No {addressType} address saved
             </Text>
             <Text className="text-gray-500 text-sm font-inter text-center mb-4">
@@ -159,10 +159,10 @@ export default function AddressesScreen() {
     onEdit: () => void;
     onDelete: () => void;
   }) => (
-    <View className="bg-gray-700 rounded-lg p-4 border border-blue-500/30">
-      <Text className="text-white text-sm font-inter mb-1">{name}</Text>
-      <Text className="text-gray-400 text-sm font-inter mb-1">{address}</Text>
-      {phone && <Text className="text-gray-400 text-sm font-inter mb-4">{phone}</Text>}
+    <View className="bg-gray-50 rounded-lg p-4 border border-blue-500/30">
+      <Text className="text-gray-900 text-sm font-inter mb-1">{name}</Text>
+      <Text className="text-gray-600 text-sm font-inter mb-1">{address}</Text>
+      {phone && <Text className="text-gray-600 text-sm font-inter mb-4">{phone}</Text>}
       <View className="flex-row justify-end">
         <TouchableOpacity onPress={onEdit} className="mr-2 p-2">
           <Feather name="edit" color="#007AFF" size={20} />
@@ -176,13 +176,13 @@ export default function AddressesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Addresses</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Addresses</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -194,19 +194,19 @@ export default function AddressesScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Addresses</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Addresses</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
-          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading addresses</Text>
-          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading addresses</Text>
+          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadAddresses} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -216,14 +216,14 @@ export default function AddressesScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Addresses</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Addresses</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">

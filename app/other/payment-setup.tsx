@@ -155,13 +155,13 @@ export default function PaymentSetupScreen() {
     multiline?: boolean;
   }) => (
     <View className="mb-4">
-      <Text className="text-white text-base font-inter-bold mb-2">{label}</Text>
+      <Text className="text-gray-900 text-base font-inter-bold mb-2">{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#999"
-        className={`bg-gray-600 rounded-lg px-3 py-3 text-white text-base font-inter ${
+        className={`bg-white rounded-lg px-3 py-3 text-gray-900 text-base font-inter border border-gray-200 shadow-sm ${
           multiline ? 'min-h-20' : 'min-h-12'
         }`}
         textAlignVertical={multiline ? 'top' : 'center'}
@@ -182,12 +182,12 @@ export default function PaymentSetupScreen() {
   }) => (
     <View className="flex-row mb-4">
       <View className="flex-1">
-        <Text className="text-gray-400 text-sm font-inter">{label}</Text>
+        <Text className="text-gray-600 text-sm font-inter">{label}</Text>
       </View>
       <View className="flex-1 items-end">
         <Text
           className={`${
-            isHighlighted ? 'text-white text-base font-inter-bold' : 'text-white text-sm font-inter'
+            isHighlighted ? 'text-gray-900 text-base font-inter-bold' : 'text-gray-900 text-sm font-inter'
           } text-right`}
         >
           {value}
@@ -198,13 +198,13 @@ export default function PaymentSetupScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Payment Setup</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Payment Setup</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -216,19 +216,19 @@ export default function PaymentSetupScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Payment Setup</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Payment Setup</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading payment settings</Text>
-          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading payment settings</Text>
+          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadSellerSettings} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -238,20 +238,20 @@ export default function PaymentSetupScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Payment Setup</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Payment Setup</Text>
 
         {!isLoading && sellerSettings && (
           <TouchableOpacity
             onPress={savePaymentSettings}
             disabled={isSaving}
-            className={`rounded-lg py-2 px-4 ${isSaving ? 'bg-gray-600' : 'bg-blue-500'}`}
+            className={`rounded-lg py-2 px-4 ${isSaving ? 'bg-gray-400' : 'bg-blue-500'}`}
           >
             {isSaving ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -265,9 +265,9 @@ export default function PaymentSetupScreen() {
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* PayPal Section */}
-          <Text className="text-white text-2xl font-inter-bold mb-4">PayPal Account</Text>
+          <Text className="text-gray-900 text-2xl font-inter-bold mb-4">PayPal Account</Text>
 
-          <View className="bg-gray-700 rounded-xl p-4 mb-6">
+          <View className="bg-white rounded-xl p-4 mb-6 shadow-sm">
             <FormField
               label="PayPal Email Address"
               value={paypalEmail}
@@ -278,9 +278,9 @@ export default function PaymentSetupScreen() {
           </View>
 
           {/* Bank Account Section */}
-          <Text className="text-white text-2xl font-inter-bold mb-4">Bank Account</Text>
+          <Text className="text-gray-900 text-2xl font-inter-bold mb-4">Bank Account</Text>
 
-          <View className="bg-gray-700 rounded-xl p-4 mb-6">
+          <View className="bg-white rounded-xl p-4 mb-6 shadow-sm">
             <FormField
               label="Account Name"
               value={accountName}
@@ -334,9 +334,9 @@ export default function PaymentSetupScreen() {
           {/* Store Information */}
           {sellerSettings && (
             <>
-              <Text className="text-white text-xl font-inter-bold mb-4">Store Information</Text>
+              <Text className="text-gray-900 text-xl font-inter-bold mb-4">Store Information</Text>
 
-              <View className="bg-gray-800 rounded-xl p-4">
+              <View className="bg-white rounded-xl p-4 shadow-sm">
                 <SummaryItem label="Store Name" value={sellerSettings.storeName} isHighlighted />
 
                 <SummaryItem label="Email" value={sellerSettings.email} />

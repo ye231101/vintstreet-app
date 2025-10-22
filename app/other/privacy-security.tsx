@@ -83,13 +83,13 @@ export default function PrivacySecurityScreen() {
     <View className="px-4 py-3">
       <View className="flex-row items-center justify-between">
         <View className="flex-1 mr-4">
-          <Text className="text-white text-base font-inter-bold mb-1">{title}</Text>
-          <Text className="text-gray-400 text-sm font-inter">{subtitle}</Text>
+          <Text className="text-gray-900 text-base font-inter-bold mb-1">{title}</Text>
+          <Text className="text-gray-600 text-sm font-inter">{subtitle}</Text>
         </View>
         <Switch
           value={value}
           onValueChange={onValueChange}
-          trackColor={{ false: '#333', true: '#007AFF' }}
+          trackColor={{ false: '#E5E7EB', true: '#007AFF' }}
           thumbColor={value ? '#fff' : '#999'}
         />
       </View>
@@ -98,26 +98,26 @@ export default function PrivacySecurityScreen() {
 
   const SettingsItem = ({ title, onPress }: { title: string; onPress: () => void }) => (
     <TouchableOpacity onPress={onPress} className="px-4 py-4 flex-row items-center justify-between">
-      <Text className="text-white text-base font-inter-bold">{title}</Text>
-      <Feather name="chevron-right" size={16} color="#999" />
+      <Text className="text-gray-900 text-base font-inter-bold">{title}</Text>
+      <Feather name="chevron-right" size={16} color="#666" />
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Privacy & Security</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Privacy & Security</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-4">
         {/* Security Section */}
-        <View className="mt-4">
-          <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">SECURITY</Text>
+        <View className="mt-4 bg-white">
+          <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">SECURITY</Text>
 
           <SettingsSwitch
             title="Two-Factor Authentication"
@@ -136,12 +136,9 @@ export default function PrivacySecurityScreen() {
           <SettingsItem title="Change Password" onPress={handleChangePassword} />
         </View>
 
-        {/* Divider */}
-        <View className="h-px bg-gray-700 mx-4 my-4" />
-
         {/* Privacy Section */}
-        <View>
-          <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">PRIVACY</Text>
+        <View className="mt-4 bg-white">
+          <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">PRIVACY</Text>
 
           <SettingsSwitch
             title="Location Services"
@@ -165,12 +162,9 @@ export default function PrivacySecurityScreen() {
           />
         </View>
 
-        {/* Divider */}
-        <View className="h-px bg-gray-700 mx-4 my-4" />
-
         {/* Data & Privacy Section */}
-        <View>
-          <Text className="text-gray-400 text-xs font-inter-bold ml-4 mb-2 uppercase">DATA & PRIVACY</Text>
+        <View className="mt-4 bg-white">
+          <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">DATA & PRIVACY</Text>
 
           <SettingsItem
             title="Privacy Policy"
@@ -201,9 +195,9 @@ export default function PrivacySecurityScreen() {
         onRequestClose={() => setShowTwoFactorModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-inter-bold mb-3">Set Up Two-Factor Authentication</Text>
-            <Text className="text-gray-400 text-sm font-inter mb-5">
+          <View className="bg-white rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Set Up Two-Factor Authentication</Text>
+            <Text className="text-gray-600 text-sm font-inter mb-5">
               We'll send you a verification code via SMS when you log in from a new device.
             </Text>
             <View className="flex-row justify-end">
@@ -214,7 +208,7 @@ export default function PrivacySecurityScreen() {
                 }}
                 className="mr-4"
               >
-                <Text className="text-gray-400 text-base">Cancel</Text>
+                <Text className="text-gray-600 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowTwoFactorModal(false)}>
                 <Text className="text-blue-500 text-base">Continue</Text>
@@ -232,11 +226,11 @@ export default function PrivacySecurityScreen() {
         onRequestClose={() => setShowChangePasswordModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-inter-bold mb-5">Change Password</Text>
+          <View className="bg-white rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-5">Change Password</Text>
 
             <TextInput
-              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-inter"
+              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-3 font-inter border border-gray-200"
               placeholder="Current Password"
               placeholderTextColor="#999"
               value={currentPassword}
@@ -245,7 +239,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              className="bg-gray-700 rounded-lg p-3 text-white mb-3 font-inter"
+              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-3 font-inter border border-gray-200"
               placeholder="New Password"
               placeholderTextColor="#999"
               value={newPassword}
@@ -254,7 +248,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              className="bg-gray-700 rounded-lg p-3 text-white mb-5 font-inter"
+              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-5 font-inter border border-gray-200"
               placeholder="Confirm New Password"
               placeholderTextColor="#999"
               value={confirmPassword}
@@ -264,7 +258,7 @@ export default function PrivacySecurityScreen() {
 
             <View className="flex-row justify-end">
               <TouchableOpacity onPress={() => setShowChangePasswordModal(false)} className="mr-4">
-                <Text className="text-gray-400 text-base">Cancel</Text>
+                <Text className="text-gray-600 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={confirmChangePassword}>
                 <Text className="text-blue-500 text-base">Change Password</Text>
@@ -282,14 +276,14 @@ export default function PrivacySecurityScreen() {
         onRequestClose={() => setShowDownloadDataModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-inter-bold mb-3">Download My Data</Text>
-            <Text className="text-gray-400 text-sm font-inter mb-5">
+          <View className="bg-white rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Download My Data</Text>
+            <Text className="text-gray-600 text-sm font-inter mb-5">
               We'll prepare your data and send it to your registered email address. This may take up to 48 hours.
             </Text>
             <View className="flex-row justify-end">
               <TouchableOpacity onPress={() => setShowDownloadDataModal(false)} className="mr-4">
-                <Text className="text-gray-400 text-base">Cancel</Text>
+                <Text className="text-gray-600 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={confirmDownloadData}>
                 <Text className="text-blue-500 text-base">Request Data</Text>
@@ -307,14 +301,14 @@ export default function PrivacySecurityScreen() {
         onRequestClose={() => setShowDeleteAccountModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-gray-900 rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-white text-lg font-inter-bold mb-3">Delete Account</Text>
-            <Text className="text-gray-400 text-sm font-inter mb-5">
+          <View className="bg-white rounded-xl p-5 m-5 w-11/12">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Delete Account</Text>
+            <Text className="text-gray-600 text-sm font-inter mb-5">
               This action cannot be undone. All your data will be permanently deleted.
             </Text>
             <View className="flex-row justify-end">
               <TouchableOpacity onPress={() => setShowDeleteAccountModal(false)} className="mr-4">
-                <Text className="text-gray-400 text-base">Cancel</Text>
+                <Text className="text-gray-600 text-base">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={confirmDeleteAccount}>
                 <Text className="text-red-500 text-base">Delete</Text>

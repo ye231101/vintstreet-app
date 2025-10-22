@@ -77,14 +77,14 @@ export default function ReviewsScreen() {
   const ReviewCard = ({ review }: { review: Review }) => (
     <View className="mb-4">
       {/* Product Name */}
-      <Text className="text-white font-inter-bold text-base mb-2">{review.productName}</Text>
+      <Text className="text-gray-900 font-inter-bold text-base mb-2">{review.productName}</Text>
 
       {/* Reviewer and Date */}
       <View className="flex-row items-center mb-2">
-        <View className="w-5 h-5 rounded-full bg-gray-600 mr-2 justify-center items-center">
-          <Feather name="user" color="#fff" size={12} />
+        <View className="w-5 h-5 rounded-full bg-gray-200 mr-2 justify-center items-center">
+          <Feather name="user" color="#666" size={12} />
         </View>
-        <Text className="text-gray-400 text-sm font-inter">
+        <Text className="text-gray-600 text-sm font-inter">
           {review.customerName} on {formatDate(review.dateCreated)}
         </Text>
       </View>
@@ -93,22 +93,22 @@ export default function ReviewsScreen() {
       <View className="flex-row items-center mb-3">{renderStars(review.rating, 16)}</View>
 
       {/* Review Comment */}
-      <Text className="text-white text-sm font-inter leading-5">{review.comment}</Text>
+      <Text className="text-gray-900 text-sm font-inter leading-5">{review.comment}</Text>
 
       {/* Divider */}
-      <View className="h-px bg-gray-600 mt-4" />
+      <View className="h-px bg-gray-200 mt-4" />
     </View>
   );
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Reviews</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Reviews</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -120,19 +120,19 @@ export default function ReviewsScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Reviews</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Reviews</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading reviews</Text>
-          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading reviews</Text>
+          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadReviews} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -142,14 +142,14 @@ export default function ReviewsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Reviews</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Reviews</Text>
       </View>
 
       {reviews.length === 0 ? (
@@ -158,43 +158,43 @@ export default function ReviewsScreen() {
           <Feather name="star" size={64} color="#666666" style={{ marginBottom: 24 }} />
 
           {/* Primary text */}
-          <Text className="text-gray-400 text-lg font-inter-bold mb-2">No reviews yet</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mb-2">No reviews yet</Text>
 
           {/* Secondary text */}
-          <Text className="text-gray-400 text-sm font-inter text-center">Reviews from customers will appear here</Text>
+          <Text className="text-gray-600 text-sm font-inter text-center">Reviews from customers will appear here</Text>
         </View>
       ) : (
         <>
           {/* Overall Rating Section */}
-          <View className="items-center py-6 bg-black">
-            <Text className="text-white text-5xl font-inter-bold mb-2">{averageRating}</Text>
+          <View className="items-center py-6 bg-white border-b border-gray-200">
+            <Text className="text-gray-900 text-5xl font-inter-bold mb-2">{averageRating}</Text>
 
             <View className="flex-row mb-2">{renderStars(Math.floor(averageRating), 24)}</View>
 
-            <Text className="text-gray-400 text-sm font-inter">{totalSales} sales</Text>
+            <Text className="text-gray-600 text-sm font-inter">{totalSales} sales</Text>
           </View>
 
           {/* Filter Buttons */}
-          <View className="flex-row px-4 py-3 bg-black">
+          <View className="flex-row px-4 py-3 bg-white border-b border-gray-200">
             <TouchableOpacity
               onPress={() => setSortFilter('all')}
-              className={`border border-white rounded py-2 px-4 mr-2 ${
-                sortFilter === 'all' ? 'bg-white' : 'bg-transparent'
+              className={`border rounded py-2 px-4 mr-2 ${
+                sortFilter === 'all' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
               }`}
             >
-              <Text className={`text-sm font-inter-medium ${sortFilter === 'all' ? 'text-black' : 'text-white'}`}>
+              <Text className={`text-sm font-inter-medium ${sortFilter === 'all' ? 'text-white' : 'text-gray-900'}`}>
                 All
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => setSortFilter('high-to-low')}
-              className={`border border-white rounded py-2 px-4 mr-2 ${
-                sortFilter === 'high-to-low' ? 'bg-white' : 'bg-transparent'
+              className={`border rounded py-2 px-4 mr-2 ${
+                sortFilter === 'high-to-low' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
               }`}
             >
               <Text
-                className={`text-sm font-inter-medium ${sortFilter === 'high-to-low' ? 'text-black' : 'text-white'}`}
+                className={`text-sm font-inter-medium ${sortFilter === 'high-to-low' ? 'text-white' : 'text-gray-900'}`}
               >
                 High to low
               </Text>
@@ -202,12 +202,12 @@ export default function ReviewsScreen() {
 
             <TouchableOpacity
               onPress={() => setSortFilter('low-to-high')}
-              className={`border border-white rounded py-2 px-4 ${
-                sortFilter === 'low-to-high' ? 'bg-white' : 'bg-transparent'
+              className={`border rounded py-2 px-4 ${
+                sortFilter === 'low-to-high' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
               }`}
             >
               <Text
-                className={`text-sm font-inter-medium ${sortFilter === 'low-to-high' ? 'text-black' : 'text-white'}`}
+                className={`text-sm font-inter-medium ${sortFilter === 'low-to-high' ? 'text-white' : 'text-gray-900'}`}
               >
                 Low to high
               </Text>

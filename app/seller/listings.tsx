@@ -12,13 +12,12 @@ export default function ListingsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('live');
+  const [activeTab, setActiveTab] = useState('published');
   const { user } = useAuth();
 
   const tabs = [
-    { key: 'live', label: 'Live Listings' },
+    { key: 'published', label: 'Published' },
     { key: 'private', label: 'Private' },
-    { key: 'sold', label: 'Sold' },
     { key: 'draft', label: 'Draft' },
   ];
 
@@ -55,12 +54,12 @@ export default function ListingsScreen() {
   };
 
   const ProductCard = ({ product }: { product: Product }) => (
-    <View className="bg-gray-800 rounded-xl mb-4 shadow-lg">
+    <View className="bg-white rounded-xl mb-4 shadow-sm">
       <View className="p-4">
         <View className="flex-row justify-between items-start mb-3">
           <View className="flex-1">
-            <Text className="text-white font-inter-bold text-base mb-1">{product.title}</Text>
-            <Text className="text-gray-400 text-sm font-inter">£{product.price.toFixed(2)}</Text>
+            <Text className="text-gray-900 font-inter-bold text-base mb-1">{product.product_name}</Text>
+            <Text className="text-gray-600 text-sm font-inter">£{product.starting_price.toFixed(2)}</Text>
           </View>
           <View className={`${product.status === 'published' ? 'bg-green-500' : 'bg-orange-500'} rounded-full px-3 py-1.5`}>
             <Text className="text-white font-inter-bold text-xs">
@@ -70,8 +69,8 @@ export default function ListingsScreen() {
         </View>
 
         <View className="flex-row justify-between items-center">
-          <Text className="text-gray-400 text-xs font-inter">
-            Created: {new Date(product.dateCreated).toLocaleDateString()}
+          <Text className="text-gray-600 text-xs font-inter">
+            Created: {new Date(product.created_at).toLocaleDateString()}
           </Text>
           <View className="flex-row gap-2">
             {product.status === 'published' && (
@@ -118,7 +117,7 @@ export default function ListingsScreen() {
               onPress={() => {
                 Alert.alert('View Product', 'This would show product details');
               }}
-              className="bg-gray-600 rounded-md py-1.5 px-3"
+              className="bg-gray-500 rounded-md py-1.5 px-3"
             >
               <Text className="text-white text-xs font-inter-bold">View</Text>
             </TouchableOpacity>
@@ -131,10 +130,10 @@ export default function ListingsScreen() {
   const ProductsList = ({ products, onRefresh }: { products: Product[]; onRefresh: () => void }) => {
     if (products.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center px-8 bg-gray-800 rounded-xl py-12">
-          <Feather name="package" color="#999" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4">No products yet</Text>
-          <Text className="text-gray-400 text-sm font-inter mt-2 text-center">
+        <View className="flex-1 justify-center items-center px-8 bg-white rounded-xl py-12 shadow-sm">
+          <Feather name="package" color="#666" size={64} />
+          <Text className="text-gray-900 text-lg font-inter-bold mt-4">No products yet</Text>
+          <Text className="text-gray-600 text-sm font-inter mt-2 text-center">
             Create your first product template
           </Text>
         </View>
@@ -156,13 +155,13 @@ export default function ListingsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-800">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">My Listings</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Listings</Text>
         </View>
 
         <View className="flex-1 justify-center items-center">
@@ -174,19 +173,19 @@ export default function ListingsScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-800">
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">My Listings</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Listings</Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading products</Text>
-          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading products</Text>
+          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadProducts} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -196,20 +195,20 @@ export default function ListingsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-col flex-1 bg-black px-4">
+    <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center bg-black py-3 border-b border-gray-700">
+      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#333" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">My Listings</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Listings</Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadProducts} tintColor="#007AFF" />}
-        className="flex-1"
+        className="flex-1 px-4"
       >
         {/* Action Buttons */}
         <View className="mt-4 mb-6">
@@ -217,22 +216,22 @@ export default function ListingsScreen() {
             onPress={() => {
               Alert.alert('Shipping Settings', 'This would open shipping settings');
             }}
-            className="bg-gray-600 rounded-lg py-4 px-5 mb-3 items-center"
+            className="bg-gray-200 rounded-lg py-4 px-5 mb-3 items-center shadow-sm"
           >
-            <Text className="text-white text-base font-inter-bold">Shipping Settings</Text>
+            <Text className="text-gray-900 text-base font-inter-bold">Shipping Settings</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {
               router.push('/(tabs)/sell');
             }}
-            className="bg-black rounded-lg py-4 px-5 mb-4 items-center border border-white"
+            className="bg-white rounded-lg py-4 px-5 mb-4 items-center border border-gray-300 shadow-sm"
           >
-            <Text className="text-white text-base font-inter-bold">Add Product</Text>
+            <Text className="text-gray-900 text-base font-inter-bold">Add Product</Text>
           </TouchableOpacity>
 
           {/* Information Banner */}
-          <View className="bg-blue-500 rounded-lg p-4 mb-4 flex-row items-center">
+          <View className="bg-blue-500 rounded-lg p-4 mb-4 flex-row items-center shadow-sm">
             <Feather name="info" color="#fff" size={20} className="mr-3" />
             <View className="flex-1">
               <Text className="text-white text-sm font-inter">
@@ -247,10 +246,10 @@ export default function ListingsScreen() {
             onPress={() => {
               Alert.alert('Bulk Upload', 'This would open bulk upload functionality');
             }}
-            className="bg-gray-600 rounded-lg py-3 px-4 flex-row items-center self-end"
+            className="bg-gray-200 rounded-lg py-3 px-4 flex-row items-center self-end shadow-sm"
           >
-            <Feather name="upload" color="#fff" size={16} className="mr-2" />
-            <Text className="text-white text-sm font-inter-medium">Bulk Upload</Text>
+            <Feather name="upload" color="#333" size={16} className="mr-2" />
+            <Text className="text-gray-900 text-sm font-inter-medium">Bulk Upload</Text>
           </TouchableOpacity>
         </View>
 
@@ -261,12 +260,12 @@ export default function ListingsScreen() {
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
               className={`${
-                activeTab === tab.key ? 'bg-black border-white' : 'bg-gray-600 border-gray-500'
-              } flex-1 rounded-md py-3 px-2 border`}
+                activeTab === tab.key ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+              } flex-1 rounded-md py-3 px-2 border shadow-sm`}
             >
               <Text
                 className={`${
-                  activeTab === tab.key ? 'text-white' : 'text-gray-400'
+                  activeTab === tab.key ? 'text-white' : 'text-gray-600'
                 } text-xs font-inter-medium text-center`}
               >
                 {tab.label}
