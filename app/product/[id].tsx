@@ -6,6 +6,7 @@ import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { supabase } from '@/api/config/supabase';
+import { Feather } from '@expo/vector-icons';
 
 export default function ProductDetailsScreen() {
   const router = useRouter();
@@ -307,6 +308,7 @@ export default function ProductDetailsScreen() {
                     ) : null}
                   </View>
                   <Pressable className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center">
+                    <Feather name="eye" size={20} color="black" className="mr-2" />
                     <Text className="text-sm font-inter text-gray-800">View Shop</Text>
                   </Pressable>
                 </View>

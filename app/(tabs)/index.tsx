@@ -1,7 +1,7 @@
 import { listingsService, Product } from '@/api/services/listings.service';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
-import Feather from '@expo/vector-icons/Feather';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, View } from 'react-native';

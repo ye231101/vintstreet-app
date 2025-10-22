@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/use-auth';
-import Feather from '@expo/vector-icons/Feather';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { memo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';

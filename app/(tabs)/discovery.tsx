@@ -5,7 +5,7 @@ import FilterModal from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
-import Feather from '@expo/vector-icons/Feather';
+import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, Text, View } from 'react-native';
@@ -159,7 +159,7 @@ export default function DiscoveryScreen() {
     try {
       setIsSearching(true);
       setShowSearchResults(true);
-      
+
       const results = await listingsService.searchListings(searchText.trim());
       setSearchResults(results);
     } catch (error) {
@@ -307,12 +307,8 @@ export default function DiscoveryScreen() {
           ) : (
             <View className="flex-1 justify-center items-center p-10">
               <Feather name="search" size={64} color="#ccc" />
-              <Text className="text-lg font-inter-bold text-gray-500 text-center mt-4">
-                No results found
-              </Text>
-              <Text className="text-gray-400 text-center mt-2">
-                Try searching with different keywords
-              </Text>
+              <Text className="text-lg font-inter-bold text-gray-500 text-center mt-4">No results found</Text>
+              <Text className="text-gray-400 text-center mt-2">Try searching with different keywords</Text>
             </View>
           )}
         </View>
