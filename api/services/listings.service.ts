@@ -58,7 +58,8 @@ class ListingsService {
     try {
       let query = supabase
         .from('listings')
-        .select(`
+        .select(
+          `
           id,
           product_name,
           starting_price,
@@ -75,7 +76,8 @@ class ListingsService {
           status,
           created_at,
           product_categories(id, name)
-        `)
+        `
+        )
         .eq('product_type', 'shop')
         .eq('status', 'published');
 
@@ -96,30 +98,25 @@ class ListingsService {
         query = query.in('brand_id', Array.from(filters.selectedBrands));
       }
 
-      query = query
-        .order('created_at', { ascending: false })
-        .range(pageParam, pageParam + productsPerPage - 1);
-      
+      query = query.order('created_at', { ascending: false }).range(pageParam, pageParam + productsPerPage - 1);
+
       const { data, error } = await query;
       if (error) throw error;
-      
+
       // Optimized: Fetch seller info using the new view (single query instead of 2)
       const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
-      const { data: sellers } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .in('user_id', sellerIds);
-      
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
       const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
-      
+
       const productsWithSellers = (data || []).map((product: any) => ({
         ...product,
-        seller_info_view: sellersMap.get(product.seller_id) || null
+        seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
 
       return {
         products: productsWithSellers,
-        nextPage: data && data.length === productsPerPage ? pageParam + productsPerPage : undefined
+        nextPage: data && data.length === productsPerPage ? pageParam + productsPerPage : undefined,
       };
     } catch (error) {
       console.error('Error fetching listings infinite:', error);
@@ -135,7 +132,8 @@ class ListingsService {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select(`
+        .select(
+          `
           id,
           product_name,
           starting_price,
@@ -152,7 +150,8 @@ class ListingsService {
           status,
           created_at,
           product_categories(id, name)
-        `)
+        `
+        )
         .eq('product_type', 'shop')
         .eq('status', 'published')
         .order('created_at', { ascending: false });
@@ -163,16 +162,13 @@ class ListingsService {
 
       // Optimized: Fetch seller info using the new view (single query instead of 2)
       const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
-      const { data: sellers } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .in('user_id', sellerIds);
-      
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
       const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
-      
+
       const productsWithSellers = (data || []).map((product: any) => ({
         ...product,
-        seller_info_view: sellersMap.get(product.seller_id) || null
+        seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
 
       return productsWithSellers;
@@ -288,7 +284,8 @@ class ListingsService {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select(`
+        .select(
+          `
           id,
           product_name,
           starting_price,
@@ -305,7 +302,8 @@ class ListingsService {
           status,
           created_at,
           product_categories(id, name)
-        `)
+        `
+        )
         .eq('seller_id', sellerId)
         .order('created_at', { ascending: false });
 
@@ -314,15 +312,11 @@ class ListingsService {
       }
 
       // Optimized: Fetch seller info using the new view (single query instead of 2)
-      const { data: seller } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .eq('user_id', sellerId)
-        .single();
-      
+      const { data: seller } = await supabase.from('seller_info_view').select('*').eq('user_id', sellerId).single();
+
       const productsWithSeller = (data || []).map((product: any) => ({
         ...product,
-        seller_info_view: seller || null
+        seller_info_view: seller || null,
       })) as Product[];
 
       return productsWithSeller;
@@ -339,7 +333,8 @@ class ListingsService {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select(`
+        .select(
+          `
           id,
           product_name,
           starting_price,
@@ -356,7 +351,8 @@ class ListingsService {
           status,
           created_at,
           product_categories(id, name)
-        `)
+        `
+        )
         .eq('id', listingId)
         .single();
 
@@ -372,10 +368,10 @@ class ListingsService {
         .select('*')
         .eq('user_id', (data as any).seller_id)
         .single();
-      
+
       const productWithSeller = {
         ...(data as any),
-        seller_info_view: seller || null
+        seller_info_view: seller || null,
       } as Product;
 
       return productWithSeller;
@@ -394,7 +390,8 @@ class ListingsService {
     try {
       let query = supabase
         .from('listings')
-        .select(`
+        .select(
+          `
           id,
           product_name,
           starting_price,
@@ -411,7 +408,8 @@ class ListingsService {
           status,
           created_at,
           product_categories(id, name)
-        `)
+        `
+        )
         .eq('seller_id', sellerId)
         .order('created_at', { ascending: false });
 
@@ -431,15 +429,11 @@ class ListingsService {
       }
 
       // Optimized: Fetch seller info using the new view (single query instead of 2)
-      const { data: seller } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .eq('user_id', sellerId)
-        .single();
-      
+      const { data: seller } = await supabase.from('seller_info_view').select('*').eq('user_id', sellerId).single();
+
       const productsWithSeller = (data || []).map((product: any) => ({
         ...product,
-        seller_info_view: seller || null
+        seller_info_view: seller || null,
       })) as Product[];
 
       return productsWithSeller;
@@ -475,7 +469,8 @@ class ListingsService {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select(`
+        .select(
+          `
           id,
           product_name,
           starting_price,
@@ -492,7 +487,8 @@ class ListingsService {
           status,
           created_at,
           product_categories(id, name)
-        `)
+        `
+        )
         .eq('product_type', 'shop')
         .eq('status', 'published')
         .or(`product_name.ilike.%${searchTerm}%,product_description.ilike.%${searchTerm}%`)
@@ -504,21 +500,279 @@ class ListingsService {
 
       // Optimized: Fetch seller info using the new view (single query instead of 2)
       const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
-      const { data: sellers } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .in('user_id', sellerIds);
-      
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
       const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
-      
+
       const productsWithSellers = (data || []).map((product: any) => ({
         ...product,
-        seller_info_view: sellersMap.get(product.seller_id) || null
+        seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
 
       return productsWithSellers;
     } catch (error) {
       console.error('Error searching listings:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new product listing
+   * @param productData - The product data to create
+   */
+  async createProduct(productData: {
+    seller_id: string;
+    product_name: string;
+    product_description?: string | null;
+    starting_price?: number | null;
+    discounted_price?: number | null;
+    product_image?: string | null;
+    product_images?: string[];
+    offers_enabled?: boolean;
+    product_type?: string;
+    stream_id?: string;
+    category_id?: string | null;
+    subcategory_id?: string | null;
+    sub_subcategory_id?: string | null;
+    sub_sub_subcategory_id?: string | null;
+    stock_quantity?: number | null;
+    status?: 'draft' | 'published' | 'private';
+    moderation_status?: string;
+    moderation_reason?: string | null;
+  }): Promise<Product> {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .insert(productData)
+        .select(
+          `
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `
+        )
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to create product: ${error.message}`);
+      }
+
+      // Fetch seller info
+      const { data: seller } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .eq('user_id', (data as any).seller_id)
+        .single();
+
+      const productWithSeller = {
+        ...(data as any),
+        seller_info_view: seller || null,
+      } as Product;
+
+      return productWithSeller;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update an existing product listing
+   * @param productId - The product ID to update
+   * @param updateData - The data to update
+   */
+  async updateProduct(
+    productId: string,
+    updateData: {
+      product_name?: string;
+      product_description?: string | null;
+      starting_price?: number | null;
+      discounted_price?: number | null;
+      product_image?: string | null;
+      product_images?: string[];
+      offers_enabled?: boolean;
+      category_id?: string | null;
+      subcategory_id?: string | null;
+      sub_subcategory_id?: string | null;
+      sub_sub_subcategory_id?: string | null;
+      stock_quantity?: number | null;
+      status?: 'draft' | 'published' | 'private';
+      moderation_status?: string;
+      moderation_reason?: string | null;
+    }
+  ): Promise<Product> {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .update(updateData)
+        .eq('id', productId)
+        .select(
+          `
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `
+        )
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to update product: ${error.message}`);
+      }
+
+      // Fetch seller info
+      const { data: seller } = await supabase
+        .from('seller_info_view')
+        .select('*')
+        .eq('user_id', (data as any).seller_id)
+        .single();
+
+      const productWithSeller = {
+        ...(data as any),
+        seller_info_view: seller || null,
+      } as Product;
+
+      return productWithSeller;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a product listing
+   * @param productId - The product ID to delete
+   */
+  async deleteProduct(productId: string): Promise<void> {
+    try {
+      const { error } = await supabase.from('listings').delete().eq('id', productId);
+
+      if (error) {
+        throw new Error(`Failed to delete product: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get product categories with display order
+   */
+  async getProductCategories(): Promise<Array<{ id: string; name: string; slug?: string; display_order?: number }>> {
+    try {
+      const { data, error } = await supabase
+        .from('product_categories')
+        .select('id, name, slug, display_order')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        throw new Error(`Failed to fetch product categories: ${error.message}`);
+      }
+
+      return (data as any) || [];
+    } catch (error) {
+      console.error('Error fetching product categories:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get subcategories for a category
+   * @param categoryId - The parent category ID
+   */
+  async getSubcategories(categoryId: string): Promise<Array<{ id: string; name: string; category_id: string }>> {
+    try {
+      const { data, error } = await supabase
+        .from('product_subcategories')
+        .select('id, name, category_id')
+        .eq('category_id', categoryId)
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) {
+        throw new Error(`Failed to fetch subcategories: ${error.message}`);
+      }
+
+      return (data as any) || [];
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get sub-subcategories for a subcategory
+   * @param subcategoryId - The parent subcategory ID
+   */
+  async getSubSubcategories(
+    subcategoryId: string
+  ): Promise<Array<{ id: string; name: string; subcategory_id: string }>> {
+    try {
+      const { data, error } = await supabase
+        .from('product_sub_subcategories')
+        .select('id, name, subcategory_id')
+        .eq('subcategory_id', subcategoryId)
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) {
+        throw new Error(`Failed to fetch sub-subcategories: ${error.message}`);
+      }
+
+      return (data as any) || [];
+    } catch (error) {
+      console.error('Error fetching sub-subcategories:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get sub-sub-subcategories for a sub-subcategory
+   * @param subSubcategoryId - The parent sub-subcategory ID
+   */
+  async getSubSubSubcategories(
+    subSubcategoryId: string
+  ): Promise<Array<{ id: string; name: string; sub_subcategory_id: string }>> {
+    try {
+      const { data, error } = await supabase
+        .from('product_sub_sub_subcategories')
+        .select('id, name, sub_subcategory_id')
+        .eq('sub_subcategory_id', subSubcategoryId)
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) {
+        throw new Error(`Failed to fetch sub-sub-subcategories: ${error.message}`);
+      }
+
+      return (data as any) || [];
+    } catch (error) {
+      console.error('Error fetching sub-sub-subcategories:', error);
       throw error;
     }
   }
