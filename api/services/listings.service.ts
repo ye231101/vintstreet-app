@@ -6,6 +6,7 @@ export interface Product {
   starting_price: number;
   discounted_price: number | null;
   product_image: string | null;
+  product_images: string[];
   product_description: string | null;
   seller_id: string;
   category_id: string | null;
@@ -63,6 +64,7 @@ class ListingsService {
           starting_price,
           discounted_price,
           product_image,
+          product_images,
           product_description,
           seller_id,
           category_id,
@@ -139,6 +141,7 @@ class ListingsService {
           starting_price,
           discounted_price,
           product_image,
+          product_images,
           product_description,
           seller_id,
           category_id,
@@ -154,7 +157,6 @@ class ListingsService {
         .eq('status', 'published')
         .order('created_at', { ascending: false });
 
-      console.log('listings data', data);
       if (error) {
         throw new Error(`Failed to fetch listings: ${error.message}`);
       }
@@ -292,6 +294,7 @@ class ListingsService {
           starting_price,
           discounted_price,
           product_image,
+          product_images,
           product_description,
           seller_id,
           category_id,
@@ -342,6 +345,7 @@ class ListingsService {
           starting_price,
           discounted_price,
           product_image,
+          product_images,
           product_description,
           seller_id,
           category_id,
@@ -396,6 +400,7 @@ class ListingsService {
           starting_price,
           discounted_price,
           product_image,
+          product_images,
           product_description,
           seller_id,
           category_id,
@@ -476,6 +481,7 @@ class ListingsService {
           starting_price,
           discounted_price,
           product_image,
+          product_images,
           product_description,
           seller_id,
           category_id,
@@ -536,6 +542,7 @@ class ListingsService {
         starting_price: apiListing.starting_price,
         discounted_price: apiListing.discounted_price,
         product_image: apiListing.product_image,
+        product_images: apiListing.product_images,
         product_description: apiListing.product_description,
         seller_id: apiListing.seller_id,
         category_id: apiListing.category_id,

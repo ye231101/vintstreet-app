@@ -1,32 +1,50 @@
 import { listingsService, Product } from '@/api/services/listings.service';
-import { offersService } from '@/api/services/offers.service';
 import { useCart } from '@/hooks/use-cart';
 import { useAppSelector } from '@/store/hooks';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { supabase } from '@/api/config/supabase';
 import { Feather } from '@expo/vector-icons';
+import { ContactSellerModal } from '@/components/contact-seller-modal';
+import { MakeOfferModal } from '@/components/make-offer-modal';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function ProductDetailsScreen() {
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+export default function ProductDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const { addItem } = useCart();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [listing, setListing] = useState<Product | null>(null);
+  const [product, setProduct] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'seller'>('description');
   const { user } = useAppSelector((state) => state.auth);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   // Offer modal state
   const [isOfferOpen, setIsOfferOpen] = useState(false);
-  const [offerAmount, setOfferAmount] = useState<string>('');
-  const [offerMessage, setOfferMessage] = useState<string>('');
-  const [isSubmittingOffer, setIsSubmittingOffer] = useState(false);
-  const [offerError, setOfferError] = useState<string | null>(null);
   const [productAttributes, setProductAttributes] = useState<any[]>([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
+
+  // Contact modal state
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  // Image carousel state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -34,13 +52,13 @@ export default function ProductDetailsScreen() {
         setIsLoading(true);
         setError(null);
         if (!id) {
-          setError('Missing listing id');
+          setError('Missing product id');
           return;
         }
         const data = await listingsService.getListingById(String(id));
-        setListing(data);
+        setProduct(data);
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load listing');
+        setError(e instanceof Error ? e.message : 'Failed to load product');
       } finally {
         setIsLoading(false);
       }
@@ -61,7 +79,6 @@ export default function ProductDetailsScreen() {
           .eq('product_id', id);
 
         if (error) throw error;
-        console.log('**************************************************', data);
         setProductAttributes(data || []);
       } catch (error) {
         console.error('Error loading product attributes:', error);
@@ -74,83 +91,64 @@ export default function ProductDetailsScreen() {
     loadAttributes();
   }, [id]);
 
-  // Keep header title in sync with listing name (safe even when listing is null)
+  // Keep header title in sync with product name (safe even when product is null)
   useLayoutEffect(() => {
-    const headerTitle = (listing as any)?.product_name || 'Product Detail';
+    const headerTitle = product?.product_name || 'Product Detail';
     // @ts-ignore - expo-router navigation supports setOptions
     navigation.setOptions?.({ title: headerTitle });
-  }, [navigation, listing]);
+  }, [navigation, product]);
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <SafeAreaView className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#000" />
-      </View>
+        <Text className="text-sm font-inter text-gray-600 mt-3">Loading product...</Text>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center bg-white p-4">
+      <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
         <Text className="text-base font-inter text-red-600">{error}</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
-  if (!listing) {
+  if (!product) {
     return (
-      <View className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-base font-inter text-gray-600">Listing not found</Text>
-      </View>
+      <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
+        <Text className="text-base font-inter text-gray-600">Product not found</Text>
+      </SafeAreaView>
     );
   }
 
   const handleAddToCart = () => {
-    addItem(listing);
+    addItem(product);
   };
 
-  const openOffer = () => {
-    setOfferError(null);
-    setOfferAmount('');
-    setOfferMessage('');
-    setIsOfferOpen(true);
+  const handleViewShop = () => {
+    router.push(`/seller-profile/${product.seller_id}` as any);
   };
 
-  const submitOffer = async () => {
-    try {
-      setOfferError(null);
-      if (!user?.id) {
-        setOfferError('Please sign in to make an offer.');
-        return;
-      }
-      const sellerIdStr = String(listing.seller_id || '');
-      const listingIdStr = String(id || '');
-      const amountNum = Number(offerAmount);
-      if (!amountNum || amountNum <= 0) {
-        setOfferError('Enter a valid amount.');
-        return;
-      }
-      setIsSubmittingOffer(true);
-      await offersService.createOffer({
-        listing_id: listingIdStr,
-        buyer_id: user.id,
-        seller_id: sellerIdStr,
-        offer_amount: amountNum,
-        message: offerMessage || undefined,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      });
-      setIsOfferOpen(false);
-    } catch (e) {
-      setOfferError(e instanceof Error ? e.message : 'Failed to submit offer');
-    } finally {
-      setIsSubmittingOffer(false);
+  const handleContactSeller = () => {
+    if (!user?.id) {
+      console.log('Please sign in to send messages');
+      return;
     }
+    setIsContactModalOpen(true);
+  };
+
+  const handleImageScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const index = Math.round(scrollPosition / SCREEN_WIDTH);
+    setCurrentImageIndex(index);
   };
 
   const formattedDate = (() => {
     try {
-      if (!listing.created_at) return '';
-      const d = new Date(listing.created_at);
+      if (!product.created_at) return '';
+      const d = new Date(product.created_at);
       const day = d.getDate();
       const month = d.toLocaleDateString('en-US', { month: 'short' });
       const year = d.getFullYear();
@@ -161,235 +159,251 @@ export default function ProductDetailsScreen() {
   })();
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      {/* Image */}
-      {listing.product_image ? (
-        <Image
-          source={{ uri: listing.product_image }}
-          className="w-full"
-          style={{ aspectRatio: 1 }}
-          resizeMode="contain"
-        />
-      ) : (
-        <View className="w-full h-60 bg-gray-100 items-center justify-center">
-          <Text className="text-sm font-inter text-gray-500">No image</Text>
-        </View>
-      )}
+    <SafeAreaView className="flex-1 bg-white">
+      {/* Header */}
+      <View className="flex-row items-center bg-white px-4 py-3 border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+          <Feather name="arrow-left" size={24} color="#000" />
+        </TouchableOpacity>
 
-      {/* Title */}
-      <View className="px-4 pt-4">
-        <Text className="text-2xl font-inter-bold text-black mb-2">{listing.product_name}</Text>
-
-        {/* Tag */}
-        {listing.product_categories?.name ? (
-          <View className="self-start bg-gray-100 px-3 py-1 rounded-full mb-3 ml-1">
-            <Text className="text-xs font-inter text-gray-800">{listing.product_categories.name}</Text>
-          </View>
-        ) : null}
+        <Text numberOfLines={1} className="flex-1 text-lg font-inter-bold text-black">
+          {product.product_name}
+        </Text>
       </View>
 
-      {/* Price and actions */}
-      <View className="px-4">
-        <View className="flex-row items-center justify-between bg-white py-2">
-          <View className="flex-row items-center">
-            <Text className="text-2xl font-inter-bold text-black mr-2">
-              £{Number(listing.starting_price).toFixed(2)}
-            </Text>
-            {listing.discounted_price != null && (
-              <Text className="text-base font-inter text-gray-400 line-through">
-                £{Number(listing.starting_price).toFixed(2)}
-              </Text>
-            )}
-          </View>
-          <View className="flex-row items-center">
-            <Pressable className="bg-black px-4 py-3 rounded-lg mr-2" onPress={handleAddToCart}>
-              <Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
-            </Pressable>
-            <Pressable className="bg-gray-100 px-4 py-3 rounded-lg" onPress={openOffer}>
-              <Text className="text-sm font-inter text-gray-900">Make Offer</Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-
-      {/* Tabs */}
-      <View className="px-4 mt-4">
-        <View className="flex-row bg-white rounded-lg overflow-hidden border border-gray-200">
-          {(['description', 'details', 'seller'] as const).map((t) => (
-            <Pressable
-              key={t}
-              className={`flex-1 px-4 py-3 ${
-                activeTab === t ? 'bg-white' : 'bg-gray-50'
-              } border-r border-gray-200 items-center justify-center`}
-              onPress={() => setActiveTab(t)}
-            >
-              <Text
-                className={`text-sm font-inter text-center ${
-                  activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'
-                }`}
-              >
-                {t === 'description' ? 'Description' : t === 'details' ? 'Details' : 'Seller'}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <View className="bg-white border border-t-0 border-gray-200 p-4">
-          {activeTab === 'description' && (
-            <Text className="text-sm font-inter text-gray-800">{listing.product_description || '-'}</Text>
-          )}
-          {activeTab === 'details' && (
+      <View className="flex-1 bg-white">
+        <ScrollView
+          ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+          className="flex-1 bg-white py-4"
+        >
+          {/* Image Carousel */}
+          {product.product_images?.length > 0 ? (
             <View>
-              {attributesLoading ? (
-                <View className="flex-row items-center justify-center py-4">
-                  <ActivityIndicator size="small" color="#000" />
-                  <Text className="text-sm font-inter text-gray-600 ml-2">Loading attributes...</Text>
-                </View>
-              ) : productAttributes.length > 0 ? (
-                <View>
-                  {productAttributes.map((attribute: any, index: number) => {
-                    // Extract the correct value based on data type
-                    const getValue = () => {
-                      if (attribute.value_text !== null) return attribute.value_text;
-                      if (attribute.value_number !== null) return attribute.value_number.toString();
-                      if (attribute.value_boolean !== null) return attribute.value_boolean ? 'Yes' : 'No';
-                      if (attribute.value_date !== null) {
-                        try {
-                          return new Date(attribute.value_date).toLocaleDateString();
-                        } catch {
-                          return attribute.value_date;
-                        }
-                      }
-                      return '-';
-                    };
+              <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onScroll={handleImageScroll}
+                scrollEventThrottle={16}
+              >
+                {product.product_images.map((imageUrl: string, index: number) => (
+                  <View key={index} style={{ width: SCREEN_WIDTH }}>
+                    <Image
+                      source={{ uri: imageUrl }}
+                      className="w-full"
+                      style={{ aspectRatio: 1 }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                ))}
+              </ScrollView>
 
-                    return (
-                      <View
-                        key={index}
-                        className="flex-row justify-between items-center py-3 border-b border-gray-100 last:border-b-0"
-                      >
-                        <Text className="text-sm font-inter text-gray-600 flex-1">
-                          {attribute.attributes?.name || 'Attribute'}
-                        </Text>
-                        <Text className="text-sm font-inter text-gray-800 flex-1 text-right">{getValue()}</Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                <View>
-                  <Text className="text-sm font-inter text-gray-600">No additional details available.</Text>
+              {/* Pagination Dots */}
+              {product.product_images.length > 1 && (
+                <View className="flex-row justify-center items-center py-2">
+                  {product.product_images.map((_: any, index: number) => (
+                    <View
+                      key={index}
+                      className={`h-2 rounded-full mx-1 ${
+                        index === currentImageIndex ? 'w-6 bg-black' : 'w-2 bg-gray-300'
+                      }`}
+                    />
+                  ))}
                 </View>
               )}
             </View>
+          ) : (
+            <View className="w-full h-60 bg-gray-100 items-center justify-center">
+              <Text className="text-sm font-inter text-gray-500">No image</Text>
+            </View>
           )}
-          {activeTab === 'seller' && (
-            <View>
-              {/* Seller Profile Section */}
-              <View className="bg-white p-4 mb-4">
-                <View className="flex-row items-center mb-3">
-                  <View className="w-10 h-10 rounded-full bg-gray-200 items-center justify-center mr-3">
-                    {listing.seller_info_view?.avatar_url ? (
-                      <Image source={{ uri: listing.seller_info_view.avatar_url }} className="w-10 h-10 rounded-full" />
-                    ) : (
-                      <Text className="text-sm font-inter text-gray-700">
-                        {listing.seller_info_view?.shop_name?.charAt(0) ||
-                          listing.seller_info_view?.full_name?.charAt(0) ||
-                          'S'}
-                      </Text>
-                    )}
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={1}>
-                      {listing.seller_info_view?.shop_name || listing.seller_info_view?.full_name || 'Seller'}
-                    </Text>
-                    {formattedDate ? (
-                      <Text className="text-sm font-inter text-gray-500">Listed {formattedDate}</Text>
-                    ) : null}
-                  </View>
-                  <Pressable className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center">
-                    <Feather name="eye" size={20} color="black" className="mr-2" />
-                    <Text className="text-sm font-inter text-gray-800">View Shop</Text>
-                  </Pressable>
-                </View>
 
-                {/* Contact Seller Section */}
-                <View className="border-t border-gray-200 pt-3">
-                  <Text className="text-base font-inter-semibold text-gray-800 mb-3">Contact Seller</Text>
-                  <Pressable className="bg-black px-4 py-3 rounded-lg flex-row items-center justify-center">
-                    <Text className="text-white text-sm font-inter-semibold mr-2">💬</Text>
-                    <Text className="text-white text-sm font-inter-semibold">Send Message</Text>
-                  </Pressable>
-                </View>
+          {/* Title */}
+          <View className="px-4 pt-4">
+            <Text className="text-2xl font-inter-bold text-black mb-2">{product.product_name}</Text>
+
+            {/* Tag */}
+            {product.product_categories?.name ? (
+              <View className="self-start bg-gray-100 px-3 py-1 rounded-full mb-3 ml-1">
+                <Text className="text-xs font-inter text-gray-800">{product.product_categories.name}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* Price and actions */}
+          <View className="px-4">
+            <View className="flex-row items-center justify-between bg-white py-2">
+              <View className="flex-row items-center">
+                <Text className="text-2xl font-inter-bold text-black mr-2">
+                  £{Number(product.starting_price).toFixed(2)}
+                </Text>
+                {product.discounted_price != null && (
+                  <Text className="text-base font-inter text-gray-400 line-through">
+                    £{Number(product.starting_price).toFixed(2)}
+                  </Text>
+                )}
+              </View>
+              <View className="flex-row items-center">
+                <Pressable className="flex-row items-center bg-black px-4 py-3 rounded-lg mr-2" onPress={handleAddToCart}>
+                  <Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
+                </Pressable>
+                <Pressable className="bg-gray-100 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>
+                  <Text className="text-sm font-inter text-black">Make Offer</Text>
+                </Pressable>
               </View>
             </View>
-          )}
-        </View>
-      </View>
+          </View>
 
-      <View className="h-8" />
-
-      {/* Make Offer Modal */}
-      <Modal visible={isOfferOpen} transparent animationType="fade" onRequestClose={() => setIsOfferOpen(false)}>
-        <View className="flex-1 items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
-          <View className="bg-white w-11/12 rounded-xl p-4">
-            <Text className="text-lg font-inter-semibold mb-3">Make an Offer</Text>
-            <View className="bg-gray-50 rounded-lg p-3 mb-3">
-              <Text className="text-sm font-inter text-gray-800" numberOfLines={1}>
-                {listing.product_name}
-              </Text>
-              <Text className="text-xs font-inter text-gray-500">
-                Current price: £{Number(listing.starting_price).toFixed(2)}
-              </Text>
-            </View>
-            <Text className="text-sm font-inter mb-2">Your Offer (£)</Text>
-            <TextInput
-              keyboardType="decimal-pad"
-              placeholder="Enter your offer amount"
-              className="border border-gray-300 rounded-lg px-3 py-2 mb-3"
-              value={offerAmount}
-              onChangeText={setOfferAmount}
-            />
-            <View className="flex-row mb-3">
-              {[0.85, 0.9, 0.95].map((mult) => {
-                const suggested = Number(listing.starting_price) * mult;
-                return (
-                  <Pressable
-                    key={String(mult)}
-                    className="bg-gray-100 px-3 py-2 rounded-lg mr-2"
-                    onPress={() => setOfferAmount(suggested.toFixed(2))}
+          {/* Tabs */}
+          <View className="px-4 mt-4">
+            <View className="flex-row bg-white rounded-lg overflow-hidden border border-gray-200">
+              {(['description', 'details', 'seller'] as const).map((t) => (
+                <Pressable
+                  key={t}
+                  className={`flex-1 px-4 py-3 ${
+                    activeTab === t ? 'bg-white' : 'bg-gray-50'
+                  } border-r border-gray-200 items-center justify-center`}
+                  onPress={() => setActiveTab(t)}
+                >
+                  <Text
+                    className={`text-sm font-inter text-center ${
+                      activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'
+                    }`}
                   >
-                    <Text className="text-sm font-inter">£{suggested.toFixed(2)}</Text>
-                  </Pressable>
-                );
-              })}
+                    {t === 'description' ? 'Description' : t === 'details' ? 'Details' : 'Seller'}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
-            <Text className="text-sm font-inter mb-1">Message (Optional)</Text>
-            <TextInput
-              placeholder="Add a message to the seller..."
-              className="border border-gray-300 rounded-lg px-3 py-2 mb-3"
-              multiline
-              value={offerMessage}
-              onChangeText={setOfferMessage}
-            />
-            {offerError ? <Text className="text-xs font-inter text-red-600 mb-2">{offerError}</Text> : null}
-            <View className="flex-row justify-end">
-              <Pressable
-                className="px-4 py-2 rounded-lg mr-2 border border-gray-300"
-                disabled={isSubmittingOffer}
-                onPress={() => setIsOfferOpen(false)}
-              >
-                <Text className="text-sm font-inter">Cancel</Text>
-              </Pressable>
-              <Pressable className="px-4 py-2 rounded-lg bg-black" disabled={isSubmittingOffer} onPress={submitOffer}>
-                <Text className="text-sm font-inter text-white">
-                  {isSubmittingOffer ? 'Submitting...' : 'Submit Offer'}
-                </Text>
-              </Pressable>
+
+            <View className="bg-white border border-t-0 border-gray-200 p-4">
+              {activeTab === 'description' && (
+                <Text className="text-sm font-inter text-gray-800">{product.product_description || '-'}</Text>
+              )}
+              {activeTab === 'details' && (
+                <View>
+                  {attributesLoading ? (
+                    <View className="flex-row items-center justify-center py-4">
+                      <ActivityIndicator size="small" color="#000" />
+                      <Text className="text-sm font-inter text-gray-600 ml-2">Loading attributes...</Text>
+                    </View>
+                  ) : productAttributes.length > 0 ? (
+                    <View>
+                      {productAttributes.map((attribute: any, index: number) => {
+                        // Extract the correct value based on data type
+                        const getValue = () => {
+                          if (attribute.value_text !== null) return attribute.value_text;
+                          if (attribute.value_number !== null) return attribute.value_number.toString();
+                          if (attribute.value_boolean !== null) return attribute.value_boolean ? 'Yes' : 'No';
+                          if (attribute.value_date !== null) {
+                            try {
+                              return new Date(attribute.value_date).toLocaleDateString();
+                            } catch {
+                              return attribute.value_date;
+                            }
+                          }
+                          return '-';
+                        };
+
+                        return (
+                          <View
+                            key={index}
+                            className="flex-row justify-between items-center py-3 border-b border-gray-100 last:border-b-0"
+                          >
+                            <Text className="text-sm font-inter text-gray-600 flex-1">
+                              {attribute.attributes?.name || 'Attribute'}
+                            </Text>
+                            <Text className="text-sm font-inter text-gray-800 flex-1 text-right">{getValue()}</Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <View>
+                      <Text className="text-sm font-inter text-gray-600">No additional details available.</Text>
+                    </View>
+                  )}
+                </View>
+              )}
+              {activeTab === 'seller' && (
+                <View>
+                  {/* Seller Profile Section */}
+                  <View className="bg-white p-4 mb-4">
+                    <View className="flex-row items-center mb-3">
+                      <View className="w-10 h-10 rounded-full bg-gray-200 items-center justify-center mr-3">
+                        {product.seller_info_view?.avatar_url ? (
+                          <Image
+                            source={{ uri: product.seller_info_view.avatar_url }}
+                            className="w-10 h-10 rounded-full"
+                          />
+                        ) : (
+                          <Text className="text-sm font-inter text-gray-700">
+                            {product.seller_info_view?.shop_name?.charAt(0) ||
+                              product.seller_info_view?.full_name?.charAt(0) ||
+                              'S'}
+                          </Text>
+                        )}
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={1}>
+                          {product.seller_info_view?.shop_name || product.seller_info_view?.full_name || 'Seller'}
+                        </Text>
+                        {formattedDate ? (
+                          <Text className="text-sm font-inter text-gray-500">Listed {formattedDate}</Text>
+                        ) : null}
+                      </View>
+                      <Pressable
+                        onPress={handleViewShop}
+                        className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center"
+                      >
+                        <Feather name="eye" size={20} color="black" className="mr-2" />
+                        <Text className="text-sm font-inter text-gray-800">View Shop</Text>
+                      </Pressable>
+                    </View>
+
+                    {/* Contact Seller Section */}
+                    <View className="border-t border-gray-200 pt-3">
+                      <Text className="text-base font-inter-semibold text-gray-800 mb-3">Contact Seller</Text>
+                      <Pressable
+                        onPress={handleContactSeller}
+                        className="bg-black px-4 py-3 rounded-lg flex-row items-center justify-center"
+                      >
+                        <Feather name="message-circle" size={20} color="white" className="mr-2" />
+                        <Text className="text-white text-sm font-inter-semibold">Send Message</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
-        </View>
-      </Modal>
-    </ScrollView>
+
+          <View className="h-10" />
+        </ScrollView>
+      </View>
+
+      {/* Make Offer Modal */}
+      <MakeOfferModal
+        isOpen={isOfferOpen}
+        onClose={() => setIsOfferOpen(false)}
+        productId={String(id || '')}
+        productName={product.product_name}
+        currentPrice={Number(product.starting_price)}
+        sellerId={String(product.seller_id || '')}
+        userId={user?.id}
+      />
+
+      {/* Contact Seller Modal */}
+      <ContactSellerModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        sellerId={String(product.seller_id || '')}
+        sellerName={product.seller_info_view?.shop_name || product.seller_info_view?.full_name || 'Seller'}
+        userId={user?.id}
+        productName={product.product_name}
+      />
+    </SafeAreaView>
   );
 }
