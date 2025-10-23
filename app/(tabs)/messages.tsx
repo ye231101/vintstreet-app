@@ -6,6 +6,7 @@ import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Conversation, messagesService } from '../../api/services/messages.service';
 import { useAuth } from '../../hooks/use-auth';
+// import { format } from 'date-fns';
 
 // Interfaces are now imported from the messages service
 
@@ -52,38 +53,33 @@ export default function MessagesScreen() {
   };
 
   const formatTime = (dateString: string) => {
-    return dateString;
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+      // Check if it's today
+      if (messageDate.getTime() === today.getTime()) {
+        return date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        });
+      } else {
+        // Show date and time for older messages
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        });
+      }
+    } catch (e) {
+      return dateString;
+    }
   };
-
-  const renderConversationItem = (conversation: Conversation) => (
-    <TouchableOpacity
-      key={conversation.id}
-      onPress={() => router.push(`/message/${conversation.id}`)}
-      className="flex-row items-center px-4 py-3 border-b border-gray-100"
-    >
-      {/* Avatar */}
-      <View className="w-12 h-12 rounded-full bg-black justify-center items-center mr-3">
-        <Text className="text-white text-lg font-inter-bold">{conversation.otherParticipantName.charAt(0)}</Text>
-      </View>
-
-      {/* Content */}
-      <View className="flex-1">
-        {/* Name */}
-        <Text className="text-base font-inter-bold text-black mb-1">{conversation.otherParticipantName}</Text>
-
-        {/* Subject */}
-        <Text className="text-sm font-inter text-gray-600 mb-0.5">{conversation.subject}</Text>
-
-        {/* Last Message */}
-        <Text className="text-xs font-inter text-gray-400 max-w-4/5" numberOfLines={1}>
-          {conversation.lastMessageContent}
-        </Text>
-      </View>
-
-      {/* Time */}
-      <Text className="text-xs font-inter text-gray-400">{formatTime(conversation.lastMessageDate)}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -119,7 +115,48 @@ export default function MessagesScreen() {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} tintColor="#000" />
             }
           >
-            {conversations.map(renderConversationItem)}
+            {conversations.map((conversation) => (
+              <TouchableOpacity
+                key={conversation.id}
+                onPress={() => router.push(`/message/${conversation.id}`)}
+                className="flex-row items-center px-4 py-3 border-b border-gray-100"
+              >
+                {/* Avatar */}
+                <View className="w-12 h-12 rounded-full bg-black justify-center items-center mr-3">
+                  <Text className="text-white text-lg font-inter-bold">
+                    {conversation.other_user_name?.charAt(0)?.toUpperCase() || '?'}
+                  </Text>
+                </View>
+
+                {/* Content */}
+                <View className="flex-1">
+                  {/* Name and Unread Badge */}
+                  <View className="flex-row items-center mb-1">
+                    <Text className="text-base font-inter-bold text-black flex-1">
+                      {conversation.other_user_name || 'Unknown User'}
+                    </Text>
+                    {conversation.unread_count > 0 && (
+                      <View className="bg-red-500 rounded-full px-2 py-1 min-w-[20px] items-center">
+                        <Text className="text-white text-xs font-inter-bold">{conversation.unread_count}</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Subject */}
+                  <Text className="text-sm font-inter text-gray-600 mb-0.5">
+                    {conversation.subject || 'No subject'}
+                  </Text>
+
+                  {/* Last Message */}
+                  <Text className="text-xs font-inter text-gray-400 max-w-4/5" numberOfLines={1}>
+                    {conversation.last_message || 'No messages yet'}
+                  </Text>
+                </View>
+
+                {/* Time */}
+                <Text className="text-xs font-inter text-gray-400">{formatTime(conversation.last_message_time)}</Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         )}
       </View>

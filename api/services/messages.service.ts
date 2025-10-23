@@ -1,13 +1,14 @@
 import { supabase } from '../config/supabase';
 
 export interface Conversation {
-  id: number;
+  id: string;
   subject: string;
-  lastMessageContent: string;
-  lastMessageDate: string;
-  unreadCount: number;
-  recipients: number[];
-  otherParticipantName: string;
+  other_user_id: string;
+  other_user_name: string;
+  last_message: string;
+  last_message_time: string;
+  unread_count: number;
+  messages: ApiMessage[];
 }
 
 export interface ApiMessage {
@@ -22,6 +23,10 @@ export interface ApiMessage {
   status: string;
   created_at: string;
   updated_at: string;
+  is_flagged?: boolean;
+  reported_by?: string;
+  reported_at?: string;
+  report_reason?: string;
 }
 
 class MessagesService {
@@ -30,7 +35,6 @@ class MessagesService {
    * @param userId - The user ID to fetch conversations for
    */
   async getConversations(userId: string): Promise<Conversation[]> {
-    console.log('getConversations', userId);
     try {
       // Get messages where user is either sender or recipient
       const { data, error } = await supabase
@@ -39,13 +43,58 @@ class MessagesService {
         .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
         .order('created_at', { ascending: false });
 
-      console.log('messages data', data);
       if (error) {
         throw new Error(`Failed to fetch conversations: ${error.message}`);
       }
 
-      // Transform API data to match the UI interface
-      return this.transformConversationsData((data as unknown as ApiMessage[]) || [], userId);
+      // Group messages by thread (same subject and participants)
+      const threadMap = new Map<string, Conversation>();
+
+      for (const msg of (data as unknown as ApiMessage[]) || []) {
+        const otherUserId = msg.sender_id === userId ? msg.recipient_id : msg.sender_id;
+        const threadKey = `${msg.subject}-${otherUserId}`;
+
+        if (!threadMap.has(threadKey)) {
+          // Fetch other user's profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, username')
+            .eq('user_id', otherUserId)
+            .single();
+
+          threadMap.set(threadKey, {
+            id: threadKey,
+            subject: msg.subject,
+            other_user_id: otherUserId,
+            other_user_name: profile?.full_name || profile?.username || 'Unknown User',
+            last_message: msg.message,
+            last_message_time: msg.created_at,
+            unread_count: 0,
+            messages: [],
+          });
+        }
+
+        const thread = threadMap.get(threadKey)!;
+        thread.messages.push(msg);
+
+        // Update last message and time if this message is more recent
+        if (new Date(msg.created_at) > new Date(thread.last_message_time)) {
+          thread.last_message = msg.message;
+          thread.last_message_time = msg.created_at;
+        }
+
+        // Count unread messages
+        if (msg.recipient_id === userId && msg.status === 'unread') {
+          thread.unread_count++;
+        }
+      }
+
+      // Sort threads by last message time (most recent first)
+      const sortedThreads = Array.from(threadMap.values()).sort(
+        (a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime()
+      );
+
+      return sortedThreads;
     } catch (error) {
       console.error('Error fetching conversations:', error);
       throw error;
@@ -91,14 +140,14 @@ class MessagesService {
     parent_message_id?: string;
   }): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('messages')
-        .insert([{
+      const { error } = await supabase.from('messages').insert([
+        {
           ...messageData,
           status: 'unread',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }]);
+          updated_at: new Date().toISOString(),
+        },
+      ]);
 
       if (error) {
         throw new Error(`Failed to send message: ${error.message}`);
@@ -110,76 +159,55 @@ class MessagesService {
   }
 
   /**
-   * Mark message as read
-   * @param messageId - The message ID to mark as read
+   * Mark messages as read
+   * @param messageIds - Array of message IDs to mark as read
    */
-  async markAsRead(messageId: string): Promise<void> {
+  async markAsRead(messageIds: string[]): Promise<void> {
     try {
+      if (messageIds.length === 0) return;
+
       const { error } = await supabase
         .from('messages')
-        .update({ 
+        .update({
           status: 'read',
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', messageId);
+        .in('id', messageIds);
 
       if (error) {
-        throw new Error(`Failed to mark message as read: ${error.message}`);
+        throw new Error(`Failed to mark messages as read: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error marking message as read:', error);
+      console.error('Error marking messages as read:', error);
       throw error;
     }
   }
 
   /**
-   * Transform API data to match UI interface
-   * @param apiMessages - Raw messages data from API
-   * @param userId - Current user ID
+   * Report a message
+   * @param messageId - The message ID to report
+   * @param reportedBy - The user ID reporting the message
+   * @param reason - The reason for reporting
    */
-  private transformConversationsData(apiMessages: ApiMessage[], userId: string): Conversation[] {
-    // Group messages by conversation (subject + participants)
-    const conversationMap = new Map<string, {
-      messages: ApiMessage[];
-      otherParticipantId: string;
-    }>();
+  async reportMessage(messageId: string, reportedBy: string, reason: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({
+          is_flagged: true,
+          reported_by: reportedBy,
+          reported_at: new Date().toISOString(),
+          report_reason: reason,
+        })
+        .eq('id', messageId);
 
-    apiMessages.forEach(message => {
-      const otherParticipantId = message.sender_id === userId ? message.recipient_id : message.sender_id;
-      const conversationKey = `${message.subject}_${otherParticipantId}`;
-      
-      if (!conversationMap.has(conversationKey)) {
-        conversationMap.set(conversationKey, {
-          messages: [],
-          otherParticipantId
-        });
+      if (error) {
+        throw new Error(`Failed to report message: ${error.message}`);
       }
-      
-      conversationMap.get(conversationKey)!.messages.push(message);
-    });
-
-    // Convert to conversations
-    const conversations: Conversation[] = [];
-    let conversationId = 1;
-
-    conversationMap.forEach((conversation, key) => {
-      const latestMessage = conversation.messages[0]; // Already sorted by created_at desc
-      const unreadCount = conversation.messages.filter(msg => 
-        msg.status === 'unread' && msg.recipient_id === userId
-      ).length;
-
-      conversations.push({
-        id: conversationId++,
-        subject: latestMessage.subject,
-        lastMessageContent: latestMessage.message,
-        lastMessageDate: this.formatDate(latestMessage.created_at),
-        unreadCount,
-        recipients: [parseInt(conversation.otherParticipantId)],
-        otherParticipantName: `User ${conversation.otherParticipantId.slice(-6)}` // Fallback name
-      });
-    });
-
-    return conversations;
+    } catch (error) {
+      console.error('Error reporting message:', error);
+      throw error;
+    }
   }
 
   /**
@@ -191,20 +219,20 @@ class MessagesService {
       const date = new Date(dateString);
       const now = new Date();
       const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-      
+
       if (diffInHours < 24) {
-        return date.toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
+        return date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
           minute: '2-digit',
-          hour12: true 
+          hour12: true,
         });
       } else {
-        return date.toLocaleDateString('en-US', { 
-          month: 'short', 
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
           day: 'numeric',
           hour: 'numeric',
           minute: '2-digit',
-          hour12: true
+          hour12: true,
         });
       }
     } catch (e) {
