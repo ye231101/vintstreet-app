@@ -201,6 +201,28 @@ class AuthService {
   }
 
   /**
+   * Refresh the current session
+   * Forces Supabase to refresh the access token if it's expired
+   * @returns Refreshed session or null
+   */
+  async refreshSession() {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+
+      if (error) {
+        return { session: null, error: error.message };
+      }
+
+      return { session: data.session, error: null };
+    } catch (error) {
+      return {
+        session: null,
+        error: error instanceof Error ? error.message : 'Failed to refresh session',
+      };
+    }
+  }
+
+  /**
    * Get the current user
    * @returns Current user or null
    */

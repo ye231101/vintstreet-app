@@ -17,19 +17,14 @@ export default function SellScreen() {
   const [salePrice, setSalePrice] = useState('');
   const [brand, setBrand] = useState('');
   const [category, setCategory] = useState('');
-  const [itemType, setItemType] = useState('Single Item');
+  const [itemType, setItemType] = useState('single');
   const [enableOffers, setEnableOffers] = useState(true);
-  const [stockManagement, setStockManagement] = useState(false);
   const [purchaseNote, setPurchaseNote] = useState('');
-  const [productStatus, setProductStatus] = useState('Published');
-  const [visibility, setVisibility] = useState('Visible');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-  const [showVisibilityDropdown, setShowVisibilityDropdown] = useState(false);
   const [showItemTypeDropdown, setShowItemTypeDropdown] = useState(false);
   const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [categories, setCategories] = useState<
     Array<{ id: string; name: string; slug?: string; display_order?: number }>
   >([]);
@@ -60,10 +55,12 @@ export default function SellScreen() {
   const [showImagePickerModal, setShowImagePickerModal] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [stockQuantity, setStockQuantity] = useState('');
 
-  const statusOptions = ['Published', 'Draft'];
-  const visibilityOptions = ['Visible', 'Hidden'];
-  const itemTypeOptions = ['Single Item', 'Multi Item (with quantity)'];
+  const itemTypeOptions = [
+    { key: 'single', label: 'Single Item' },
+    { key: 'multi', label: 'Multi Item (with quantity)' },
+  ];
 
   // Load categories and brands on component mount
   useEffect(() => {
@@ -166,21 +163,21 @@ export default function SellScreen() {
     try {
       // Request permissions first
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
+
       if (permissionResult.status !== 'granted') {
         Alert.alert(
           'Permission Required',
           'We need access to your photo library to upload product images. Please enable this permission in your device settings.',
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Settings', onPress: () => ImagePicker.requestMediaLibraryPermissionsAsync() }
+            { text: 'Settings', onPress: () => ImagePicker.requestMediaLibraryPermissionsAsync() },
           ]
         );
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsMultipleSelection: true,
         quality: 0.8,
         allowsEditing: false,
@@ -190,10 +187,13 @@ export default function SellScreen() {
 
       if (!result.canceled && result.assets) {
         // Validate images before processing
-        const validImages = result.assets.filter(asset => {
+        const validImages = result.assets.filter((asset) => {
           // Check file size (max 10MB per image)
           if (asset.fileSize && asset.fileSize > 10 * 1024 * 1024) {
-            Alert.alert('Image Too Large', `Image "${asset.fileName || 'Unknown'}" is too large. Please select images smaller than 10MB.`);
+            Alert.alert(
+              'Image Too Large',
+              `Image "${asset.fileName || 'Unknown'}" is too large. Please select images smaller than 10MB.`
+            );
             return false;
           }
           return true;
@@ -205,7 +205,7 @@ export default function SellScreen() {
         }
 
         const newImages = validImages.map((asset) => asset.uri);
-        
+
         // Check if adding these images would exceed the limit
         if (productImages.length + newImages.length > 10) {
           Alert.alert('Too Many Images', 'You can upload a maximum of 10 images per product.');
@@ -228,14 +228,14 @@ export default function SellScreen() {
     try {
       // Request camera permissions first
       const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-      
+
       if (permissionResult.status !== 'granted') {
         Alert.alert(
           'Camera Permission Required',
           'We need access to your camera to take product photos. Please enable this permission in your device settings.',
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Settings', onPress: () => ImagePicker.requestCameraPermissionsAsync() }
+            { text: 'Settings', onPress: () => ImagePicker.requestCameraPermissionsAsync() },
           ]
         );
         return;
@@ -248,7 +248,7 @@ export default function SellScreen() {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         quality: 0.8,
         allowsEditing: true,
         aspect: [4, 3],
@@ -295,13 +295,13 @@ export default function SellScreen() {
       for (let i = 0; i < imageUris.length; i++) {
         try {
           const result = await StorageService.uploadImage(imageUris[i], user.id);
-          
+
           if (result.success && result.url) {
             uploadedUrls.push(result.url);
           } else {
             errors.push(`Image ${i + 1}: ${result.error || 'Upload failed'}`);
           }
-          
+
           // Update progress
           const progress = Math.round(((i + 1) / imageUris.length) * 100);
           setUploadProgress(progress);
@@ -323,7 +323,7 @@ export default function SellScreen() {
       } else if (uploadedUrls.length > 0) {
         // Some images uploaded successfully
         Alert.alert(
-          'Partial Success', 
+          'Partial Success',
           `${uploadedUrls.length} of ${imageUris.length} images uploaded successfully. ${errors.length} failed.`
         );
       } else {
@@ -360,9 +360,9 @@ export default function SellScreen() {
   };
 
   const handleSaveDraft = async () => {
-    if (isSubmitting) return;
+    if (isSavingDraft) return;
 
-    setIsSubmitting(true);
+    setIsSavingDraft(true);
     try {
       // Get current user
       const {
@@ -370,7 +370,7 @@ export default function SellScreen() {
       } = await supabase.auth.getUser();
       if (!user) {
         Alert.alert('Error', 'You must be logged in to save products.');
-        setIsSubmitting(false);
+        setIsSavingDraft(false);
         return;
       }
 
@@ -379,7 +379,7 @@ export default function SellScreen() {
         seller_id: user.id,
         product_name: title || 'Untitled Draft',
         product_description: description || null,
-        starting_price: price ? parseFloat(price) : null,
+        starting_price: 0,
         discounted_price: salePrice ? parseFloat(salePrice) : null,
         product_image: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
         product_images: uploadedImageUrls,
@@ -391,7 +391,7 @@ export default function SellScreen() {
         sub_subcategory_id: selectedSubSubcategoryId || null,
         sub_sub_subcategory_id: selectedSubSubSubcategoryId || null,
         brand_id: selectedBrandId || null,
-        stock_quantity: itemType === 'Multi Item (with quantity)' ? 1 : null,
+        stock_quantity: itemType === 'multi' && stockQuantity ? parseInt(stockQuantity) : null,
         status: 'draft' as const,
         moderation_status: 'approved',
       };
@@ -413,12 +413,10 @@ export default function SellScreen() {
       setSalePrice('');
       setBrand('');
       setCategory('');
-      setItemType('Single Item');
+      setItemType('single');
       setEnableOffers(true);
-      setStockManagement(false);
+      setStockQuantity('');
       setPurchaseNote('');
-      setProductStatus('Published');
-      setVisibility('Visible');
       setProductImages([]);
       setUploadedImageUrls([]);
       setDynamicAttributes({});
@@ -432,24 +430,28 @@ export default function SellScreen() {
       setSubSubcategories([]);
       setSubSubSubcategories([]);
       setCurrentCategoryLevel('category');
-      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error saving draft:', error);
       Alert.alert('Error', 'Failed to save draft. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setIsSavingDraft(false);
     }
   };
 
   const handlePublishItem = async () => {
-    if (isSubmitting) return;
+    if (isPublishing) return;
 
     if (!title || !price || !category) {
       Alert.alert('Required Fields', 'Please complete all required fields (*) to publish this product.');
       return;
     }
 
-    setIsSubmitting(true);
+    if (itemType === 'multi' && !stockQuantity) {
+      Alert.alert('Stock Quantity Required', 'Please enter the stock quantity for this product.');
+      return;
+    }
+
+    setIsPublishing(true);
     try {
       // Get current user
       const {
@@ -457,7 +459,7 @@ export default function SellScreen() {
       } = await supabase.auth.getUser();
       if (!user) {
         Alert.alert('Error', 'You must be logged in to publish products.');
-        setIsSubmitting(false);
+        setIsPublishing(false);
         return;
       }
 
@@ -478,7 +480,7 @@ export default function SellScreen() {
         sub_subcategory_id: selectedSubSubcategoryId || null,
         sub_sub_subcategory_id: selectedSubSubSubcategoryId || null,
         brand_id: selectedBrandId || null,
-        stock_quantity: itemType === 'Multi Item (with quantity)' ? 1 : null,
+        stock_quantity: itemType === 'multi' && stockQuantity ? parseInt(stockQuantity) : null,
         status: 'published' as const,
         moderation_status: 'approved',
       };
@@ -500,12 +502,10 @@ export default function SellScreen() {
       setSalePrice('');
       setBrand('');
       setCategory('');
-      setItemType('Single Item');
+      setItemType('single');
       setEnableOffers(true);
-      setStockManagement(false);
+      setStockQuantity('');
       setPurchaseNote('');
-      setProductStatus('Published');
-      setVisibility('Visible');
       setProductImages([]);
       setUploadedImageUrls([]);
       setDynamicAttributes({});
@@ -519,19 +519,30 @@ export default function SellScreen() {
       setSubSubcategories([]);
       setSubSubSubcategories([]);
       setCurrentCategoryLevel('category');
-      setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error publishing product:', error);
       Alert.alert('Error', 'Failed to publish product. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setIsPublishing(false);
     }
   };
 
   // Track if there are unsaved changes
   const checkForUnsavedChanges = () => {
-    const hasChanges = Boolean(title || description || price || brand || category || purchaseNote || stockManagement);
-    setHasUnsavedChanges(hasChanges);
+    const hasChanges = Boolean(
+      title ||
+        description ||
+        price ||
+        salePrice ||
+        brand ||
+        category ||
+        purchaseNote ||
+        stockQuantity ||
+        productImages.length > 0 ||
+        Object.keys(dynamicAttributes).length > 0 ||
+        selectedBrandId ||
+        selectedCategoryId
+    );
     return hasChanges;
   };
 
@@ -544,18 +555,39 @@ export default function SellScreen() {
     return true; // Allow navigation
   };
 
+  // Handle save as draft from modal
+  const handleSaveAsDraftAndLeave = async () => {
+    setShowUnsavedChangesModal(false);
+    await handleSaveDraft();
+  };
+
   // Handle continue without saving
   const handleContinueWithoutSaving = () => {
     setShowUnsavedChangesModal(false);
-    setHasUnsavedChanges(false);
     // Clear all form data
     setTitle('');
     setDescription('');
     setPrice('');
+    setSalePrice('');
     setBrand('');
     setCategory('');
+    setItemType('single');
+    setEnableOffers(true);
+    setStockQuantity('');
     setPurchaseNote('');
-    setStockManagement(false);
+    setProductImages([]);
+    setUploadedImageUrls([]);
+    setDynamicAttributes({});
+    setAttributes([]);
+    setSelectedCategoryId('');
+    setSelectedSubcategoryId('');
+    setSelectedSubSubcategoryId('');
+    setSelectedSubSubSubcategoryId('');
+    setSelectedBrandId('');
+    setSubcategories([]);
+    setSubSubcategories([]);
+    setSubSubSubcategories([]);
+    setCurrentCategoryLevel('category');
     // Navigate away (this would be handled by the navigation system)
   };
 
@@ -580,8 +612,6 @@ export default function SellScreen() {
           className="flex-1"
           activeOpacity={1}
           onPress={() => {
-            setShowStatusDropdown(false);
-            setShowVisibilityDropdown(false);
             setShowItemTypeDropdown(false);
           }}
         >
@@ -593,9 +623,7 @@ export default function SellScreen() {
               {/* Upload Area */}
               <TouchableOpacity
                 className={`border-2 border-dashed rounded-lg p-6 items-center mb-4 ${
-                  productImages.length >= 10 
-                    ? 'border-green-300 bg-green-50' 
-                    : 'border-gray-300'
+                  productImages.length >= 10 ? 'border-green-300 bg-green-50' : 'border-gray-300'
                 }`}
                 onPress={() => setShowImagePickerModal(true)}
                 disabled={isUploadingImages}
@@ -621,15 +649,14 @@ export default function SellScreen() {
                   <>
                     <Feather name="upload" size={32} color="#666" />
                     <Text className="text-sm font-inter text-gray-600 mt-2">
-                      {productImages.length > 0 
-                        ? `${productImages.length} of 10 images selected` 
-                        : 'Upload product images'
-                      }
+                      {productImages.length > 0
+                        ? `${productImages.length} of 10 images selected`
+                        : 'Upload product images'}
                     </Text>
                     <Text className="text-xs font-inter text-gray-400 mt-1">
                       Up to 10MB each, multiple images supported
                     </Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       className="bg-gray-200 rounded-lg py-2 px-4 mt-3"
                       onPress={() => setShowImagePickerModal(true)}
                     >
@@ -650,29 +677,24 @@ export default function SellScreen() {
                     </Text>
                     {isUploadingImages && (
                       <View className="flex-row items-center">
-                        <Text className="text-xs font-inter text-gray-500 mr-2">
-                          Uploading... {uploadProgress}%
-                        </Text>
+                        <Text className="text-xs font-inter text-gray-500 mr-2">Uploading... {uploadProgress}%</Text>
                         <View className="w-16 h-1 bg-gray-200 rounded-full">
-                          <View 
-                            className="h-1 bg-blue-500 rounded-full" 
-                            style={{ width: `${uploadProgress}%` }}
-                          />
+                          <View className="h-1 bg-blue-500 rounded-full" style={{ width: `${uploadProgress}%` }} />
                         </View>
                       </View>
                     )}
                   </View>
-                  
+
                   <View className="flex-row flex-wrap gap-2">
                     {productImages.map((imageUri, index) => {
                       const isUploaded = uploadedImageUrls[index];
                       const isUploading = isUploadingImages && !isUploaded;
-                      
+
                       return (
                         <TouchableOpacity key={index} className="relative">
-                          <Image 
-                            source={{ uri: imageUri }} 
-                            className="w-20 h-20 rounded-lg" 
+                          <Image
+                            source={{ uri: imageUri }}
+                            className="w-20 h-20 rounded-lg"
                             resizeMode="cover"
                             style={{ opacity: isUploading ? 0.7 : 1 }}
                           />
@@ -762,11 +784,12 @@ export default function SellScreen() {
               <View className="mb-4">
                 <Text className="text-sm font-inter-semibold text-black mb-2">Description</Text>
                 <TextInput
-                  className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter h-24"
+                  className="bg-white rounded-lg border border-gray-300 px-3 text-sm font-inter h-24"
                   placeholder="Describe your product"
                   value={description}
                   onChangeText={setDescription}
                   multiline
+                  textAlignVertical="top"
                 />
               </View>
 
@@ -775,7 +798,7 @@ export default function SellScreen() {
                 <View className="flex-1">
                   <Text className="text-sm font-inter-semibold text-black mb-2">Price *</Text>
                   <View className="flex-row items-center">
-                    <View className="bg-gray-200 rounded-l-lg px-3 py-3">
+                    <View className="bg-gray-200 rounded-l-lg px-3 py-3 border border-gray-300">
                       <Text className="text-sm font-inter text-gray-700">£ GBP</Text>
                     </View>
                     <TextInput
@@ -790,7 +813,7 @@ export default function SellScreen() {
                 <View className="flex-1">
                   <Text className="text-sm font-inter-semibold text-black mb-2">Sale Price</Text>
                   <View className="flex-row items-center">
-                    <View className="bg-gray-200 rounded-l-lg px-3 py-3">
+                    <View className="bg-gray-200 rounded-l-lg px-3 py-3 border border-gray-300">
                       <Text className="text-sm font-inter text-gray-700">£ GBP</Text>
                     </View>
                     <TextInput
@@ -848,7 +871,9 @@ export default function SellScreen() {
                       setShowItemTypeDropdown(!showItemTypeDropdown);
                     }}
                   >
-                    <Text className="text-sm font-inter text-black">{itemType}</Text>
+                    <Text className="text-sm font-inter text-black">
+                      {itemTypeOptions.find((type) => type.key === itemType)?.label || 'Select item type'}
+                    </Text>
                     <Feather name="chevron-down" size={16} color="#999" />
                   </TouchableOpacity>
 
@@ -856,19 +881,19 @@ export default function SellScreen() {
                     <View className="absolute top-11 left-0 right-0 z-50 bg-white rounded-lg border border-gray-300 shadow-lg">
                       {itemTypeOptions.map((type, index) => (
                         <TouchableOpacity
-                          key={index}
+                          key={type.key}
                           className={`py-3 px-3 ${
                             index < itemTypeOptions.length - 1 ? 'border-b border-gray-100' : ''
-                          } ${type === itemType ? 'bg-gray-100' : 'bg-transparent'}`}
+                          } ${type.key === itemType ? 'bg-gray-100' : 'bg-transparent'}`}
                           onPress={(e) => {
                             e.stopPropagation();
-                            setItemType(type);
+                            setItemType(type.key);
                             setShowItemTypeDropdown(false);
                           }}
                         >
                           <View className="flex-row items-center justify-between">
-                            <Text className="text-sm font-inter text-black">{type}</Text>
-                            {type === itemType && <Feather name="check" size={16} color="#000" />}
+                            <Text className="text-sm font-inter text-black">{type.label}</Text>
+                            {type.key === itemType && <Feather name="check" size={16} color="#000" />}
                           </View>
                         </TouchableOpacity>
                       ))}
@@ -876,26 +901,40 @@ export default function SellScreen() {
                   )}
                 </View>
               </View>
+
+              {/* Stock Quantity Field - Only show for Multi Item */}
+              {itemType === 'multi' && (
+                <View className="mb-4">
+                  <Text className="text-sm font-inter-semibold text-black mb-2">Stock Quantity *</Text>
+                  <TextInput
+                    className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
+                    placeholder="Enter available quantity"
+                    value={stockQuantity}
+                    onChangeText={setStockQuantity}
+                    keyboardType="numeric"
+                  />
+                </View>
+              )}
             </View>
 
             {/* Action Buttons */}
             <View className="flex-row mb-4">
               <TouchableOpacity
-                className={`flex-1 rounded-lg py-3 mr-2 items-center ${isSubmitting ? 'bg-gray-400' : 'bg-black'}`}
+                className={`flex-1 rounded-lg py-3 mr-2 items-center ${isSavingDraft ? 'bg-gray-400' : 'bg-black'}`}
                 onPress={handleSaveDraft}
-                disabled={isSubmitting}
+                disabled={isSavingDraft || isPublishing}
               >
                 <Text className="text-base font-inter-semibold text-white">
-                  {isSubmitting ? 'Saving...' : 'Save as Draft'}
+                  {isSavingDraft ? 'Saving...' : 'Save as Draft'}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className={`flex-1 rounded-lg py-3 ml-2 items-center ${isSubmitting ? 'bg-gray-400' : 'bg-black'}`}
+                className={`flex-1 rounded-lg py-3 ml-2 items-center ${isPublishing ? 'bg-gray-400' : 'bg-black'}`}
                 onPress={handlePublishItem}
-                disabled={isSubmitting}
+                disabled={isSavingDraft || isPublishing}
               >
                 <Text className="text-base font-inter-semibold text-white">
-                  {isSubmitting ? 'Publishing...' : 'Publish to Marketplace'}
+                  {isPublishing ? 'Publishing...' : 'Publish to Marketplace'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -914,10 +953,7 @@ export default function SellScreen() {
         }}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl pt-2 px-5 pb-5 max-h-4/5">
-            {/* Modal Handle */}
-            <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-5" />
-
+          <View className="bg-white rounded-t-3xl pt-5 px-5 pb-5 max-h-4/5">
             {/* Header */}
             <View className="flex-row justify-between items-center mb-5">
               <View className="flex-row items-center flex-1">
@@ -1105,27 +1141,39 @@ export default function SellScreen() {
         animationType="fade"
         onRequestClose={handleCancelNavigation}
       >
-        <View className="flex-1 bg-black/50 justify-center items-center px-5 shadow-2xl">
-          <View className="bg-white rounded-xl p-6 w-full max-w-xs">
+        <View className="flex-1 bg-black/50 justify-center items-center px-5">
+          <View className="bg-white rounded-xl p-6 w-full max-w-sm">
             <Text className="text-lg font-inter-bold text-black mb-3 text-center">Unsaved Changes</Text>
 
             <Text className="text-sm font-inter text-gray-600 mb-6 text-center leading-5">
-              Your changes will be lost if you leave this page. Do you want to continue?
+              You have unsaved changes. Would you like to save them as a draft before leaving?
             </Text>
 
-            <View className="flex-row justify-between gap-3">
+            <View className="gap-3">
               <TouchableOpacity
-                className="flex-1 bg-gray-200 rounded-lg py-3 items-center"
-                onPress={handleCancelNavigation}
+                className={`rounded-lg py-3 items-center ${isSavingDraft ? 'bg-gray-400' : 'bg-black'}`}
+                onPress={handleSaveAsDraftAndLeave}
+                disabled={isSavingDraft}
               >
-                <Text className="text-base font-inter-semibold text-black">Cancel</Text>
+                <Text className="text-base font-inter-semibold text-white">
+                  {isSavingDraft ? 'Saving...' : 'Save as Draft'}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="flex-1 bg-red-500 rounded-lg py-3 items-center"
+                className="bg-red-500 rounded-lg py-3 items-center"
                 onPress={handleContinueWithoutSaving}
+                disabled={isSavingDraft}
               >
-                <Text className="text-base font-inter-semibold text-white">Continue</Text>
+                <Text className="text-base font-inter-semibold text-white">Discard Changes</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="bg-gray-200 rounded-lg py-3 items-center"
+                onPress={handleCancelNavigation}
+                disabled={isSavingDraft}
+              >
+                <Text className="text-base font-inter-semibold text-black">Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1257,7 +1305,7 @@ export default function SellScreen() {
             </View>
 
             {/* Options */}
-            <View className="space-y-3">
+            <View className="gap-4">
               <TouchableOpacity
                 className={`rounded-lg py-4 px-4 flex-row items-center ${
                   productImages.length >= 10 ? 'bg-gray-100 opacity-50' : 'bg-gray-100'
@@ -1269,10 +1317,9 @@ export default function SellScreen() {
                 <View className="flex-1">
                   <Text className="text-base font-inter-semibold text-black">Choose from Gallery</Text>
                   <Text className="text-sm font-inter text-gray-600">
-                    {productImages.length >= 10 
-                      ? 'Maximum images reached' 
-                      : 'Select multiple images from your photo library'
-                    }
+                    {productImages.length >= 10
+                      ? 'Maximum images reached'
+                      : 'Select multiple images from your photo library'}
                   </Text>
                 </View>
                 <Feather name="chevron-right" size={20} color="#999" />
@@ -1289,10 +1336,7 @@ export default function SellScreen() {
                 <View className="flex-1">
                   <Text className="text-base font-inter-semibold text-black">Take Photo</Text>
                   <Text className="text-sm font-inter text-gray-600">
-                    {productImages.length >= 10 
-                      ? 'Maximum images reached' 
-                      : 'Capture a new photo with your camera'
-                    }
+                    {productImages.length >= 10 ? 'Maximum images reached' : 'Capture a new photo with your camera'}
                   </Text>
                 </View>
                 <Feather name="chevron-right" size={20} color="#999" />

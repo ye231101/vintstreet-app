@@ -14,7 +14,8 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
 import { ToastProvider, useToast } from 'react-native-toast-notifications';
 import '../global.css';
@@ -46,6 +47,7 @@ export const unstable_settings = {
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
   const { isAuthenticated, isInitialized } = useAppSelector((state) => state.auth);
+  const appState = useRef(AppState.currentState);
 
   useEffect(() => {
     // Initialize authentication on app start
@@ -85,6 +87,28 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       authListener?.subscription.unsubscribe();
     };
   }, [dispatch]);
+
+  // Refresh session when app comes to foreground
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+      // When app transitions from background/inactive to active (foreground)
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // Only refresh if user is authenticated
+        if (isAuthenticated) {
+          // Re-initialize auth to check session validity
+          dispatch(initializeAuth());
+        }
+      }
+      
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [dispatch, isAuthenticated]);
 
   // Handle navigation based on auth state
   useEffect(() => {
