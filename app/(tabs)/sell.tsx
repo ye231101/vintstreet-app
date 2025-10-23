@@ -164,16 +164,54 @@ export default function SellScreen() {
   // Image picker functions
   const pickImageFromGallery = async () => {
     try {
+      // Request permissions first
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'We need access to your photo library to upload product images. Please enable this permission in your device settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Settings', onPress: () => ImagePicker.requestMediaLibraryPermissionsAsync() }
+          ]
+        );
+        return;
+      }
+
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsMultipleSelection: true,
         quality: 0.8,
         allowsEditing: false,
         base64: true, // Required for Supabase upload
+        selectionLimit: 10, // Limit to 10 images max
       });
 
       if (!result.canceled && result.assets) {
-        const newImages = result.assets.map((asset) => asset.uri);
+        // Validate images before processing
+        const validImages = result.assets.filter(asset => {
+          // Check file size (max 10MB per image)
+          if (asset.fileSize && asset.fileSize > 10 * 1024 * 1024) {
+            Alert.alert('Image Too Large', `Image "${asset.fileName || 'Unknown'}" is too large. Please select images smaller than 10MB.`);
+            return false;
+          }
+          return true;
+        });
+
+        if (validImages.length === 0) {
+          Alert.alert('No Valid Images', 'No valid images were selected. Please try again.');
+          return;
+        }
+
+        const newImages = validImages.map((asset) => asset.uri);
+        
+        // Check if adding these images would exceed the limit
+        if (productImages.length + newImages.length > 10) {
+          Alert.alert('Too Many Images', 'You can upload a maximum of 10 images per product.');
+          return;
+        }
+
         setProductImages((prev) => [...prev, ...newImages]);
         setShowImagePickerModal(false);
 
@@ -182,12 +220,33 @@ export default function SellScreen() {
       }
     } catch (error) {
       console.error('Error picking images:', error);
-      Alert.alert('Error', 'Failed to pick images from gallery');
+      Alert.alert('Error', 'Failed to pick images from gallery. Please try again.');
     }
   };
 
   const takePhotoWithCamera = async () => {
     try {
+      // Request camera permissions first
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (permissionResult.status !== 'granted') {
+        Alert.alert(
+          'Camera Permission Required',
+          'We need access to your camera to take product photos. Please enable this permission in your device settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Settings', onPress: () => ImagePicker.requestCameraPermissionsAsync() }
+          ]
+        );
+        return;
+      }
+
+      // Check if we're at the image limit
+      if (productImages.length >= 10) {
+        Alert.alert('Image Limit Reached', 'You can upload a maximum of 10 images per product.');
+        return;
+      }
+
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.8,
@@ -206,7 +265,7 @@ export default function SellScreen() {
       }
     } catch (error) {
       console.error('Error taking photo:', error);
-      Alert.alert('Error', 'Failed to take photo');
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
     }
   };
 
@@ -224,24 +283,57 @@ export default function SellScreen() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        Alert.alert('Error', 'You must be logged in to upload images');
+        Alert.alert('Authentication Error', 'You must be logged in to upload images. Please log in and try again.');
+        setIsUploadingImages(false);
         return;
       }
 
-      // Upload images to Supabase storage
-      const uploadResult = await StorageService.uploadMultipleImages(imageUris, user.id);
+      // Upload images one by one with progress tracking
+      const uploadedUrls: string[] = [];
+      const errors: string[] = [];
 
-      if (uploadResult.success && uploadResult.urls) {
-        setUploadedImageUrls((prev) => [...prev, ...uploadResult.urls!]);
-        setUploadProgress(100);
-        Alert.alert('Success', `${uploadResult.urls.length} image(s) uploaded successfully!`);
+      for (let i = 0; i < imageUris.length; i++) {
+        try {
+          const result = await StorageService.uploadImage(imageUris[i], user.id);
+          
+          if (result.success && result.url) {
+            uploadedUrls.push(result.url);
+          } else {
+            errors.push(`Image ${i + 1}: ${result.error || 'Upload failed'}`);
+          }
+          
+          // Update progress
+          const progress = Math.round(((i + 1) / imageUris.length) * 100);
+          setUploadProgress(progress);
+        } catch (error) {
+          console.error(`Error uploading image ${i + 1}:`, error);
+          errors.push(`Image ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      // Update state with successful uploads
+      if (uploadedUrls.length > 0) {
+        setUploadedImageUrls((prev) => [...prev, ...uploadedUrls]);
+      }
+
+      // Show results
+      if (uploadedUrls.length === imageUris.length) {
+        // All images uploaded successfully
+        Alert.alert('Success', `${uploadedUrls.length} image(s) uploaded successfully!`);
+      } else if (uploadedUrls.length > 0) {
+        // Some images uploaded successfully
+        Alert.alert(
+          'Partial Success', 
+          `${uploadedUrls.length} of ${imageUris.length} images uploaded successfully. ${errors.length} failed.`
+        );
       } else {
-        const errorMessage = uploadResult.errors?.join(', ') || 'Failed to upload images';
-        Alert.alert('Upload Error', errorMessage);
+        // No images uploaded
+        const errorMessage = errors.length > 0 ? errors.join('\n') : 'All uploads failed';
+        Alert.alert('Upload Failed', errorMessage);
       }
     } catch (error) {
       console.error('Upload error:', error);
-      Alert.alert('Error', 'Failed to upload images to storage');
+      Alert.alert('Upload Error', 'Failed to upload images. Please check your internet connection and try again.');
     } finally {
       setIsUploadingImages(false);
       setUploadProgress(0);
@@ -500,7 +592,11 @@ export default function SellScreen() {
 
               {/* Upload Area */}
               <TouchableOpacity
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 items-center mb-4"
+                className={`border-2 border-dashed rounded-lg p-6 items-center mb-4 ${
+                  productImages.length >= 10 
+                    ? 'border-green-300 bg-green-50' 
+                    : 'border-gray-300'
+                }`}
                 onPress={() => setShowImagePickerModal(true)}
                 disabled={isUploadingImages}
               >
@@ -513,10 +609,23 @@ export default function SellScreen() {
                       <Text className="text-sm font-inter-semibold text-gray-700">Uploading...</Text>
                     </View>
                   </>
+                ) : productImages.length >= 10 ? (
+                  <>
+                    <Feather name="check-circle" size={32} color="#10B981" />
+                    <Text className="text-sm font-inter text-green-600 mt-2">Maximum images reached</Text>
+                    <Text className="text-xs font-inter text-green-500 mt-1">
+                      You have selected all 10 images for your product
+                    </Text>
+                  </>
                 ) : (
                   <>
                     <Feather name="upload" size={32} color="#666" />
-                    <Text className="text-sm font-inter text-gray-600 mt-2">Upload product images</Text>
+                    <Text className="text-sm font-inter text-gray-600 mt-2">
+                      {productImages.length > 0 
+                        ? `${productImages.length} of 10 images selected` 
+                        : 'Upload product images'
+                      }
+                    </Text>
                     <Text className="text-xs font-inter text-gray-400 mt-1">
                       Up to 10MB each, multiple images supported
                     </Text>
@@ -524,7 +633,9 @@ export default function SellScreen() {
                       className="bg-gray-200 rounded-lg py-2 px-4 mt-3"
                       onPress={() => setShowImagePickerModal(true)}
                     >
-                      <Text className="text-sm font-inter-semibold text-gray-700">Choose Images</Text>
+                      <Text className="text-sm font-inter-semibold text-gray-700">
+                        {productImages.length > 0 ? 'Add More Images' : 'Choose Images'}
+                      </Text>
                     </TouchableOpacity>
                   </>
                 )}
@@ -532,34 +643,74 @@ export default function SellScreen() {
 
               {/* Image Previews */}
               {productImages.length > 0 && (
-                <View className="flex-row flex-wrap gap-2">
-                  {productImages.map((imageUri, index) => {
-                    const isUploaded = uploadedImageUrls[index];
-                    return (
-                      <TouchableOpacity key={index} className="relative">
-                        <Image source={{ uri: imageUri }} className="w-20 h-20 rounded-lg" resizeMode="cover" />
+                <View className="mt-3">
+                  <View className="flex-row justify-between items-center mb-2">
+                    <Text className="text-sm font-inter-semibold text-gray-700">
+                      {productImages.length} of 10 images
+                    </Text>
+                    {isUploadingImages && (
+                      <View className="flex-row items-center">
+                        <Text className="text-xs font-inter text-gray-500 mr-2">
+                          Uploading... {uploadProgress}%
+                        </Text>
+                        <View className="w-16 h-1 bg-gray-200 rounded-full">
+                          <View 
+                            className="h-1 bg-blue-500 rounded-full" 
+                            style={{ width: `${uploadProgress}%` }}
+                          />
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                  
+                  <View className="flex-row flex-wrap gap-2">
+                    {productImages.map((imageUri, index) => {
+                      const isUploaded = uploadedImageUrls[index];
+                      const isUploading = isUploadingImages && !isUploaded;
+                      
+                      return (
+                        <TouchableOpacity key={index} className="relative">
+                          <Image 
+                            source={{ uri: imageUri }} 
+                            className="w-20 h-20 rounded-lg" 
+                            resizeMode="cover"
+                            style={{ opacity: isUploading ? 0.7 : 1 }}
+                          />
 
-                        {/* Upload Status Indicator */}
-                        {isUploaded ? (
-                          <View className="absolute -top-2 -left-2 bg-green-500 rounded-full w-6 h-6 items-center justify-center">
-                            <Feather name="check" size={14} color="#fff" />
-                          </View>
-                        ) : (
-                          <View className="absolute -top-2 -left-2 bg-yellow-500 rounded-full w-6 h-6 items-center justify-center">
-                            <Feather name="clock" size={14} color="#fff" />
-                          </View>
-                        )}
+                          {/* Upload Status Indicator */}
+                          {isUploaded ? (
+                            <View className="absolute -top-2 -left-2 bg-green-500 rounded-full w-6 h-6 items-center justify-center">
+                              <Feather name="check" size={14} color="#fff" />
+                            </View>
+                          ) : isUploading ? (
+                            <View className="absolute -top-2 -left-2 bg-blue-500 rounded-full w-6 h-6 items-center justify-center">
+                              <Feather name="upload" size={14} color="#fff" />
+                            </View>
+                          ) : (
+                            <View className="absolute -top-2 -left-2 bg-yellow-500 rounded-full w-6 h-6 items-center justify-center">
+                              <Feather name="clock" size={14} color="#fff" />
+                            </View>
+                          )}
 
-                        {/* Remove Button */}
-                        <TouchableOpacity
-                          className="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
-                          onPress={() => removeImage(index)}
-                        >
-                          <Feather name="x" size={14} color="#fff" />
+                          {/* Remove Button */}
+                          <TouchableOpacity
+                            className="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
+                            onPress={() => removeImage(index)}
+                            disabled={isUploading}
+                          >
+                            <Feather name="x" size={14} color="#fff" />
+                          </TouchableOpacity>
+
+                          {/* Upload Progress Overlay */}
+                          {isUploading && (
+                            <View className="absolute inset-0 bg-black/20 rounded-lg items-center justify-center">
+                              <View className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            </View>
+                          )}
                         </TouchableOpacity>
-                      </TouchableOpacity>
-                    );
-                  })}
+                      );
+                    })}
+                  </View>
                 </View>
               )}
             </View>
@@ -1092,30 +1243,57 @@ export default function SellScreen() {
               </TouchableOpacity>
             </View>
 
+            {/* Image Count Info */}
+            <View className="bg-blue-50 rounded-lg p-3 mb-4">
+              <View className="flex-row items-center">
+                <Feather name="info" size={16} color="#3B82F6" />
+                <Text className="text-sm font-inter text-blue-800 ml-2">
+                  {productImages.length} of 10 images selected
+                </Text>
+              </View>
+              <Text className="text-xs font-inter text-blue-600 mt-1">
+                You can add up to 10 high-quality images to showcase your product
+              </Text>
+            </View>
+
             {/* Options */}
             <View className="space-y-3">
               <TouchableOpacity
-                className="bg-gray-100 rounded-lg py-4 px-4 flex-row items-center"
+                className={`rounded-lg py-4 px-4 flex-row items-center ${
+                  productImages.length >= 10 ? 'bg-gray-100 opacity-50' : 'bg-gray-100'
+                }`}
                 onPress={pickImageFromGallery}
+                disabled={productImages.length >= 10}
               >
                 <Feather name="image" size={24} color="#666" className="mr-4" />
                 <View className="flex-1">
                   <Text className="text-base font-inter-semibold text-black">Choose from Gallery</Text>
                   <Text className="text-sm font-inter text-gray-600">
-                    Select multiple images from your photo library
+                    {productImages.length >= 10 
+                      ? 'Maximum images reached' 
+                      : 'Select multiple images from your photo library'
+                    }
                   </Text>
                 </View>
                 <Feather name="chevron-right" size={20} color="#999" />
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="bg-gray-100 rounded-lg py-4 px-4 flex-row items-center"
+                className={`rounded-lg py-4 px-4 flex-row items-center ${
+                  productImages.length >= 10 ? 'bg-gray-100 opacity-50' : 'bg-gray-100'
+                }`}
                 onPress={takePhotoWithCamera}
+                disabled={productImages.length >= 10}
               >
                 <Feather name="camera" size={24} color="#666" className="mr-4" />
                 <View className="flex-1">
                   <Text className="text-base font-inter-semibold text-black">Take Photo</Text>
-                  <Text className="text-sm font-inter text-gray-600">Capture a new photo with your camera</Text>
+                  <Text className="text-sm font-inter text-gray-600">
+                    {productImages.length >= 10 
+                      ? 'Maximum images reached' 
+                      : 'Capture a new photo with your camera'
+                    }
+                  </Text>
                 </View>
                 <Feather name="chevron-right" size={20} color="#999" />
               </TouchableOpacity>
