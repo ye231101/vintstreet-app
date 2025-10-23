@@ -1,37 +1,147 @@
-import { Feather } from '@expo/vector-icons';
-import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 export interface FilterSortBarProps {
   filterCount?: number;
   sortBy?: string;
-  onFilterPress?: () => void;
-  onSortPress?: () => void;
+  priceFilter?: string;
+  onPriceFilterChange?: (value: string) => void;
+  onSortChange?: (value: string) => void;
 }
 
 const FilterSortBar: React.FC<FilterSortBarProps> = ({
   filterCount = 0,
   sortBy = 'Most Relevant',
-  onFilterPress,
-  onSortPress,
+  priceFilter = 'All Prices',
+  onPriceFilterChange,
+  onSortChange,
 }) => {
+  const [sortOpen, setSortOpen] = useState(false);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [sortValue, setSortValue] = useState(sortBy);
+  const [priceValue, setPriceValue] = useState(priceFilter);
+
+  const sortItems = [
+    { label: 'Most Relevant', value: 'Most Relevant' },
+    { label: 'Price: Low to High', value: 'Price: Low to High' },
+    { label: 'Price: High to Low', value: 'Price: High to Low' },
+    { label: 'Newest First', value: 'Newest First' },
+    { label: 'Oldest First', value: 'Oldest First' },
+    { label: 'Most Popular', value: 'Most Popular' },
+  ];
+
+  const priceItems = [
+    { label: 'All Prices', value: 'All Prices' },
+    { label: 'Under £50.00', value: 'Under £50.00' },
+    { label: '£50.00 - £100.00', value: '£50.00 - £100.00' },
+    { label: '£100.00 - £200.00', value: '£100.00 - £200.00' },
+    { label: 'Over £200.00', value: 'Over £200.00' },
+  ];
+
+  const handleSortChange = (value: string) => {
+    setSortValue(value);
+    onSortChange?.(value);
+  };
+
+  const handlePriceChange = (value: string) => {
+    setPriceValue(value);
+    onPriceFilterChange?.(value);
+  };
+
   return (
     <View className="flex-row px-4 py-3 bg-white border-b border-gray-100 gap-3">
-      <Pressable
-        className="flex-1 flex-row items-center justify-center bg-gray-100 rounded-2xl px-4 py-2 gap-2"
-        onPress={onFilterPress}
-      >
-        <Text className="text-sm font-inter text-gray-800">Filter by {filterCount > 0 && `| ${filterCount}`}</Text>
-        <Feather name="chevron-down" size={16} color="#666" />
-      </Pressable>
+      {/* Price Filter Dropdown */}
+      <View className="flex-1">
+        <DropDownPicker
+          open={priceOpen}
+          value={priceValue}
+          items={priceItems}
+          setOpen={setPriceOpen}
+          setValue={(callback) => {
+            const newValue = typeof callback === 'function' ? callback(priceValue) : callback;
+            handlePriceChange(newValue);
+          }}
+          placeholder="Filter by price"
+          style={{
+            backgroundColor: '#f3f4f6',
+            borderColor: 'transparent',
+            borderRadius: 16,
+            minHeight: 40,
+          }}
+          textStyle={{
+            fontSize: 14,
+            fontFamily: 'Inter',
+            color: '#374151',
+          }}
+          dropDownContainerStyle={{
+            backgroundColor: '#ffffff',
+            borderColor: '#e5e7eb',
+            borderRadius: 12,
+            marginTop: 4,
+          }}
+          arrowIconStyle={{
+            width: 16,
+            height: 16,
+          }}
+          tickIconStyle={{
+            width: 16,
+            height: 16,
+          }}
+          scrollViewProps={{
+            scrollEnabled: false,
+          }}
+          listMode="SCROLLVIEW"
+          zIndex={2000}
+          zIndexInverse={2000}
+        />
+      </View>
 
-      <Pressable
-        className="flex-1 flex-row items-center justify-center bg-gray-100 rounded-2xl px-4 py-2 gap-2"
-        onPress={onSortPress}
-      >
-        <Text className="text-sm font-inter text-gray-800">Sort by | {sortBy}</Text>
-        <Feather name="chevron-down" size={16} color="#666" />
-      </Pressable>
+      {/* Sort Dropdown */}
+      <View className="flex-1">
+        <DropDownPicker
+          open={sortOpen}
+          value={sortValue}
+          items={sortItems}
+          setOpen={setSortOpen}
+          setValue={(callback) => {
+            const newValue = typeof callback === 'function' ? callback(sortValue) : callback;
+            handleSortChange(newValue);
+          }}
+          placeholder="Sort by"
+          style={{
+            backgroundColor: '#f3f4f6',
+            borderColor: 'transparent',
+            borderRadius: 16,
+            minHeight: 40,
+          }}
+          textStyle={{
+            fontSize: 14,
+            fontFamily: 'Inter',
+            color: '#374151',
+          }}
+          dropDownContainerStyle={{
+            backgroundColor: '#ffffff',
+            borderColor: '#e5e7eb',
+            borderRadius: 12,
+            marginTop: 4,
+          }}
+          arrowIconStyle={{
+            width: 16,
+            height: 16,
+          }}
+          tickIconStyle={{
+            width: 16,
+            height: 16,
+          }}
+          scrollViewProps={{
+            scrollEnabled: false,
+          }}
+          listMode="SCROLLVIEW"
+          zIndex={1000}
+          zIndexInverse={1000}
+        />
+      </View>
     </View>
   );
 };

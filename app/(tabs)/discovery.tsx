@@ -1,7 +1,6 @@
 import { categoriesService, listingsService } from '@/api/services';
 import { Product } from '@/api/services/listings.service';
 import { Category } from '@/api/types/category.types';
-import FilterModal from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
@@ -17,9 +16,7 @@ export default function DiscoveryScreen() {
   const [searchText, setSearchText] = useState('');
   const [categoryPath, setCategoryPath] = useState<Category[]>([]);
   const [currentView, setCurrentView] = useState<'categories' | 'subcategories' | 'products'>('categories');
-  const [filterCount, setFilterCount] = useState(0);
   const [sortBy, setSortBy] = useState('Most Relevant');
-  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // New state for API data
   const [categories, setCategories] = useState<Category[]>([]);
@@ -38,7 +35,7 @@ export default function DiscoveryScreen() {
   // Filter and sort state
   const [appliedFilters, setAppliedFilters] = useState<any>({});
   const [currentSortBy, setCurrentSortBy] = useState('Most Relevant');
-  const [showSortModal, setShowSortModal] = useState(false);
+  const [currentPriceFilter, setCurrentPriceFilter] = useState('All Prices');
 
   // Load categories on component mount
   useEffect(() => {
@@ -74,7 +71,12 @@ export default function DiscoveryScreen() {
     }
   };
 
-  const loadProductsForCategory = async (category: Category, filters?: any, sortBy?: string) => {
+  const loadProductsForCategory = async (
+    category: Category,
+    filters?: any,
+    sortBy?: string,
+    priceFilterOverride?: string
+  ) => {
     try {
       setIsLoadingProducts(true);
       setProductsError(null);
@@ -95,8 +97,11 @@ export default function DiscoveryScreen() {
         }
       }
 
-      // Query by category UUID against known id columns
-      const apiProducts = await listingsService.getListingsByCategory(category.id, sortOrder);
+      // Use override if provided, otherwise use current state
+      const priceFilter = priceFilterOverride !== undefined ? priceFilterOverride : currentPriceFilter;
+
+      // Query by category UUID against known id columns with price filter
+      const apiProducts = await listingsService.getListingsByCategory(category.id, sortOrder, priceFilter);
       setProducts(apiProducts);
     } catch (err) {
       console.error('Error loading products for category:', err);
@@ -160,7 +165,7 @@ export default function DiscoveryScreen() {
       setIsSearching(true);
       setShowSearchResults(true);
 
-      const results = await listingsService.searchListings(searchText.trim());
+      const results = await listingsService.searchListings(searchText.trim(), currentPriceFilter);
       setSearchResults(results);
     } catch (error) {
       console.error('Error searching products:', error);
@@ -179,30 +184,31 @@ export default function DiscoveryScreen() {
     }
   };
 
-  const handleFilterPress = () => {
-    setShowFilterModal(true);
-  };
+  const handlePriceFilterChange = async (priceFilter: string) => {
+    setCurrentPriceFilter(priceFilter);
 
-  const handleApplyFilters = (filters: any) => {
-    setAppliedFilters(filters);
-
-    // Update filter count based on applied filters
-    const totalFilters = Object.values(filters).reduce((total: number, options: any) => total + options.length, 0);
-    setFilterCount(totalFilters);
-
-    // Reload products with new filters if we're in products view
+    // Reload products with new price filter if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
-      loadProductsForCategory(categoryPath[categoryPath.length - 1], filters, currentSortBy);
+      await loadProductsForCategory(categoryPath[categoryPath.length - 1], {}, currentSortBy, priceFilter);
     }
-  };
 
-  const handleSortPress = () => {
-    setShowSortModal(true);
+    // Reload search results if we're showing search results
+    if (showSearchResults && searchText.trim()) {
+      try {
+        setIsSearching(true);
+        const results = await listingsService.searchListings(searchText.trim(), priceFilter);
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Error searching with price filter:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }
   };
 
   const handleSortChange = (sortOption: string) => {
     setCurrentSortBy(sortOption);
-    setShowSortModal(false);
 
     // Reload products with new sort if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
@@ -275,10 +281,10 @@ export default function DiscoveryScreen() {
       return (
         <View className="flex-1">
           <FilterSortBar
-            filterCount={filterCount}
+            priceFilter={currentPriceFilter}
             sortBy={sortBy}
-            onFilterPress={handleFilterPress}
-            onSortPress={handleSortPress}
+            onPriceFilterChange={handlePriceFilterChange}
+            onSortChange={handleSortChange}
           />
           {isSearching ? (
             <View className="flex-1 justify-center items-center p-5">
@@ -383,10 +389,10 @@ export default function DiscoveryScreen() {
         return (
           <View className="flex-1">
             <FilterSortBar
-              filterCount={filterCount}
+              priceFilter={currentPriceFilter}
               sortBy={currentSortBy}
-              onFilterPress={handleFilterPress}
-              onSortPress={handleSortPress}
+              onPriceFilterChange={handlePriceFilterChange}
+              onSortChange={handleSortChange}
             />
             {isLoadingProducts ? (
               <View className="flex-1 justify-center items-center p-5">
@@ -474,47 +480,6 @@ export default function DiscoveryScreen() {
             <Text className="text-white text-base font-inter-bold">View all products in this category</Text>
           </Pressable>
         </View>
-      )}
-
-      {/* Filter Modal */}
-      <FilterModal
-        visible={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        onApplyFilters={handleApplyFilters}
-      />
-
-      {/* Sort Dropdown */}
-      {showSortModal && (
-        <>
-          <Pressable className="absolute top-0 left-0 right-0 bottom-0 z-50" onPress={() => setShowSortModal(false)} />
-          <View className="absolute top-12 right-5 w-60 bg-white rounded-lg shadow-lg z-50">
-            {[
-              'Most Relevant',
-              'Price: Low to High',
-              'Price: High to Low',
-              'Newest First',
-              'Oldest First',
-              'Most Popular',
-            ].map((option) => (
-              <Pressable
-                key={option}
-                className={`flex-row justify-between items-center px-4 py-3 border-b border-gray-100 ${
-                  currentSortBy === option ? 'bg-gray-50' : ''
-                }`}
-                onPress={() => handleSortChange(option)}
-              >
-                <Text
-                  className={`text-sm font-inter text-gray-800 flex-1 ${
-                    currentSortBy === option ? 'font-inter-semibold text-black' : ''
-                  }`}
-                >
-                  {option}
-                </Text>
-                {currentSortBy === option && <Feather name="check" size={16} color="#000" />}
-              </Pressable>
-            ))}
-          </View>
-        </>
       )}
     </SafeAreaView>
   );
