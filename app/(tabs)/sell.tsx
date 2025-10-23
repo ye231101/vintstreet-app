@@ -1,7 +1,8 @@
 import { showSuccessToast } from '@/utils/toast';
+import { AuthUtils } from '@/utils/auth-utils';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -364,18 +365,60 @@ export default function SellScreen() {
   const uploadImagesToStorage = async (imageUris: string[]) => {
     if (imageUris.length === 0) return;
 
+    // Check if user needs re-authentication before starting upload
+    const needsReAuth = await AuthUtils.needsReAuthentication();
+    if (needsReAuth) {
+      Alert.alert(
+        'Session Expired',
+        'Your session has expired. Please log in again to continue.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Log In',
+            onPress: () => router.replace('/(auth)')
+          }
+        ]
+      );
+      return;
+    }
+
     setIsUploadingImages(true);
     setUploadProgress(0);
 
     try {
-      // Get current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // Get current user with automatic session refresh
+      const { user, error: authError } = await AuthUtils.getCurrentUserWithRefresh(2);
 
       if (!user) {
-        Alert.alert('Authentication Error', 'You must be logged in to upload images. Please log in and try again.');
-        setIsUploadingImages(false);
+        Alert.alert(
+          'Authentication Error', 
+          authError || 'Your session has expired. Please log in again to upload images.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => setIsUploadingImages(false)
+            },
+            {
+              text: 'Try Again',
+              onPress: () => {
+                // Retry the upload process
+                uploadImagesToStorage(imageUris);
+              }
+            },
+            {
+              text: 'Log In',
+              onPress: () => {
+                setIsUploadingImages(false);
+                // Navigate to login screen
+                router.replace('/(auth)');
+              }
+            }
+          ]
+        );
         return;
       }
 
@@ -455,13 +498,28 @@ export default function SellScreen() {
 
     setIsSavingDraft(true);
     try {
-      // Get current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // Get current user with automatic session refresh
+      const { user, error: authError } = await AuthUtils.getCurrentUserWithRefresh(2);
+      
       if (!user) {
-        Alert.alert('Error', 'You must be logged in to save products.');
-        setIsSavingDraft(false);
+        Alert.alert(
+          'Authentication Error', 
+          authError || 'Your session has expired. Please log in again to save products.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => setIsSavingDraft(false)
+            },
+            {
+              text: 'Log In',
+              onPress: () => {
+                setIsSavingDraft(false);
+                router.replace('/(auth)');
+              }
+            }
+          ]
+        );
         return;
       }
 
@@ -549,13 +607,28 @@ export default function SellScreen() {
 
     setIsPublishing(true);
     try {
-      // Get current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // Get current user with automatic session refresh
+      const { user, error: authError } = await AuthUtils.getCurrentUserWithRefresh(2);
+      
       if (!user) {
-        Alert.alert('Error', 'You must be logged in to publish products.');
-        setIsPublishing(false);
+        Alert.alert(
+          'Authentication Error', 
+          authError || 'Your session has expired. Please log in again to publish products.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => setIsPublishing(false)
+            },
+            {
+              text: 'Log In',
+              onPress: () => {
+                setIsPublishing(false);
+                router.replace('/(auth)');
+              }
+            }
+          ]
+        );
         return;
       }
 

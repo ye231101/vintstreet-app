@@ -46,6 +46,12 @@ export class StorageService {
 
       if (error) {
         console.error('Upload error:', error);
+        
+        // Check if it's an authentication error
+        if (error.message.includes('JWT') || error.message.includes('token') || error.message.includes('auth')) {
+          return { success: false, error: 'Authentication expired. Please log in again.' };
+        }
+        
         return { success: false, error: error.message };
       }
 
@@ -57,6 +63,17 @@ export class StorageService {
       return { success: true, url: publicUrlData.publicUrl };
     } catch (error) {
       console.error('Upload error:', error);
+      
+      // Check if it's an authentication error
+      if (error instanceof Error && (
+        error.message.includes('JWT') || 
+        error.message.includes('token') || 
+        error.message.includes('auth') ||
+        error.message.includes('unauthorized')
+      )) {
+        return { success: false, error: 'Authentication expired. Please log in again.' };
+      }
+      
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error occurred' 
