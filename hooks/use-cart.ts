@@ -4,10 +4,7 @@ import {
   selectCart,
   selectCartError,
   selectCartItemByProductId,
-  selectCartItemCount,
-  selectCartItemCountByProduct,
   selectCartLoading,
-  selectCartTotal,
   selectIsCartEmpty,
 } from '@/store/selectors/cartSelectors';
 import {
@@ -18,7 +15,6 @@ import {
   removeFromCartAsync,
   resetCart,
   setError,
-  updateQuantityAsync,
 } from '@/store/slices/cartSlice';
 import { useEffect } from 'react';
 
@@ -32,8 +28,6 @@ export const useCart = () => {
   const cart = useAppSelector(selectCart);
   const isLoading = useAppSelector(selectCartLoading);
   const error = useAppSelector(selectCartError);
-  const itemCount = useAppSelector(selectCartItemCount);
-  const total = useAppSelector(selectCartTotal);
   const isEmpty = useAppSelector(selectIsCartEmpty);
 
   // Fetch cart when user ID changes
@@ -47,12 +41,12 @@ export const useCart = () => {
   }, [userId, dispatch]);
 
   // Actions
-  const addItem = async (product: Product, quantity: number = 1) => {
+  const addItem = async (product: Product) => {
     if (!userId) {
       dispatch(setError('Please sign in to add items to cart'));
       return;
     }
-    await dispatch(addToCartAsync({ userId, listingId: product.id, quantity }));
+    await dispatch(addToCartAsync({ userId, listingId: product.id }));
   };
 
   const removeItem = async (itemId: string) => {
@@ -61,14 +55,6 @@ export const useCart = () => {
       return;
     }
     await dispatch(removeFromCartAsync({ userId, listingId: itemId }));
-  };
-
-  const updateItemQuantity = async (itemId: string, quantity: number) => {
-    if (!userId) {
-      dispatch(setError('Please sign in to update cart'));
-      return;
-    }
-    await dispatch(updateQuantityAsync({ userId, listingId: itemId, quantity }));
   };
 
   const clearAll = async () => {
@@ -98,24 +84,17 @@ export const useCart = () => {
     return useAppSelector(selectCartItemByProductId(productId));
   };
 
-  const getItemCountByProduct = (productId: string) => {
-    return useAppSelector(selectCartItemCountByProduct(productId));
-  };
-
   return {
     // State
     cart,
     isLoading,
     error,
-    itemCount,
-    total,
     isEmpty,
     userId,
 
     // Actions
     addItem,
     removeItem,
-    updateItemQuantity,
     clearAll,
     refreshCart,
     setCartError,
@@ -123,6 +102,5 @@ export const useCart = () => {
 
     // Utility functions
     getItemByProductId,
-    getItemCountByProduct,
   };
 };
