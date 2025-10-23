@@ -309,7 +309,11 @@ export default function MessageDetailScreen() {
           ) : (
             messageItems.map((item: MessageItem, index: number) => {
               if ('type' in item && item.type === 'date') {
-                return <React.Fragment key={`date-${item.date}-${index}`}>{renderDateHeader(item as DateHeader)}</React.Fragment>;
+                return (
+                  <React.Fragment key={`date-${item.date}-${index}`}>
+                    {renderDateHeader(item as DateHeader)}
+                  </React.Fragment>
+                );
               } else {
                 const message = item as Message;
                 return <React.Fragment key={message.id}>{renderMessage(message)}</React.Fragment>;
@@ -324,10 +328,14 @@ export default function MessageDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200 min-h-15">
-          <View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-2 mr-3 max-h-10 min-h-6">
+        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200 max-h-10">
+          <View
+            className="flex-1 flex-row items-center bg-gray-100 rounded-xl px-4 py-1 mr-3"
+            style={{ maxHeight: 250 }}
+          >
             <TextInput
-              className="flex-1 text-sm font-inter text-black max-h-10 min-h-6"
+              className="flex-1 text-sm font-inter text-black"
+              style={{ maxHeight: 250 }}
               placeholder="Type a message..."
               placeholderTextColor="#999"
               value={messageText}
