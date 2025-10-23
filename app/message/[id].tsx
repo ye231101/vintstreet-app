@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { messagesService, ApiMessage } from '../../api/services/messages.service';
+import { messagesService } from '../../api/services/messages.service';
 import { useAuth } from '../../hooks/use-auth';
 
 interface Message {
@@ -307,11 +307,16 @@ export default function MessageDetailScreen() {
               <Text className="text-base font-inter text-gray-600">Loading messages...</Text>
             </View>
           ) : (
-            messageItems.map((item: MessageItem) => {
+            messageItems.map((item: MessageItem, index: number) => {
               if ('type' in item && item.type === 'date') {
-                return renderDateHeader(item as DateHeader);
+                return (
+                  <React.Fragment key={`date-${item.date}-${index}`}>
+                    {renderDateHeader(item as DateHeader)}
+                  </React.Fragment>
+                );
               } else {
-                return renderMessage(item as Message);
+                const message = item as Message;
+                return <React.Fragment key={message.id}>{renderMessage(message)}</React.Fragment>;
               }
             })
           )}
@@ -323,10 +328,14 @@ export default function MessageDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200 min-h-15">
-          <View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-2 mr-3 min-h-10">
+        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200 max-h-10">
+          <View
+            className="flex-1 flex-row items-center bg-gray-100 rounded-xl px-4 py-1 mr-3"
+            style={{ maxHeight: 250 }}
+          >
             <TextInput
-              className="flex-1 text-sm font-inter text-black max-h-25 min-h-6"
+              className="flex-1 text-sm font-inter text-black"
+              style={{ maxHeight: 250 }}
               placeholder="Type a message..."
               placeholderTextColor="#999"
               value={messageText}
