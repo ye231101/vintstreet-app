@@ -83,7 +83,7 @@ export default function OrdersScreen() {
       case 'pending': // Pending
         return orders.filter((order) => order.status === 'pending');
       case 'shipped': // Shipped
-        return orders.filter((order) => order.status === 'shipped');  
+        return orders.filter((order) => order.status === 'shipped');
       case 'delivered': // Delivered (Completed)
         return orders.filter((order) => order.status === 'completed');
       case 'cancelled': // Cancelled
@@ -131,7 +131,9 @@ export default function OrdersScreen() {
             <View className="flex-1">
               <Text className="text-gray-900 font-inter-medium text-base mb-1">{item.name}</Text>
               <Text className="text-gray-600 text-sm font-inter mb-1">Quantity: {item.quantity}</Text>
-              <Text className="text-gray-900 font-inter-bold text-base">£{item.price.toFixed(2)}</Text>
+              <Text className="text-gray-900 font-inter-bold text-base">
+                £{item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Text>
             </View>
           </View>
         </View>
@@ -142,7 +144,9 @@ export default function OrdersScreen() {
 
       {/* Order actions */}
       <View className="flex-row justify-between items-center p-4">
-        <Text className="text-gray-900 font-inter-bold text-base">Total: £{order.totals.total.toFixed(2)}</Text>
+        <Text className="text-gray-900 font-inter-bold text-base">
+          Total: £{order.totals.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </Text>
         <View className="flex-row gap-2">
           {order.status === 'pending' && (
             <TouchableOpacity

@@ -1,15 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { ActivityIndicator, Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../api/config/supabase';
 import { ContactSellerModal } from '../../components/contact-seller-modal';
@@ -190,11 +182,7 @@ export default function OrdersScreen() {
           {/* Product Image */}
           <View className="w-20 h-20 rounded-lg bg-gray-200 overflow-hidden">
             {order.listing?.product_image ? (
-              <Image
-                source={{ uri: order.listing.product_image }}
-                className="w-20 h-20"
-                resizeMode="cover"
-              />
+              <Image source={{ uri: order.listing.product_image }} className="w-20 h-20" resizeMode="cover" />
             ) : (
               <View className="w-20 h-20 bg-gray-200 justify-center items-center">
                 <Feather name="image" color="#666" size={24} />
@@ -209,14 +197,8 @@ export default function OrdersScreen() {
                 <Text className="text-gray-900 text-base font-inter-semibold mb-1">{productName}</Text>
                 <Text className="text-gray-600 text-sm font-inter">Order #{order.id.slice(-8)}</Text>
               </View>
-              <View
-                className="rounded-full px-3 py-1"
-                style={{ backgroundColor: statusColors.bg }}
-              >
-                <Text
-                  className="font-inter-semibold text-xs"
-                  style={{ color: statusColors.text }}
-                >
+              <View className="rounded-full px-3 py-1" style={{ backgroundColor: statusColors.bg }}>
+                <Text className="font-inter-semibold text-xs" style={{ color: statusColors.text }}>
                   {order.delivery_status.charAt(0).toUpperCase() + order.delivery_status.slice(1)}
                 </Text>
               </View>
@@ -225,11 +207,15 @@ export default function OrdersScreen() {
             <View className="flex-row items-center gap-2 mb-3">
               <Text className="text-gray-600 text-sm font-inter">Qty: {order.quantity}</Text>
               <Text className="text-gray-400">•</Text>
-              <Text className="text-gray-600 text-sm font-inter">£{Number(order.order_amount).toFixed(2)}</Text>
-              <Text className="text-gray-400">•</Text>
               <Text className="text-gray-600 text-sm font-inter">
-                {formatDate(order.order_date)}
+                £
+                {Number(order.order_amount).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </Text>
+              <Text className="text-gray-400">•</Text>
+              <Text className="text-gray-600 text-sm font-inter">{formatDate(order.order_date)}</Text>
             </View>
 
             {/* Action Buttons */}
@@ -265,9 +251,7 @@ export default function OrdersScreen() {
           <Feather name="package" color="#666666" size={64} style={{ marginBottom: 24 }} />
           <Text className="text-gray-900 text-lg font-inter-bold mb-2">No orders found</Text>
           <Text className="text-gray-600 text-sm font-inter text-center px-6 mb-6">
-            {activeTab === 'all'
-              ? "You haven't placed any orders yet"
-              : `No ${activeTab} orders found`}
+            {activeTab === 'all' ? "You haven't placed any orders yet" : `No ${activeTab} orders found`}
           </Text>
         </View>
       );

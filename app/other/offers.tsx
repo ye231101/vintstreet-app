@@ -308,12 +308,14 @@ export default function MyOffersScreen() {
             <View className="flex-row justify-between items-center mb-1">
               <Text className="text-xs font-inter text-gray-600">Original:</Text>
               <Text className="text-sm font-inter-medium text-gray-800 line-through">
-                £{offer.originalPrice.toFixed(2)}
+                £{offer.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
             <View className="flex-row justify-between items-center">
               <Text className="text-xs font-inter text-gray-600">Your Offer:</Text>
-              <Text className="text-lg font-inter-bold text-green-600">£{offer.offerAmount.toFixed(2)}</Text>
+              <Text className="text-lg font-inter-bold text-green-600">
+                £{offer.offerAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Text>
             </View>
           </View>
           <Text className="text-xs font-inter text-gray-500">{new Date(offer.createdAt).toLocaleDateString()}</Text>
@@ -372,7 +374,9 @@ export default function MyOffersScreen() {
               </Text>
             </View>
             <View className="items-end">
-              <Text className="text-lg font-inter-bold text-gray-900 mb-1">£{offer.offerAmount.toFixed(2)}</Text>
+              <Text className="text-lg font-inter-bold text-gray-900 mb-1">
+                £{offer.offerAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Text>
               <StatusBadge status={offer.status} />
             </View>
           </View>
@@ -432,7 +436,9 @@ export default function MyOffersScreen() {
               </Text>
             </View>
             <View className="items-end">
-              <Text className="text-lg font-inter-bold text-gray-900 mb-1">£{offer.offerAmount.toFixed(2)}</Text>
+              <Text className="text-lg font-inter-bold text-gray-900 mb-1">
+                £{offer.offerAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Text>
               <StatusBadge status={offer.status} />
             </View>
           </View>

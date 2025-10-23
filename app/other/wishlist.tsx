@@ -26,7 +26,7 @@ export default function WishlistScreen() {
 
   const handleAddToCart = (product: Product) => {
     // Check if item is already in cart
-    const existingItem = cart.items.find((cartItem) => cartItem.product.id === product.id);
+    const existingItem = cart.items.find((cartItem) => cartItem.product?.id === product.id);
     if (existingItem) {
       // Item already in cart - could show a toast or do nothing
       return;
@@ -74,15 +74,19 @@ export default function WishlistScreen() {
               {hasDiscount ? (
                 <View className="gap-0.5">
                   <Text className="text-lg font-inter-bold text-black">
-                    £{finalPrice.toFixed(2)}
+                    £{finalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </Text>
                   <Text className="text-xs text-gray-400 font-inter line-through">
-                    £{item.starting_price.toFixed(2)}
+                    £
+                    {item.starting_price.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </Text>
                 </View>
               ) : (
                 <Text className="text-lg font-inter-bold text-black">
-                  £{finalPrice.toFixed(2)}
+                  £{finalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Text>
               )}
             </View>
@@ -118,9 +122,7 @@ export default function WishlistScreen() {
   const EmptyState = () => (
     <View className="flex-1 justify-center items-center px-8">
       <Feather name="heart" color="#999" size={64} />
-      <Text className="text-gray-600 text-lg font-inter-medium mt-4 mb-2">
-        Your wishlist is empty
-      </Text>
+      <Text className="text-gray-600 text-lg font-inter-medium mt-4 mb-2">Your wishlist is empty</Text>
       <Text className="text-gray-400 text-sm font-inter text-center mb-6">
         Start adding items you love to your wishlist!
       </Text>
@@ -167,9 +169,7 @@ export default function WishlistScreen() {
           className="px-4 pt-4"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} />}
         />
       )}
     </SafeAreaView>

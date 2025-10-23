@@ -59,9 +59,13 @@ export default function ListingsScreen() {
         <View className="flex-row justify-between items-start mb-3">
           <View className="flex-1">
             <Text className="text-gray-900 font-inter-bold text-base mb-1">{product.product_name}</Text>
-            <Text className="text-gray-600 text-sm font-inter">£{product.starting_price.toFixed(2)}</Text>
+            <Text className="text-gray-600 text-sm font-inter">
+              £{product.starting_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </Text>
           </View>
-          <View className={`${product.status === 'published' ? 'bg-green-500' : 'bg-orange-500'} rounded-full px-3 py-1.5`}>
+          <View
+            className={`${product.status === 'published' ? 'bg-green-500' : 'bg-orange-500'} rounded-full px-3 py-1.5`}
+          >
             <Text className="text-white font-inter-bold text-xs">
               {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
             </Text>
@@ -133,9 +137,7 @@ export default function ListingsScreen() {
         <View className="flex-1 justify-center items-center px-8 bg-white rounded-xl py-12 shadow-sm">
           <Feather name="package" color="#666" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4">No products yet</Text>
-          <Text className="text-gray-600 text-sm font-inter mt-2 text-center">
-            Create your first product template
-          </Text>
+          <Text className="text-gray-600 text-sm font-inter mt-2 text-center">Create your first product template</Text>
         </View>
       );
     }

@@ -4,7 +4,7 @@ import SearchBar from '@/components/search-bar';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -13,6 +13,7 @@ export default function HomeScreen() {
   const [listings, setListings] = useState<Product[]>([]);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
   const [listingsError, setListingsError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Search functionality
   const [searchText, setSearchText] = useState('');
@@ -40,6 +41,28 @@ export default function HomeScreen() {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      if (showSearchResults) {
+        // Refresh search results
+        await handleSearch();
+      } else {
+        // Refresh listings
+        const apiProducts = await listingsService.getListings();
+        setListings(apiProducts);
+        setListingsError(null);
+      }
+    } catch (err) {
+      console.error('Error refreshing:', err);
+      if (!showSearchResults) {
+        setListingsError(err instanceof Error ? err.message : 'Failed to refresh listings');
+      }
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const handleProductPress = (productId: string) => {
     router.push(`/product/${productId}` as any);
   };
@@ -53,7 +76,7 @@ export default function HomeScreen() {
     try {
       setIsSearching(true);
       setShowSearchResults(true);
-      
+
       const results = await listingsService.searchListings(searchText.trim());
       setSearchResults(results);
     } catch (error) {
@@ -99,17 +122,14 @@ export default function HomeScreen() {
               contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 8 }}
               columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
               showsVerticalScrollIndicator={false}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             />
           </View>
         ) : (
           <View className="flex-1 items-center justify-center p-4">
             <Feather name="search" size={64} color="#ccc" />
-            <Text className="text-lg font-inter-bold text-gray-500 text-center mt-4">
-              No results found
-            </Text>
-            <Text className="text-gray-400 text-center mt-2">
-              Try searching with different keywords
-            </Text>
+            <Text className="text-lg font-inter-bold text-gray-500 text-center mt-4">No results found</Text>
+            <Text className="text-gray-400 text-center mt-2">Try searching with different keywords</Text>
           </View>
         )
       ) : isLoadingListings ? (
@@ -130,6 +150,7 @@ export default function HomeScreen() {
           contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 8 }}
           columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 16 }}
           showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       )}
     </SafeAreaView>

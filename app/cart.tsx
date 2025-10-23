@@ -1,4 +1,6 @@
+import { CartItem } from '@/api/services/cart.service';
 import { useCart } from '@/hooks/use-cart';
+import { Cart } from '@/store/slices/cartSlice';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -7,23 +9,18 @@ import React, { useState } from 'react';
 import { ActivityIndicator, Modal, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Use the interfaces from the cart slice
-import { Cart, CartItem } from '@/store/slices/cartSlice';
-
 export default function CartScreen() {
-  const { cart, isLoading, error, removeItem, updateItemQuantity, clearAll } = useCart();
+  const { cart, isLoading, error, removeItem, updateItemQuantity, clearAll, refreshCart } = useCart();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
 
-  // Cart data is managed by the provider
-
-  const refreshCart = async () => {
+  const handleRefreshCart = async () => {
     if (isRefreshing) return;
 
     setIsRefreshing(true);
     try {
-      // Cart data is managed by the provider, no need to reload
+      await refreshCart();
     } finally {
       setIsRefreshing(false);
     }
@@ -59,21 +56,25 @@ export default function CartScreen() {
     onQuantityChanged: (productId: string, quantity: number) => void;
     onRemove: (productId: string) => void;
   }) => {
+    if (!cartItem.product) return null;
+
+    const product = cartItem.product;
+
     return (
       <View className="bg-white rounded-xl mb-4">
         {/* Vendor Header */}
         <View className="flex-row items-center p-4 border-b border-gray-100">
           <Feather name="shopping-bag" color="#333" size={20} />
-          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">{cartItem.product.product_name}</Text>
+          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">{product.product_name}</Text>
         </View>
 
         {/* Items */}
-        <View key={cartItem.product.id}>
+        <View key={product.id}>
           <View className="flex-row p-4 items-center">
             {/* Product Image */}
             <View className="w-20 h-20 rounded-lg bg-gray-100 mr-3 overflow-hidden">
               <Image
-                source={cartItem.product.product_image}
+                source={product.product_image}
                 contentFit="cover"
                 placeholder={{ blurhash }}
                 transition={1000}
@@ -84,23 +85,24 @@ export default function CartScreen() {
             {/* Product Details */}
             <View className="flex-1">
               <Text className="text-base font-inter-bold text-gray-800 mb-1" numberOfLines={2}>
-                {cartItem.product.product_name}
+                {product.product_name}
               </Text>
               <Text className="text-lg font-inter-bold text-gray-800 mb-1">
-                £{cartItem.product.starting_price.toFixed(2)}
+                £
+                {product.starting_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
               <Text className="text-xs font-inter text-gray-600">D&@</Text>
             </View>
 
             {/* Remove Button */}
-            <TouchableOpacity onPress={() => onRemove(cartItem.product.id)} className="absolute top-4 right-4 p-1">
+            <TouchableOpacity onPress={() => onRemove(product.id)} className="absolute top-4 right-4 p-1">
               <Feather name="x" color="#999" size={20} />
             </TouchableOpacity>
 
             {/* Quantity Controls */}
             <View className="flex-row items-center mt-2">
               <TouchableOpacity
-                onPress={() => onQuantityChanged(cartItem.product.id, cartItem.quantity - 1)}
+                onPress={() => onQuantityChanged(product.id, cartItem.quantity - 1)}
                 className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
               >
                 <Feather name="minus" color="#333" size={16} />
@@ -111,7 +113,7 @@ export default function CartScreen() {
               </Text>
 
               <TouchableOpacity
-                onPress={() => onQuantityChanged(cartItem.product.id, cartItem.quantity + 1)}
+                onPress={() => onQuantityChanged(product.id, cartItem.quantity + 1)}
                 className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
               >
                 <Feather name="plus" color="#333" size={16} />
@@ -125,15 +127,16 @@ export default function CartScreen() {
           <View className="flex-row justify-between mb-4">
             <Text className="text-base font-inter-bold text-gray-800">Vendor Total</Text>
             <Text className="text-base font-inter-bold text-gray-800">
-              £{cartItem.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              £
+              {(cartItem.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Text>
           </View>
 
           <TouchableOpacity
-            onPress={() => handleVendorCheckout(cartItem.product.id)}
+            onPress={() => handleVendorCheckout(product.id)}
             className="bg-black rounded-lg py-3 px-6 items-center"
           >
-            <Text className="text-white text-base font-inter-bold">Checkout with {cartItem.product.product_name}</Text>
+            <Text className="text-white text-base font-inter-bold">Checkout with {product.product_name}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -162,8 +165,9 @@ export default function CartScreen() {
           <Text className="flex-1 text-lg font-inter-bold text-white">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#007AFF" />
+        <View className="flex-1 justify-center items-center bg-gray-50 p-4">
+          <ActivityIndicator size="large" color="#000" />
+          <Text className="text-gray-600 font-inter text-sm mt-3">Loading your cart...</Text>
         </View>
       </SafeAreaView>
     );
@@ -180,12 +184,12 @@ export default function CartScreen() {
           <Text className="flex-1 text-lg font-inter-bold text-white">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4">
+        <View className="flex-1 justify-center items-center bg-gray-50 p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
-          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Error loading cart</Text>
+          <Text className="text-red-500 text-lg font-inter-bold mt-4 mb-2">Error loading cart</Text>
           <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
-          <TouchableOpacity onPress={refreshCart} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-inter-bold">Retry</Text>
+          <TouchableOpacity onPress={handleRefreshCart} className="bg-black rounded-lg py-3 px-6">
+            <Text className="text-white text-base font-inter-semibold">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -203,9 +207,9 @@ export default function CartScreen() {
           <Text className="flex-1 text-lg font-inter-bold text-white">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4">
+        <View className="flex-1 justify-center items-center bg-gray-50 p-4">
           <Feather name="shopping-bag" color="#999" size={64} />
-          <Text className="text-white text-lg font-inter-bold mt-4 mb-2">Your cart is empty</Text>
+          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Your cart is empty</Text>
           <Text className="text-gray-400 text-sm font-inter text-center mb-4">
             Items you add to your cart will appear here
           </Text>
@@ -228,7 +232,7 @@ export default function CartScreen() {
           <Feather name="trash-2" color="#fff" size={20} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={refreshCart} className="p-2">
+        <TouchableOpacity onPress={handleRefreshCart} className="p-2">
           {isRefreshing ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
@@ -240,7 +244,9 @@ export default function CartScreen() {
       <View className="flex-1 bg-gray-50">
         <ScrollView
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refreshCart} tintColor="#007AFF" />}
+          refreshControl={
+            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefreshCart} tintColor="#007AFF" />
+          }
           className="flex-1"
         >
           <View className="p-4">
@@ -248,7 +254,7 @@ export default function CartScreen() {
             <View className="flex-1">
               {cart.items.map((item) => (
                 <VendorItemSection
-                  key={item.product.id}
+                  key={item.product?.id || item.id}
                   cartItem={item}
                   onQuantityChanged={(productId, quantity) => handleUpdateQuantity(productId, quantity)}
                   onRemove={(productId) => handleRemoveItem(productId)}

@@ -113,7 +113,10 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
               <Text className="text-sm font-inter-semibold text-gray-800 mb-1" numberOfLines={1}>
                 {productName}
               </Text>
-              <Text className="text-xs font-inter text-gray-500">Current price: £{currentPrice.toFixed(2)}</Text>
+              <Text className="text-xs font-inter text-gray-500">
+                Current price: £
+                {currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Text>
             </View>
 
             {/* Offer Amount */}
@@ -137,9 +140,22 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
                   <Pressable
                     key={suggestion.percentage}
                     className="bg-gray-100 px-4 py-2 rounded-lg mr-2"
-                    onPress={() => setOfferAmount(suggestion.amount.toFixed(2))}
+                    onPress={() =>
+                      setOfferAmount(
+                        suggestion.amount.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      )
+                    }
                   >
-                    <Text className="text-sm font-inter text-gray-800">£{suggestion.amount.toFixed(2)}</Text>
+                    <Text className="text-sm font-inter text-gray-800">
+                      £
+                      {suggestion.amount.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </Text>
                   </Pressable>
                 ))}
               </View>
