@@ -85,7 +85,9 @@ export default function CartScreen() {
             onPress={() => handleCartItemCheckout(product.id)}
             className="items-center justify-center px-6 py-3 rounded-lg bg-black"
           >
-            <Text className="text-center text-base font-inter-bold text-white">Checkout with {product.product_name}</Text>
+            <Text className="text-center text-base font-inter-bold text-white">
+              Checkout with {product.product_name}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -96,7 +98,7 @@ export default function CartScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black">
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
@@ -115,7 +117,7 @@ export default function CartScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black">
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
@@ -137,7 +139,7 @@ export default function CartScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black">
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
@@ -165,11 +167,11 @@ export default function CartScreen() {
 
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
 
-        <TouchableOpacity onPress={() => setShowClearModal(true)} className="mr-4 p-2">
+        <TouchableOpacity onPress={() => setShowClearModal(true)} hitSlop={8} className="mr-8">
           <Feather name="trash-2" color="#fff" size={20} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleRefreshCart} className="p-2">
+        <TouchableOpacity onPress={handleRefreshCart}>
           {isRefreshing ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
