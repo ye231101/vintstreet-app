@@ -1,3 +1,4 @@
+import { Product } from '@/api/services/listings.service';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
@@ -8,13 +9,7 @@ import { ActivityIndicator, Alert, ScrollView, Switch, Text, TextInput, Touchabl
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface CheckoutItem {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  quantity: number;
-  image: string;
-  lineTotal: number;
+  product?: Product;
 }
 
 interface ShippingAddress {
@@ -110,11 +105,11 @@ const InputField = memo(
     error,
   }: InputFieldProps) => (
     <View className="mb-4">
-      <Text className="text-sm font-inter-bold text-gray-800 mb-2">
+      <Text className="mb-2 text-sm font-inter-bold text-gray-800">
         {label} {required && <Text className="text-red-500">*</Text>}
       </Text>
       <View
-        className={`flex-row items-center bg-white rounded-lg border px-3 ${
+        className={`flex-row items-center px-3 rounded-lg bg-white border ${
           error ? 'border-red-400' : 'border-gray-200'
         }`}
       >
@@ -129,17 +124,16 @@ const InputField = memo(
           className="flex-1 py-3 text-base font-inter"
         />
       </View>
-      {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
+      {error && <Text className="mt-1 text-xs font-inter text-red-400">{error}</Text>}
     </View>
   )
 );
 
 export default function CheckoutScreen() {
-  const { cart, isLoading, isEmpty } = useCart();
-  const { items: itemsParam } = useLocalSearchParams();
-  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [checkoutTitle, setCheckoutTitle] = useState('Checkout All Items');
+  const { productId } = useLocalSearchParams();
+
+  const { cart, isLoading } = useCart();
+  const [checkoutItem, setCheckoutItem] = useState<CheckoutItem>();
 
   // Step completion tracking
   const [stepCompleted, setStepCompleted] = useState([false, false, false]);
@@ -188,53 +182,21 @@ export default function CheckoutScreen() {
   const [cardDetailsErrors, setCardDetailsErrors] = useState<CardDetailsErrors>({});
 
   useEffect(() => {
-    if (isEmpty) {
-      Alert.alert('Empty Cart', 'Your cart is empty. Please add items before checking out.', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
-      return;
-    }
     loadCheckoutData();
-  }, [cart, itemsParam]);
+  }, [cart, productId]);
 
   useEffect(() => {
     updateStepCompletion();
-  }, [shippingAddress, billingAddress, cardDetails, isBillingDifferent]);
+  }, [shippingAddress, isBillingDifferent, billingAddress, cardDetails]);
 
   const loadCheckoutData = () => {
-    // Filter cart items based on query parameter
-    let filteredItems = cart.items;
+    const cartItem = cart.items.filter((item) => productId === item.product?.id);
 
-    if (itemsParam) {
-      const itemIds = Array.isArray(itemsParam) ? itemsParam : [itemsParam];
-      filteredItems = cart.items.filter((item) => itemIds.includes(item.product?.id || ''));
+    const item: CheckoutItem = {
+      product: cartItem[0]?.product,
+    };
 
-      // Update checkout title for single item checkout
-      if (filteredItems.length === 1) {
-        setCheckoutTitle(`Checkout with ${filteredItems[0].product?.product_name || ''}`);
-      } else if (filteredItems.length > 1) {
-        setCheckoutTitle(`Checkout ${filteredItems.length} Items`);
-      }
-    } else {
-      setCheckoutTitle('Checkout All Items');
-    }
-
-    // Transform cart items to checkout items
-    const items: CheckoutItem[] = filteredItems.map((item) => ({
-      id: item.product?.id || '',
-      name: item.product?.product_name || '',
-      brand: item.product?.product_categories?.name || 'Unknown Brand',
-      price: item.product?.starting_price || 0,
-      quantity: item.quantity,
-      image: item.product?.product_image || '',
-      lineTotal: item.subtotal || 0,
-    }));
-
-    // Calculate total for filtered items
-    const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-
-    setCheckoutItems(items);
-    setTotal(itemsTotal);
+    setCheckoutItem(item);
   };
 
   // Update functions that clear errors when typing
@@ -331,49 +293,43 @@ export default function CheckoutScreen() {
   };
 
   const OrderSummaryCard = () => (
-    <View className="bg-white rounded-xl m-4">
+    <View className="bg-white rounded-xl">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-gray-50 rounded-t-xl">
+      <View className="flex-row items-center p-4 rounded-t-xl bg-white border-b border-gray-200">
         <Feather name="shopping-bag" color="#666" size={20} />
-        <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">Order Summary</Text>
-        <Text className="text-sm font-inter text-gray-600">
-          {checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''}
-        </Text>
+        <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Order Summary</Text>
       </View>
 
-      {/* Items */}
-      {checkoutItems.map((item) => (
-        <View key={item.id} className="flex-row p-4 items-center">
-          <Image
-            source={item.image}
-            contentFit="cover"
-            placeholder={{ blurhash }}
-            transition={1000}
-            style={{ width: 64, height: 64, borderRadius: 8, marginRight: 12 }}
-          />
+      <View className="flex-row items-center gap-3 p-4">
+        <Image
+          source={checkoutItem?.product?.product_image}
+          contentFit="cover"
+          placeholder={{ blurhash }}
+          transition={1000}
+          style={{ width: 80, height: 80, borderRadius: 8 }}
+        />
 
-          <View className="flex-1">
-            <Text className="text-sm font-inter-bold text-gray-800 mb-1" numberOfLines={2}>
-              {item.name}
+        <View className="flex-1 gap-2">
+          <Text className="mb-1 text-sm font-inter-bold text-gray-800">{checkoutItem?.product?.product_name}</Text>
+          <View className="self-start items-center justify-center px-4 py-1 rounded-full bg-gray-200">
+            <Text className="text-xs font-inter-semibold text-gray-600">
+              {checkoutItem?.product?.product_categories?.name}
             </Text>
-            <Text className="text-xs font-inter text-gray-600 mb-1">{item.brand}</Text>
-            <Text className="text-xs font-inter text-gray-600">Qty: {item.quantity}</Text>
           </View>
-
-          <Text className="text-sm font-inter-bold text-gray-800">
-            £{item.lineTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </Text>
         </View>
-      ))}
 
-      {/* Totals */}
-      <View className="p-4 bg-gray-50 rounded-b-xl">
-        <View className="flex-row justify-between">
-          <Text className="text-base font-inter-bold text-gray-800">Total</Text>
-          <Text className="text-lg font-inter-bold text-gray-800">
-            £{total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </Text>
-        </View>
+        <Text className="text-base font-inter-bold text-gray-800">
+          £
+          {checkoutItem?.product?.discounted_price !== null
+            ? checkoutItem?.product?.discounted_price.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : checkoutItem?.product?.starting_price.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+        </Text>
       </View>
     </View>
   );
@@ -384,7 +340,7 @@ export default function CheckoutScreen() {
     const progress = completedSteps / totalSteps;
 
     return (
-      <View className="bg-white rounded-xl p-5 m-4">
+      <View className="bg-white rounded-xl p-5">
         <View className="flex-row items-center mb-3">
           <Feather name="check-square" color="#007AFF" size={20} />
           <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">Checkout Progress</Text>
@@ -410,11 +366,11 @@ export default function CheckoutScreen() {
   };
 
   const ShippingAddressSection = () => (
-    <View className="bg-white rounded-2xl m-4">
+    <View className="bg-white rounded-xl">
       {/* Section Header */}
-      <View className="flex-row items-center bg-gray-50 px-5 py-4 rounded-t-2xl border-b border-gray-200">
+      <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
         <View
-          className={`w-10 h-10 rounded-full justify-center items-center mr-4 ${
+          className={`w-10 h-10 mr-4 rounded-full justify-center items-center ${
             stepCompleted[0] ? 'bg-green-500' : 'bg-gray-100'
           }`}
         >
@@ -425,11 +381,11 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text className="text-base font-inter-bold text-gray-800 flex-1">Shipping Address</Text>
+        <Text className="flex-1 text-base font-inter-bold text-gray-800">Shipping Address</Text>
 
         {stepCompleted[0] && (
-          <View className="bg-green-500 rounded-xl px-2 py-1">
-            <Text className="text-white text-xs font-inter-bold">✓</Text>
+          <View className="px-2 py-1 rounded-lg bg-green-500">
+            <Text className="text-xs font-inter-bold text-white">✓</Text>
           </View>
         )}
       </View>
@@ -445,8 +401,8 @@ export default function CheckoutScreen() {
           icon="search"
         />
 
-        <View className="flex-row mb-4">
-          <View className="flex-1 mr-2">
+        <View className="flex-row items-center gap-2">
+          <View className="flex-1">
             <InputField
               label="First Name"
               value={shippingAddress.firstName}
@@ -458,21 +414,22 @@ export default function CheckoutScreen() {
               error={shippingAddressErrors.firstName}
             />
           </View>
-          <View className="flex-1 ml-2">
+          <View className="flex-1">
             <InputField
               label="Last Name"
               value={shippingAddress.lastName}
               onChangeText={(text) => updateShippingAddress('lastName', text)}
               placeholder="Last Name"
               autoCapitalize="none"
+              icon="user"
               required
               error={shippingAddressErrors.lastName}
             />
           </View>
         </View>
 
-        <View className="flex-row mb-4">
-          <View className="flex-1 mr-2">
+        <View className="flex-row items-center gap-2">
+          <View className="flex-1">
             <InputField
               label="Email"
               value={shippingAddress.email}
@@ -485,7 +442,7 @@ export default function CheckoutScreen() {
               error={shippingAddressErrors.email}
             />
           </View>
-          <View className="flex-1 ml-2">
+          <View className="flex-1">
             <InputField
               label="Phone"
               value={shippingAddress.phone}
@@ -557,11 +514,11 @@ export default function CheckoutScreen() {
   );
 
   const BillingDetailsSection = () => (
-    <View className="bg-white rounded-2xl m-4">
+    <View className="bg-white rounded-xl">
       {/* Section Header */}
-      <View className="flex-row items-center p-5 border-b border-gray-100">
+      <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
         <View
-          className={`w-10 h-10 rounded-full justify-center items-center mr-4 ${
+          className={`w-10 h-10 mr-4 rounded-full justify-center items-center ${
             stepCompleted[1] ? 'bg-green-500' : 'bg-gray-100'
           }`}
         >
@@ -572,20 +529,19 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text className="text-base font-inter-bold text-gray-800 flex-1">Billing Details</Text>
+        <Text className="flex-1 text-base font-inter-bold text-gray-800">Billing Details</Text>
 
         {stepCompleted[1] && (
-          <View className="bg-green-500 rounded-xl px-2 py-1">
-            <Text className="text-white text-xs font-inter-bold">✓</Text>
+          <View className="px-2 py-1 rounded-lg bg-green-500">
+            <Text className="text-xs font-inter-bold text-white">✓</Text>
           </View>
         )}
       </View>
 
       {/* Section Content */}
       <View className="p-5">
-        <View className="flex-row items-center mb-4">
-          <Feather name="arrow-right-circle" color="#666" size={20} />
-          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">
+        <View className="flex-row items-center gap-2">
+          <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">
             Is billing address different from shipping address?
           </Text>
           <Switch
@@ -596,7 +552,7 @@ export default function CheckoutScreen() {
           />
         </View>
 
-        <Text className="text-sm font-inter text-gray-600 mb-4">
+        <Text className="my-4 text-sm font-inter text-gray-600">
           {isBillingDifferent
             ? 'Please enter your billing address below'
             : 'Billing address will be the same as shipping address'}
@@ -604,10 +560,10 @@ export default function CheckoutScreen() {
 
         {isBillingDifferent && (
           <>
-            <Text className="text-base font-inter-bold text-gray-800 mb-4">Billing Address</Text>
+            <Text className="my-4 text-base font-inter-bold text-gray-800">Billing Address</Text>
 
-            <View className="flex-row mb-4">
-              <View className="flex-1 mr-2">
+            <View className="flex-row items-center gap-2">
+              <View className="flex-1">
                 <InputField
                   label="First Name"
                   value={billingAddress.firstName}
@@ -619,21 +575,22 @@ export default function CheckoutScreen() {
                   error={billingAddressErrors.firstName}
                 />
               </View>
-              <View className="flex-1 ml-2">
+              <View className="flex-1">
                 <InputField
                   label="Last Name"
                   value={billingAddress.lastName}
                   onChangeText={(text) => updateBillingAddress('lastName', text)}
                   placeholder="Last Name"
                   autoCapitalize="none"
+                  icon="user"
                   required
                   error={billingAddressErrors.lastName}
                 />
               </View>
             </View>
 
-            <View className="flex-row mb-4">
-              <View className="flex-1 mr-2">
+            <View className="flex-row items-center gap-2">
+              <View className="flex-1">
                 <InputField
                   label="Email"
                   value={billingAddress.email}
@@ -646,7 +603,7 @@ export default function CheckoutScreen() {
                   error={billingAddressErrors.email}
                 />
               </View>
-              <View className="flex-1 ml-2">
+              <View className="flex-1">
                 <InputField
                   label="Phone"
                   value={billingAddress.phone}
@@ -691,7 +648,7 @@ export default function CheckoutScreen() {
               error={billingAddressErrors.city}
             />
 
-            <View className="flex-row mb-4">
+            <View className="flex-row items-center gap-2">
               <View className="flex-1 mr-2">
                 <InputField
                   label="State/Country"
@@ -701,7 +658,7 @@ export default function CheckoutScreen() {
                   autoCapitalize="none"
                 />
               </View>
-              <View className="flex-1 ml-2">
+              <View className="flex-1">
                 <InputField
                   label="Postcode"
                   value={billingAddress.postcode}
@@ -727,11 +684,11 @@ export default function CheckoutScreen() {
   );
 
   const PaymentInformationSection = () => (
-    <View className="bg-white rounded-2xl m-4">
+    <View className="bg-white rounded-xl">
       {/* Section Header */}
-      <View className="flex-row items-center p-5 border-b border-gray-100">
+      <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
         <View
-          className={`w-10 h-10 rounded-full justify-center items-center mr-4 ${
+          className={`w-10 h-10 mr-4 rounded-full justify-center items-center ${
             stepCompleted[2] ? 'bg-green-500' : 'bg-gray-100'
           }`}
         >
@@ -742,11 +699,11 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        <Text className="text-base font-inter-bold text-gray-800 flex-1">Payment Information</Text>
+        <Text className="flex-1 text-base font-inter-bold text-gray-800">Payment Information</Text>
 
         {stepCompleted[2] && (
-          <View className="bg-green-500 rounded-xl px-2 py-1">
-            <Text className="text-white text-xs font-inter-bold">✓</Text>
+          <View className="px-2 py-1 rounded-lg bg-green-500">
+            <Text className="text-xs font-inter-bold text-white">✓</Text>
           </View>
         )}
       </View>
@@ -758,7 +715,7 @@ export default function CheckoutScreen() {
         {/* Credit/Debit Card Option */}
         <TouchableOpacity
           onPress={() => setPaymentMethod('card')}
-          className={`rounded-lg p-4 border mb-3 flex-row items-center ${
+          className={`flex-row items-center mb-3 p-4 rounded-lg border ${
             paymentMethod === 'card' ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
           }`}
         >
@@ -779,7 +736,7 @@ export default function CheckoutScreen() {
         {/* Google Pay Option */}
         <TouchableOpacity
           onPress={() => setPaymentMethod('googlepay')}
-          className={`rounded-lg p-4 border mb-4 flex-row items-center ${
+          className={`flex-row items-center mb-3 p-4 rounded-lg border ${
             paymentMethod === 'googlepay' ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
           }`}
         >
@@ -801,7 +758,7 @@ export default function CheckoutScreen() {
 
         {paymentMethod === 'card' && (
           <>
-            <Text className="text-base font-inter-bold text-gray-800 mb-4">Card Details</Text>
+            <Text className="my-4 text-base font-inter-bold text-gray-800">Card Details</Text>
 
             <InputField
               label="Cardholder Name"
@@ -813,69 +770,65 @@ export default function CheckoutScreen() {
               error={cardDetailsErrors.cardholderName}
             />
 
-            <Text className="text-base font-inter-bold text-gray-800 mb-4">Card Information</Text>
+            <InputField
+              label="Card Number"
+              value={cardDetails.cardNumber}
+              onChangeText={(text) => updateCardDetails('cardNumber', text)}
+              placeholder="Card number"
+              keyboardType="numeric"
+              autoCapitalize="none"
+              required
+              error={cardDetailsErrors.cardNumber}
+            />
 
-            <View className="bg-gray-50 rounded-lg p-4 mb-4">
-              <InputField
-                label="Card Number"
-                value={cardDetails.cardNumber}
-                onChangeText={(text) => updateCardDetails('cardNumber', text)}
-                placeholder="Card number"
-                keyboardType="numeric"
-                autoCapitalize="none"
-                required
-                error={cardDetailsErrors.cardNumber}
-              />
-
-              <View className="flex-row mb-4">
-                <View className="flex-1 mr-2">
-                  <InputField
-                    label="Expiry Date"
-                    value={cardDetails.expiryDate}
-                    onChangeText={(text) => updateCardDetails('expiryDate', text)}
-                    placeholder="MM/YY"
-                    keyboardType="numeric"
-                    autoCapitalize="none"
-                    required
-                    error={cardDetailsErrors.expiryDate}
-                  />
-                </View>
-                <View className="flex-1 ml-2">
-                  <InputField
-                    label="CVC"
-                    value={cardDetails.cvc}
-                    onChangeText={(text) => updateCardDetails('cvc', text)}
-                    placeholder="CVC"
-                    keyboardType="numeric"
-                    autoCapitalize="none"
-                    required
-                    error={cardDetailsErrors.cvc}
-                  />
-                </View>
+            <View className="flex-row items-center gap-2">
+              <View className="flex-1">
+                <InputField
+                  label="Expiry Date"
+                  value={cardDetails.expiryDate}
+                  onChangeText={(text) => updateCardDetails('expiryDate', text)}
+                  placeholder="MM/YY"
+                  keyboardType="numeric"
+                  autoCapitalize="none"
+                  required
+                  error={cardDetailsErrors.expiryDate}
+                />
               </View>
-
-              <InputField
-                label="Country"
-                value={cardDetails.country}
-                onChangeText={(text) => updateCardDetails('country', text)}
-                placeholder="Country"
-                autoCapitalize="none"
-              />
-
-              <InputField
-                label="ZIP Code"
-                value={cardDetails.zipCode}
-                onChangeText={(text) => updateCardDetails('zipCode', text)}
-                placeholder="ZIP Code"
-                keyboardType="numeric"
-                autoCapitalize="none"
-                error={cardDetailsErrors.zipCode}
-              />
+              <View className="flex-1">
+                <InputField
+                  label="CVC"
+                  value={cardDetails.cvc}
+                  onChangeText={(text) => updateCardDetails('cvc', text)}
+                  placeholder="CVC"
+                  keyboardType="numeric"
+                  autoCapitalize="none"
+                  required
+                  error={cardDetailsErrors.cvc}
+                />
+              </View>
             </View>
+
+            <InputField
+              label="Country"
+              value={cardDetails.country}
+              onChangeText={(text) => updateCardDetails('country', text)}
+              placeholder="Country"
+              autoCapitalize="none"
+            />
+
+            <InputField
+              label="ZIP Code"
+              value={cardDetails.zipCode}
+              onChangeText={(text) => updateCardDetails('zipCode', text)}
+              placeholder="ZIP Code"
+              keyboardType="numeric"
+              autoCapitalize="none"
+              error={cardDetailsErrors.zipCode}
+            />
           </>
         )}
 
-        <View className="bg-blue-50 rounded-lg p-3 flex-row items-center">
+        <View className="flex-row items-center p-3 rounded-lg bg-blue-50">
           <Feather name="shield" color="#1976d2" size={16} />
           <Text className="text-sm font-inter text-blue-600 ml-2 flex-1">
             Your payment information is securely processed by Stripe and never stored on our servers.
@@ -888,16 +841,19 @@ export default function CheckoutScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">{checkoutTitle}</Text>
+          <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
+            {checkoutItem?.product?.product_name}
+          </Text>
         </View>
 
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#007AFF" />
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+          <ActivityIndicator size="large" color="#000" />
+          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your checkout...</Text>
         </View>
       </SafeAreaView>
     );
@@ -906,15 +862,17 @@ export default function CheckoutScreen() {
   return (
     <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()}>
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">{checkoutTitle}</Text>
+        <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
+          {checkoutItem?.product?.product_name}
+        </Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-gray-50">
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 p-4 bg-gray-50">
         {/* Order Summary */}
         <OrderSummaryCard />
 
@@ -932,7 +890,7 @@ export default function CheckoutScreen() {
       </ScrollView>
 
       {/* Bottom Action Button */}
-      <View className="bg-white p-5 border-t border-gray-200">
+      <View className="p-5 bg-white border-t border-gray-200">
         <TouchableOpacity
           onPress={processCheckout}
           className={`rounded-2xl py-4 items-center ${canProceedToCheckout() ? 'bg-black' : 'bg-orange-500'}`}

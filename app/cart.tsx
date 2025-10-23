@@ -1,6 +1,5 @@
 import { CartItem } from '@/api/services/cart.service';
 import { useCart } from '@/hooks/use-cart';
-import { Cart } from '@/store/slices/cartSlice';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -10,7 +9,7 @@ import { ActivityIndicator, Modal, RefreshControl, ScrollView, Text, TouchableOp
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CartScreen() {
-  const { cart, isLoading, error, removeItem, updateItemQuantity, clearAll, refreshCart } = useCart();
+  const { cart, isLoading, error, removeItem, clearAll, refreshCart } = useCart();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
@@ -31,143 +30,82 @@ export default function CartScreen() {
     setShowClearModal(false);
   };
 
-  const handleUpdateQuantity = (itemId: string, quantity: number) => {
-    updateItemQuantity(itemId, quantity);
-  };
-
   const handleRemoveItem = (itemId: string) => {
     removeItem(itemId);
   };
 
-  const proceedToCheckout = () => {
-    router.push('/checkout');
+  const handleCartItemCheckout = (productId: string) => {
+    router.push(`/checkout?productId=${productId}`);
   };
 
-  const handleVendorCheckout = (productId: string) => {
-    router.push(`/checkout?items=${productId}`);
-  };
-
-  const VendorItemSection = ({
-    cartItem,
-    onQuantityChanged,
-    onRemove,
-  }: {
-    cartItem: CartItem;
-    onQuantityChanged: (productId: string, quantity: number) => void;
-    onRemove: (productId: string) => void;
-  }) => {
+  const CartItemSection = ({ cartItem, onRemove }: { cartItem: CartItem; onRemove: (productId: string) => void }) => {
     if (!cartItem.product) return null;
 
     const product = cartItem.product;
 
     return (
-      <View className="bg-white rounded-xl mb-4">
-        {/* Vendor Header */}
-        <View className="flex-row items-center p-4 border-b border-gray-100">
-          <Feather name="shopping-bag" color="#333" size={20} />
-          <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">{product.product_name}</Text>
-        </View>
-
-        {/* Items */}
-        <View key={product.id}>
-          <View className="flex-row p-4 items-center">
-            {/* Product Image */}
-            <View className="w-20 h-20 rounded-lg bg-gray-100 mr-3 overflow-hidden">
-              <Image
-                source={product.product_image}
-                contentFit="cover"
-                placeholder={{ blurhash }}
-                transition={1000}
-                style={{ width: '100%', height: '100%' }}
-              />
-            </View>
-
-            {/* Product Details */}
-            <View className="flex-1">
-              <Text className="text-base font-inter-bold text-gray-800 mb-1" numberOfLines={2}>
-                {product.product_name}
-              </Text>
-              <Text className="text-lg font-inter-bold text-gray-800 mb-1">
-                £
-                {product.starting_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </Text>
-              <Text className="text-xs font-inter text-gray-600">D&@</Text>
-            </View>
-
-            {/* Remove Button */}
-            <TouchableOpacity onPress={() => onRemove(product.id)} className="absolute top-4 right-4 p-1">
-              <Feather name="x" color="#999" size={20} />
-            </TouchableOpacity>
-
-            {/* Quantity Controls */}
-            <View className="flex-row items-center mt-2">
-              <TouchableOpacity
-                onPress={() => onQuantityChanged(product.id, cartItem.quantity - 1)}
-                className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
-              >
-                <Feather name="minus" color="#333" size={16} />
-              </TouchableOpacity>
-
-              <Text className="text-base font-inter-bold text-gray-800 mx-4 min-w-5 text-center">
-                {cartItem.quantity}
-              </Text>
-
-              <TouchableOpacity
-                onPress={() => onQuantityChanged(product.id, cartItem.quantity + 1)}
-                className="w-8 h-8 rounded-full bg-gray-100 justify-center items-center"
-              >
-                <Feather name="plus" color="#333" size={16} />
-              </TouchableOpacity>
-            </View>
+      <View key={product.id} className="bg-white rounded-xl">
+        <View className="flex-row items-center gap-3 p-4">
+          <View className="w-24 h-24 rounded-lg bg-gray-100 overflow-hidden">
+            <Image
+              source={product.product_image}
+              contentFit="cover"
+              placeholder={{ blurhash }}
+              transition={1000}
+              style={{ width: '100%', height: '100%' }}
+            />
           </View>
-        </View>
 
-        {/* Vendor Totals */}
-        <View className="p-4 border-t border-gray-100">
-          <View className="flex-row justify-between mb-4">
-            <Text className="text-base font-inter-bold text-gray-800">Vendor Total</Text>
-            <Text className="text-base font-inter-bold text-gray-800">
-              £
-              {(cartItem.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <View className="flex-1 gap-2">
+            <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={2}>
+              {product.product_name}
             </Text>
+            <View className="flex-row items-center justify-between gap-2">
+              <Text className="text-lg font-inter-bold text-gray-800">
+                £
+                {product.discounted_price !== null
+                  ? product.discounted_price.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : product.starting_price.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+              </Text>
+              <TouchableOpacity onPress={() => onRemove(product.id)}>
+                <Feather name="trash-2" color="#ff4444" size={20} />
+              </TouchableOpacity>
+            </View>
           </View>
+        </View>
 
+        <View className="p-4 border-t border-gray-100">
           <TouchableOpacity
-            onPress={() => handleVendorCheckout(product.id)}
-            className="bg-black rounded-lg py-3 px-6 items-center"
+            onPress={() => handleCartItemCheckout(product.id)}
+            className="items-center justify-center px-6 py-3 rounded-lg bg-black"
           >
-            <Text className="text-white text-base font-inter-bold">Checkout with {product.product_name}</Text>
+            <Text className="text-center text-base font-inter-bold text-white">Checkout with {product.product_name}</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
 
-  const CartSummary = ({ cart }: { cart: Cart }) => (
-    <View className="bg-white p-4 border-t border-gray-100">
-      <View className="flex-row justify-between mb-4">
-        <Text className="text-lg font-inter-bold text-gray-800">Total</Text>
-        <Text className="text-lg font-inter-bold text-gray-800">
-          £{cart.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </Text>
-      </View>
-    </View>
-  );
-
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Your Cart</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center bg-gray-50 p-4">
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="text-gray-600 font-inter text-sm mt-3">Loading your cart...</Text>
+          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your cart...</Text>
         </View>
       </SafeAreaView>
     );
@@ -176,20 +114,19 @@ export default function CartScreen() {
   if (error) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Your Cart</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center bg-gray-50 p-4">
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
           <Feather name="alert-circle" color="#ff4444" size={48} />
-          <Text className="text-red-500 text-lg font-inter-bold mt-4 mb-2">Error loading cart</Text>
-          <Text className="text-gray-400 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading cart</Text>
           <TouchableOpacity onPress={handleRefreshCart} className="bg-black rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-inter-semibold">Retry</Text>
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -199,20 +136,21 @@ export default function CartScreen() {
   if (!cart || cart.items.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-white">Your Cart</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center bg-gray-50 p-4">
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
           <Feather name="shopping-bag" color="#999" size={64} />
-          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Your cart is empty</Text>
-          <Text className="text-gray-400 text-sm font-inter text-center mb-4">
-            Items you add to your cart will appear here
-          </Text>
+          <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-900">Your cart is empty</Text>
+          <Text className="mb-4 text-sm font-inter text-center text-gray-600">Add some items to get started!</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)')} className="bg-black rounded-lg py-3 px-6">
+            <Text className="text-base font-inter-bold text-white">Continue Shopping</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -220,13 +158,12 @@ export default function CartScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-black">
-      {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()}>
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Your Cart</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
 
         <TouchableOpacity onPress={() => setShowClearModal(true)} className="mr-4 p-2">
           <Feather name="trash-2" color="#fff" size={20} />
@@ -241,41 +178,22 @@ export default function CartScreen() {
         </TouchableOpacity>
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefreshCart} tintColor="#007AFF" />
-          }
-          className="flex-1"
-        >
-          <View className="p-4">
-            {/* Display items by vendor */}
-            <View className="flex-1">
-              {cart.items.map((item) => (
-                <VendorItemSection
-                  key={item.product?.id || item.id}
-                  cartItem={item}
-                  onQuantityChanged={(productId, quantity) => handleUpdateQuantity(productId, quantity)}
-                  onRemove={(productId) => handleRemoveItem(productId)}
-                />
-              ))}
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Cart Summary */}
-        <CartSummary cart={cart} />
-
-        {/* Checkout Button */}
-        <View className="px-4 py-2 pb-4">
-          <TouchableOpacity onPress={proceedToCheckout} className="bg-black rounded-lg py-4 items-center">
-            <Text className="text-white text-base font-inter-bold">Proceed to Checkout</Text>
-          </TouchableOpacity>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefreshCart} tintColor="#007AFF" />}
+        className="flex-1 bg-gray-50"
+      >
+        <View className="flex-1 gap-4 p-4">
+          {cart.items.map((item) => (
+            <CartItemSection
+              key={item.product?.id || item.id}
+              cartItem={item}
+              onRemove={(productId) => handleRemoveItem(productId)}
+            />
+          ))}
         </View>
-      </View>
+      </ScrollView>
 
-      {/* Clear Cart Modal */}
       <Modal visible={showClearModal} transparent animationType="fade" onRequestClose={() => setShowClearModal(false)}>
         <View className="flex-1 bg-black/50 justify-center items-center p-5">
           <View className="bg-white rounded-xl p-6 w-full max-w-sm">

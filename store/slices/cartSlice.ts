@@ -4,7 +4,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Cart {
   items: CartItem[];
-  total: number;
 }
 
 export interface CartState {
@@ -15,19 +14,12 @@ export interface CartState {
 
 const initialCart: Cart = {
   items: [],
-  total: 0,
 };
 
 const initialState: CartState = {
   cart: initialCart,
   isLoading: false,
   error: null,
-};
-
-// Helper functions
-const calculateTotals = (items: CartItem[]) => {
-  const total = items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
-  return total;
 };
 
 // Async Thunks
@@ -42,12 +34,9 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (userId: strin
 
 export const addToCartAsync = createAsyncThunk(
   'cart/addToCart',
-  async (
-    { userId, listingId, quantity = 1 }: { userId: string; listingId: string; quantity?: number },
-    { rejectWithValue }
-  ) => {
+  async ({ userId, listingId }: { userId: string; listingId: string }, { rejectWithValue }) => {
     try {
-      await cartService.addToCart(userId, listingId, quantity);
+      await cartService.addToCart(userId, listingId);
       const cartItems = await cartService.getCart(userId);
       return cartItems;
     } catch (error) {
@@ -65,22 +54,6 @@ export const removeFromCartAsync = createAsyncThunk(
       return cartItems;
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to remove item from cart');
-    }
-  }
-);
-
-export const updateQuantityAsync = createAsyncThunk(
-  'cart/updateQuantity',
-  async (
-    { userId, listingId, quantity }: { userId: string; listingId: string; quantity: number },
-    { rejectWithValue }
-  ) => {
-    try {
-      await cartService.updateCartQuantity(userId, listingId, quantity);
-      const cartItems = await cartService.getCart(userId);
-      return cartItems;
-    } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Failed to update quantity');
     }
   }
 );
@@ -130,7 +103,6 @@ const cartSlice = createSlice({
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.cart = {
           items: action.payload,
-          total: calculateTotals(action.payload),
         };
         state.isLoading = false;
         state.error = null;
@@ -149,7 +121,6 @@ const cartSlice = createSlice({
       .addCase(addToCartAsync.fulfilled, (state, action) => {
         state.cart = {
           items: action.payload,
-          total: calculateTotals(action.payload),
         };
         state.error = null;
 
@@ -172,30 +143,12 @@ const cartSlice = createSlice({
       .addCase(removeFromCartAsync.fulfilled, (state, action) => {
         state.cart = {
           items: action.payload,
-          total: calculateTotals(action.payload),
         };
         state.error = null;
       })
       .addCase(removeFromCartAsync.rejected, (state, action) => {
         state.error = action.payload as string;
         showErrorToast((action.payload as string) || 'Failed to remove item from cart');
-      });
-
-    // Update Quantity
-    builder
-      .addCase(updateQuantityAsync.pending, (state) => {
-        state.error = null;
-      })
-      .addCase(updateQuantityAsync.fulfilled, (state, action) => {
-        state.cart = {
-          items: action.payload,
-          total: calculateTotals(action.payload),
-        };
-        state.error = null;
-      })
-      .addCase(updateQuantityAsync.rejected, (state, action) => {
-        state.error = action.payload as string;
-        showErrorToast((action.payload as string) || 'Failed to update quantity');
       });
 
     // Clear Cart

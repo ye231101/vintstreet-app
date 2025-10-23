@@ -5,10 +5,8 @@ export interface CartItem {
   id: string;
   user_id: string;
   listing_id: string;
-  quantity: number;
   created_at: string;
   product?: Product;
-  subtotal?: number;
 }
 
 /**
@@ -26,7 +24,7 @@ class CartService {
       // First, get cart items
       const { data: cartData, error: cartError } = await supabase
         .from('cart')
-        .select('id, user_id, listing_id, quantity, created_at')
+        .select('id, user_id, listing_id, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
@@ -97,10 +95,8 @@ class CartService {
             id: item.id,
             user_id: item.user_id,
             listing_id: item.listing_id,
-            quantity: item.quantity,
             created_at: item.created_at,
             product: product,
-            subtotal: product.starting_price * item.quantity,
           };
         }) as CartItem[];
 
@@ -112,62 +108,27 @@ class CartService {
   }
 
   /**
-   * Add an item to cart or update quantity if it already exists
+   * Add an item to cart
    * @param userId - The user's ID
    * @param listingId - The listing ID to add
-   * @param quantity - Quantity to add (default: 1)
    * @returns The created or updated cart item
    */
-  async addToCart(userId: string, listingId: string, quantity: number = 1): Promise<CartItem> {
+  async addToCart(userId: string, listingId: string): Promise<CartItem> {
     try {
-      // Check if item already exists in cart
-      const { data: existingItem, error: checkError } = await supabase
+      const { data, error } = await supabase
         .from('cart')
-        .select('id, quantity')
-        .eq('user_id', userId)
-        .eq('listing_id', listingId)
-        .maybeSingle();
+        .insert({
+          user_id: userId,
+          listing_id: listingId,
+        })
+        .select()
+        .single();
 
-      if (checkError && checkError.code !== 'PGRST116') {
-        // PGRST116 is "no rows returned" which is fine
-        throw new Error(`Failed to check existing cart item: ${checkError.message}`);
+      if (error) {
+        throw new Error(`Failed to add item to cart: ${error.message}`);
       }
 
-      const existingItemData = existingItem as any;
-
-      if (existingItemData && existingItemData.id) {
-        // Update existing item quantity
-        const newQuantity = (existingItemData.quantity || 0) + quantity;
-        const { data, error } = await supabase
-          .from('cart')
-          .update({ quantity: newQuantity })
-          .eq('id', existingItemData.id)
-          .select()
-          .single();
-
-        if (error) {
-          throw new Error(`Failed to update cart item: ${error.message}`);
-        }
-
-        return data as unknown as CartItem;
-      } else {
-        // Insert new item
-        const { data, error } = await supabase
-          .from('cart')
-          .insert({
-            user_id: userId,
-            listing_id: listingId,
-            quantity,
-          })
-          .select()
-          .single();
-
-        if (error) {
-          throw new Error(`Failed to add item to cart: ${error.message}`);
-        }
-
-        return data as unknown as CartItem;
-      }
+      return data as unknown as CartItem;
     } catch (error) {
       console.error('Error in addToCart:', error);
       throw error;
@@ -193,39 +154,6 @@ class CartService {
   }
 
   /**
-   * Update the quantity of a cart item
-   * @param userId - The user's ID
-   * @param listingId - The listing ID to update
-   * @param quantity - New quantity (if 0 or less, item will be removed)
-   */
-  async updateCartQuantity(userId: string, listingId: string, quantity: number): Promise<CartItem | null> {
-    try {
-      if (quantity <= 0) {
-        // Remove item if quantity is 0 or less
-        await this.removeFromCart(userId, listingId);
-        return null;
-      }
-
-      const { data, error } = await supabase
-        .from('cart')
-        .update({ quantity })
-        .eq('user_id', userId)
-        .eq('listing_id', listingId)
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Failed to update cart quantity: ${error.message}`);
-      }
-
-      return data as unknown as CartItem;
-    } catch (error) {
-      console.error('Error in updateCartQuantity:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Clear all items from user's cart
    * @param userId - The user's ID
    */
@@ -238,27 +166,6 @@ class CartService {
       }
     } catch (error) {
       console.error('Error in clearCart:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get cart item count for a user
-   * @param userId - The user's ID
-   * @returns Total number of items in cart
-   */
-  async getCartItemCount(userId: string): Promise<number> {
-    try {
-      const { data, error } = await supabase.from('cart').select('quantity').eq('user_id', userId);
-
-      if (error) {
-        throw new Error(`Failed to get cart count: ${error.message}`);
-      }
-
-      const totalCount = (data || []).reduce((sum, item) => sum + ((item as any).quantity || 0), 0);
-      return totalCount;
-    } catch (error) {
-      console.error('Error in getCartItemCount:', error);
       throw error;
     }
   }
