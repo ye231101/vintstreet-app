@@ -3,7 +3,18 @@ import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../api/config/supabase';
 import { attributesService } from '../../api/services/attributes.service';
@@ -90,55 +101,55 @@ export default function SellScreen() {
 
       try {
         const product = await listingsService.getListingById(productId);
-        
+
         if (!product) {
           Alert.alert('Error', 'Product not found');
           return;
         }
-        
+
         // Set basic fields
         setTitle(product.product_name || '');
         setDescription(product.product_description || '');
         setPrice(product.starting_price ? product.starting_price.toString() : '');
         setSalePrice(product.discounted_price ? product.discounted_price.toString() : '');
         setStockQuantity(product.stock_quantity ? product.stock_quantity.toString() : '');
-        
+
         // Set images
         if (product.product_images && product.product_images.length > 0) {
           setUploadedImageUrls(product.product_images);
         } else if (product.product_image) {
           setUploadedImageUrls([product.product_image]);
         }
-        
+
         // Set brand
         if (product.brand_id) {
           setSelectedBrandId(product.brand_id);
-          const brandData = brands.find(b => b.id === product.brand_id);
+          const brandData = brands.find((b) => b.id === product.brand_id);
           if (brandData) {
             setBrand(brandData.name);
           }
         }
-        
+
         // Set categories
         if (product.category_id) {
           setSelectedCategoryId(product.category_id);
-          const categoryData = categories.find(c => c.id === product.category_id);
+          const categoryData = categories.find((c) => c.id === product.category_id);
           if (categoryData) {
             setCategory(categoryData.name);
           }
-          
+
           // Load subcategories
           if (product.subcategory_id) {
             const subcatsData = await listingsService.getSubcategories(product.category_id);
             setSubcategories(subcatsData);
             setSelectedSubcategoryId(product.subcategory_id);
-            
+
             // Load sub-subcategories
             if (product.sub_subcategory_id) {
               const subSubcatsData = await listingsService.getSubSubcategories(product.subcategory_id);
               setSubSubcategories(subSubcatsData);
               setSelectedSubSubcategoryId(product.sub_subcategory_id);
-              
+
               // Load sub-sub-subcategories
               if (product.sub_sub_subcategory_id) {
                 const subSubSubcatsData = await listingsService.getSubSubSubcategories(product.sub_subcategory_id);
@@ -692,347 +703,357 @@ export default function SellScreen() {
       <View className="bg-black px-4 py-3 flex-row justify-between items-center">
         <TouchableOpacity onPress={handleNavigationAway} className="flex-row items-center">
           <Feather name="arrow-left" size={20} color="#fff" className="mr-2" />
-          <Text className="text-lg font-inter-bold text-white">
-            {productId ? 'Edit Product' : 'Add New Product'}
-          </Text>
+          <Text className="text-lg font-inter-bold text-white">{productId ? 'Edit Product' : 'Add New Product'}</Text>
         </TouchableOpacity>
         <Feather name="shopping-bag" size={24} color="#fff" />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-gray-100">
-        <TouchableOpacity
-          className="flex-1"
-          activeOpacity={1}
-          onPress={() => {
-            setShowItemTypeDropdown(false);
-          }}
-        >
-          <View className="p-4">
-            {/* Product Images Section */}
-            <View className="bg-white rounded-lg p-4 mb-4">
-              <Text className="text-lg font-inter-bold text-black mb-4">Product Images (Multiple)</Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        className="flex-1"
+      >
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-gray-100">
+          <TouchableOpacity
+            className="flex-1"
+            activeOpacity={1}
+            onPress={() => {
+              setShowItemTypeDropdown(false);
+            }}
+          >
+            <View className="p-4">
+              {/* Product Images Section */}
+              <View className="bg-white rounded-lg p-4 mb-4">
+                <Text className="text-lg font-inter-bold text-black mb-4">Product Images (Multiple)</Text>
 
-              {/* Upload Area */}
-              <TouchableOpacity
-                className={`border-2 border-dashed rounded-lg p-6 items-center mb-4 ${
-                  productImages.length >= 10 ? 'border-green-300 bg-green-50' : 'border-gray-300'
-                }`}
-                onPress={() => setShowImagePickerModal(true)}
-                disabled={isUploadingImages}
-              >
-                {isUploadingImages ? (
-                  <>
-                    <Feather name="loader" size={32} color="#666" />
-                    <Text className="text-sm font-inter text-gray-600 mt-2">Uploading images...</Text>
-                    <Text className="text-xs font-inter text-gray-400 mt-1">{uploadProgress}% complete</Text>
-                    <View className="bg-gray-200 rounded-lg py-2 px-4 mt-3 opacity-50">
-                      <Text className="text-sm font-inter-semibold text-gray-700">Uploading...</Text>
-                    </View>
-                  </>
-                ) : productImages.length >= 10 ? (
-                  <>
-                    <Feather name="check-circle" size={32} color="#10B981" />
-                    <Text className="text-sm font-inter text-green-600 mt-2">Maximum images reached</Text>
-                    <Text className="text-xs font-inter text-green-500 mt-1">
-                      You have selected all 10 images for your product
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Feather name="upload" size={32} color="#666" />
-                    <Text className="text-sm font-inter text-gray-600 mt-2">
-                      {productImages.length > 0
-                        ? `${productImages.length} of 10 images selected`
-                        : 'Upload product images'}
-                    </Text>
-                    <Text className="text-xs font-inter text-gray-400 mt-1">
-                      Up to 10MB each, multiple images supported
-                    </Text>
-                    <TouchableOpacity
-                      className="bg-gray-200 rounded-lg py-2 px-4 mt-3"
-                      onPress={() => setShowImagePickerModal(true)}
-                    >
-                      <Text className="text-sm font-inter-semibold text-gray-700">
-                        {productImages.length > 0 ? 'Add More Images' : 'Choose Images'}
+                {/* Upload Area */}
+                <TouchableOpacity
+                  className={`border-2 border-dashed rounded-lg p-6 items-center mb-4 ${
+                    productImages.length >= 10 ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                  }`}
+                  onPress={() => setShowImagePickerModal(true)}
+                  disabled={isUploadingImages}
+                >
+                  {isUploadingImages ? (
+                    <>
+                      <Feather name="loader" size={32} color="#666" />
+                      <Text className="text-sm font-inter text-gray-600 mt-2">Uploading images...</Text>
+                      <Text className="text-xs font-inter text-gray-400 mt-1">{uploadProgress}% complete</Text>
+                      <View className="bg-gray-200 rounded-lg py-2 px-4 mt-3 opacity-50">
+                        <Text className="text-sm font-inter-semibold text-gray-700">Uploading...</Text>
+                      </View>
+                    </>
+                  ) : productImages.length >= 10 ? (
+                    <>
+                      <Feather name="check-circle" size={32} color="#10B981" />
+                      <Text className="text-sm font-inter text-green-600 mt-2">Maximum images reached</Text>
+                      <Text className="text-xs font-inter text-green-500 mt-1">
+                        You have selected all 10 images for your product
                       </Text>
-                    </TouchableOpacity>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              {/* Image Previews */}
-              {productImages.length > 0 && (
-                <View className="mt-3">
-                  <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-sm font-inter-semibold text-gray-700">
-                      {productImages.length} of 10 images
-                    </Text>
-                    {isUploadingImages && (
-                      <View className="flex-row items-center">
-                        <Text className="text-xs font-inter text-gray-500 mr-2">Uploading... {uploadProgress}%</Text>
-                        <View className="w-16 h-1 bg-gray-200 rounded-full">
-                          <View className="h-1 bg-blue-500 rounded-full" style={{ width: `${uploadProgress}%` }} />
-                        </View>
-                      </View>
-                    )}
-                  </View>
-
-                  <View className="flex-row flex-wrap gap-2">
-                    {productImages.map((imageUri, index) => {
-                      const isUploaded = uploadedImageUrls[index];
-                      const isUploading = isUploadingImages && !isUploaded;
-
-                      return (
-                        <TouchableOpacity key={index} className="relative">
-                          <Image
-                            source={{ uri: imageUri }}
-                            className="w-20 h-20 rounded-lg"
-                            resizeMode="cover"
-                            style={{ opacity: isUploading ? 0.7 : 1 }}
-                          />
-
-                          {/* Upload Status Indicator */}
-                          {isUploaded ? (
-                            <View className="absolute -top-2 -left-2 bg-green-500 rounded-full w-6 h-6 items-center justify-center">
-                              <Feather name="check" size={14} color="#fff" />
-                            </View>
-                          ) : isUploading ? (
-                            <View className="absolute -top-2 -left-2 bg-blue-500 rounded-full w-6 h-6 items-center justify-center">
-                              <Feather name="upload" size={14} color="#fff" />
-                            </View>
-                          ) : (
-                            <View className="absolute -top-2 -left-2 bg-yellow-500 rounded-full w-6 h-6 items-center justify-center">
-                              <Feather name="clock" size={14} color="#fff" />
-                            </View>
-                          )}
-
-                          {/* Remove Button */}
-                          <TouchableOpacity
-                            className="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
-                            onPress={() => removeImage(index)}
-                            disabled={isUploading}
-                          >
-                            <Feather name="x" size={14} color="#fff" />
-                          </TouchableOpacity>
-
-                          {/* Upload Progress Overlay */}
-                          {isUploading && (
-                            <View className="absolute inset-0 bg-black/20 rounded-lg items-center justify-center">
-                              <View className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            </View>
-                          )}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-              )}
-            </View>
-
-            {/* Product Information Section */}
-            <View className="bg-white rounded-lg p-4 mb-4">
-              <Text className="text-lg font-inter-bold text-black mb-4">Product Information</Text>
-
-              {/* Product Name Field */}
-              <View className="mb-4">
-                <Text className="text-sm font-inter-semibold text-black mb-2">Product Name *</Text>
-                <TextInput
-                  className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
-                  placeholder="Enter product name"
-                  value={title}
-                  onChangeText={setTitle}
-                />
-              </View>
-
-              {/* Brand Field */}
-              <View className="mb-4">
-                <Text className="text-sm font-inter-semibold text-black mb-2">Brand</Text>
-                <TouchableOpacity
-                  className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
-                  onPress={() => setShowBrandModal(true)}
-                >
-                  <View className="flex-row items-center flex-1">
-                    <Feather name="tag" size={16} color="#999" className="mr-2" />
-                    {selectedBrand ? (
-                      <View className="flex-row items-center flex-1">
-                        {selectedBrand.logo_url && (
-                          <Image
-                            source={{ uri: selectedBrand.logo_url }}
-                            className="w-5 h-5 mr-2"
-                            resizeMode="contain"
-                          />
-                        )}
-                        <Text className="text-sm font-inter text-black">{selectedBrand.name}</Text>
-                      </View>
-                    ) : (
-                      <Text className="text-sm font-inter text-gray-400">Select brand (optional)</Text>
-                    )}
-                  </View>
-                  <Feather name="chevron-down" size={16} color="#999" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Description Field */}
-              <View className="mb-4">
-                <Text className="text-sm font-inter-semibold text-black mb-2">Description</Text>
-                <TextInput
-                  className="bg-white rounded-lg border border-gray-300 px-3 text-sm font-inter h-24"
-                  placeholder="Describe your product"
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  textAlignVertical="top"
-                />
-              </View>
-
-              {/* Price Fields */}
-              <View className="flex-row gap-4">
-                <View className="flex-1">
-                  <Text className="text-sm font-inter-semibold text-black mb-2">Price *</Text>
-                  <View className="flex-row items-center">
-                    <View className="bg-gray-200 rounded-l-lg px-3 py-3 border border-gray-300">
-                      <Text className="text-sm font-inter text-gray-700">£ GBP</Text>
-                    </View>
-                    <TextInput
-                      className="bg-white rounded-r-lg border border-gray-300 border-l-0 px-3 py-3 text-sm font-inter flex-1"
-                      placeholder="0.00"
-                      value={price}
-                      onChangeText={setPrice}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                </View>
-                <View className="flex-1">
-                  <Text className="text-sm font-inter-semibold text-black mb-2">Sale Price</Text>
-                  <View className="flex-row items-center">
-                    <View className="bg-gray-200 rounded-l-lg px-3 py-3 border border-gray-300">
-                      <Text className="text-sm font-inter text-gray-700">£ GBP</Text>
-                    </View>
-                    <TextInput
-                      className="bg-white rounded-r-lg border border-gray-300 border-l-0 px-3 py-3 text-sm font-inter flex-1"
-                      placeholder="0.00"
-                      value={salePrice}
-                      onChangeText={setSalePrice}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                </View>
-              </View>
-
-              {/* Enable Offers Checkbox */}
-              <View className="flex-row items-center mt-4">
-                <TouchableOpacity
-                  className={`w-5 h-5 border-2 rounded ${
-                    enableOffers ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
-                  } justify-center items-center mr-3`}
-                  onPress={() => setEnableOffers(!enableOffers)}
-                >
-                  {enableOffers && <Feather name="check" size={14} color="#fff" />}
-                </TouchableOpacity>
-                <Text className="text-sm font-inter text-black">Enable offers on this product</Text>
-              </View>
-            </View>
-
-            {/* Category & Attributes Section */}
-            <CategoryAttributesCard
-              selectedCategoryId={selectedCategoryId}
-              selectedSubcategoryId={selectedSubcategoryId}
-              selectedSubSubcategoryId={selectedSubSubcategoryId}
-              selectedSubSubSubcategoryId={selectedSubSubSubcategoryId}
-              categories={categories}
-              subcategories={subcategories}
-              subSubcategories={subSubcategories}
-              subSubSubcategories={subSubSubcategories}
-              onCategoryPress={() => setShowCategoryModal(true)}
-              attributes={attributes}
-              dynamicAttributes={dynamicAttributes}
-              onAttributeChange={handleAttributeChange}
-            />
-
-            {/* Stock Management Section */}
-            <View className="bg-white rounded-lg p-4 mb-4">
-              <Text className="text-lg font-inter-bold text-black mb-4">Stock Management</Text>
-
-              <View className="mb-4">
-                <Text className="text-sm font-inter-semibold text-black mb-2">Item Type *</Text>
-                <View className="relative">
-                  <TouchableOpacity
-                    className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      setShowItemTypeDropdown(!showItemTypeDropdown);
-                    }}
-                  >
-                    <Text className="text-sm font-inter text-black">
-                      {itemTypeOptions.find((type) => type.key === itemType)?.label || 'Select item type'}
-                    </Text>
-                    <Feather name="chevron-down" size={16} color="#999" />
-                  </TouchableOpacity>
-
-                  {showItemTypeDropdown && (
-                    <View className="absolute top-11 left-0 right-0 z-50 bg-white rounded-lg border border-gray-300 shadow-lg">
-                      {itemTypeOptions.map((type, index) => (
-                        <TouchableOpacity
-                          key={type.key}
-                          className={`py-3 px-3 ${
-                            index < itemTypeOptions.length - 1 ? 'border-b border-gray-100' : ''
-                          } ${type.key === itemType ? 'bg-gray-100' : 'bg-transparent'}`}
-                          onPress={(e) => {
-                            e.stopPropagation();
-                            setItemType(type.key);
-                            setShowItemTypeDropdown(false);
-                          }}
-                        >
-                          <View className="flex-row items-center justify-between">
-                            <Text className="text-sm font-inter text-black">{type.label}</Text>
-                            {type.key === itemType && <Feather name="check" size={16} color="#000" />}
-                          </View>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+                    </>
+                  ) : (
+                    <>
+                      <Feather name="upload" size={32} color="#666" />
+                      <Text className="text-sm font-inter text-gray-600 mt-2">
+                        {productImages.length > 0
+                          ? `${productImages.length} of 10 images selected`
+                          : 'Upload product images'}
+                      </Text>
+                      <Text className="text-xs font-inter text-gray-400 mt-1">
+                        Up to 10MB each, multiple images supported
+                      </Text>
+                      <TouchableOpacity
+                        className="bg-gray-200 rounded-lg py-2 px-4 mt-3"
+                        onPress={() => setShowImagePickerModal(true)}
+                      >
+                        <Text className="text-sm font-inter-semibold text-gray-700">
+                          {productImages.length > 0 ? 'Add More Images' : 'Choose Images'}
+                        </Text>
+                      </TouchableOpacity>
+                    </>
                   )}
-                </View>
+                </TouchableOpacity>
+
+                {/* Image Previews */}
+                {productImages.length > 0 && (
+                  <View className="mt-3">
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-sm font-inter-semibold text-gray-700">
+                        {productImages.length} of 10 images
+                      </Text>
+                      {isUploadingImages && (
+                        <View className="flex-row items-center">
+                          <Text className="text-xs font-inter text-gray-500 mr-2">Uploading... {uploadProgress}%</Text>
+                          <View className="w-16 h-1 bg-gray-200 rounded-full">
+                            <View className="h-1 bg-blue-500 rounded-full" style={{ width: `${uploadProgress}%` }} />
+                          </View>
+                        </View>
+                      )}
+                    </View>
+
+                    <View className="flex-row flex-wrap gap-2">
+                      {productImages.map((imageUri, index) => {
+                        const isUploaded = uploadedImageUrls[index];
+                        const isUploading = isUploadingImages && !isUploaded;
+
+                        return (
+                          <TouchableOpacity key={index} className="relative">
+                            <Image
+                              source={{ uri: imageUri }}
+                              className="w-20 h-20 rounded-lg"
+                              resizeMode="cover"
+                              style={{ opacity: isUploading ? 0.7 : 1 }}
+                            />
+
+                            {/* Upload Status Indicator */}
+                            {isUploaded ? (
+                              <View className="absolute -top-2 -left-2 bg-green-500 rounded-full w-6 h-6 items-center justify-center">
+                                <Feather name="check" size={14} color="#fff" />
+                              </View>
+                            ) : isUploading ? (
+                              <View className="absolute -top-2 -left-2 bg-blue-500 rounded-full w-6 h-6 items-center justify-center">
+                                <Feather name="upload" size={14} color="#fff" />
+                              </View>
+                            ) : (
+                              <View className="absolute -top-2 -left-2 bg-yellow-500 rounded-full w-6 h-6 items-center justify-center">
+                                <Feather name="clock" size={14} color="#fff" />
+                              </View>
+                            )}
+
+                            {/* Remove Button */}
+                            <TouchableOpacity
+                              className="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
+                              onPress={() => removeImage(index)}
+                              disabled={isUploading}
+                            >
+                              <Feather name="x" size={14} color="#fff" />
+                            </TouchableOpacity>
+
+                            {/* Upload Progress Overlay */}
+                            {isUploading && (
+                              <View className="absolute inset-0 bg-black/20 rounded-lg items-center justify-center">
+                                <View className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              </View>
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+                )}
               </View>
 
-              {/* Stock Quantity Field - Only show for Multi Item */}
-              {itemType === 'multi' && (
+              {/* Product Information Section */}
+              <View className="bg-white rounded-lg p-4 mb-4">
+                <Text className="text-lg font-inter-bold text-black mb-4">Product Information</Text>
+
+                {/* Product Name Field */}
                 <View className="mb-4">
-                  <Text className="text-sm font-inter-semibold text-black mb-2">Stock Quantity *</Text>
+                  <Text className="text-sm font-inter-semibold text-black mb-2">Product Name *</Text>
                   <TextInput
                     className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
-                    placeholder="Enter available quantity"
-                    value={stockQuantity}
-                    onChangeText={setStockQuantity}
-                    keyboardType="numeric"
+                    placeholder="Enter product name"
+                    value={title}
+                    onChangeText={setTitle}
                   />
                 </View>
-              )}
-            </View>
 
-            {/* Action Buttons */}
-            <View className="flex-row mb-4">
-              <TouchableOpacity
-                className={`flex-1 rounded-lg py-3 mr-2 items-center ${isSavingDraft ? 'bg-gray-400' : 'bg-black'}`}
-                onPress={handleSaveDraft}
-                disabled={isSavingDraft || isPublishing}
-              >
-                <Text className="text-base font-inter-semibold text-white">
-                  {isSavingDraft ? 'Saving...' : (productId ? 'Update Draft' : 'Save as Draft')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`flex-1 rounded-lg py-3 ml-2 items-center ${isPublishing ? 'bg-gray-400' : 'bg-black'}`}
-                onPress={handlePublishItem}
-                disabled={isSavingDraft || isPublishing}
-              >
-                <Text className="text-base font-inter-semibold text-white">
-                  {isPublishing ? (productId ? 'Updating...' : 'Publishing...') : (productId ? 'Update Product' : 'Publish to Marketplace')}
-                </Text>
-              </TouchableOpacity>
+                {/* Brand Field */}
+                <View className="mb-4">
+                  <Text className="text-sm font-inter-semibold text-black mb-2">Brand</Text>
+                  <TouchableOpacity
+                    className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
+                    onPress={() => setShowBrandModal(true)}
+                  >
+                    <View className="flex-row items-center flex-1">
+                      <Feather name="tag" size={16} color="#999" className="mr-2" />
+                      {selectedBrand ? (
+                        <View className="flex-row items-center flex-1">
+                          {selectedBrand.logo_url && (
+                            <Image
+                              source={{ uri: selectedBrand.logo_url }}
+                              className="w-5 h-5 mr-2"
+                              resizeMode="contain"
+                            />
+                          )}
+                          <Text className="text-sm font-inter text-black">{selectedBrand.name}</Text>
+                        </View>
+                      ) : (
+                        <Text className="text-sm font-inter text-gray-400">Select brand (optional)</Text>
+                      )}
+                    </View>
+                    <Feather name="chevron-down" size={16} color="#999" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Description Field */}
+                <View className="mb-4">
+                  <Text className="text-sm font-inter-semibold text-black mb-2">Description</Text>
+                  <TextInput
+                    className="bg-white rounded-lg border border-gray-300 px-3 text-sm font-inter h-24"
+                    placeholder="Describe your product"
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline
+                    textAlignVertical="top"
+                  />
+                </View>
+
+                {/* Price Fields */}
+                <View className="flex-row gap-4">
+                  <View className="flex-1">
+                    <Text className="text-sm font-inter-semibold text-black mb-2">Price *</Text>
+                    <View className="flex-row items-center">
+                      <View className="bg-gray-200 rounded-l-lg px-3 py-3 border border-gray-300">
+                        <Text className="text-sm font-inter text-gray-700">£ GBP</Text>
+                      </View>
+                      <TextInput
+                        className="bg-white rounded-r-lg border border-gray-300 border-l-0 px-3 py-3 text-sm font-inter flex-1"
+                        placeholder="0.00"
+                        value={price}
+                        onChangeText={setPrice}
+                        keyboardType="numeric"
+                      />
+                    </View>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-sm font-inter-semibold text-black mb-2">Sale Price</Text>
+                    <View className="flex-row items-center">
+                      <View className="bg-gray-200 rounded-l-lg px-3 py-3 border border-gray-300">
+                        <Text className="text-sm font-inter text-gray-700">£ GBP</Text>
+                      </View>
+                      <TextInput
+                        className="bg-white rounded-r-lg border border-gray-300 border-l-0 px-3 py-3 text-sm font-inter flex-1"
+                        placeholder="0.00"
+                        value={salePrice}
+                        onChangeText={setSalePrice}
+                        keyboardType="numeric"
+                      />
+                    </View>
+                  </View>
+                </View>
+
+                {/* Enable Offers Checkbox */}
+                <View className="flex-row items-center mt-4">
+                  <TouchableOpacity
+                    className={`w-5 h-5 border-2 rounded ${
+                      enableOffers ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
+                    } justify-center items-center mr-3`}
+                    onPress={() => setEnableOffers(!enableOffers)}
+                  >
+                    {enableOffers && <Feather name="check" size={14} color="#fff" />}
+                  </TouchableOpacity>
+                  <Text className="text-sm font-inter text-black">Enable offers on this product</Text>
+                </View>
+              </View>
+
+              {/* Category & Attributes Section */}
+              <CategoryAttributesCard
+                selectedCategoryId={selectedCategoryId}
+                selectedSubcategoryId={selectedSubcategoryId}
+                selectedSubSubcategoryId={selectedSubSubcategoryId}
+                selectedSubSubSubcategoryId={selectedSubSubSubcategoryId}
+                categories={categories}
+                subcategories={subcategories}
+                subSubcategories={subSubcategories}
+                subSubSubcategories={subSubSubcategories}
+                onCategoryPress={() => setShowCategoryModal(true)}
+                attributes={attributes}
+                dynamicAttributes={dynamicAttributes}
+                onAttributeChange={handleAttributeChange}
+              />
+
+              {/* Stock Management Section */}
+              <View className="bg-white rounded-lg p-4 mb-4">
+                <Text className="text-lg font-inter-bold text-black mb-4">Stock Management</Text>
+
+                <View className="mb-4">
+                  <Text className="text-sm font-inter-semibold text-black mb-2">Item Type *</Text>
+                  <View className="relative">
+                    <TouchableOpacity
+                      className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setShowItemTypeDropdown(!showItemTypeDropdown);
+                      }}
+                    >
+                      <Text className="text-sm font-inter text-black">
+                        {itemTypeOptions.find((type) => type.key === itemType)?.label || 'Select item type'}
+                      </Text>
+                      <Feather name="chevron-down" size={16} color="#999" />
+                    </TouchableOpacity>
+
+                    {showItemTypeDropdown && (
+                      <View className="absolute top-11 left-0 right-0 z-50 bg-white rounded-lg border border-gray-300 shadow-lg">
+                        {itemTypeOptions.map((type, index) => (
+                          <TouchableOpacity
+                            key={type.key}
+                            className={`py-3 px-3 ${
+                              index < itemTypeOptions.length - 1 ? 'border-b border-gray-100' : ''
+                            } ${type.key === itemType ? 'bg-gray-100' : 'bg-transparent'}`}
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              setItemType(type.key);
+                              setShowItemTypeDropdown(false);
+                            }}
+                          >
+                            <View className="flex-row items-center justify-between">
+                              <Text className="text-sm font-inter text-black">{type.label}</Text>
+                              {type.key === itemType && <Feather name="check" size={16} color="#000" />}
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                </View>
+
+                {/* Stock Quantity Field - Only show for Multi Item */}
+                {itemType === 'multi' && (
+                  <View className="mb-4">
+                    <Text className="text-sm font-inter-semibold text-black mb-2">Stock Quantity *</Text>
+                    <TextInput
+                      className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
+                      placeholder="Enter available quantity"
+                      value={stockQuantity}
+                      onChangeText={setStockQuantity}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                )}
+              </View>
+
+              {/* Action Buttons */}
+              <View className="flex-row mb-4">
+                <TouchableOpacity
+                  className={`flex-1 rounded-lg py-3 mr-2 items-center ${isSavingDraft ? 'bg-gray-400' : 'bg-black'}`}
+                  onPress={handleSaveDraft}
+                  disabled={isSavingDraft || isPublishing}
+                >
+                  <Text className="text-base font-inter-semibold text-white">
+                    {isSavingDraft ? 'Saving...' : productId ? 'Update Draft' : 'Save as Draft'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className={`flex-1 rounded-lg py-3 ml-2 items-center ${isPublishing ? 'bg-gray-400' : 'bg-black'}`}
+                  onPress={handlePublishItem}
+                  disabled={isSavingDraft || isPublishing}
+                >
+                  <Text className="text-base font-inter-semibold text-white">
+                    {isPublishing
+                      ? productId
+                        ? 'Updating...'
+                        : 'Publishing...'
+                      : productId
+                      ? 'Update Product'
+                      : 'Publish to Marketplace'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
-      </ScrollView>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Category Selection Modal */}
       <Modal
@@ -1279,85 +1300,91 @@ export default function SellScreen() {
         animationType="slide"
         onRequestClose={() => setShowBrandModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl pt-2 px-5 pb-5 max-h-4/5">
-            {/* Modal Handle */}
-            <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-5" />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-white rounded-t-3xl pt-2 px-5 pb-5 max-h-4/5">
+              {/* Modal Handle */}
+              <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-5" />
 
-            {/* Header */}
-            <View className="flex-row justify-between items-center mb-5">
-              <Text className="text-lg font-inter-bold text-black">Select Brand</Text>
-              <TouchableOpacity
-                onPress={() => setShowBrandModal(false)}
-                className="w-6 h-6 justify-center items-center"
-              >
-                <Feather name="x" size={20} color="#000" />
-              </TouchableOpacity>
-            </View>
+              {/* Header */}
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="text-lg font-inter-bold text-black">Select Brand</Text>
+                <TouchableOpacity
+                  onPress={() => setShowBrandModal(false)}
+                  className="w-6 h-6 justify-center items-center"
+                >
+                  <Feather name="x" size={20} color="#000" />
+                </TouchableOpacity>
+              </View>
 
-            {/* Search Bar */}
-            <View className="mb-4">
-              <TextInput
-                className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
-                placeholder="Search brands..."
-                value={brandSearchQuery}
-                onChangeText={setBrandSearchQuery}
-                autoFocus
-              />
-            </View>
+              {/* Search Bar */}
+              <View className="mb-4">
+                <TextInput
+                  className="bg-white rounded-lg border border-gray-300 px-3 py-3 text-sm font-inter"
+                  placeholder="Search brands..."
+                  value={brandSearchQuery}
+                  onChangeText={setBrandSearchQuery}
+                  autoFocus
+                />
+              </View>
 
-            {/* Brand List */}
-            <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
-              {!brandSearchQuery.trim() && (
-                <Text className="text-sm font-inter-semibold text-gray-600 mb-3 px-3">Popular Brands</Text>
+              {/* Brand List */}
+              <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
+                {!brandSearchQuery.trim() && (
+                  <Text className="text-sm font-inter-semibold text-gray-600 mb-3 px-3">Popular Brands</Text>
+                )}
+
+                {filteredBrands.length === 0 ? (
+                  <View className="py-8 items-center">
+                    <Text className="text-sm font-inter text-gray-500">No brands found</Text>
+                  </View>
+                ) : (
+                  filteredBrands.map((brand) => (
+                    <TouchableOpacity
+                      key={brand.id}
+                      className={`py-3 px-3 flex-row justify-between items-center ${
+                        selectedBrandId === brand.id ? 'bg-gray-100' : 'bg-transparent'
+                      }`}
+                      onPress={() => {
+                        setSelectedBrandId(brand.id);
+                        setBrand(brand.name);
+                        setShowBrandModal(false);
+                        setBrandSearchQuery('');
+                      }}
+                    >
+                      <View className="flex-row items-center flex-1">
+                        {brand.logo_url && (
+                          <Image source={{ uri: brand.logo_url }} className="w-6 h-6 mr-3" resizeMode="contain" />
+                        )}
+                        <Text className="text-sm font-inter text-black flex-1">{brand.name}</Text>
+                      </View>
+                      {selectedBrandId === brand.id && <Feather name="check" size={16} color="#000" />}
+                    </TouchableOpacity>
+                  ))
+                )}
+              </ScrollView>
+
+              {/* Clear Selection Button */}
+              {selectedBrandId && (
+                <TouchableOpacity
+                  className="mt-4 py-3 px-4 bg-gray-200 rounded-lg items-center"
+                  onPress={() => {
+                    setSelectedBrandId('');
+                    setBrand('');
+                    setShowBrandModal(false);
+                    setBrandSearchQuery('');
+                  }}
+                >
+                  <Text className="text-sm font-inter-semibold text-black">Clear Selection</Text>
+                </TouchableOpacity>
               )}
-
-              {filteredBrands.length === 0 ? (
-                <View className="py-8 items-center">
-                  <Text className="text-sm font-inter text-gray-500">No brands found</Text>
-                </View>
-              ) : (
-                filteredBrands.map((brand) => (
-                  <TouchableOpacity
-                    key={brand.id}
-                    className={`py-3 px-3 flex-row justify-between items-center ${
-                      selectedBrandId === brand.id ? 'bg-gray-100' : 'bg-transparent'
-                    }`}
-                    onPress={() => {
-                      setSelectedBrandId(brand.id);
-                      setBrand(brand.name);
-                      setShowBrandModal(false);
-                      setBrandSearchQuery('');
-                    }}
-                  >
-                    <View className="flex-row items-center flex-1">
-                      {brand.logo_url && (
-                        <Image source={{ uri: brand.logo_url }} className="w-6 h-6 mr-3" resizeMode="contain" />
-                      )}
-                      <Text className="text-sm font-inter text-black flex-1">{brand.name}</Text>
-                    </View>
-                    {selectedBrandId === brand.id && <Feather name="check" size={16} color="#000" />}
-                  </TouchableOpacity>
-                ))
-              )}
-            </ScrollView>
-
-            {/* Clear Selection Button */}
-            {selectedBrandId && (
-              <TouchableOpacity
-                className="mt-4 py-3 px-4 bg-gray-200 rounded-lg items-center"
-                onPress={() => {
-                  setSelectedBrandId('');
-                  setBrand('');
-                  setShowBrandModal(false);
-                  setBrandSearchQuery('');
-                }}
-              >
-                <Text className="text-sm font-inter-semibold text-black">Clear Selection</Text>
-              </TouchableOpacity>
-            )}
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Image Picker Modal */}
