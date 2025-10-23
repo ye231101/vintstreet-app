@@ -25,6 +25,53 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Build for production with EAS
+
+[EAS Build](https://docs.expo.dev/build/introduction/) is a cloud build service that makes it easy to create production builds for iOS and Android.
+
+1. Install EAS CLI globally
+
+   ```bash
+   npm install -g eas-cli
+   ```
+
+2. Log in to your Expo account
+
+   ```bash
+   eas login
+   ```
+
+3. Configure your project for EAS Build
+
+   ```bash
+   eas build:configure
+   ```
+
+4. Run a build
+
+   For Android:
+   ```bash
+   eas build --platform android
+   ```
+
+   For iOS:
+   ```bash
+   eas build --platform ios
+   ```
+
+   For both platforms:
+   ```bash
+   eas build --platform all
+   ```
+
+You can also create preview builds for testing:
+
+```bash
+eas build --profile preview --platform android
+```
+
+Learn more about [EAS Build profiles](https://docs.expo.dev/build/eas-json/) and [submitting to app stores](https://docs.expo.dev/submit/introduction/).
+
 ## Get a fresh project
 
 When you're ready, run:
