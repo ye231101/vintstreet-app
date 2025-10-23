@@ -26,9 +26,13 @@ export default function AccountScreen() {
           {/* Profile Avatar */}
           <View className="w-24 h-24 bg-gray-200 rounded-xl justify-center items-center mr-4">
             <Image
-              source={user?.avatar_url ? { uri: user.avatar_url } : require('@/assets/images/default_user_icon.png')}
-              style={{ width: '100%', height: '100%' }}
+              source={{
+                uri: user?.avatar_url
+                  ? user.avatar_url
+                  : `https://ui-avatars.com/api/?name=${user?.full_name}&length=1`,
+              }}
               resizeMode="cover"
+              style={{ width: '100%', height: '100%', borderRadius: 12 }}
             />
           </View>
 

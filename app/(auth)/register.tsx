@@ -306,7 +306,7 @@ export default function RegisterScreen() {
           <View className="w-full max-w-lg">
             {/* Logo */}
             <View className="items-center mb-10">
-              <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
+              <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
             </View>
 
             {/* Error message */}

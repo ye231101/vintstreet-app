@@ -27,7 +27,7 @@ export default function IndexScreen() {
         <View className="flex-1 items-center justify-center">
           <View className="w-full max-w-lg">
             <View className="items-center mb-10">
-              <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
+              <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
               <Text className="text-2xl font-inter-bold mt-4 text-center">Welcome to Vint Street</Text>
               <Text className="text-gray-500 font-inter mt-2 text-center">Sign in to continue</Text>
             </View>

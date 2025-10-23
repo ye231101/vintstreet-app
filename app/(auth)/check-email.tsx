@@ -125,7 +125,7 @@ export default function CheckEmailScreen() {
             <View className="w-full max-w-lg items-center">
               {/* Logo */}
               <View className="items-center mb-8">
-                <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
+                <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
               </View>
 
               {/* Title */}
