@@ -144,7 +144,9 @@ export default function CartScreen() {
     <View className="bg-white p-4 border-t border-gray-100">
       <View className="flex-row justify-between mb-4">
         <Text className="text-lg font-inter-bold text-gray-800">Total</Text>
-        <Text className="text-lg font-inter-bold text-gray-800">{cart.total.toFixed(2)}</Text>
+        <Text className="text-lg font-inter-bold text-gray-800">
+          £{cart.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </Text>
       </View>
     </View>
   );
