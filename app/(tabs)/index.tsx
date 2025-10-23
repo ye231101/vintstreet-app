@@ -110,8 +110,12 @@ export default function HomeScreen() {
         ) : searchResults.length > 0 ? (
           <View className="flex-1">
             <View className="px-4 py-2 bg-gray-100">
-              <Text className="text-sm text-gray-600">
-                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchText}"
+              <Text className="text-xl text-gray-600">
+                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "
+                <Text className="text-red-500 underline decoration-red-500 decoration-2 underline-offset-2">
+                  {searchText}
+                </Text>
+                "
               </Text>
             </View>
             <FlatList

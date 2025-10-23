@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   Text,
@@ -12,11 +13,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { messagesService, ApiMessage } from '../../api/services/messages.service';
+import { useAuth } from '../../hooks/use-auth';
 
 interface Message {
-  id: number;
+  id: string;
   content: string;
-  senderId: number;
+  senderId: string;
   dateSent: string;
   isSent: boolean;
 }
@@ -34,51 +37,110 @@ export default function MessageDetailScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [conversationInfo, setConversationInfo] = useState<{
+    subject: string;
+    otherUserName: string;
+  } | null>(null);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [isReporting, setIsReporting] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
-
-  // Mock data based on the image
-  const mockMessages: Message[] = [
-    {
-      id: 1,
-      content: 'Do you like my shop',
-      senderId: 2,
-      dateSent: '2025-09-24T14:38:00Z',
-      isSent: false,
-    },
-    {
-      id: 2,
-      content: 'It will be open soon',
-      senderId: 2,
-      dateSent: '2025-09-24T14:39:00Z',
-      isSent: false,
-    },
-    {
-      id: 3,
-      content: '2132',
-      senderId: 1,
-      dateSent: '2025-09-24T19:39:00Z',
-      isSent: true,
-    },
-    {
-      id: 4,
-      content: '65456',
-      senderId: 1,
-      dateSent: '2025-09-24T19:39:00Z',
-      isSent: true,
-    },
-  ];
+  const { user } = useAuth();
 
   useEffect(() => {
-    loadMessages();
-  }, []);
+    if (user?.id && id) {
+      loadMessages();
+    }
+  }, [user?.id, id]);
 
   const loadMessages = async () => {
+    if (!user?.id || !id) return;
+
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setMessages(mockMessages);
+    try {
+      // Get all conversations to find the specific thread
+      const conversations = await messagesService.getConversations(user.id);
+      const conversation = conversations.find((conv) => conv.id === id);
+
+      if (conversation) {
+        setConversationInfo({
+          subject: conversation.subject,
+          otherUserName: conversation.other_user_name,
+        });
+
+        // Convert API messages to display format
+        const displayMessages: Message[] = conversation.messages
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          .map((msg) => ({
+            id: msg.id,
+            content: msg.message,
+            senderId: msg.sender_id,
+            dateSent: msg.created_at,
+            isSent: msg.sender_id === user.id,
+          }));
+
+        setMessages(displayMessages);
+
+        // Mark messages as read
+        const unreadMessageIds = conversation.messages
+          .filter((msg) => msg.recipient_id === user.id && msg.status === 'unread')
+          .map((msg) => msg.id);
+
+        if (unreadMessageIds.length > 0) {
+          await messagesService.markAsRead(unreadMessageIds);
+        }
+      } else {
+        Alert.alert('Error', 'Conversation not found');
+        router.back();
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      Alert.alert('Error', 'Failed to load messages');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  const handleReportMessage = async () => {
+    if (!reportReason.trim() || !user || !id) {
+      Alert.alert('Error', 'Please provide a reason for reporting');
+      return;
+    }
+
+    setIsReporting(true);
+
+    try {
+      // Get conversation info to find the first message to flag
+      const conversations = await messagesService.getConversations(user.id);
+      const conversation = conversations.find((conv) => conv.id === id);
+
+      if (!conversation) {
+        Alert.alert('Error', 'Conversation not found');
+        return;
+      }
+
+      // Get the first message in the thread to flag
+      const firstMessage = conversation.messages.sort(
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      )[0];
+
+      if (!firstMessage) {
+        Alert.alert('Error', 'No message found to report');
+        return;
+      }
+
+      await messagesService.reportMessage(firstMessage.id, user.id, reportReason.trim());
+
+      Alert.alert('Success', 'Message reported to administrators');
+      setIsReportDialogOpen(false);
+      setReportReason('');
+    } catch (error) {
+      console.error('Error reporting message:', error);
+      Alert.alert('Error', 'Failed to report message');
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   const formatTime = (dateString: string) => {
@@ -101,11 +163,17 @@ export default function MessageDetailScreen() {
     } else if (messageDate.getTime() === today.getTime() - 24 * 60 * 60 * 1000) {
       return 'Yesterday';
     } else {
-      return date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
+      // Check if it's within the last 7 days
+      const diffInDays = Math.floor((today.getTime() - messageDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffInDays <= 7) {
+        return date.toLocaleDateString('en-US', { weekday: 'long' });
+      } else {
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+        });
+      }
     }
   };
 
@@ -131,36 +199,63 @@ export default function MessageDetailScreen() {
     return grouped;
   };
 
-  const sendMessage = () => {
-    if (messageText.trim() === '') return;
+  const sendMessage = async () => {
+    if (messageText.trim() === '' || !user || !id) return;
 
-    const newMessage: Message = {
-      id: Date.now(),
-      content: messageText.trim(),
-      senderId: 1,
-      dateSent: new Date().toISOString(),
-      isSent: true,
-    };
+    setIsSending(true);
+    try {
+      // Get conversation info to find the other user
+      const conversations = await messagesService.getConversations(user.id);
+      const conversation = conversations.find((conv) => conv.id === id);
 
-    setMessages((prev) => [...prev, newMessage]);
-    setMessageText('');
+      if (!conversation) {
+        Alert.alert('Error', 'Conversation not found');
+        return;
+      }
 
-    // Scroll to bottom after sending
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+      // Send the message
+      await messagesService.sendMessage({
+        sender_id: user.id,
+        recipient_id: conversation.other_user_id,
+        subject: conversation.subject,
+        message: messageText.trim(),
+        parent_message_id: conversation.messages[0]?.id || undefined,
+      });
+
+      // Add the message to local state immediately for better UX
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        content: messageText.trim(),
+        senderId: user.id,
+        dateSent: new Date().toISOString(),
+        isSent: true,
+      };
+
+      setMessages((prev) => [...prev, newMessage]);
+      setMessageText('');
+
+      // Scroll to bottom after sending
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      Alert.alert('Error', 'Failed to send message');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const renderDateHeader = (item: DateHeader) => (
-    <View key={`date-${item.date}`} className="items-center my-4">
-      <View className="bg-gray-100 px-3 py-1 rounded-xl">
-        <Text className="text-xs font-inter text-gray-600">{item.displayText}</Text>
+    <View className="items-center my-6">
+      <View className="bg-gray-200 px-4 py-2 rounded-full">
+        <Text className="text-sm font-inter-bold text-gray-700">{item.displayText}</Text>
       </View>
     </View>
   );
 
   const renderMessage = (message: Message) => (
-    <View key={message.id} className={`${message.isSent ? 'items-end' : 'items-start'} my-1 mx-2`}>
+    <View className={`${message.isSent ? 'items-end' : 'items-start'} my-1 mx-2`}>
       <View className={`max-w-3/4 py-2 px-3 rounded-2xl shadow-sm ${message.isSent ? 'bg-black' : 'bg-gray-100'}`}>
         <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-inter`}>{message.content}</Text>
       </View>
@@ -176,22 +271,32 @@ export default function MessageDetailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center bg-black px-4 py-3 border-b border-gray-700">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#fff" />
-        </TouchableOpacity>
+      <View className="bg-white px-4 py-3 border-b border-gray-200">
+        <View className="flex-row items-center">
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+            <Feather name="arrow-left" size={24} color="#000" />
+          </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Hello</Text>
+          <View className="flex-1">
+            <Text className="text-lg font-inter-bold text-gray-800">{conversationInfo?.subject || 'Loading...'}</Text>
+            <Text className="text-sm text-gray-600">
+              Conversation with {conversationInfo?.otherUserName || 'Loading...'}
+            </Text>
+          </View>
 
-        <TouchableOpacity onPress={() => Alert.alert('Refresh', 'Refreshing messages...')} className="ml-4">
-          <Feather name="refresh-cw" size={20} color="#fff" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsReportDialogOpen(true)} className="mr-3">
+            <Feather name="flag" size={20} color="#ef4444" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={loadMessages}>
+            <Feather name="refresh-cw" size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Messages Area */}
       <View className="flex-1 bg-white">
         <ScrollView
-          ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1 }}
           onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
@@ -243,12 +348,72 @@ export default function MessageDetailScreen() {
 
           <TouchableOpacity
             onPress={sendMessage}
-            className="bg-black w-10 h-10 rounded-full justify-center items-center shadow-lg"
+            disabled={!messageText.trim() || isSending}
+            className={`w-10 h-10 rounded-full justify-center items-center shadow-lg ${
+              !messageText.trim() || isSending ? 'bg-gray-400' : 'bg-black'
+            }`}
           >
-            <Feather name="send" size={18} color="#fff" />
+            <Feather
+              name={isSending ? 'loader' : 'send'}
+              size={18}
+              color="#fff"
+              style={isSending ? { transform: [{ rotate: '0deg' }] } : {}}
+            />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Report Dialog */}
+      <Modal
+        visible={isReportDialogOpen}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setIsReportDialogOpen(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-center items-center px-4">
+          <View className="bg-white rounded-lg p-6 w-full max-w-md">
+            <Text className="text-lg font-inter-bold text-black mb-2">Report Message</Text>
+            <Text className="text-sm text-gray-600 mb-4">
+              This will flag the message for administrator review. Please provide a reason for reporting this
+              conversation.
+            </Text>
+
+            <Text className="text-sm font-inter text-black mb-2">Reason for reporting</Text>
+            <TextInput
+              value={reportReason}
+              onChangeText={setReportReason}
+              placeholder="Describe why you're reporting this message..."
+              multiline
+              numberOfLines={4}
+              maxLength={500}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              style={{ textAlignVertical: 'top' }}
+            />
+            <Text className="text-xs text-gray-500 mt-1">{reportReason.length}/500 characters</Text>
+
+            <View className="flex-row justify-end mt-6 space-x-2">
+              <TouchableOpacity
+                onPress={() => setIsReportDialogOpen(false)}
+                disabled={isReporting}
+                className="px-4 py-2 rounded-lg border border-gray-300 mr-2"
+              >
+                <Text className="text-gray-600">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleReportMessage}
+                disabled={!reportReason.trim() || isReporting}
+                className={`px-4 py-2 rounded-lg ${!reportReason.trim() || isReporting ? 'bg-gray-300' : 'bg-red-500'}`}
+              >
+                <Text
+                  className={`font-inter-bold ${!reportReason.trim() || isReporting ? 'text-gray-500' : 'text-white'}`}
+                >
+                  {isReporting ? 'Reporting...' : 'Report Message'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
