@@ -172,10 +172,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
         }}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl pt-2 px-5 pb-5 max-h-4/5">
-            {/* Modal Handle */}
-            <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-5" />
-
+          <View className="bg-white rounded-t-3xl pt-5 px-5 pb-5 max-h-4/5">
             {/* Header */}
             <View className="flex-row justify-between items-center mb-5">
               <Text className="text-lg font-inter-bold text-black">{selectedAttribute.name}</Text>
@@ -205,7 +202,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
                   return (
                     <TouchableOpacity
                       key={option.id}
-                      className={`py-4 border-b border-gray-100 flex-row justify-between items-center ${
+                      className={`p-4 border-b border-gray-100 flex-row justify-between items-center ${
                         isSelected ? 'bg-gray-100' : 'bg-transparent'
                       }`}
                       onPress={() => handleOptionSelect(option)}

@@ -168,8 +168,7 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
             <View className="mb-4">
               <Text className="text-sm font-inter text-gray-700 mb-2">Message *</Text>
               <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-3"
-                style={{ height: 200 }}
+                className="border border-gray-300 rounded-lg px-4 py-3 h-48"
                 placeholder="Type your message here..."
                 placeholderTextColor="#9CA3AF"
                 multiline
