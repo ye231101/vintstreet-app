@@ -328,7 +328,7 @@ export default function MessageDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200 max-h-10">
+        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200">
           <View
             className="flex-1 flex-row items-center bg-gray-100 rounded-xl px-4 py-1 mr-3"
             style={{ maxHeight: 250 }}
