@@ -95,11 +95,15 @@ export default function OffersScreen() {
       <View className="flex-row justify-between items-center mb-3">
         <View>
           <Text className="text-gray-600 text-xs font-inter">Original Price</Text>
-          <Text className="text-gray-900 text-base font-inter-bold">£{offer.originalPrice.toFixed(2)}</Text>
+          <Text className="text-gray-900 text-base font-inter-bold">
+            £{offer.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Text>
         </View>
         <View>
           <Text className="text-gray-600 text-xs font-inter">Offer Amount</Text>
-          <Text className="text-green-500 text-base font-inter-bold">£{offer.offerAmount.toFixed(2)}</Text>
+          <Text className="text-green-500 text-base font-inter-bold">
+            £{offer.offerAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Text>
         </View>
       </View>
 

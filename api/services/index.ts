@@ -4,6 +4,7 @@
  */
 
 export { authService } from './auth.service';
+export { cartService } from './cart.service';
 export { categoriesService } from './categories.service';
 export { listingsService } from './listings.service';
 export { messagesService } from './messages.service';

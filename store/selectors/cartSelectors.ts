@@ -16,12 +16,12 @@ export const selectCartItemCount = createSelector([selectCartItems], (items) =>
 export const selectCartTotal = createSelector([selectCart], (cart) => cart.total);
 
 export const selectCartItemByProductId = (productId: string) =>
-  createSelector([selectCartItems], (items) => items.find((item) => item.product.id === productId));
+  createSelector([selectCartItems], (items) => items.find((item) => item.product?.id === productId));
 
 export const selectIsCartEmpty = createSelector([selectCartItems], (items) => items.length === 0);
 
 export const selectCartItemCountByProduct = (productId: string) =>
   createSelector([selectCartItems], (items) => {
-    const item = items.find((item) => item.product.id === productId);
+    const item = items.find((item) => item.product?.id === productId);
     return item ? item.quantity : 0;
   });

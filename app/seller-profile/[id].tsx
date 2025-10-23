@@ -240,7 +240,11 @@ export default function SellerProfileScreen() {
             {item.product_name}
           </Text>
           <Text className="text-base font-inter-semibold text-black mt-1">
-            £{Number(item.starting_price).toFixed(2)}
+            £
+            {Number(item.starting_price).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </Text>
         </View>
       </View>

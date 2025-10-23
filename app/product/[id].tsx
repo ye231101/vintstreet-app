@@ -237,16 +237,27 @@ export default function ProductDetailScreen() {
             <View className="flex-row items-center justify-between bg-white py-2">
               <View className="flex-row items-center">
                 <Text className="text-2xl font-inter-bold text-black mr-2">
-                  £{Number(product.starting_price).toFixed(2)}
+                  £
+                  {Number(product.starting_price).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </Text>
                 {product.discounted_price != null && (
                   <Text className="text-base font-inter text-gray-400 line-through">
-                    £{Number(product.starting_price).toFixed(2)}
+                    £
+                    {Number(product.starting_price).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </Text>
                 )}
               </View>
               <View className="flex-row items-center">
-                <Pressable className="flex-row items-center bg-black px-4 py-3 rounded-lg mr-2" onPress={handleAddToCart}>
+                <Pressable
+                  className="flex-row items-center bg-black px-4 py-3 rounded-lg mr-2"
+                  onPress={handleAddToCart}
+                >
                   <Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
                 </Pressable>
                 <Pressable className="bg-gray-100 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>

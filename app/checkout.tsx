@@ -204,14 +204,14 @@ export default function CheckoutScreen() {
   const loadCheckoutData = () => {
     // Filter cart items based on query parameter
     let filteredItems = cart.items;
-    
+
     if (itemsParam) {
       const itemIds = Array.isArray(itemsParam) ? itemsParam : [itemsParam];
-      filteredItems = cart.items.filter((item) => itemIds.includes(item.product.id));
-      
+      filteredItems = cart.items.filter((item) => itemIds.includes(item.product?.id || ''));
+
       // Update checkout title for single item checkout
       if (filteredItems.length === 1) {
-        setCheckoutTitle(`Checkout with ${filteredItems[0].product.product_name}`);
+        setCheckoutTitle(`Checkout with ${filteredItems[0].product?.product_name || ''}`);
       } else if (filteredItems.length > 1) {
         setCheckoutTitle(`Checkout ${filteredItems.length} Items`);
       }
@@ -221,13 +221,13 @@ export default function CheckoutScreen() {
 
     // Transform cart items to checkout items
     const items: CheckoutItem[] = filteredItems.map((item) => ({
-      id: item.product.id,
-      name: item.product.product_name,
-      brand: item.product.product_categories?.name || 'Unknown Brand',
-      price: item.product.starting_price,
+      id: item.product?.id || '',
+      name: item.product?.product_name || '',
+      brand: item.product?.product_categories?.name || 'Unknown Brand',
+      price: item.product?.starting_price || 0,
       quantity: item.quantity,
-      image: item.product.product_image || '',
-      lineTotal: item.subtotal,
+      image: item.product?.product_image || '',
+      lineTotal: item.subtotal || 0,
     }));
 
     // Calculate total for filtered items
@@ -238,29 +238,38 @@ export default function CheckoutScreen() {
   };
 
   // Update functions that clear errors when typing
-  const updateShippingAddress = useCallback((field: keyof ShippingAddress, value: string) => {
-    setShippingAddress((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (shippingAddressErrors[field as keyof ShippingAddressErrors]) {
-      setShippingAddressErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  }, [shippingAddressErrors]);
+  const updateShippingAddress = useCallback(
+    (field: keyof ShippingAddress, value: string) => {
+      setShippingAddress((prev) => ({ ...prev, [field]: value }));
+      // Clear error when user starts typing
+      if (shippingAddressErrors[field as keyof ShippingAddressErrors]) {
+        setShippingAddressErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    },
+    [shippingAddressErrors]
+  );
 
-  const updateBillingAddress = useCallback((field: keyof BillingAddress, value: string) => {
-    setBillingAddress((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (billingAddressErrors[field as keyof BillingAddressErrors]) {
-      setBillingAddressErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  }, [billingAddressErrors]);
+  const updateBillingAddress = useCallback(
+    (field: keyof BillingAddress, value: string) => {
+      setBillingAddress((prev) => ({ ...prev, [field]: value }));
+      // Clear error when user starts typing
+      if (billingAddressErrors[field as keyof BillingAddressErrors]) {
+        setBillingAddressErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    },
+    [billingAddressErrors]
+  );
 
-  const updateCardDetails = useCallback((field: keyof typeof cardDetails, value: string) => {
-    setCardDetails((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (cardDetailsErrors[field as keyof CardDetailsErrors]) {
-      setCardDetailsErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  }, [cardDetailsErrors]);
+  const updateCardDetails = useCallback(
+    (field: keyof typeof cardDetails, value: string) => {
+      setCardDetails((prev) => ({ ...prev, [field]: value }));
+      // Clear error when user starts typing
+      if (cardDetailsErrors[field as keyof CardDetailsErrors]) {
+        setCardDetailsErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    },
+    [cardDetailsErrors]
+  );
 
   const updateStepCompletion = () => {
     const shippingComplete =
@@ -351,7 +360,9 @@ export default function CheckoutScreen() {
             <Text className="text-xs font-inter text-gray-600">Qty: {item.quantity}</Text>
           </View>
 
-          <Text className="text-sm font-inter-bold text-gray-800">£{item.lineTotal.toFixed(2)}</Text>
+          <Text className="text-sm font-inter-bold text-gray-800">
+            £{item.lineTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Text>
         </View>
       ))}
 
@@ -359,7 +370,9 @@ export default function CheckoutScreen() {
       <View className="p-4 bg-gray-50 rounded-b-xl">
         <View className="flex-row justify-between">
           <Text className="text-base font-inter-bold text-gray-800">Total</Text>
-          <Text className="text-lg font-inter-bold text-gray-800">£{total.toFixed(2)}</Text>
+          <Text className="text-lg font-inter-bold text-gray-800">
+            £{total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Text>
         </View>
       </View>
     </View>
