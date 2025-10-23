@@ -226,13 +226,30 @@ class ListingsService {
    * Get listings filtered by category using either slug or id columns.
    * This method tries multiple possible foreign key columns and skips missing-column errors.
    */
-  async getListingsByCategory(categoryId: string, sort?: string): Promise<Product[]> {
+  async getListingsByCategory(categoryId: string, sort?: string, priceFilter?: string): Promise<Product[]> {
     const tryQuery = async (column: string, value: string | number) => {
       try {
-        const { data, error } = await (supabase as any)
+        let query = (supabase as any)
           .from('listings')
           .select('*')
-          .eq(column as any, value);
+          .eq(column as any, value)
+          .eq('product_type', 'shop')
+          .eq('status', 'published');
+
+        // Apply price filter if provided
+        if (priceFilter && priceFilter !== 'All Prices') {
+          const priceRange = this.getPriceRange(priceFilter);
+          if (priceRange) {
+            if (priceRange.min !== undefined) {
+              query = query.gte('starting_price', priceRange.min);
+            }
+            if (priceRange.max !== undefined) {
+              query = query.lte('starting_price', priceRange.max);
+            }
+          }
+        }
+
+        const { data, error } = await query;
         if (error) {
           // Skip unknown column or other errors silently; we'll try the next option
           return [] as any[];
@@ -470,10 +487,11 @@ class ListingsService {
   /**
    * Search listings by product name and description
    * @param searchTerm - The search term to look for
+   * @param priceFilter - Optional price filter
    */
-  async searchListings(searchTerm: string): Promise<Product[]> {
+  async searchListings(searchTerm: string, priceFilter?: string): Promise<Product[]> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('listings')
         .select(
           `
@@ -498,8 +516,22 @@ class ListingsService {
         )
         .eq('product_type', 'shop')
         .eq('status', 'published')
-        .or(`product_name.ilike.%${searchTerm}%,product_description.ilike.%${searchTerm}%`)
-        .order('created_at', { ascending: false });
+        .or(`product_name.ilike.%${searchTerm}%,product_description.ilike.%${searchTerm}%`);
+
+      // Apply price filter if provided
+      if (priceFilter && priceFilter !== 'All Prices') {
+        const priceRange = this.getPriceRange(priceFilter);
+        if (priceRange) {
+          if (priceRange.min !== undefined) {
+            query = query.gte('starting_price', priceRange.min);
+          }
+          if (priceRange.max !== undefined) {
+            query = query.lte('starting_price', priceRange.max);
+          }
+        }
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         throw new Error(`Failed to search listings: ${error.message}`);
@@ -783,6 +815,25 @@ class ListingsService {
     } catch (error) {
       console.error('Error fetching sub-sub-subcategories:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Get price range from filter string
+   * @param priceFilter - The price filter string
+   */
+  private getPriceRange(priceFilter: string): { min?: number; max?: number } | null {
+    switch (priceFilter) {
+      case 'Under £50.00':
+        return { max: 50 };
+      case '£50.00 - £100.00':
+        return { min: 50, max: 100 };
+      case '£100.00 - £200.00':
+        return { min: 100, max: 200 };
+      case 'Over £200.00':
+        return { min: 200 };
+      default:
+        return null;
     }
   }
 
