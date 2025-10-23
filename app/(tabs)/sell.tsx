@@ -1,5 +1,7 @@
+import { showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +13,7 @@ import { StorageService } from '../../api/services/storage.service';
 import { CategoryAttributesCard } from '../../components/category-attributes-card';
 
 export default function SellScreen() {
+  const { productId } = useLocalSearchParams<{ productId?: string }>();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -79,6 +82,83 @@ export default function SellScreen() {
 
     loadData();
   }, []);
+
+  // Load product data when editing
+  useEffect(() => {
+    const loadProductData = async () => {
+      if (!productId) return;
+
+      try {
+        const product = await listingsService.getListingById(productId);
+        
+        if (!product) {
+          Alert.alert('Error', 'Product not found');
+          return;
+        }
+        
+        // Set basic fields
+        setTitle(product.product_name || '');
+        setDescription(product.product_description || '');
+        setPrice(product.starting_price ? product.starting_price.toString() : '');
+        setSalePrice(product.discounted_price ? product.discounted_price.toString() : '');
+        setStockQuantity(product.stock_quantity ? product.stock_quantity.toString() : '');
+        
+        // Set images
+        if (product.product_images && product.product_images.length > 0) {
+          setUploadedImageUrls(product.product_images);
+        } else if (product.product_image) {
+          setUploadedImageUrls([product.product_image]);
+        }
+        
+        // Set brand
+        if (product.brand_id) {
+          setSelectedBrandId(product.brand_id);
+          const brandData = brands.find(b => b.id === product.brand_id);
+          if (brandData) {
+            setBrand(brandData.name);
+          }
+        }
+        
+        // Set categories
+        if (product.category_id) {
+          setSelectedCategoryId(product.category_id);
+          const categoryData = categories.find(c => c.id === product.category_id);
+          if (categoryData) {
+            setCategory(categoryData.name);
+          }
+          
+          // Load subcategories
+          if (product.subcategory_id) {
+            const subcatsData = await listingsService.getSubcategories(product.category_id);
+            setSubcategories(subcatsData);
+            setSelectedSubcategoryId(product.subcategory_id);
+            
+            // Load sub-subcategories
+            if (product.sub_subcategory_id) {
+              const subSubcatsData = await listingsService.getSubSubcategories(product.subcategory_id);
+              setSubSubcategories(subSubcatsData);
+              setSelectedSubSubcategoryId(product.sub_subcategory_id);
+              
+              // Load sub-sub-subcategories
+              if (product.sub_sub_subcategory_id) {
+                const subSubSubcatsData = await listingsService.getSubSubSubcategories(product.sub_subcategory_id);
+                setSubSubSubcategories(subSubSubcatsData);
+                setSelectedSubSubSubcategoryId(product.sub_sub_subcategory_id);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading product data:', error);
+        Alert.alert('Error', 'Failed to load product data');
+      }
+    };
+
+    // Only load product data after categories and brands are loaded
+    if (productId && categories.length > 0 && brands.length > 0) {
+      loadProductData();
+    }
+  }, [productId, categories, brands]);
 
   // Load subcategories when category is selected
   const loadSubcategories = async (categoryId: string) => {
@@ -396,15 +476,20 @@ export default function SellScreen() {
         moderation_status: 'approved',
       };
 
-      // Create product using listings service
-      const product = await listingsService.createProduct(productData);
+      // Create or update product using listings service
+      let product;
+      if (productId) {
+        product = await listingsService.updateProduct(productId, productData);
+        showSuccessToast('Product updated successfully!');
+      } else {
+        product = await listingsService.createProduct(productData);
+        showSuccessToast('Draft saved successfully!');
+      }
 
       // Save dynamic attributes if any
       if (Object.keys(dynamicAttributes).length > 0) {
         await attributesService.saveAttributeValues(product.id, dynamicAttributes);
       }
-
-      Alert.alert('Success', 'Draft saved successfully!');
 
       // Reset all form fields to initial state
       setTitle('');
@@ -485,15 +570,20 @@ export default function SellScreen() {
         moderation_status: 'approved',
       };
 
-      // Create product using listings service
-      const product = await listingsService.createProduct(productData);
+      // Create or update product using listings service
+      let product;
+      if (productId) {
+        product = await listingsService.updateProduct(productId, productData);
+        Alert.alert('Success', 'Product updated and published successfully!');
+      } else {
+        product = await listingsService.createProduct(productData);
+        Alert.alert('Success', 'Product published to marketplace successfully!');
+      }
 
       // Save dynamic attributes if any
       if (Object.keys(dynamicAttributes).length > 0) {
         await attributesService.saveAttributeValues(product.id, dynamicAttributes);
       }
-
-      Alert.alert('Success', 'Product published to marketplace successfully!');
 
       // Reset all form fields to initial state
       setTitle('');
@@ -602,7 +692,9 @@ export default function SellScreen() {
       <View className="bg-black px-4 py-3 flex-row justify-between items-center">
         <TouchableOpacity onPress={handleNavigationAway} className="flex-row items-center">
           <Feather name="arrow-left" size={20} color="#fff" className="mr-2" />
-          <Text className="text-lg font-inter-bold text-white">Add New Product</Text>
+          <Text className="text-lg font-inter-bold text-white">
+            {productId ? 'Edit Product' : 'Add New Product'}
+          </Text>
         </TouchableOpacity>
         <Feather name="shopping-bag" size={24} color="#fff" />
       </View>
@@ -925,7 +1017,7 @@ export default function SellScreen() {
                 disabled={isSavingDraft || isPublishing}
               >
                 <Text className="text-base font-inter-semibold text-white">
-                  {isSavingDraft ? 'Saving...' : 'Save as Draft'}
+                  {isSavingDraft ? 'Saving...' : (productId ? 'Update Draft' : 'Save as Draft')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -934,7 +1026,7 @@ export default function SellScreen() {
                 disabled={isSavingDraft || isPublishing}
               >
                 <Text className="text-base font-inter-semibold text-white">
-                  {isPublishing ? 'Publishing...' : 'Publish to Marketplace'}
+                  {isPublishing ? (productId ? 'Updating...' : 'Publishing...') : (productId ? 'Update Product' : 'Publish to Marketplace')}
                 </Text>
               </TouchableOpacity>
             </View>

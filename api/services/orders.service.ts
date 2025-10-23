@@ -37,13 +37,8 @@ class OrdersService {
    * @param userType - 'buyer' or 'seller' to determine which orders to fetch
    */
   async getOrders(userId: string, userType: 'buyer' | 'seller' = 'buyer'): Promise<Order[]> {
-    console.log('getOrders', userId, userType);
     try {
-      
-      let query = supabase
-        .from('orders')
-        .select('*')
-        .order('order_date', { ascending: false });
+      let query = supabase.from('orders').select('*').order('order_date', { ascending: false });
 
       // Apply RLS policy based on user type
       if (userType === 'buyer') {
@@ -54,7 +49,6 @@ class OrdersService {
 
       const { data, error } = await query;
 
-      console.log('data', data);
       if (error) {
         throw new Error(`Failed to fetch orders: ${error.message}`);
       }
@@ -73,17 +67,9 @@ class OrdersService {
    * @param status - Order status to filter by
    * @param userType - 'buyer' or 'seller'
    */
-  async getOrdersByStatus(
-    userId: string, 
-    status: string, 
-    userType: 'buyer' | 'seller' = 'buyer'
-  ): Promise<Order[]> {
+  async getOrdersByStatus(userId: string, status: string, userType: 'buyer' | 'seller' = 'buyer'): Promise<Order[]> {
     try {
-      let query = supabase
-        .from('orders')
-        .select('*')
-        .eq('status', status)
-        .order('order_date', { ascending: false });
+      let query = supabase.from('orders').select('*').eq('status', status).order('order_date', { ascending: false });
 
       // Apply RLS policy based on user type
       if (userType === 'buyer') {
@@ -112,10 +98,7 @@ class OrdersService {
    */
   async updateOrderStatus(orderId: string, status: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status })
-        .eq('id', orderId);
+      const { error } = await supabase.from('orders').update({ status }).eq('id', orderId);
 
       if (error) {
         throw new Error(`Failed to update order status: ${error.message}`);
@@ -133,7 +116,7 @@ class OrdersService {
   private transformOrdersData(apiOrders: ApiOrder[]): Order[] {
     return apiOrders.map((apiOrder) => {
       const statusConfig = this.getStatusConfig(apiOrder.status);
-      
+
       return {
         id: apiOrder.id,
         createdAt: apiOrder.order_date,
@@ -147,11 +130,11 @@ class OrdersService {
             price: apiOrder.order_amount,
             quantity: apiOrder.quantity,
             imageUrl: undefined, // This would need to be fetched from product data
-          }
+          },
         ],
         totals: {
-          total: apiOrder.order_amount
-        }
+          total: apiOrder.order_amount,
+        },
       };
     });
   }
@@ -162,12 +145,12 @@ class OrdersService {
    */
   private getStatusConfig(status: string): { displayStatus: string; color: number } {
     const statusMap: Record<string, { displayStatus: string; color: number }> = {
-      'pending': { displayStatus: 'Pending', color: 0xffcc00 },
-      'processing': { displayStatus: 'Processing', color: 0x007aff },
-      'shipped': { displayStatus: 'Shipped', color: 0x34c759 },
-      'delivered': { displayStatus: 'Delivered', color: 0x34c759 },
-      'completed': { displayStatus: 'Completed', color: 0x34c759 },
-      'cancelled': { displayStatus: 'Cancelled', color: 0xff4444 },
+      pending: { displayStatus: 'Pending', color: 0xffcc00 },
+      processing: { displayStatus: 'Processing', color: 0x007aff },
+      shipped: { displayStatus: 'Shipped', color: 0x34c759 },
+      delivered: { displayStatus: 'Delivered', color: 0x34c759 },
+      completed: { displayStatus: 'Completed', color: 0x34c759 },
+      cancelled: { displayStatus: 'Cancelled', color: 0xff4444 },
     };
 
     return statusMap[status] || { displayStatus: status, color: 0x999999 };

@@ -13,8 +13,6 @@ class CategoriesService {
    */
   async getCategories(): Promise<Category[]> {
     try {
-      console.log('CategoriesService - Fetching categories from Supabase');
-
       const [topRes, subRes, sub2Res, sub3Res] = await Promise.all([
         supabase.from('product_categories').select('*').eq('is_active', true).order('display_order'),
         supabase.from('product_subcategories').select('*').eq('is_active', true).order('name'),
@@ -114,7 +112,6 @@ class CategoriesService {
         } as Category;
       });
 
-      console.log(`CategoriesService - Fetched ${categories.length} top-level categories`);
       return categories;
     } catch (error) {
       console.error('CategoriesService - Error fetching categories from Supabase:', error);

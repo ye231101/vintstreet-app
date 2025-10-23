@@ -3,6 +3,7 @@ import { listingsService, Product } from '@/api/services/listings.service';
 import { Review, reviewsService, ReviewStats } from '@/api/services/reviews.service';
 import { ContactSellerModal } from '@/components/contact-seller-modal';
 import { useAppSelector } from '@/store/hooks';
+import { showInfoToast, showWarningToast } from '@/utils/toast';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -127,7 +128,7 @@ export default function SellerProfileScreen() {
 
   const handleFollowToggle = async () => {
     if (!user?.id || !sellerId) {
-      console.log('Please sign in to follow sellers');
+      showInfoToast('Please sign in to follow sellers');
       return;
     }
 
@@ -142,7 +143,6 @@ export default function SellerProfileScreen() {
 
         if (error) throw error;
         setIsFollowing(true);
-        console.log('Now following seller!');
       } else {
         const { error } = await supabase
           .from('user_follows')
@@ -152,17 +152,16 @@ export default function SellerProfileScreen() {
 
         if (error) throw error;
         setIsFollowing(false);
-        console.log('Unfollowed seller');
       }
     } catch (error) {
       console.error('Follow/unfollow error:', error);
-      console.log('Failed to update follow status');
+      showWarningToast('Failed to update follow status');
     }
   };
 
   const handleMessageSeller = () => {
     if (!user?.id) {
-      console.log('Please sign in to send messages');
+      showInfoToast('Please sign in to send messages');
       return;
     }
     setIsContactModalOpen(true);

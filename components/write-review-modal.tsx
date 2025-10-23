@@ -1,4 +1,5 @@
 import { supabase } from '@/api/config/supabase';
+import { showInfoToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
@@ -28,12 +29,12 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
 
   const handleSubmitReview = async () => {
     if (!userId) {
-      console.log('You must be logged in to submit a review');
+      showInfoToast('You must be logged in to submit a review');
       return;
     }
 
     if (!comment.trim()) {
-      console.log('Please write a comment');
+      showWarningToast('Please write a comment');
       return;
     }
 
@@ -50,12 +51,11 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
 
       if (error) throw error;
 
-      console.log('Review submitted successfully!');
       handleClose();
       onSuccess?.();
     } catch (error) {
       console.error('Error submitting review:', error);
-      console.log('Failed to submit review. Please try again.');
+      showWarningToast('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -72,11 +72,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
       <View className="flex-row gap-2">
         {[1, 2, 3, 4, 5].map((star) => (
           <Pressable key={star} onPress={() => setRating(star)}>
-            <Feather
-              name={star <= rating ? 'star' : 'star'}
-              size={32}
-              color={star <= rating ? '#EAB308' : '#D1D5DB'}
-            />
+            <Feather name={star <= rating ? 'star' : 'star'} size={32} color={star <= rating ? '#EAB308' : '#D1D5DB'} />
           </Pressable>
         ))}
       </View>
@@ -99,9 +95,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                 <Feather name="x" size={20} color="#666" />
               </Pressable>
             </View>
-            <Text className="text-sm font-inter text-gray-600">
-              Share your experience with this purchase
-            </Text>
+            <Text className="text-sm font-inter text-gray-600">Share your experience with this purchase</Text>
           </View>
 
           {/* Content */}
@@ -144,9 +138,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                 onChangeText={setComment}
                 maxLength={500}
               />
-              <Text className="text-xs font-inter text-gray-500 text-right mt-1">
-                {comment.length}/500 characters
-              </Text>
+              <Text className="text-xs font-inter text-gray-500 text-right mt-1">{comment.length}/500 characters</Text>
             </View>
 
             {/* Actions */}
@@ -174,4 +166,3 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
     </Modal>
   );
 };
-
