@@ -66,7 +66,10 @@ class MessagesService {
             id: threadKey,
             subject: msg.subject,
             other_user_id: otherUserId,
-            other_user_name: profile?.full_name || profile?.username || 'Unknown User',
+            other_user_name:
+              (profile as unknown as { full_name: string; username: string })?.full_name ||
+              (profile as unknown as { username: string })?.username ||
+              'Unknown User',
             last_message: msg.message,
             last_message_time: msg.created_at,
             unread_count: 0,

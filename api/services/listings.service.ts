@@ -14,6 +14,7 @@ export interface Product {
   sub_subcategory_id: string | null;
   sub_sub_subcategory_id: string | null;
   brand_id: string | null;
+  stock_quantity: number | null;
   status: 'draft' | 'published' | 'private';
   created_at: string;
   product_categories: {
@@ -73,6 +74,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          stock_quantity,
           status,
           created_at,
           product_categories(id, name)
@@ -147,6 +149,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          stock_quantity,
           status,
           created_at,
           product_categories(id, name)
@@ -299,6 +302,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          stock_quantity,
           status,
           created_at,
           product_categories(id, name)
@@ -350,6 +354,7 @@ class ListingsService {
           brand_id,
           status,
           created_at,
+          stock_quantity,
           product_categories(id, name)
         `
         )
@@ -405,6 +410,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          stock_quantity,
           status,
           created_at,
           product_categories(id, name)
@@ -418,8 +424,8 @@ class ListingsService {
         query = query.eq('status', 'published');
       } else if (status === 'draft') {
         query = query.eq('status', 'draft');
-      } else {
-        query = query;
+      } else if (status === 'private') {
+        query = query.eq('status', 'private');
       }
 
       const { data, error } = await query;
@@ -446,11 +452,11 @@ class ListingsService {
   /**
    * Update listing status
    * @param listingId - The listing ID to update
-   * @param isActive - New active status
+   * @param status - New status
    */
-  async updateListingStatus(listingId: string, isActive: boolean): Promise<void> {
+  async updateListingStatus(listingId: string, status: 'published' | 'draft' | 'private'): Promise<void> {
     try {
-      const { error } = await supabase.from('listings').update({ is_active: isActive }).eq('id', listingId);
+      const { error } = await supabase.from('listings').update({ status }).eq('id', listingId);
 
       if (error) {
         throw new Error(`Failed to update listing status: ${error.message}`);
@@ -484,6 +490,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          stock_quantity,
           status,
           created_at,
           product_categories(id, name)
@@ -558,6 +565,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          stock_quantity,
           status,
           created_at,
           product_categories(id, name)
@@ -632,6 +640,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          stock_quantity,
           status,
           created_at,
           product_categories(id, name)
@@ -804,6 +813,7 @@ class ListingsService {
         sub_subcategory_id: apiListing.sub_subcategory_id,
         sub_sub_subcategory_id: apiListing.sub_sub_subcategory_id,
         brand_id: apiListing.brand_id,
+        stock_quantity: apiListing.stock_quantity,
         status: apiListing.status as 'draft' | 'published' | 'private',
         created_at: apiListing.created_at,
         product_categories: apiListing.product_categories,

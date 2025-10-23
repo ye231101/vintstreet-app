@@ -4,6 +4,7 @@ import { ContactSellerModal } from '@/components/contact-seller-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';
 import { useAppSelector } from '@/store/hooks';
+import { showInfoToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -133,7 +134,7 @@ export default function ProductDetailScreen() {
 
   const handleContactSeller = () => {
     if (!user?.id) {
-      console.log('Please sign in to send messages');
+      showInfoToast('Please sign in to send messages');
       return;
     }
     setIsContactModalOpen(true);

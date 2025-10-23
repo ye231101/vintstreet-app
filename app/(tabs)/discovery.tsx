@@ -184,7 +184,6 @@ export default function DiscoveryScreen() {
   };
 
   const handleApplyFilters = (filters: any) => {
-    console.log('Applied filters:', filters);
     setAppliedFilters(filters);
 
     // Update filter count based on applied filters

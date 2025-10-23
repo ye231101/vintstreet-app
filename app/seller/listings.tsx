@@ -1,12 +1,13 @@
+import { blurhash } from '@/utils';
+import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { listingsService, Product } from '../../api/services/listings.service';
 import { useAuth } from '../../hooks/use-auth';
-
-// Interfaces are now imported from the listings service
 
 export default function ListingsScreen() {
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +26,7 @@ export default function ListingsScreen() {
     if (user?.id) {
       loadProducts();
     }
-  }, [user?.id]);
+  }, [user?.id, activeTab]);
 
   const loadProducts = async () => {
     if (!user?.id) {
@@ -49,87 +50,172 @@ export default function ListingsScreen() {
     }
   };
 
-  const getFilteredProducts = () => {
-    return products.filter((product) => product.status === activeTab);
-  };
+  const ProductCard = ({ product }: { product: Product }) => {
+    const imageUrl = product.product_image || (product.product_images && product.product_images[0]) || null;
 
-  const ProductCard = ({ product }: { product: Product }) => (
-    <View className="bg-white rounded-xl mb-4 shadow-sm">
-      <View className="p-4">
-        <View className="flex-row justify-between items-start mb-3">
-          <View className="flex-1">
-            <Text className="text-gray-900 font-inter-bold text-base mb-1">{product.product_name}</Text>
-            <Text className="text-gray-600 text-sm font-inter">
-              £{product.starting_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </Text>
-          </View>
-          <View
-            className={`${product.status === 'published' ? 'bg-green-500' : 'bg-orange-500'} rounded-full px-3 py-1.5`}
-          >
-            <Text className="text-white font-inter-bold text-xs">
-              {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
-            </Text>
+    return (
+      <View className="bg-white rounded-xl mb-4 shadow-sm overflow-hidden">
+        {/* Product Image */}
+        <View className="relative">
+          <Image
+            source={imageUrl}
+            contentFit="cover"
+            placeholder={{ blurhash }}
+            transition={1000}
+            style={{ width: '100%', height: 200 }}
+          />
+
+          {/* Status Badge Overlay */}
+          <View className="absolute top-3 right-3">
+            <View
+              className={`${
+                product.status === 'published'
+                  ? 'bg-green-500'
+                  : product.status === 'draft'
+                  ? 'bg-orange-500'
+                  : 'bg-gray-500'
+              } rounded-full px-3 py-1.5 shadow-md`}
+            >
+              <Text className="text-white font-inter-bold text-xs">
+                {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+              </Text>
+            </View>
           </View>
         </View>
 
-        <View className="flex-row justify-between items-center">
-          <Text className="text-gray-600 text-xs font-inter">
-            Created: {new Date(product.created_at).toLocaleDateString()}
+        <View className="p-4">
+          {/* Product Name */}
+          <Text className="text-gray-900 font-inter-bold text-lg mb-2" numberOfLines={2}>
+            {product.product_name}
           </Text>
-          <View className="flex-row gap-2">
+
+          {/* Product Description */}
+          {product.product_description && (
+            <Text className="text-gray-600 text-sm font-inter mb-3" numberOfLines={2}>
+              {product.product_description}
+            </Text>
+          )}
+
+          {/* Price Section */}
+          <View className="flex-row items-center mb-3">
+            <Text className="text-2xl font-inter-bold text-black">
+              £
+              {product.discounted_price !== null
+                ? product.discounted_price.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : product.starting_price.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+            </Text>
+            {product.discounted_price !== null && (
+              <Text className="text-sm font-inter text-gray-400 line-through ml-2">
+                £
+                {product.starting_price.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Text>
+            )}
+          </View>
+
+          {/* Category Info */}
+          {product.product_categories && (
+            <View className="flex-row items-center mb-3">
+              <Feather name="tag" size={14} color="#666" />
+              <Text className="text-gray-600 text-xs font-inter ml-1">{product.product_categories.name}</Text>
+            </View>
+          )}
+
+          {/* Created Date */}
+          <View className="flex-row items-center mb-4 border-t border-gray-100 pt-3">
+            <Feather name="calendar" size={14} color="#666" />
+            <Text className="text-gray-600 text-xs font-inter ml-1">
+              Created {new Date(product.created_at).toLocaleDateString()}
+            </Text>
+          </View>
+
+          {/* Action Buttons */}
+          <View className="flex-row gap-2 flex-wrap">
             {product.status === 'published' && (
               <TouchableOpacity
                 onPress={async () => {
                   try {
-                    await listingsService.updateListingStatus(product.id, false);
-                    Alert.alert('Listing Updated', 'Listing has been made private');
-                    loadProducts(); // Refresh the listings
+                    await listingsService.updateListingStatus(product.id, 'private');
+                    showSuccessToast('Listing has been made private');
+                    loadProducts();
                   } catch (error) {
-                    Alert.alert('Error', 'Failed to update listing status');
+                    showErrorToast('Failed to update listing status');
                   }
                 }}
-                className="bg-orange-500 rounded-md py-1.5 px-3"
+                className="bg-orange-500 rounded-lg py-2.5 px-4 flex-row items-center justify-center flex-1"
               >
-                <Text className="text-white text-xs font-inter-bold">Make Private</Text>
+                <Feather name="eye-off" size={16} color="white" />
+                <Text className="text-white text-center text-sm font-inter-bold ml-1.5">Make Private</Text>
               </TouchableOpacity>
             )}
             {product.status === 'draft' && (
               <TouchableOpacity
                 onPress={async () => {
                   try {
-                    await listingsService.updateListingStatus(product.id, true);
-                    Alert.alert('Listing Updated', 'Listing has been made live');
-                    loadProducts(); // Refresh the listings
+                    await listingsService.updateListingStatus(product.id, 'published');
+                    showSuccessToast('Listing has been made live');
+                    loadProducts();
                   } catch (error) {
-                    Alert.alert('Error', 'Failed to update listing status');
+                    showErrorToast('Failed to update listing status');
                   }
                 }}
-                className="bg-green-500 rounded-md py-1.5 px-3"
+                className="bg-green-500 rounded-lg py-2.5 px-4 flex-row items-center justify-center flex-1"
               >
-                <Text className="text-white text-xs font-inter-bold">Make Live</Text>
+                <Feather name="check-circle" size={16} color="white" />
+                <Text className="text-white text-center text-sm font-inter-bold ml-1.5">Make Live</Text>
+              </TouchableOpacity>
+            )}
+            {product.status === 'private' && (
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    await listingsService.updateListingStatus(product.id, 'published');
+                    showSuccessToast('Listing has been published');
+                    loadProducts();
+                  } catch (error) {
+                    showErrorToast('Failed to update listing status');
+                  }
+                }}
+                className="bg-green-500 rounded-lg py-2.5 px-4 flex-row items-center justify-center flex-1"
+              >
+                <Feather name="check-circle" size={16} color="white" />
+                <Text className="text-white text-center text-sm font-inter-bold ml-1.5">Publish</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity
               onPress={() => {
-                Alert.alert('Edit Product', 'This would open product editing');
+                router.push({
+                  pathname: '/(tabs)/sell',
+                  params: { productId: product.id },
+                } as any);
               }}
-              className="bg-blue-500 rounded-md py-1.5 px-3"
+              className="bg-blue-500 rounded-lg py-2.5 px-4 flex-row items-center justify-center flex-1"
             >
-              <Text className="text-white text-xs font-inter-bold">Edit</Text>
+              <Feather name="edit-2" size={16} color="white" />
+              <Text className="text-white text-sm font-inter-bold ml-1.5">Edit</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                Alert.alert('View Product', 'This would show product details');
+                router.push(`/product/${product.id}` as any);
               }}
-              className="bg-gray-500 rounded-md py-1.5 px-3"
+              className="bg-gray-700 rounded-lg py-2.5 px-4 flex-row items-center justify-center flex-1"
             >
-              <Text className="text-white text-xs font-inter-bold">View</Text>
+              <Feather name="eye" size={16} color="white" />
+              <Text className="text-white text-sm font-inter-bold ml-1.5">View</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const ProductsList = ({ products, onRefresh }: { products: Product[]; onRefresh: () => void }) => {
     if (products.length === 0) {
@@ -146,7 +232,7 @@ export default function ListingsScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
-        className="flex-1 p-4"
+        className="flex-1 py-4"
       >
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -216,7 +302,7 @@ export default function ListingsScreen() {
         <View className="mt-4 mb-6">
           <TouchableOpacity
             onPress={() => {
-              Alert.alert('Shipping Settings', 'This would open shipping settings');
+              showInfoToast('Shipping settings coming soon');
             }}
             className="bg-gray-200 rounded-lg py-4 px-5 mb-3 items-center shadow-sm"
           >
@@ -246,7 +332,7 @@ export default function ListingsScreen() {
           {/* Bulk Upload Button */}
           <TouchableOpacity
             onPress={() => {
-              Alert.alert('Bulk Upload', 'This would open bulk upload functionality');
+              showInfoToast('Bulk upload functionality coming soon');
             }}
             className="bg-gray-200 rounded-lg py-3 px-4 flex-row items-center self-end shadow-sm"
           >
@@ -277,7 +363,7 @@ export default function ListingsScreen() {
         </View>
 
         {/* Products List */}
-        <ProductsList products={getFilteredProducts()} onRefresh={loadProducts} />
+        <ProductsList products={products} onRefresh={loadProducts} />
       </ScrollView>
     </SafeAreaView>
   );

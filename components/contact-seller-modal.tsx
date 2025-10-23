@@ -1,4 +1,5 @@
 import { supabase } from '@/api/config/supabase';
+import { showErrorToast, showInfoToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
@@ -39,12 +40,12 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
 
   const handleSendMessage = async () => {
     if (!contactSubject || !contactMessage.trim()) {
-      console.log('Please fill in all fields');
+      showWarningToast('Please fill in all fields');
       return;
     }
 
     if (!userId) {
-      console.log('You must be logged in to send a message');
+      showInfoToast('You must be logged in to send a message');
       return;
     }
 
@@ -61,11 +62,11 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
 
       if (error) throw error;
 
-      console.log('Message sent to seller!');
+      showSuccessToast('Message sent to seller!');
       handleClose();
     } catch (error) {
       console.error('Error sending message:', error);
-      console.log('Failed to send message. Please try again.');
+      showErrorToast('Failed to send message. Please try again.');
     } finally {
       setIsSubmittingMessage(false);
     }

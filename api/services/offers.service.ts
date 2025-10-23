@@ -32,17 +32,13 @@ class OffersService {
    * @param status - Optional status filter
    */
   async getOffers(
-    userId: string, 
+    userId: string,
     userType: 'buyer' | 'seller' = 'seller',
     status?: 'pending' | 'accepted' | 'declined'
   ): Promise<Offer[]> {
-    console.log('getOffers', userId, userType, status);
     try {
-      let query = supabase
-        .from('offers')
-        .select('*')
-        .order('created_at', { ascending: false });
-      console.log('query', query);
+      let query = supabase.from('offers').select('*').order('created_at', { ascending: false });
+
       // Apply RLS policy based on user type
       if (userType === 'buyer') {
         query = query.eq('buyer_id', userId);
@@ -56,8 +52,6 @@ class OffersService {
       }
 
       const { data, error } = await query;
-
-      console.log('offers data', data);
       if (error) {
         throw new Error(`Failed to fetch offers: ${error.message}`);
       }
@@ -137,10 +131,7 @@ class OffersService {
    */
   async updateOfferStatus(offerId: string, status: 'accepted' | 'declined'): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('offers')
-        .update({ status })
-        .eq('id', offerId);
+      const { error } = await supabase.from('offers').update({ status }).eq('id', offerId);
 
       if (error) {
         throw new Error(`Failed to update offer status: ${error.message}`);
@@ -159,9 +150,9 @@ class OffersService {
     return apiOffers.map((apiOffer) => {
       // Map API status to UI status
       const statusMap: Record<string, 'pending' | 'accepted' | 'declined'> = {
-        'pending': 'pending',
-        'accepted': 'accepted',
-        'declined': 'declined'
+        pending: 'pending',
+        accepted: 'accepted',
+        declined: 'declined',
       };
 
       return {
@@ -173,7 +164,7 @@ class OffersService {
         status: statusMap[apiOffer.status] || 'pending',
         createdAt: apiOffer.created_at ?? new Date().toISOString(),
         expiresAt: apiOffer.expires_at ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        message: apiOffer.message || undefined
+        message: apiOffer.message || undefined,
       };
     });
   }
