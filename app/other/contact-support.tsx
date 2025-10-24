@@ -203,17 +203,18 @@ Thank you,
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Contact Support</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Contact Support</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+      <View className="flex-1 bg-gray-50">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Support Categories */}
           <Text className="text-gray-900 text-base font-inter-bold mb-2">What can we help you with?</Text>
@@ -295,10 +296,11 @@ Thank you,
             <ContactMethod icon="clock" title="Hours" value="Mon-Fri, 9:00 AM - 6:00 PM EST" />
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Category Dropdown */}
-      <CategoryDropdown />
+        {/* Category Dropdown */}
+        <CategoryDropdown />
+      </View>
     </SafeAreaView>
   );
 }

@@ -104,17 +104,18 @@ export default function PrivacySecurityScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Privacy & Security</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Privacy & Security</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-4">
+      <View className="flex-1 bg-gray-50">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-4">
         {/* Security Section */}
         <View className="mt-4 bg-white">
           <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">SECURITY</Text>
@@ -185,7 +186,8 @@ export default function PrivacySecurityScreen() {
             <Text className="text-white text-base font-inter-bold">Delete Account</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       {/* Two-Factor Authentication Modal */}
       <Modal

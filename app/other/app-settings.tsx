@@ -111,17 +111,18 @@ export default function AppSettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">App Settings</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">App Settings</Text>
       </View>
 
-      <View className="flex-1 relative">
+      <View className="flex-1 bg-gray-50">
+        <View className="flex-1 relative">
         <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
           {/* Notifications Section */}
           <View className="mt-4">
@@ -219,6 +220,7 @@ export default function AppSettingsScreen() {
           onClose={() => setShowCurrencyDropdown(false)}
           topPosition={250}
         />
+        </View>
       </View>
 
       {/* Clear Data Confirmation Modal */}

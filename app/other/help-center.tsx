@@ -112,17 +112,18 @@ export default function HelpCenterScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Help Center</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Help Center</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+      <View className="flex-1 bg-gray-50">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Search Bar */}
           <View className="bg-white rounded-xl flex-row items-center px-3 mb-6 shadow-sm">
@@ -170,13 +171,14 @@ export default function HelpCenterScreen() {
           {/* Divider */}
           <View className="h-px bg-gray-200 my-6" />
         </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Contact Support Button */}
-      <View className="p-4 bg-gray-50 border-t border-gray-200">
-        <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
-          <Text className="text-white text-base font-inter-bold">Contact Support</Text>
-        </TouchableOpacity>
+        {/* Contact Support Button */}
+        <View className="p-4 bg-gray-50 border-t border-gray-200">
+          <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
+            <Text className="text-white text-base font-inter-bold">Contact Support</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );

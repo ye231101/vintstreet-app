@@ -160,17 +160,20 @@ export default function PaymentMethodsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+            <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Payment Methods</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Payment Methods</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#007AFF" />
+        <View className="flex-1 bg-gray-50">
+          <View className="flex-1 justify-center items-center p-4">
+            <ActivityIndicator size="large" color="#000" />
+            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading payment methods...</Text>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -178,39 +181,41 @@ export default function PaymentMethodsScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+            <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Payment Methods</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Payment Methods</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4">
-          <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading payment methods</Text>
-          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
-          <TouchableOpacity onPress={loadPaymentMethods} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-inter-bold">Retry</Text>
-          </TouchableOpacity>
+        <View className="flex-1 bg-gray-50">
+          <View className="flex-1 justify-center items-center p-4">
+            <Feather name="alert-circle" color="#ff4444" size={64} />
+            <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading payment methods</Text>
+            <TouchableOpacity onPress={loadPaymentMethods} className="bg-black rounded-lg py-3 px-6">
+              <Text className="text-base font-inter-bold text-white">Retry</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Payment Methods</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Payment Methods</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+      <View className="flex-1 bg-gray-50">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Add New Payment Method */}
           <View className="bg-white rounded-xl p-4 mb-6 shadow-sm">
@@ -268,7 +273,8 @@ export default function PaymentMethodsScreen() {
             />
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
