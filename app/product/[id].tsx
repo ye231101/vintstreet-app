@@ -9,16 +9,16 @@ import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Dimensions,
-    Image,
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    Pressable,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -47,23 +47,24 @@ export default function ProductDetailScreen() {
   // Image carousel state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        if (!id) {
-          setError('Missing product id');
-          return;
-        }
-        const data = await listingsService.getListingById(String(id));
-        setProduct(data);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load product');
-      } finally {
-        setIsLoading(false);
+  const load = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      if (!id) {
+        setError('Missing product id');
+        return;
       }
-    };
+      const data = await listingsService.getListingById(String(id));
+      setProduct(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load product');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     load();
   }, [id]);
 
@@ -98,31 +99,6 @@ export default function ProductDetailScreen() {
     // @ts-ignore - expo-router navigation supports setOptions
     navigation.setOptions?.({ title: headerTitle });
   }, [navigation, product]);
-
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#000" />
-        <Text className="text-sm font-inter-semibold text-gray-600 mt-3">Loading product...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-base font-inter-semibold text-red-600">{error}</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (!product) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-base font-inter-semibold text-gray-600">Product not found</Text>
-      </SafeAreaView>
-    );
-  }
 
   const handleAddToCart = () => {
     addItem(product);
@@ -159,26 +135,62 @@ export default function ProductDetailScreen() {
     }
   })();
 
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-gray-50">
+        <ActivityIndicator size="large" color="#000" />
+        <Text className="mt-3 text-sm font-inter-semibold text-gray-600">Loading product...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-gray-50 p-4">
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+          <Feather name="alert-circle" color="#ff4444" size={64} />
+          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading product</Text>
+          <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!product) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-gray-50">
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+          <Feather name="alert-circle" color="#ff4444" size={64} />
+          <Text className="my-4 text-lg font-inter-bold text-red-500">Product not found</Text>
+          <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-white px-4 py-3 border-b border-gray-700">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#000" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text numberOfLines={1} className="flex-1 text-lg font-inter-bold text-black">
+        <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
           {product.product_name}
         </Text>
       </View>
 
-      <View className="flex-1 bg-white">
-        <ScrollView
-          ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1 }}
-          className="flex-1 bg-white py-4"
-        >
+      <ScrollView
+        ref={scrollViewRef}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        <View className="flex-1 gap-4 py-4 bg-gray-50">
           {/* Image Carousel */}
           {product.product_images?.length > 0 ? (
             <View>
@@ -222,12 +234,12 @@ export default function ProductDetailScreen() {
           )}
 
           {/* Title */}
-          <View className="px-4 pt-4">
+          <View className="px-4">
             <Text className="text-2xl font-inter-bold text-black mb-2">{product.product_name}</Text>
 
             {/* Tag */}
             {product.product_categories?.name ? (
-              <View className="self-start bg-gray-100 px-3 py-1 rounded-full mb-3 ml-1">
+              <View className="self-start bg-gray-200 px-3 py-1 rounded-full mb-3 ml-1">
                 <Text className="text-xs font-inter-semibold text-gray-800">{product.product_categories.name}</Text>
               </View>
             ) : null}
@@ -235,11 +247,11 @@ export default function ProductDetailScreen() {
 
           {/* Price and actions */}
           <View className="px-4">
-            <View className="flex-row items-center justify-between bg-white py-2">
+            <View className="flex-row items-center justify-between py-2">
               <View className="flex-row items-center">
                 <Text className="text-2xl font-inter-bold text-black mr-2">
                   £
-                  {Number(product.starting_price).toLocaleString('en-US', {
+                  {Number(product.discounted_price).toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
@@ -261,7 +273,7 @@ export default function ProductDetailScreen() {
                 >
                   <Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
                 </Pressable>
-                <Pressable className="bg-gray-100 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>
+                <Pressable className="bg-gray-200 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>
                   <Text className="text-sm font-inter-semibold text-black">Make Offer</Text>
                 </Pressable>
               </View>
@@ -269,7 +281,7 @@ export default function ProductDetailScreen() {
           </View>
 
           {/* Tabs */}
-          <View className="px-4 mt-4">
+          <View className="px-4">
             <View className="flex-row bg-white rounded-lg overflow-hidden border border-gray-200">
               {(['description', 'details', 'seller'] as const).map((t) => (
                 <Pressable
@@ -327,14 +339,18 @@ export default function ProductDetailScreen() {
                             <Text className="text-sm font-inter-semibold text-gray-600 flex-1">
                               {attribute.attributes?.name || 'Attribute'}
                             </Text>
-                            <Text className="text-sm font-inter-semibold text-gray-800 flex-1 text-right">{getValue()}</Text>
+                            <Text className="text-sm font-inter-semibold text-gray-800 flex-1 text-right">
+                              {getValue()}
+                            </Text>
                           </View>
                         );
                       })}
                     </View>
                   ) : (
                     <View>
-                      <Text className="text-sm font-inter-semibold text-gray-600">No additional details available.</Text>
+                      <Text className="text-sm font-inter-semibold text-gray-600">
+                        No additional details available.
+                      </Text>
                     </View>
                   )}
                 </View>
@@ -391,10 +407,8 @@ export default function ProductDetailScreen() {
               )}
             </View>
           </View>
-
-          <View className="h-10" />
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
 
       {/* Make Offer Modal */}
       <MakeOfferModal
