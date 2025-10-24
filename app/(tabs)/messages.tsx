@@ -81,6 +81,20 @@ export default function MessagesScreen() {
     }
   };
 
+  // Filter conversations based on search text
+  const filteredConversations = conversations.filter((conversation) => {
+    if (!searchText.trim()) return true;
+    
+    const searchLower = searchText.toLowerCase();
+    const userName = conversation.other_user_name?.toLowerCase() || '';
+    const subject = conversation.subject?.toLowerCase() || '';
+    const lastMessage = conversation.last_message?.toLowerCase() || '';
+    
+    return userName.includes(searchLower) || 
+           subject.includes(searchLower) || 
+           lastMessage.includes(searchLower);
+  });
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with Search */}
@@ -107,6 +121,12 @@ export default function MessagesScreen() {
             <Text className="text-lg font-inter-bold text-gray-600 mt-4 mb-2">No conversations yet</Text>
             <Text className="text-sm font-inter text-gray-400 text-center">Start a conversation with a seller</Text>
           </View>
+        ) : filteredConversations.length === 0 ? (
+          <View className="flex-1 justify-center items-center px-8">
+            <Feather name="search" size={64} color="#ccc" />
+            <Text className="text-lg font-inter-bold text-gray-600 mt-4 mb-2">No results found</Text>
+            <Text className="text-sm font-inter text-gray-400 text-center">Try searching with different keywords</Text>
+          </View>
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -115,7 +135,7 @@ export default function MessagesScreen() {
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} tintColor="#000" />
             }
           >
-            {conversations.map((conversation) => (
+            {filteredConversations.map((conversation) => (
               <TouchableOpacity
                 key={conversation.id}
                 onPress={() => router.push(`/message/${conversation.id}`)}
