@@ -260,7 +260,7 @@ export default function MessageDetailScreen() {
         <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-inter`}>{message.content}</Text>
       </View>
 
-      <Text className={`text-xs font-inter text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
+      <Text className={`text-xs font-inter-semibold text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
         {formatTime(message.dateSent)}
       </Text>
     </View>
@@ -269,42 +269,39 @@ export default function MessageDetailScreen() {
   const messageItems = groupMessagesByDate(messages);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="bg-white px-4 py-3 border-b border-gray-200">
-        <View className="flex-row items-center">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#000" />
-          </TouchableOpacity>
+      <View className="flex-row items-center gap-4 p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
+        </TouchableOpacity>
 
-          <View className="flex-1">
-            <Text className="text-lg font-inter-bold text-gray-800">{conversationInfo?.subject || 'Loading...'}</Text>
-            <Text className="text-sm text-gray-600">
-              Conversation with {conversationInfo?.otherUserName || 'Loading...'}
-            </Text>
-          </View>
-
-          <TouchableOpacity onPress={() => setIsReportDialogOpen(true)} className="mr-3">
-            <Feather name="flag" size={20} color="#ef4444" />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={loadMessages}>
-            <Feather name="refresh-cw" size={20} color="#666" />
-          </TouchableOpacity>
+        <View className="flex-1">
+          <Text className="text-lg font-inter-bold text-white">{conversationInfo?.subject || 'Loading...'}</Text>
+          <Text className="text-sm font-inter-semibold text-gray-400">
+            Conversation with {conversationInfo?.otherUserName || 'Loading...'}
+          </Text>
         </View>
+
+        <TouchableOpacity onPress={() => setIsReportDialogOpen(true)} hitSlop={8}>
+          <Feather name="flag" size={20} color="#ef4444" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={loadMessages}>
+          <Feather name="refresh-cw" size={20} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       {/* Messages Area */}
-      <View className="flex-1 bg-white">
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1 }}
-          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-          className="flex-1 bg-white py-4"
-        >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+      >
+        <View className="flex-1 py-4 bg-gray-50">
           {isLoading ? (
             <View className="flex-1 justify-center items-center py-12">
-              <Text className="text-base font-inter text-gray-600">Loading messages...</Text>
+              <Text className="text-base font-inter-semibold text-gray-600">Loading messages...</Text>
             </View>
           ) : (
             messageItems.map((item: MessageItem, index: number) => {
@@ -320,21 +317,21 @@ export default function MessageDetailScreen() {
               }
             })
           )}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
 
       {/* Message Input - Fixed at bottom */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View className="flex-row items-center bg-white px-4 pt-3 border-t border-gray-200">
+        <View className="flex-row items-center px-4 py-3 bg-gray-50 border-t border-gray-200">
           <View
             className="flex-1 flex-row items-center bg-gray-100 rounded-xl px-4 py-1 mr-3"
             style={{ maxHeight: 250 }}
           >
             <TextInput
-              className="flex-1 text-sm font-inter text-black"
+              className="flex-1 text-sm font-inter-semibold text-black"
               style={{ maxHeight: 250 }}
               placeholder="Type a message..."
               placeholderTextColor="#999"
@@ -380,14 +377,14 @@ export default function MessageDetailScreen() {
         onRequestClose={() => setIsReportDialogOpen(false)}
       >
         <View className="flex-1 bg-black/50 justify-center items-center px-4">
-          <View className="bg-white rounded-lg p-6 w-full max-w-md">
+          <View className="bg-gray-50 rounded-lg p-6 w-full max-w-md">
             <Text className="text-lg font-inter-bold text-black mb-2">Report Message</Text>
-            <Text className="text-sm text-gray-600 mb-4">
+            <Text className="text-sm font-inter-semibold text-gray-600 mb-4">
               This will flag the message for administrator review. Please provide a reason for reporting this
               conversation.
             </Text>
 
-            <Text className="text-sm font-inter text-black mb-2">Reason for reporting</Text>
+            <Text className="text-sm font-inter-semibold text-black mb-2">Reason for reporting</Text>
             <TextInput
               value={reportReason}
               onChangeText={setReportReason}
@@ -395,10 +392,13 @@ export default function MessageDetailScreen() {
               multiline
               numberOfLines={4}
               maxLength={500}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              style={{ textAlignVertical: 'top' }}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
+              textAlignVertical="top"
+              style={{ height: 100 }}
             />
-            <Text className="text-xs text-gray-500 mt-1">{reportReason.length}/500 characters</Text>
+            <Text className="text-right text-xs font-inter-semibold text-gray-500 mt-1">
+              {reportReason.length}/500 characters
+            </Text>
 
             <View className="flex-row justify-end mt-6 space-x-2">
               <TouchableOpacity

@@ -99,7 +99,7 @@ export default function ArticleCarousel() {
   return (
     <View className="items-center">
       <View
-        className="rounded-xl overflow-hidden relative"
+        className="relative overflow-hidden rounded-xl"
         style={{
           width: screenWidth - 16,
           aspectRatio: 16 / 7,
@@ -126,7 +126,7 @@ export default function ArticleCarousel() {
                 />
                 <View className="absolute left-4 right-4 bottom-6">
                   <Text className="text-2xl font-inter-bold text-white mb-3">{item.title}</Text>
-                  <Text className="text-base font-inter text-white opacity-95">{item.subtitle}</Text>
+                  <Text className="text-base font-inter-semibold text-white opacity-95">{item.subtitle}</Text>
                 </View>
               </Pressable>
             </View>
@@ -136,7 +136,7 @@ export default function ArticleCarousel() {
           {articles.map((_, i) => (
             <View
               key={i}
-              className="w-1.5 h-1.5 rounded-full mx-0.75"
+              className="w-1.5 h-1.5 rounded-full mx-1"
               style={{ backgroundColor: i === index ? '#ffffff' : 'rgba(255,255,255,0.5)' }}
             />
           ))}

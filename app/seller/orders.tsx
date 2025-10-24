@@ -15,8 +15,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Order, ordersService } from '../../api/services/orders.service';
 import { useAuth } from '../../hooks/use-auth';
 
-// Interfaces are now imported from the orders service
-
 export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -130,7 +128,7 @@ export default function OrdersScreen() {
 
             <View className="flex-1">
               <Text className="text-gray-900 font-inter-medium text-base mb-1">{item.name}</Text>
-              <Text className="text-gray-600 text-sm font-inter mb-1">Quantity: {item.quantity}</Text>
+              <Text className="text-gray-600 text-sm font-inter-semibold mb-1">Quantity: {item.quantity}</Text>
               <Text className="text-gray-900 font-inter-bold text-base">
                 £{item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
@@ -143,7 +141,7 @@ export default function OrdersScreen() {
       <View className="h-px bg-gray-200" />
 
       {/* Order actions */}
-      <View className="flex-row justify-between items-center p-4">
+      <View className="flex-row items-center justify-between p-4">
         <Text className="text-gray-900 font-inter-bold text-base">
           Total: £{order.totals.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Text>
@@ -193,100 +191,68 @@ export default function OrdersScreen() {
     </View>
   );
 
-  const OrdersList = ({ orders, onRefresh }: { orders: Order[]; onRefresh: () => void }) => {
-    if (orders.length === 0) {
-      return (
-        <View className="flex-1 justify-center items-center py-20">
-          <Feather name="shopping-bag" color="#666666" size={64} style={{ marginBottom: 24 }} />
-          <Text className="text-gray-900 text-lg font-inter-bold mb-2">No orders found</Text>
-        </View>
-      );
-    }
-
-    return (
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
-        className="flex-1 p-4"
-      >
-        {orders.map((order) => (
-          <OrderCard key={order.id} order={order} />
-        ))}
-      </ScrollView>
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
-          </TouchableOpacity>
-
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Orders</Text>
-        </View>
-
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#007AFF" />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
-          </TouchableOpacity>
-
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Orders</Text>
-        </View>
-
-        <View className="flex-1 justify-center items-center p-4">
-          <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading orders</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
-          <TouchableOpacity onPress={loadOrders} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-inter-bold">Retry</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Orders</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Orders</Text>
       </View>
 
-      {/* Filter Tabs */}
-      <View className="bg-gray-50 px-4 border-b border-gray-200">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key)}
-              className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
-            >
-              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
-                {tab.label}
-              </Text>
+      <View className="flex-1 bg-gray-50">
+        <View className="px-4 border-b border-gray-200">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {tabs.map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                onPress={() => setActiveTab(tab.key)}
+                className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
+              >
+                <Text
+                  className={`text-base font-inter-semibold ${
+                    activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'
+                  }`}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {isLoading ? (
+          <View className="flex-1 justify-center items-center p-4">
+            <ActivityIndicator size="large" color="#000" />
+            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your orders...</Text>
+          </View>
+        ) : error ? (
+          <View className="flex-1 justify-center items-center p-4">
+            <Feather name="alert-circle" color="#ff4444" size={64} />
+            <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading orders</Text>
+            <TouchableOpacity onPress={loadOrders} className="bg-black rounded-lg py-3 px-6">
+              <Text className="text-base font-inter-bold text-white">Retry</Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          </View>
+        ) : getFilteredOrders().length > 0 ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOrders} tintColor="#007AFF" />}
+            className="flex-1 p-4"
+          >
+            {getFilteredOrders().map((order) => (
+              <OrderCard key={order.id} order={order} />
+            ))}
+          </ScrollView>
+        ) : (
+          <View className="flex-1 justify-center items-center p-4">
+            <Feather name="shopping-bag" color="#666" size={64} />
+            <Text className="text-gray-900 text-lg font-inter-bold mt-4">No orders found</Text>
+          </View>
+        )}
       </View>
-
-      {/* Orders List */}
-      <OrdersList orders={getFilteredOrders()} onRefresh={loadOrders} />
     </SafeAreaView>
   );
 }

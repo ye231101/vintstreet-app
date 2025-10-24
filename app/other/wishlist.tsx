@@ -1,18 +1,18 @@
-import { Product } from '@/api/services/listings.service';
-import { useCart } from '@/hooks/use-cart';
-import { useWishlist } from '@/hooks/use-wishlist';
-import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useCallback } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Product } from '../../api/services/listings.service';
+import { useCart } from '../../hooks/use-cart';
+import { useWishlist } from '../../hooks/use-wishlist';
+import { blurhash } from '../../utils';
 
 export default function WishlistScreen() {
   const { items: wishlist, removeItem, isLoading, refresh } = useWishlist();
   const { addItem: addToCart, cart } = useCart();
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -28,7 +28,6 @@ export default function WishlistScreen() {
     // Check if item is already in cart
     const existingItem = cart.items.find((cartItem) => cartItem.product?.id === product.id);
     if (existingItem) {
-      // Item already in cart - could show a toast or do nothing
       return;
     }
     addToCart(product);
@@ -43,135 +42,125 @@ export default function WishlistScreen() {
     const finalPrice = item.discounted_price || item.starting_price;
 
     return (
-      <Pressable
+      <TouchableOpacity
         onPress={() => navigateToProduct(item.id)}
-        className="bg-white rounded-lg mb-3 overflow-hidden shadow-sm flex-row"
+        activeOpacity={0.7}
+        className="bg-white rounded-xl mb-4 shadow-sm"
       >
-        {/* Product Image */}
-        <View className="w-28 h-28">
-          <Image
-            source={item.product_image}
-            contentFit="cover"
-            placeholder={{ blurhash }}
-            style={{ width: '100%', height: '100%' }}
-            transition={300}
-          />
-        </View>
-
-        {/* Product Info */}
-        <View className="flex-1 p-3 justify-between">
-          <View>
-            <Text className="text-base font-inter-semibold mb-1" numberOfLines={1}>
-              {item.product_name}
-            </Text>
-            <Text className="text-xs text-gray-500 font-inter" numberOfLines={1}>
-              by {item.seller_info_view?.shop_name || 'Seller'}
-            </Text>
+        <View className="flex-row items-center">
+          {/* Product Image */}
+          <View className="w-28 h-28 rounded-xl overflow-hidden">
+            <Image
+              source={item.product_image}
+              contentFit="cover"
+              placeholder={{ blurhash }}
+              style={{ width: '100%', height: '100%' }}
+              transition={300}
+            />
           </View>
 
-          <View className="flex-row justify-between items-end">
-            <View className="flex-1">
-              {hasDiscount ? (
-                <View className="gap-0.5">
-                  <Text className="text-lg font-inter-bold text-black">
+          {/* Product Info */}
+          <View className="flex-1 p-4 justify-between">
+            <View>
+              <Text className="text-gray-900 font-inter-medium text-base mb-1" numberOfLines={1}>
+                {item.product_name}
+              </Text>
+              <Text className="text-gray-600 text-sm font-inter" numberOfLines={1}>
+                by {item.seller_info_view?.shop_name || 'Seller'}
+              </Text>
+            </View>
+
+            <View className="flex-row justify-between items-end">
+              <View className="flex-1">
+                {hasDiscount ? (
+                  <View>
+                    <Text className="text-gray-900 font-inter-bold text-base">
+                      £{finalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </Text>
+                    <Text className="text-gray-400 text-xs font-inter-semibold line-through">
+                      £
+                      {item.starting_price.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="text-gray-900 font-inter-bold text-base">
                     £{finalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </Text>
-                  <Text className="text-xs text-gray-400 font-inter line-through">
-                    £
-                    {item.starting_price.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </Text>
-                </View>
-              ) : (
-                <Text className="text-lg font-inter-bold text-black">
-                  £{finalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </Text>
-              )}
-            </View>
+                )}
+              </View>
 
-            <View className="flex-row gap-2">
-              <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
-                  handleAddToCart(item);
-                }}
-                className="bg-black rounded-lg px-3 py-2 flex-row items-center gap-1.5"
-              >
-                <Feather name="shopping-cart" size={14} color="white" />
-                <Text className="text-white text-xs font-inter-medium">Add</Text>
-              </Pressable>
+              <View className="flex-row gap-2">
+                <TouchableOpacity
+                  onPress={() => handleAddToCart(item)}
+                  className="bg-black rounded-lg px-3 py-2 flex-row items-center gap-1.5"
+                >
+                  <Feather name="shopping-cart" size={14} color="white" />
+                  <Text className="text-white text-xs font-inter-medium">Add</Text>
+                </TouchableOpacity>
 
-              <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
-                  handleRemoveFromWishlist(item.id, item.product_name);
-                }}
-                className="bg-gray-100 rounded-lg p-2"
-              >
-                <Feather name="trash-2" size={16} color="#ef4444" />
-              </Pressable>
+                <TouchableOpacity
+                  onPress={() => handleRemoveFromWishlist(item.id, item.product_name)}
+                  className="bg-gray-100 rounded-lg p-2"
+                >
+                  <Feather name="trash-2" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
-      </Pressable>
+      </TouchableOpacity>
     );
   };
 
-  const EmptyState = () => (
-    <View className="flex-1 justify-center items-center px-8">
-      <Feather name="heart" color="#999" size={64} />
-      <Text className="text-gray-600 text-lg font-inter-medium mt-4 mb-2">Your wishlist is empty</Text>
-      <Text className="text-gray-400 text-sm font-inter text-center mb-6">
-        Start adding items you love to your wishlist!
-      </Text>
-      <Pressable onPress={() => router.push('/(tabs)')} className="bg-black rounded-lg py-3 px-6">
-        <Text className="text-white text-base font-inter-bold">Browse Products</Text>
-      </Pressable>
-    </View>
-  );
-
-  const LoadingState = () => (
-    <View className="flex-1 justify-center items-center">
-      <ActivityIndicator size="large" color="#000" />
-      <Text className="text-gray-500 text-sm font-inter mt-4">Loading your wishlist...</Text>
-    </View>
-  );
-
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <Pressable onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#000" />
-        </Pressable>
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
+        </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-black">My Wishlist</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Wishlist</Text>
 
         {wishlist.length > 0 && (
-          <View className="bg-black rounded-full px-3 py-1">
-            <Text className="text-white text-sm font-inter-semibold">{wishlist.length}</Text>
+          <View className="bg-white rounded-full px-3 py-1.5">
+            <Text className="text-black text-sm font-inter-bold">{wishlist.length}</Text>
           </View>
         )}
       </View>
 
-      {/* Content */}
-      {isLoading && !refreshing && wishlist.length === 0 ? (
-        <LoadingState />
-      ) : wishlist.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <FlatList
-          data={wishlist}
-          renderItem={({ item }) => <WishlistCard item={item} />}
-          keyExtractor={(item) => item.id}
-          className="px-4 pt-4"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} />}
-        />
-      )}
+      <View className="flex-1 bg-gray-50">
+        {isLoading && !refreshing && wishlist.length === 0 ? (
+          <View className="flex-1 justify-center items-center p-4">
+            <ActivityIndicator size="large" color="#000" />
+            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your wishlist...</Text>
+          </View>
+        ) : wishlist.length === 0 ? (
+          <View className="flex-1 justify-center items-center p-4">
+            <Feather name="heart" color="#666" size={64} />
+            <Text className="text-gray-900 text-lg font-inter-bold mt-4">Your wishlist is empty</Text>
+            <Text className="text-gray-600 text-sm font-inter text-center mt-2 mb-6">
+              Start adding items you love to your wishlist!
+            </Text>
+            <TouchableOpacity onPress={() => router.push('/(tabs)')} className="bg-black rounded-lg py-3 px-6">
+              <Text className="text-white text-base font-inter-bold">Browse Products</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#007AFF" />}
+            className="flex-1 p-4"
+          >
+            {wishlist.map((item) => (
+              <WishlistCard key={item.id} item={item} />
+            ))}
+          </ScrollView>
+        )}
+      </View>
     </SafeAreaView>
   );
 }

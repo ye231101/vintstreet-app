@@ -47,23 +47,24 @@ export default function ProductDetailScreen() {
   // Image carousel state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        if (!id) {
-          setError('Missing product id');
-          return;
-        }
-        const data = await listingsService.getListingById(String(id));
-        setProduct(data);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load product');
-      } finally {
-        setIsLoading(false);
+  const load = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      if (!id) {
+        setError('Missing product id');
+        return;
       }
-    };
+      const data = await listingsService.getListingById(String(id));
+      setProduct(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load product');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     load();
   }, [id]);
 
@@ -98,31 +99,6 @@ export default function ProductDetailScreen() {
     // @ts-ignore - expo-router navigation supports setOptions
     navigation.setOptions?.({ title: headerTitle });
   }, [navigation, product]);
-
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#000" />
-        <Text className="text-sm font-inter text-gray-600 mt-3">Loading product...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-base font-inter text-red-600">{error}</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (!product) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-base font-inter text-gray-600">Product not found</Text>
-      </SafeAreaView>
-    );
-  }
 
   const handleAddToCart = () => {
     addItem(product);
@@ -159,26 +135,58 @@ export default function ProductDetailScreen() {
     }
   })();
 
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-gray-50">
+        <ActivityIndicator size="large" color="#000" />
+        <Text className="mt-3 text-sm font-inter-semibold text-gray-600">Loading product...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-gray-50 p-4">
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+          <Feather name="alert-circle" color="#ff4444" size={64} />
+          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading product</Text>
+          <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!product) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-gray-50">
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+          <Feather name="alert-circle" color="#ff4444" size={64} />
+          <Text className="my-4 text-lg font-inter-bold text-red-500">Product not found</Text>
+          <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-white px-4 py-3 border-b border-gray-700">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#000" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text numberOfLines={1} className="flex-1 text-lg font-inter-bold text-black">
+        <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
           {product.product_name}
         </Text>
       </View>
 
-      <View className="flex-1 bg-white">
-        <ScrollView
-          ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1 }}
-          className="flex-1 bg-white py-4"
-        >
+      <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 gap-4 py-4 bg-gray-50">
           {/* Image Carousel */}
           {product.product_images?.length > 0 ? (
             <View>
@@ -217,37 +225,42 @@ export default function ProductDetailScreen() {
             </View>
           ) : (
             <View className="w-full h-60 bg-gray-100 items-center justify-center">
-              <Text className="text-sm font-inter text-gray-500">No image</Text>
+              <Text className="text-sm font-inter-semibold text-gray-500">No image</Text>
             </View>
           )}
 
           {/* Title */}
-          <View className="px-4 pt-4">
+          <View className="px-4">
             <Text className="text-2xl font-inter-bold text-black mb-2">{product.product_name}</Text>
 
             {/* Tag */}
             {product.product_categories?.name ? (
-              <View className="self-start bg-gray-100 px-3 py-1 rounded-full mb-3 ml-1">
-                <Text className="text-xs font-inter text-gray-800">{product.product_categories.name}</Text>
+              <View className="self-start bg-gray-200 px-3 py-1 rounded-full mb-3 ml-1">
+                <Text className="text-xs font-inter-semibold text-gray-800">{product.product_categories.name}</Text>
               </View>
             ) : null}
           </View>
 
           {/* Price and actions */}
           <View className="px-4">
-            <View className="flex-row items-center justify-between bg-white py-2">
+            <View className="flex-row items-center justify-between py-2">
               <View className="flex-row items-center">
                 <Text className="text-2xl font-inter-bold text-black mr-2">
                   £
-                  {Number(product.starting_price).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {product.discounted_price !== null
+                    ? product.discounted_price.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : product.starting_price.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                 </Text>
-                {product.discounted_price != null && (
-                  <Text className="text-base font-inter text-gray-400 line-through">
+                {product.discounted_price !== null && (
+                  <Text className="text-base font-inter-semibold text-gray-400 line-through">
                     £
-                    {Number(product.starting_price).toLocaleString('en-US', {
+                    {product.starting_price.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -261,15 +274,15 @@ export default function ProductDetailScreen() {
                 >
                   <Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
                 </Pressable>
-                <Pressable className="bg-gray-100 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>
-                  <Text className="text-sm font-inter text-black">Make Offer</Text>
+                <Pressable className="bg-gray-200 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>
+                  <Text className="text-sm font-inter-semibold text-black">Make Offer</Text>
                 </Pressable>
               </View>
             </View>
           </View>
 
           {/* Tabs */}
-          <View className="px-4 mt-4">
+          <View className="px-4">
             <View className="flex-row bg-white rounded-lg overflow-hidden border border-gray-200">
               {(['description', 'details', 'seller'] as const).map((t) => (
                 <Pressable
@@ -280,7 +293,7 @@ export default function ProductDetailScreen() {
                   onPress={() => setActiveTab(t)}
                 >
                   <Text
-                    className={`text-sm font-inter text-center ${
+                    className={`text-sm font-inter-semibold text-center ${
                       activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'
                     }`}
                   >
@@ -292,14 +305,14 @@ export default function ProductDetailScreen() {
 
             <View className="bg-white border border-t-0 border-gray-200 p-4">
               {activeTab === 'description' && (
-                <Text className="text-sm font-inter text-gray-800">{product.product_description || '-'}</Text>
+                <Text className="text-sm font-inter-semibold text-gray-800">{product.product_description || '-'}</Text>
               )}
               {activeTab === 'details' && (
                 <View>
                   {attributesLoading ? (
                     <View className="flex-row items-center justify-center py-4">
                       <ActivityIndicator size="small" color="#000" />
-                      <Text className="text-sm font-inter text-gray-600 ml-2">Loading attributes...</Text>
+                      <Text className="text-sm font-inter-semibold text-gray-600 ml-2">Loading attributes...</Text>
                     </View>
                   ) : productAttributes.length > 0 ? (
                     <View>
@@ -322,19 +335,23 @@ export default function ProductDetailScreen() {
                         return (
                           <View
                             key={index}
-                            className="flex-row justify-between items-center py-3 border-b border-gray-100 last:border-b-0"
+                            className="flex-row items-center justify-between py-3 border-b border-gray-100 last:border-b-0"
                           >
-                            <Text className="text-sm font-inter text-gray-600 flex-1">
+                            <Text className="text-sm font-inter-semibold text-gray-600 flex-1">
                               {attribute.attributes?.name || 'Attribute'}
                             </Text>
-                            <Text className="text-sm font-inter text-gray-800 flex-1 text-right">{getValue()}</Text>
+                            <Text className="text-sm font-inter-semibold text-gray-800 flex-1 text-right">
+                              {getValue()}
+                            </Text>
                           </View>
                         );
                       })}
                     </View>
                   ) : (
                     <View>
-                      <Text className="text-sm font-inter text-gray-600">No additional details available.</Text>
+                      <Text className="text-sm font-inter-semibold text-gray-600">
+                        No additional details available.
+                      </Text>
                     </View>
                   )}
                 </View>
@@ -351,7 +368,7 @@ export default function ProductDetailScreen() {
                             className="w-10 h-10 rounded-full"
                           />
                         ) : (
-                          <Text className="text-sm font-inter text-gray-700">
+                          <Text className="text-sm font-inter-semibold text-gray-700">
                             {product.seller_info_view?.shop_name?.charAt(0) ||
                               product.seller_info_view?.full_name?.charAt(0) ||
                               'S'}
@@ -363,7 +380,7 @@ export default function ProductDetailScreen() {
                           {product.seller_info_view?.shop_name || product.seller_info_view?.full_name || 'Seller'}
                         </Text>
                         {formattedDate ? (
-                          <Text className="text-sm font-inter text-gray-500">Listed {formattedDate}</Text>
+                          <Text className="text-sm font-inter-semibold text-gray-500">Listed {formattedDate}</Text>
                         ) : null}
                       </View>
                       <Pressable
@@ -371,7 +388,7 @@ export default function ProductDetailScreen() {
                         className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center"
                       >
                         <Feather name="eye" size={20} color="black" className="mr-2" />
-                        <Text className="text-sm font-inter text-gray-800">View Shop</Text>
+                        <Text className="text-sm font-inter-semibold text-gray-800">View Shop</Text>
                       </Pressable>
                     </View>
 
@@ -391,10 +408,8 @@ export default function ProductDetailScreen() {
               )}
             </View>
           </View>
-
-          <View className="h-10" />
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
 
       {/* Make Offer Modal */}
       <MakeOfferModal

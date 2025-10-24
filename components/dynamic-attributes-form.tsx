@@ -51,13 +51,13 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
           return (
             <TouchableOpacity
               key={`${attribute.id}-${selectedValue}`}
-              className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
+              className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row items-center justify-between"
               onPress={() => {
                 setSelectedAttribute(attribute);
                 setShowAttributeModal(true);
               }}
             >
-              <Text className="text-sm font-inter text-black">
+              <Text className="text-sm font-inter-semibold text-black">
                 {selectedValue ? selectedValue : `Select ${attribute.name.toLowerCase()}`}
               </Text>
               <Feather name="chevron-down" size={16} color="#999" />
@@ -98,7 +98,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
             >
               {selectedValue && <Feather name="check" size={14} color="#fff" />}
             </View>
-            <Text className="text-sm font-inter text-black">Yes</Text>
+            <Text className="text-sm font-inter-semibold text-black">Yes</Text>
           </TouchableOpacity>
         );
 
@@ -108,13 +108,13 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
           return (
             <TouchableOpacity
               key={`${attribute.id}-${JSON.stringify(selectedValues)}`}
-              className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
+              className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row items-center justify-between"
               onPress={() => {
                 setSelectedAttribute(attribute);
                 setShowAttributeModal(true);
               }}
             >
-              <Text className="text-sm font-inter text-black">
+              <Text className="text-sm font-inter-semibold text-black">
                 {selectedValues.length > 0
                   ? `${selectedValues.length} selected`
                   : `Select ${attribute.name.toLowerCase()}`}
@@ -174,7 +174,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white rounded-t-3xl pt-5 px-5 pb-5 max-h-4/5">
             {/* Header */}
-            <View className="flex-row justify-between items-center mb-5">
+            <View className="flex-row items-center justify-between mb-5">
               <Text className="text-lg font-inter-bold text-black">{selectedAttribute.name}</Text>
               <TouchableOpacity
                 onPress={() => {
@@ -191,7 +191,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
             <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
               {options.length === 0 ? (
                 <View className="py-8 items-center">
-                  <Text className="text-sm font-inter text-gray-500">No options available</Text>
+                  <Text className="text-sm font-inter-semibold text-gray-500">No options available</Text>
                 </View>
               ) : (
                 options.map((option) => {
@@ -202,12 +202,12 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
                   return (
                     <TouchableOpacity
                       key={option.id}
-                      className={`p-4 border-b border-gray-100 flex-row justify-between items-center ${
+                      className={`p-4 border-b border-gray-100 flex-row items-center justify-between ${
                         isSelected ? 'bg-gray-100' : 'bg-transparent'
                       }`}
                       onPress={() => handleOptionSelect(option)}
                     >
-                      <Text className="text-base font-inter text-black">{option.value}</Text>
+                      <Text className="text-base font-inter-semibold text-black">{option.value}</Text>
                       {isSelected && <Feather name="check" size={16} color="#000" />}
                     </TouchableOpacity>
                   );

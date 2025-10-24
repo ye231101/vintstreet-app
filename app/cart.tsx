@@ -246,7 +246,7 @@ export default function CartScreen() {
         </View>
 
         <View className="flex-1 justify-center items-center p-4 bg-gray-50">
-          <Feather name="alert-circle" color="#ff4444" size={48} />
+          <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading cart</Text>
           <TouchableOpacity onPress={handleRefreshCart} className="bg-black rounded-lg py-3 px-6">
             <Text className="text-base font-inter-bold text-white">Retry</Text>
@@ -270,7 +270,7 @@ export default function CartScreen() {
         <View className="flex-1 justify-center items-center p-4 bg-gray-50">
           <Feather name="shopping-bag" color="#999" size={64} />
           <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-900">Your cart is empty</Text>
-          <Text className="mb-4 text-sm font-inter text-center text-gray-600">Add some items to get started!</Text>
+          <Text className="mb-4 text-sm font-inter-semibold text-center text-gray-600">Add some items to get started!</Text>
           <TouchableOpacity onPress={() => router.push('/(tabs)')} className="bg-black rounded-lg py-3 px-6">
             <Text className="text-base font-inter-bold text-white">Continue Shopping</Text>
           </TouchableOpacity>
@@ -321,7 +321,7 @@ export default function CartScreen() {
         <View className="flex-1 bg-black/50 justify-center items-center p-5">
           <View className="bg-white rounded-xl p-6 w-full max-w-sm">
             <Text className="text-lg font-inter-bold text-gray-800 mb-4 text-center">Clear Cart</Text>
-            <Text className="text-base font-inter text-gray-600 mb-6 text-center">
+            <Text className="text-base font-inter-semibold text-gray-600 mb-6 text-center">
               Are you sure you want to remove all items from your cart?
             </Text>
             <View className="flex-row justify-between">

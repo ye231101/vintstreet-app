@@ -113,7 +113,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
               <Text className="text-sm font-inter-semibold text-gray-800 mb-1" numberOfLines={1}>
                 {productName}
               </Text>
-              <Text className="text-xs font-inter text-gray-500">
+              <Text className="text-xs font-inter-semibold text-gray-500">
                 Current price: £
                 {currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
@@ -121,7 +121,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
 
             {/* Offer Amount */}
             <View className="mb-4">
-              <Text className="text-sm font-inter text-gray-700 mb-2">Your Offer (£) *</Text>
+              <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Your Offer (£) *</Text>
               <TextInput
                 keyboardType="decimal-pad"
                 placeholder="Enter your offer amount"
@@ -134,7 +134,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
 
             {/* Quick Offer Suggestions */}
             <View className="mb-4">
-              <Text className="text-sm font-inter text-gray-700 mb-2">Quick suggestions</Text>
+              <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Quick suggestions</Text>
               <View className="flex-row">
                 {suggestedOffers.map((suggestion) => (
                   <Pressable
@@ -149,7 +149,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
                       )
                     }
                   >
-                    <Text className="text-sm font-inter text-gray-800">
+                    <Text className="text-sm font-inter-semibold text-gray-800">
                       £
                       {suggestion.amount.toLocaleString('en-US', {
                         minimumFractionDigits: 2,
@@ -163,7 +163,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
 
             {/* Message */}
             <View className="mb-4">
-              <Text className="text-sm font-inter text-gray-700 mb-2">Message (Optional)</Text>
+              <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Message (Optional)</Text>
               <TextInput
                 placeholder="Add a message to the seller..."
                 placeholderTextColor="#9CA3AF"
@@ -175,14 +175,14 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({
                 onChangeText={setOfferMessage}
                 maxLength={500}
               />
-              <Text className="text-xs font-inter text-gray-500 text-right mt-1">
+              <Text className="text-xs font-inter-semibold text-gray-500 text-right mt-1">
                 {offerMessage.length}/500 characters
               </Text>
             </View>
 
             {offerError ? (
               <View className="mb-4 p-3 bg-red-50 rounded-lg">
-                <Text className="text-sm font-inter text-red-600">{offerError}</Text>
+                <Text className="text-sm font-inter-semibold text-red-600">{offerError}</Text>
               </View>
             ) : null}
 

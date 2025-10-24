@@ -143,6 +143,23 @@ class OffersService {
   }
 
   /**
+   * Delete an offer
+   * @param offerId - The offer ID to delete
+   */
+  async deleteOffer(offerId: string): Promise<void> {
+    try {
+      const { error } = await supabase.from('offers').delete().eq('id', offerId);
+
+      if (error) {
+        throw new Error(`Failed to delete offer: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error deleting offer:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Transform API data to match UI interface
    * @param apiOffers - Raw offers data from API
    */

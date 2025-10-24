@@ -29,7 +29,7 @@ export default function IndexScreen() {
             <View className="items-center mb-10">
               <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
               <Text className="text-2xl font-inter-bold mt-4 text-center">Welcome to Vint Street</Text>
-              <Text className="text-gray-500 font-inter mt-2 text-center">Sign in to continue</Text>
+              <Text className="text-gray-500 font-inter-semibold mt-2 text-center">Sign in to continue</Text>
             </View>
 
             {error && (
@@ -50,7 +50,7 @@ export default function IndexScreen() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="email-address"
-                  className="flex-1 font-inter text-base h-14"
+                  className="flex-1 font-inter-semibold text-base h-14"
                   returnKeyType="next"
                 />
               </View>
@@ -68,7 +68,7 @@ export default function IndexScreen() {
                   secureTextEntry={secure}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  className="flex-1 font-inter text-base h-14"
+                  className="flex-1 font-inter-semibold text-base h-14"
                   returnKeyType="done"
                   onSubmitEditing={onSubmit}
                 />

@@ -164,7 +164,7 @@ Thank you,
               }`}
             >
               <Text
-                className={`text-sm font-inter ${selectedCategory === category ? 'text-blue-500' : 'text-gray-900'}`}
+                className={`text-sm font-inter-semibold ${selectedCategory === category ? 'text-blue-500' : 'text-gray-900'}`}
               >
                 {category}
               </Text>
@@ -197,23 +197,24 @@ Thank you,
       <Feather name={icon as any} color="#666" size={20} />
       <View className="ml-3 flex-1">
         <Text className="text-gray-600 text-xs font-inter">{title}</Text>
-        <Text className={`text-sm font-inter ${isTappable ? 'text-blue-500 underline' : 'text-gray-900'}`}>{value}</Text>
+        <Text className={`text-sm font-inter-semibold ${isTappable ? 'text-blue-500 underline' : 'text-gray-900'}`}>{value}</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Contact Support</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Contact Support</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+      <View className="flex-1 bg-gray-50">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Support Categories */}
           <Text className="text-gray-900 text-base font-inter-bold mb-2">What can we help you with?</Text>
@@ -234,7 +235,7 @@ Thank you,
           <TextInput
             value={message}
             onChangeText={setMessage}
-            className="bg-white rounded-xl p-4 text-gray-900 text-base font-inter min-h-30 shadow-sm"
+            className="bg-white rounded-xl p-4 text-gray-900 text-base font-inter-semibold min-h-30 shadow-sm"
             placeholder="Please provide as much detail as possible..."
             placeholderTextColor="#999"
             multiline
@@ -295,10 +296,11 @@ Thank you,
             <ContactMethod icon="clock" title="Hours" value="Mon-Fri, 9:00 AM - 6:00 PM EST" />
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Category Dropdown */}
-      <CategoryDropdown />
+        {/* Category Dropdown */}
+        <CategoryDropdown />
+      </View>
     </SafeAreaView>
   );
 }

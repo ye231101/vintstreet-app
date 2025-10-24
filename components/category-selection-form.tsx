@@ -67,26 +67,26 @@ export const CategorySelectionForm: React.FC<CategorySelectionFormProps> = ({
     <View className="mb-4">
       <Text className="text-sm font-inter-semibold text-black mb-2">Category *</Text>
       <TouchableOpacity
-        className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row justify-between items-center"
+        className="bg-white rounded-lg border border-gray-300 px-3 py-3 flex-row items-center justify-between"
         onPress={onCategoryPress}
       >
         <View className="flex-1">
           {hasSelection ? (
             <View>
-              <Text className="text-sm font-inter text-black">{categoryPath[0]}</Text>
+              <Text className="text-sm font-inter-semibold text-black">{categoryPath[0]}</Text>
               {categoryPath.length > 1 && (
-                <Text className="text-xs font-inter text-gray-500 mt-1">{categoryPath.slice(1).join(' > ')}</Text>
+                <Text className="text-xs font-inter-semibold text-gray-500 mt-1">{categoryPath.slice(1).join(' > ')}</Text>
               )}
             </View>
           ) : (
-            <Text className="text-sm font-inter text-gray-400">Select category</Text>
+            <Text className="text-sm font-inter-semibold text-gray-400">Select category</Text>
           )}
         </View>
         <Feather name="chevron-right" size={16} color="#999" />
       </TouchableOpacity>
       <View className="flex-row items-center mt-2">
         <Feather name="info" size={16} color="#999" />
-        <Text className="text-sm font-inter text-gray-600 ml-2">Select a category to view specific attributes</Text>
+        <Text className="text-sm font-inter-semibold text-gray-600 ml-2">Select a category to view specific attributes</Text>
       </View>
     </View>
   );

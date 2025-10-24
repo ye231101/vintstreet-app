@@ -100,35 +100,36 @@ export default function HelpCenterScreen() {
   }) => (
     <View>
       <TouchableOpacity onPress={onToggle} className="flex-row items-center py-3 px-4">
-        <Text className="text-gray-900 text-base font-inter flex-1">{question}</Text>
+        <Text className="text-gray-900 text-base font-inter-semibold flex-1">{question}</Text>
         <Feather name={isExpanded ? 'chevron-up' : 'chevron-down'} size={16} color="#666" />
       </TouchableOpacity>
       {isExpanded && (
         <View className="px-4 pb-3">
-          <Text className="text-gray-600 text-sm font-inter leading-5">{answer}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold leading-5">{answer}</Text>
         </View>
       )}
     </View>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Help Center</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Help Center</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+      <View className="flex-1 bg-gray-50">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="p-4">
           {/* Search Bar */}
           <View className="bg-white rounded-xl flex-row items-center px-3 mb-6 shadow-sm">
             <Feather name="search" size={20} color="#666" />
             <TextInput
-              className="flex-1 text-gray-900 text-base font-inter py-4 px-3"
+              className="flex-1 text-gray-900 text-base font-inter-semibold py-4 px-3"
               placeholder="Search help articles..."
               placeholderTextColor="#999"
               value={searchQuery}
@@ -170,13 +171,14 @@ export default function HelpCenterScreen() {
           {/* Divider */}
           <View className="h-px bg-gray-200 my-6" />
         </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Contact Support Button */}
-      <View className="p-4 bg-gray-50 border-t border-gray-200">
-        <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
-          <Text className="text-white text-base font-inter-bold">Contact Support</Text>
-        </TouchableOpacity>
+        {/* Contact Support Button */}
+        <View className="p-4 bg-gray-50 border-t border-gray-200">
+          <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
+            <Text className="text-white text-base font-inter-bold">Contact Support</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );

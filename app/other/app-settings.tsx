@@ -53,7 +53,7 @@ export default function AppSettingsScreen() {
     <TouchableOpacity onPress={onPress} className="px-4 py-4 flex-row items-center justify-between">
       <Text className="text-gray-900 text-base font-inter-bold">{title}</Text>
       <View className="flex-row items-center">
-        <Text className="text-gray-600 text-sm font-inter mr-2">{value}</Text>
+        <Text className="text-gray-600 text-sm font-inter-semibold mr-2">{value}</Text>
         <Feather name="chevron-down" size={16} color="#666" />
       </View>
     </TouchableOpacity>
@@ -99,7 +99,7 @@ export default function AppSettingsScreen() {
                 index < items.length - 1 ? 'border-b border-gray-200' : ''
               }`}
             >
-              <Text className={`text-sm font-inter ${selectedValue === item ? 'text-blue-500' : 'text-gray-900'}`}>
+              <Text className={`text-sm font-inter-semibold ${selectedValue === item ? 'text-blue-500' : 'text-gray-900'}`}>
                 {item}
               </Text>
               {selectedValue === item && <Feather name="check" size={16} color="#007AFF" />}
@@ -111,17 +111,18 @@ export default function AppSettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">App Settings</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">App Settings</Text>
       </View>
 
-      <View className="flex-1 relative">
+      <View className="flex-1 bg-gray-50">
+        <View className="flex-1 relative">
         <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
           {/* Notifications Section */}
           <View className="mt-4">
@@ -219,6 +220,7 @@ export default function AppSettingsScreen() {
           onClose={() => setShowCurrencyDropdown(false)}
           topPosition={250}
         />
+        </View>
       </View>
 
       {/* Clear Data Confirmation Modal */}
@@ -231,7 +233,7 @@ export default function AppSettingsScreen() {
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-white rounded-xl p-5 m-5 w-11/12">
             <Text className="text-gray-900 text-lg font-inter-bold mb-3">Clear App Data</Text>
-            <Text className="text-gray-600 text-sm font-inter mb-5">
+            <Text className="text-gray-600 text-sm font-inter-semibold mb-5">
               This will clear all app data including saved preferences. This action cannot be undone.
             </Text>
             <View className="flex-row justify-end">

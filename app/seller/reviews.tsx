@@ -6,8 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Review, reviewsService } from '../../api/services/reviews.service';
 import { useAuth } from '../../hooks/use-auth';
 
-// Interfaces are now imported from the reviews service
-
 export default function ReviewsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -93,139 +91,114 @@ export default function ReviewsScreen() {
       <View className="flex-row items-center mb-3">{renderStars(review.rating, 16)}</View>
 
       {/* Review Comment */}
-      <Text className="text-gray-900 text-sm font-inter leading-5">{review.comment}</Text>
+      <Text className="text-gray-900 text-sm font-inter-semibold leading-5">{review.comment}</Text>
 
       {/* Divider */}
       <View className="h-px bg-gray-200 mt-4" />
     </View>
   );
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
-          </TouchableOpacity>
-
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Reviews</Text>
-        </View>
-
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#007AFF" />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
-          </TouchableOpacity>
-
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">Reviews</Text>
-        </View>
-
-        <View className="flex-1 justify-center items-center p-4">
-          <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading reviews</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
-          <TouchableOpacity onPress={loadReviews} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-inter-bold">Retry</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">Reviews</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Reviews</Text>
       </View>
 
-      {reviews.length === 0 ? (
-        <View className="flex-1 justify-center items-center py-20">
-          {/* Large outlined star icon */}
-          <Feather name="star" size={64} color="#666666" style={{ marginBottom: 24 }} />
-
-          {/* Primary text */}
-          <Text className="text-gray-900 text-lg font-inter-bold mb-2">No reviews yet</Text>
-
-          {/* Secondary text */}
-          <Text className="text-gray-600 text-sm font-inter text-center">Reviews from customers will appear here</Text>
-        </View>
-      ) : (
-        <>
-          {/* Overall Rating Section */}
-          <View className="items-center py-6 bg-white border-b border-gray-200">
-            <Text className="text-gray-900 text-5xl font-inter-bold mb-2">{averageRating}</Text>
-
-            <View className="flex-row mb-2">{renderStars(Math.floor(averageRating), 24)}</View>
-
-            <Text className="text-gray-600 text-sm font-inter">{totalSales} sales</Text>
+      <View className="flex-1 bg-gray-50">
+        {isLoading ? (
+          <View className="flex-1 justify-center items-center p-4">
+            <ActivityIndicator size="large" color="#000" />
+            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your reviews...</Text>
           </View>
-
-          {/* Filter Buttons */}
-          <View className="flex-row px-4 py-3 bg-white border-b border-gray-200">
-            <TouchableOpacity
-              onPress={() => setSortFilter('all')}
-              className={`border rounded py-2 px-4 mr-2 ${
-                sortFilter === 'all' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
-              }`}
-            >
-              <Text className={`text-sm font-inter-medium ${sortFilter === 'all' ? 'text-white' : 'text-gray-900'}`}>
-                All
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setSortFilter('high-to-low')}
-              className={`border rounded py-2 px-4 mr-2 ${
-                sortFilter === 'high-to-low' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
-              }`}
-            >
-              <Text
-                className={`text-sm font-inter-medium ${sortFilter === 'high-to-low' ? 'text-white' : 'text-gray-900'}`}
-              >
-                High to low
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setSortFilter('low-to-high')}
-              className={`border rounded py-2 px-4 ${
-                sortFilter === 'low-to-high' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
-              }`}
-            >
-              <Text
-                className={`text-sm font-inter-medium ${sortFilter === 'low-to-high' ? 'text-white' : 'text-gray-900'}`}
-              >
-                Low to high
-              </Text>
+        ) : error ? (
+          <View className="flex-1 justify-center items-center p-4">
+            <Feather name="alert-circle" color="#ff4444" size={64} />
+            <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading reviews</Text>
+            <TouchableOpacity onPress={loadReviews} className="bg-black rounded-lg py-3 px-6">
+              <Text className="text-base font-inter-bold text-white">Retry</Text>
             </TouchableOpacity>
           </View>
+        ) : reviews.length > 0 ? (
+          <>
+            {/* Overall Rating Section */}
+            <View className="items-center py-6 bg-gray-50 border-b border-gray-200">
+              <Text className="text-gray-900 text-5xl font-inter-bold mb-2">{averageRating}</Text>
 
-          {/* Reviews List */}
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadReviews} tintColor="#007AFF" />}
-            className="flex-1 p-4"
-          >
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </ScrollView>
-        </>
-      )}
+              <View className="flex-row mb-2">{renderStars(Math.floor(averageRating), 24)}</View>
+
+              <Text className="text-gray-600 text-sm font-inter">{totalSales} sales</Text>
+            </View>
+
+            {/* Filter Buttons */}
+            <View className="flex-row px-4 py-3 bg-gray-50 border-b border-gray-200">
+              <TouchableOpacity
+                onPress={() => setSortFilter('all')}
+                className={`border rounded py-2 px-4 mr-2 ${
+                  sortFilter === 'all' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                }`}
+              >
+                <Text className={`text-sm font-inter-medium ${sortFilter === 'all' ? 'text-white' : 'text-gray-900'}`}>
+                  All
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setSortFilter('high-to-low')}
+                className={`border rounded py-2 px-4 mr-2 ${
+                  sortFilter === 'high-to-low' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                }`}
+              >
+                <Text
+                  className={`text-sm font-inter-medium ${
+                    sortFilter === 'high-to-low' ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
+                  High to low
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setSortFilter('low-to-high')}
+                className={`border rounded py-2 px-4 ${
+                  sortFilter === 'low-to-high' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                }`}
+              >
+                <Text
+                  className={`text-sm font-inter-medium ${
+                    sortFilter === 'low-to-high' ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
+                  Low to high
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Reviews List */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadReviews} tintColor="#007AFF" />}
+              className="flex-1 p-4"
+            >
+              {reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </ScrollView>
+          </>
+        ) : (
+          <View className="flex-1 justify-center items-center p-4">
+            <Feather name="star" size={64} color="#666" />
+            <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">No reviews yet</Text>
+            <Text className="text-gray-600 text-sm font-inter-semibold text-center">
+              Reviews from customers will appear here
+            </Text>
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 }

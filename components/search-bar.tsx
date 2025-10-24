@@ -7,33 +7,36 @@ export interface SearchBarProps {
   placeholder?: string;
   value?: string;
   onChangeText?: (text: string) => void;
-  onSearch?: () => void;
+  onSearch?: (text: string) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value, onChangeText, onSearch }) => {
   return (
-    <View className="flex-row items-center px-4 py-2 bg-gray-900 gap-8">
-      <View className="flex-1 flex-row items-center bg-gray-600 rounded-lg px-3">
-        <Feather name="search" size={20} color="white" />
+    <View className="flex-row items-center gap-8 p-4 bg-black">
+      <View className="flex-1 flex-row items-center bg-gray-800 rounded-lg px-3">
+        <Feather name="search" size={24} color="white" />
         <TextInput
-          className="flex-1 ml-2 text-sm text-white font-inter"
+          className="flex-1 ml-2 text-base font-inter-bold text-white"
           placeholder={placeholder}
-          placeholderTextColor="#b0b0b0"
+          placeholderTextColor="#999"
           value={value}
           onChangeText={onChangeText}
-          onSubmitEditing={onSearch}
+          onSubmitEditing={() => onSearch?.(value || '')}
           returnKeyType="search"
           autoCapitalize="none"
           autoCorrect={false}
         />
         {value && value.length > 0 && (
-          <Pressable onPress={() => onChangeText?.('')}>
+          <Pressable onPress={() => {
+            onChangeText?.('');
+            onSearch?.('');
+          }}>
             <Feather name="x" size={20} color="white" />
           </Pressable>
         )}
       </View>
       <Pressable onPress={() => router.push('/cart')}>
-        <Feather name="shopping-bag" size={20} color="white" />
+        <Feather name="shopping-bag" size={28} color="white" />
       </Pressable>
     </View>
   );
