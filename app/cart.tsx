@@ -44,8 +44,13 @@ export default function CartScreen() {
     const product = cartItem.product;
 
     return (
-      <View key={product.id} className="bg-white rounded-xl">
-        <View className="flex-row items-center gap-3 p-4">
+      <View key={product.id} className="rounded-xl overflow-hidden bg-white border border-gray-400">
+        <View className="flex-row items-center gap-3 p-4 bg-gray-200">
+          <Feather name="shopping-cart" color="#000" size={20} />
+          <Text className="text-base font-inter-bold text-gray-800">Sold by {product.seller_info_view?.shop_name}</Text>
+        </View>
+
+        <View className="flex-row items-center gap-3 p-4 border-t border-gray-200">
           <View className="w-24 h-24 rounded-lg bg-gray-100 overflow-hidden">
             <Image
               source={product.product_image}
@@ -80,7 +85,7 @@ export default function CartScreen() {
           </View>
         </View>
 
-        <View className="p-4 border-t border-gray-100">
+        <View className="p-4 border-t border-gray-200">
           <TouchableOpacity
             onPress={() => handleCartItemCheckout(product.id)}
             className="items-center justify-center px-6 py-3 rounded-lg bg-black"
