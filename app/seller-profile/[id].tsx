@@ -294,7 +294,7 @@ export default function SellerProfileScreen() {
   const displayName = sellerProfile.shop_name || sellerProfile.full_name || sellerProfile.username;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       <ScrollView className="flex-1 bg-gray-50">
         {/* Header Section */}
         <View className="bg-white px-4 py-6 border-b border-gray-200">
@@ -589,8 +589,6 @@ export default function SellerProfileScreen() {
             </Text>
           </View>
         </View>
-
-        <View className="h-8" />
       </ScrollView>
 
       {/* Contact Seller Modal */}
