@@ -6,7 +6,17 @@ import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Image,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -42,39 +52,43 @@ const brands = [
 const topCategories = [
   {
     title: 'Caps',
-    image: require('@/assets/images/cat_caps.png'),
+    image: require('@/assets/images/cat_caps.jpg'),
   },
   {
     title: 'Denim',
-    image: require('@/assets/images/cat_denim.png'),
+    image: require('@/assets/images/cat_denim.jpg'),
   },
   {
     title: 'Vinyl',
-    image: require('@/assets/images/cat_vinyl.png'),
+    image: require('@/assets/images/cat_vinyl.jpg'),
   },
   {
     title: 'Football Shirts',
-    image: require('@/assets/images/cat_football_shirts.png'),
+    image: require('@/assets/images/cat_football_shirts.jpg'),
   },
   {
     title: 'Gaming',
-    image: require('@/assets/images/cat_gaming.png'),
+    image: require('@/assets/images/cat_gaming.jpg'),
   },
   {
     title: "Levi's",
-    image: require('@/assets/images/cat_levis.png'),
+    image: require('@/assets/images/cat_levis.jpg'),
   },
   {
     title: 'Nike',
-    image: require('@/assets/images/cat_nike.png'),
+    image: require('@/assets/images/cat_nike.jpg'),
   },
   {
     title: 'Tees',
-    image: require('@/assets/images/cat_tees.png'),
+    image: require('@/assets/images/cat_tees.jpg'),
+  },
+  {
+    title: 'VeeFriends',
+    image: require('@/assets/images/cat_veefriends.jpg'),
   },
   {
     title: 'Y2K',
-    image: require('@/assets/images/cat_y2k.png'),
+    image: require('@/assets/images/cat_y2k.jpg'),
   },
 ];
 
