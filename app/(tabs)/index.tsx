@@ -242,7 +242,7 @@ export default function HomeScreen() {
             </View>
           ) : error ? (
             <View className="flex-1 justify-center items-center p-4">
-              <Feather name="alert-circle" color="#ff4444" size={48} />
+              <Feather name="alert-circle" color="#ff4444" size={64} />
               <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading products</Text>
               <TouchableOpacity onPress={() => fetchProducts()} className="bg-black rounded-lg py-3 px-6">
                 <Text className="text-base font-inter-bold text-white">Retry</Text>

@@ -246,7 +246,7 @@ export default function CartScreen() {
         </View>
 
         <View className="flex-1 justify-center items-center p-4 bg-gray-50">
-          <Feather name="alert-circle" color="#ff4444" size={48} />
+          <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading cart</Text>
           <TouchableOpacity onPress={handleRefreshCart} className="bg-black rounded-lg py-3 px-6">
             <Text className="text-base font-inter-bold text-white">Retry</Text>

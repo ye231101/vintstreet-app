@@ -377,7 +377,7 @@ export default function DashboardScreen() {
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
-          <Feather name="alert-circle" color="#ff4444" size={48} />
+          <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading dashboard data</Text>
           <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadDashboardData} className="bg-blue-600 rounded-lg py-3 px-6">

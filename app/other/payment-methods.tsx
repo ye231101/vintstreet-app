@@ -188,7 +188,7 @@ export default function PaymentMethodsScreen() {
         </View>
 
         <View className="flex-1 justify-center items-center p-4">
-          <Feather name="alert-circle" color="#ff4444" size={48} />
+          <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading payment methods</Text>
           <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadPaymentMethods} className="bg-blue-500 rounded-lg py-3 px-6">
