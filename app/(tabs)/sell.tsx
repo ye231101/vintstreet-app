@@ -777,7 +777,7 @@ export default function SellScreen() {
           {productId ? 'Edit Product' : 'Add New Product'}
         </Text>
 
-        <Feather name="shopping-bag" size={24} color="#fff" />
+        <Feather name="shopping-bag" size={28} color="#fff" />
       </View>
 
       <KeyboardAvoidingView

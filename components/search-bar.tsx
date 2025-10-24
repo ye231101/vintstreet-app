@@ -36,7 +36,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
         )}
       </View>
       <Pressable onPress={() => router.push('/cart')}>
-        <Feather name="shopping-bag" size={20} color="white" />
+        <Feather name="shopping-bag" size={28} color="white" />
       </Pressable>
     </View>
   );
