@@ -16,7 +16,6 @@ export default function DiscoveryScreen() {
   const [searchText, setSearchText] = useState('');
   const [categoryPath, setCategoryPath] = useState<Category[]>([]);
   const [currentView, setCurrentView] = useState<'categories' | 'subcategories' | 'products'>('categories');
-  const [sortBy, setSortBy] = useState('Most Relevant');
 
   // New state for API data
   const [categories, setCategories] = useState<Category[]>([]);
@@ -33,7 +32,6 @@ export default function DiscoveryScreen() {
   const [productsError, setProductsError] = useState<string | null>(null);
 
   // Filter and sort state
-  const [appliedFilters, setAppliedFilters] = useState<any>({});
   const [currentSortBy, setCurrentSortBy] = useState('Most Relevant');
   const [currentPriceFilter, setCurrentPriceFilter] = useState('All Prices');
 
@@ -71,12 +69,7 @@ export default function DiscoveryScreen() {
     }
   };
 
-  const loadProductsForCategory = async (
-    category: Category,
-    filters?: any,
-    sortBy?: string,
-    priceFilterOverride?: string
-  ) => {
+  const loadProductsForCategory = async (category: Category, sortBy?: string, priceFilterOverride?: string) => {
     try {
       setIsLoadingProducts(true);
       setProductsError(null);
@@ -117,7 +110,7 @@ export default function DiscoveryScreen() {
       setCurrentView('subcategories');
     } else {
       setCurrentView('products');
-      loadProductsForCategory(category, appliedFilters, currentSortBy);
+      loadProductsForCategory(category, currentSortBy);
     }
   };
 
@@ -127,7 +120,7 @@ export default function DiscoveryScreen() {
       setCurrentView('subcategories');
     } else {
       setCurrentView('products');
-      loadProductsForCategory(subcategory, appliedFilters, currentSortBy);
+      loadProductsForCategory(subcategory, currentSortBy);
     }
   };
 
@@ -151,7 +144,7 @@ export default function DiscoveryScreen() {
   const handleViewAllProducts = () => {
     setCurrentView('products');
     if (categoryPath.length > 0) {
-      loadProductsForCategory(categoryPath[categoryPath.length - 1], appliedFilters, currentSortBy);
+      loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy);
     }
   };
 
@@ -189,7 +182,7 @@ export default function DiscoveryScreen() {
 
     // Reload products with new price filter if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
-      await loadProductsForCategory(categoryPath[categoryPath.length - 1], {}, currentSortBy, priceFilter);
+      await loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy, priceFilter);
     }
 
     // Reload search results if we're showing search results
@@ -212,7 +205,7 @@ export default function DiscoveryScreen() {
 
     // Reload products with new sort if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
-      loadProductsForCategory(categoryPath[categoryPath.length - 1], appliedFilters, sortOption);
+      loadProductsForCategory(categoryPath[categoryPath.length - 1], sortOption);
     }
   };
 
@@ -238,7 +231,7 @@ export default function DiscoveryScreen() {
     if (categoryPath.length === 0) return null;
 
     return (
-      <View className="bg-white border-b border-gray-100">
+      <View className="bg-gray-50">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row items-center px-5 py-3">
             <Pressable
@@ -247,10 +240,10 @@ export default function DiscoveryScreen() {
                 setCurrentView('categories');
               }}
             >
-              <Text className="text-sm font-inter text-black font-bold">All Categories</Text>
+              <Text className="text-base font-inter-bold text-black">All Categories</Text>
             </Pressable>
             {categoryPath.map((category, index) => (
-              <View key={index} className="flex-row items-center ml-2">
+              <View key={index} className="flex-row items-center">
                 <Feather name="chevron-right" size={16} color="#666" />
                 <Pressable
                   onPress={() => {
@@ -260,7 +253,7 @@ export default function DiscoveryScreen() {
                   }}
                 >
                   <Text
-                    className={`text-sm font-inter font-bold ${
+                    className={`text-base font-inter-bold ${
                       index === categoryPath.length - 1 ? 'text-gray-600' : 'text-black'
                     }`}
                   >
@@ -282,39 +275,34 @@ export default function DiscoveryScreen() {
         <View className="flex-1">
           <FilterSortBar
             priceFilter={currentPriceFilter}
-            sortBy={sortBy}
+            sortBy={currentSortBy}
             onPriceFilterChange={handlePriceFilterChange}
             onSortChange={handleSortChange}
           />
           {isSearching ? (
-            <View className="flex-1 justify-center items-center p-5">
+            <View className="flex-1 justify-center items-center p-2 bg-gray-50">
               <ActivityIndicator size="large" color="#000" />
               <Text className="mt-4 text-base font-inter text-gray-600">Searching products...</Text>
             </View>
-          ) : searchResults.length > 0 ? (
-            <View className="flex-1">
-              <View className="px-4 py-2 bg-gray-100">
-                <Text className="text-sm text-gray-600">
-                  {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchText}"
-                </Text>
-              </View>
-              <FlatList
-                data={searchResults}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={2}
-                renderItem={({ item }) => (
-                  <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
-                )}
-                className="p-4 mb-4"
-                columnWrapperStyle={{ justifyContent: 'space-between' }}
-              />
-            </View>
           ) : (
-            <View className="flex-1 justify-center items-center p-10">
-              <Feather name="search" size={64} color="#ccc" />
-              <Text className="text-lg font-inter-bold text-gray-500 text-center mt-4">No results found</Text>
-              <Text className="text-gray-400 text-center mt-2">Try searching with different keywords</Text>
-            </View>
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              renderItem={({ item }) => <ProductCard product={item} onPress={() => handleProductPress(item.id)} />}
+              className="p-2 bg-gray-50"
+              contentContainerStyle={{ flexGrow: 1, paddingBottom: 8 }}
+              columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 8 }}
+              ListEmptyComponent={
+                <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+                  <Feather name="search" size={64} color="#ccc" />
+                  <Text className="mt-4 text-lg font-inter-bold text-gray-500 text-center">No results found</Text>
+                  <Text className="mt-2 text-base font-inter text-center text-gray-400">
+                    Try searching with different keywords
+                  </Text>
+                </View>
+              }
+            />
           )}
         </View>
       );
@@ -322,7 +310,7 @@ export default function DiscoveryScreen() {
 
     if (isLoading) {
       return (
-        <View className="flex-1 justify-center items-center p-5">
+        <View className="flex-1 justify-center items-center p-2 bg-gray-50">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-4 text-base font-inter text-gray-600">Loading categories...</Text>
         </View>
@@ -331,10 +319,11 @@ export default function DiscoveryScreen() {
 
     if (error) {
       return (
-        <View className="flex-1 justify-center items-center p-5">
-          <Text className="text-base font-inter text-gray-600 text-center mb-4">{error}</Text>
-          <Pressable className="bg-black px-6 py-3 rounded" onPress={loadCategories}>
-            <Text className="text-white text-base font-inter-bold">Retry</Text>
+        <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+          <Feather name="alert-circle" color="#ff4444" size={64} />
+          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading categories</Text>
+          <Pressable className="bg-black px-6 py-3 rounded-lg" onPress={loadCategories}>
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
           </Pressable>
         </View>
       );
@@ -345,21 +334,19 @@ export default function DiscoveryScreen() {
         return (
           <FlatList
             data={categories}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
               <Pressable
-                className={`flex-row items-center justify-between px-5 py-4 border-b border-gray-100 bg-white ${
-                  index === categories.length - 1 ? 'border-b-0' : ''
-                }`}
+                className="flex-row items-center justify-between px-5 py-4 bg-gray-50"
                 onPress={() => handleCategoryPress(item)}
               >
                 <View className="flex-1 flex-row items-center">
-                  <Text className="text-base font-inter text-black">{item.name}</Text>
+                  <Text className="text-base font-inter-bold text-black">{item.name}</Text>
                 </View>
                 {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
               </Pressable>
             )}
-            className="flex-1 bg-white"
+            className="flex-1 bg-gray-50"
           />
         );
 
@@ -370,18 +357,16 @@ export default function DiscoveryScreen() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item, index }) => (
               <Pressable
-                className={`flex-row items-center justify-between px-5 py-4 border-b border-gray-100 bg-white ${
-                  index === getCurrentCategories().length - 1 ? 'border-b-0' : ''
-                }`}
+                className="flex-row items-center justify-between px-5 py-4 bg-gray-50"
                 onPress={() => handleSubcategoryPress(item)}
               >
                 <View className="flex-1 flex-row items-center">
-                  <Text className="text-base font-inter text-black">{item.name}</Text>
+                  <Text className="text-base font-inter-bold text-black">{item.name}</Text>
                 </View>
                 {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
               </Pressable>
             )}
-            className="flex-1 bg-white"
+            className="flex-1 bg-gray-50"
           />
         );
 
@@ -395,22 +380,23 @@ export default function DiscoveryScreen() {
               onSortChange={handleSortChange}
             />
             {isLoadingProducts ? (
-              <View className="flex-1 justify-center items-center p-5">
+              <View className="flex-1 justify-center items-center p-2 bg-gray-50">
                 <ActivityIndicator size="large" color="#000" />
                 <Text className="mt-4 text-base font-inter text-gray-600">Loading products...</Text>
               </View>
             ) : productsError ? (
-              <View className="flex-1 justify-center items-center p-5">
-                <Text className="text-base font-inter text-gray-600 text-center mb-4">{productsError}</Text>
+              <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+                <Feather name="alert-circle" color="#ff4444" size={64} />
+                <Text className="my-4 text-lg font-inter-bold text-red-500">{productsError}</Text>
                 <Pressable
-                  className="bg-black px-6 py-3 rounded"
+                  className="bg-black px-6 py-3 rounded-lg"
                   onPress={() => {
                     if (categoryPath.length > 0) {
                       loadProductsForCategory(categoryPath[categoryPath.length - 1]);
                     }
                   }}
                 >
-                  <Text className="text-white text-base font-inter-bold">Retry</Text>
+                  <Text className="text-base font-inter-bold text-white">Retry</Text>
                 </Pressable>
               </View>
             ) : (
@@ -418,16 +404,14 @@ export default function DiscoveryScreen() {
                 data={products}
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
-                renderItem={({ item }) => (
-                  <ProductCard product={item} onPress={() => handleProductPress(item.id)} width={180} height={240} />
-                )}
-                className="p-4 mb-4"
-                columnWrapperStyle={{ justifyContent: 'space-between' }}
+                renderItem={({ item }) => <ProductCard product={item} onPress={() => handleProductPress(item.id)} />}
+                className="p-2 bg-gray-50"
+                columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 8 }}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 8 }}
                 ListEmptyComponent={
-                  <View className="flex-1 justify-center items-center p-10">
-                    <Text className="text-base font-inter text-gray-600 text-center">
-                      No products found in this category
-                    </Text>
+                  <View className="flex-1 justify-center items-center">
+                    <Feather name="shopping-bag" color="#999" size={64} />
+                    <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-900">No products found</Text>
                   </View>
                 }
               />
@@ -441,29 +425,29 @@ export default function DiscoveryScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 mb-50 bg-black">
       {/* Search Bar */}
       <SearchBar
         value={searchText}
         onChangeText={handleSearchTextChange}
         onSearch={handleSearch}
-        placeholder="Search products..."
+        placeholder="Search products, brands, articles..."
       />
 
       {/* Header */}
-      <View className="flex-row items-center px-5 py-4 bg-white">
+      <View className="flex-row items-center px-5 py-4 bg-gray-50">
         {(categoryPath.length > 0 || showSearchResults) && (
-          <Pressable onPress={handleBack} className="mr-4 p-2">
+          <Pressable onPress={handleBack} className="mr-4">
             <Feather name="arrow-left" size={24} color="#000" />
           </Pressable>
         )}
-        <Text className="text-3xl font-inter-bold text-black flex-1 font-bold">{getCurrentTitle()}</Text>
+        <Text className="flex-1 text-3xl font-inter-bold text-black ">{getCurrentTitle()}</Text>
       </View>
 
       {/* All Categories Label */}
       {!showSearchResults && categoryPath.length === 0 && (
-        <View className="px-5 py-2 bg-white">
-          <Text className="text-base font-inter text-gray-600">All Categories</Text>
+        <View className="px-5 py-3 bg-gray-50">
+          <Text className="text-base font-inter-bold text-gray-600">All Categories</Text>
         </View>
       )}
 
@@ -475,7 +459,7 @@ export default function DiscoveryScreen() {
 
       {/* Bottom Button for Categories */}
       {currentView === 'subcategories' && (
-        <View className="bg-white px-5 py-4 border-t border-gray-100">
+        <View className="px-5 py-4 border-t border-gray-100 bg-gray-50">
           <Pressable className="bg-black rounded py-3 items-center" onPress={handleViewAllProducts}>
             <Text className="text-white text-base font-inter-bold">View all products in this category</Text>
           </Pressable>

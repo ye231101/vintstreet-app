@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 export interface FilterSortBarProps {
@@ -50,7 +50,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
   };
 
   return (
-    <View className="flex-row px-4 py-3 bg-white border-b border-gray-100 gap-3">
+    <View className="flex-row p-4 gap-4 bg-gray-50 border-b border-gray-100">
       {/* Price Filter Dropdown */}
       <View className="flex-1">
         <DropDownPicker
@@ -64,9 +64,9 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           }}
           placeholder="Filter by price"
           style={{
-            backgroundColor: '#f3f4f6',
-            borderColor: 'transparent',
-            borderRadius: 16,
+            backgroundColor: '#e5e5e5',
+            borderColor: '#d1d5db',
+            borderRadius: 12,
             minHeight: 40,
           }}
           textStyle={{
@@ -110,9 +110,9 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           }}
           placeholder="Sort by"
           style={{
-            backgroundColor: '#f3f4f6',
+            backgroundColor: '#e5e5e5',
             borderColor: 'transparent',
-            borderRadius: 16,
+            borderRadius: 12,
             minHeight: 40,
           }}
           textStyle={{
