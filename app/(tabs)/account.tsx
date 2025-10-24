@@ -19,12 +19,12 @@ export default function AccountScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+    <SafeAreaView className="flex-1 mb-50 bg-black">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="bg-gray-50">
         {/* Profile Header Section */}
-        <View className="flex-row items-center px-4">
+        <View className="flex-row items-center p-4">
           {/* Profile Avatar */}
-          <View className="w-24 h-24 bg-gray-200 rounded-xl justify-center items-center mr-4">
+          <View className="items-center justify-center w-24 h-24 mr-4 rounded-xl bg-gray-200">
             <Image
               source={{
                 uri: user?.avatar_url
@@ -52,129 +52,129 @@ export default function AccountScreen() {
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 my-4" />
+        <View className="h-px bg-gray-800" />
 
         {/* Seller Hub Section */}
-        <View className="px-2">
-          <Text className="text-xs font-inter-bold text-black ml-4 mb-2 uppercase">SELLER HUB</Text>
+        <View className="px-2 py-4">
+          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SELLER HUB</Text>
 
-          <Pressable onPress={() => router.push('/seller/dashboard')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/seller/dashboard')} className="flex-row items-center px-4 py-3">
             <Feather name="shopping-cart" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Seller Dashboard</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Seller Dashboard</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center px-4 py-3">
             <Feather name="grid" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">My Listings</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Listings</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
           <Pressable onPress={() => router.push('/seller/orders')} className="flex-row items-center py-3 px-4">
             <Feather name="shopping-bag" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Orders</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Orders</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/offers')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/seller/offers')} className="flex-row items-center px-4 py-3">
             <Feather name="tag" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Offers</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Offers</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/reviews')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/seller/reviews')} className="flex-row items-center px-4 py-3">
             <Feather name="star" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Reviews</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Reviews</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/payment-setup')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/payment-setup')} className="flex-row items-center px-4 py-3">
             <Feather name="credit-card" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Payment Setup</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Payment Setup</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 my-4" />
+        <View className="h-px bg-gray-800" />
 
         {/* Shopping Section */}
-        <View className="px-2">
-          <Text className="text-xs font-inter-bold text-black ml-4 mb-2 uppercase">SHOPPING</Text>
+        <View className="px-2 py-4">
+          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SHOPPING</Text>
 
-          <Pressable onPress={() => router.push('/other/orders')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/orders')} className="flex-row items-center px-4 py-3">
             <Feather name="shopping-cart" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">My Orders</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Orders</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/offers')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/offers')} className="flex-row items-center px-4 py-3">
             <Feather name="tag" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">My Offers</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Offers</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/wishlist')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/wishlist')} className="flex-row items-center px-4 py-3">
             <Feather name="heart" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">My Wishlist</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Wishlist</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/payment-methods')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/payment-methods')} className="flex-row items-center px-4 py-3">
             <Feather name="credit-card" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Payment Methods</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Payment Methods</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/addresses')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/addresses')} className="flex-row items-center px-4 py-3">
             <Feather name="map-pin" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Addresses</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Addresses</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 my-4" />
+        <View className="h-px bg-gray-800" />
 
         {/* Support Section */}
-        <View className="px-2">
-          <Text className="text-xs font-inter-bold text-black ml-4 mb-2 uppercase">SUPPORT</Text>
+        <View className="px-2 py-4">
+          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SUPPORT</Text>
 
-          <Pressable onPress={() => router.push('/other/help-center')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/help-center')} className="flex-row items-center px-4 py-3">
             <Feather name="help-circle" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Help Center</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Help Center</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/contact-support')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/contact-support')} className="flex-row items-center px-4 py-3">
             <Feather name="message-circle" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Contact Support</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Contact Support</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800 my-4" />
+        <View className="h-px bg-gray-800" />
 
         {/* Settings Section */}
-        <View className="px-2">
-          <Text className="text-xs font-inter-bold text-black ml-4 mb-2 uppercase">SETTINGS</Text>
+        <View className="px-2 py-4">
+          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SETTINGS</Text>
 
-          <Pressable onPress={() => router.push('/other/app-settings')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/app-settings')} className="flex-row items-center px-4 py-3">
             <Feather name="settings" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">App Settings</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">App Settings</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/privacy-security')} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={() => router.push('/other/privacy-security')} className="flex-row items-center px-4 py-3">
             <Feather name="shield" size={24} color="#000" />
-            <Text className="text-base font-inter-semibold text-black ml-4 flex-1">Privacy & Security</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Privacy & Security</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={showLogoutConfirmation} className="flex-row items-center py-3 px-4">
+          <Pressable onPress={showLogoutConfirmation} className="flex-row items-center px-4 py-3">
             <Feather name="log-out" size={24} color="#ff4444" />
-            <Text className="text-base font-inter-semibold text-red-500 ml-4 flex-1">Logout</Text>
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-red-500">Logout</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -186,21 +186,21 @@ export default function AccountScreen() {
         animationType="fade"
         onRequestClose={() => setShowLogoutModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-center items-center p-5">
-          <View className="bg-white rounded-xl p-6 w-full max-w-80 shadow-lg">
+        <View className="flex-1 bg-black/50 justify-center items-center p-4">
+          <View className="bg-white rounded-xl p-4 w-full max-w-80 shadow-lg">
             <Text className="text-xl font-inter-bold text-black mb-4 text-center">Logout</Text>
 
-            <Text className="text-base font-inter-semibold text-black mb-6 text-center leading-6">
+            <Text className="mb-6 text-center text-base font-inter-semibold text-black leading-6">
               Are you sure you want to logout?
             </Text>
 
             <View className="flex-row justify-end gap-3">
-              <Pressable onPress={() => setShowLogoutModal(false)} className="py-3 px-5">
+              <Pressable onPress={() => setShowLogoutModal(false)} className="px-5 py-3">
                 <Text className="text-base font-inter-semibold text-black">Cancel</Text>
               </Pressable>
 
-              <Pressable onPress={handleLogout} className="py-3 px-5">
-                <Text className="text-base font-inter-semibold text-red-500">Logout</Text>
+              <Pressable onPress={handleLogout} className="px-5 py-3 bg-red-500 rounded-lg">
+                <Text className="text-base font-inter-semibold text-white">Logout</Text>
               </Pressable>
             </View>
           </View>
