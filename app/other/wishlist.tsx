@@ -47,9 +47,9 @@ export default function WishlistScreen() {
         activeOpacity={0.7}
         className="bg-white rounded-xl mb-4 shadow-sm"
       >
-        <View className="flex-row">
+        <View className="flex-row items-center">
           {/* Product Image */}
-          <View className="w-28 h-28 rounded-l-xl overflow-hidden">
+          <View className="w-28 h-28 rounded-xl overflow-hidden">
             <Image
               source={item.product_image}
               contentFit="cover"
