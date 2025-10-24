@@ -95,7 +95,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                 <Feather name="x" size={20} color="#666" />
               </Pressable>
             </View>
-            <Text className="text-sm font-inter text-gray-600">Share your experience with this purchase</Text>
+            <Text className="text-sm font-inter-semibold text-gray-600">Share your experience with this purchase</Text>
           </View>
 
           {/* Content */}
@@ -108,14 +108,14 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
             {/* Product Name */}
             <View className="p-3 bg-gray-100 rounded-lg mb-6">
               <Text className="text-sm font-inter-medium text-gray-900">{productName}</Text>
-              <Text className="text-xs font-inter text-gray-600 mt-1">Order #{orderId.slice(-8)}</Text>
+              <Text className="text-xs font-inter-semibold text-gray-600 mt-1">Order #{orderId.slice(-8)}</Text>
             </View>
 
             {/* Rating */}
             <View className="mb-6">
-              <Text className="text-sm font-inter text-gray-700 mb-3">Your Rating *</Text>
+              <Text className="text-sm font-inter-semibold text-gray-700 mb-3">Your Rating *</Text>
               {renderStarRating()}
-              <Text className="text-xs font-inter text-gray-500 mt-2">
+              <Text className="text-xs font-inter-semibold text-gray-500 mt-2">
                 {rating === 1 && 'Poor'}
                 {rating === 2 && 'Fair'}
                 {rating === 3 && 'Good'}
@@ -126,7 +126,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
 
             {/* Comment */}
             <View className="mb-4">
-              <Text className="text-sm font-inter text-gray-700 mb-2">Your Review *</Text>
+              <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Your Review *</Text>
               <TextInput
                 className="border border-gray-300 rounded-lg px-4 py-3"
                 style={{ height: 150 }}
@@ -138,7 +138,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                 onChangeText={setComment}
                 maxLength={500}
               />
-              <Text className="text-xs font-inter text-gray-500 text-right mt-1">{comment.length}/500 characters</Text>
+              <Text className="text-xs font-inter-semibold text-gray-500 text-right mt-1">{comment.length}/500 characters</Text>
             </View>
 
             {/* Actions */}

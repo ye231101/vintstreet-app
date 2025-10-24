@@ -93,7 +93,7 @@ export default function ReviewsScreen() {
       <View className="flex-row items-center mb-3">{renderStars(review.rating, 16)}</View>
 
       {/* Review Comment */}
-      <Text className="text-gray-900 text-sm font-inter leading-5">{review.comment}</Text>
+      <Text className="text-gray-900 text-sm font-inter-semibold leading-5">{review.comment}</Text>
 
       {/* Divider */}
       <View className="h-px bg-gray-200 mt-4" />
@@ -132,7 +132,7 @@ export default function ReviewsScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading reviews</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadReviews} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -161,7 +161,7 @@ export default function ReviewsScreen() {
           <Text className="text-gray-900 text-lg font-inter-bold mb-2">No reviews yet</Text>
 
           {/* Secondary text */}
-          <Text className="text-gray-600 text-sm font-inter text-center">Reviews from customers will appear here</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center">Reviews from customers will appear here</Text>
         </View>
       ) : (
         <>

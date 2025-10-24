@@ -161,7 +161,7 @@ export default function PaymentSetupScreen() {
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#999"
-        className={`bg-white rounded-lg px-3 py-3 text-gray-900 text-base font-inter border border-gray-200 shadow-sm ${
+        className={`bg-white rounded-lg px-3 py-3 text-gray-900 text-base font-inter-semibold border border-gray-200 shadow-sm ${
           multiline ? 'min-h-20' : 'min-h-12'
         }`}
         textAlignVertical={multiline ? 'top' : 'center'}
@@ -228,7 +228,7 @@ export default function PaymentSetupScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading payment settings</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadSellerSettings} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>

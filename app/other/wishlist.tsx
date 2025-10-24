@@ -76,7 +76,7 @@ export default function WishlistScreen() {
                   <Text className="text-lg font-inter-bold text-black">
                     £{finalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </Text>
-                  <Text className="text-xs text-gray-400 font-inter line-through">
+                  <Text className="text-xs text-gray-400 font-inter-semibold line-through">
                     £
                     {item.starting_price.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
@@ -123,7 +123,7 @@ export default function WishlistScreen() {
     <View className="flex-1 justify-center items-center px-8">
       <Feather name="heart" color="#999" size={64} />
       <Text className="text-gray-600 text-lg font-inter-medium mt-4 mb-2">Your wishlist is empty</Text>
-      <Text className="text-gray-400 text-sm font-inter text-center mb-6">
+      <Text className="text-gray-400 text-sm font-inter-semibold text-center mb-6">
         Start adding items you love to your wishlist!
       </Text>
       <Pressable onPress={() => router.push('/(tabs)')} className="bg-black rounded-lg py-3 px-6">
@@ -135,7 +135,7 @@ export default function WishlistScreen() {
   const LoadingState = () => (
     <View className="flex-1 justify-center items-center">
       <ActivityIndicator size="large" color="#000" />
-      <Text className="text-gray-500 text-sm font-inter mt-4">Loading your wishlist...</Text>
+      <Text className="text-gray-500 text-sm font-inter-semibold mt-4">Loading your wishlist...</Text>
     </View>
   );
 

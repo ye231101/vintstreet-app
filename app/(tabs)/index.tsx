@@ -91,7 +91,7 @@ const TopCategoryCard = ({ category }: { category: TopCategory }) => (
       />
     </View>
     {/* Title with arrow */}
-    <View className="absolute left-3 right-3 bottom-3 flex-row justify-between items-center">
+    <View className="absolute left-3 right-3 bottom-3 flex-row items-center justify-between">
       <Text className="text-base font-inter-bold text-white" numberOfLines={1}>
         {category.title}
       </Text>

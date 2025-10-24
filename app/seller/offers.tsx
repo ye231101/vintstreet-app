@@ -92,7 +92,7 @@ export default function OffersScreen() {
         </View>
       </View>
 
-      <View className="flex-row justify-between items-center mb-3">
+      <View className="flex-row items-center justify-between mb-3">
         <View>
           <Text className="text-gray-600 text-xs font-inter">Original Price</Text>
           <Text className="text-gray-900 text-base font-inter-bold">
@@ -113,7 +113,7 @@ export default function OffersScreen() {
         </View>
       )}
 
-      <View className="flex-row justify-between items-center">
+      <View className="flex-row items-center justify-between">
         <Text className="text-gray-600 text-xs font-inter">Expires: {formatDate(offer.expiresAt)}</Text>
         {offer.status === 'pending' && (
           <View className="flex-row gap-2">
@@ -206,7 +206,7 @@ export default function OffersScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading offers</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOffers} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -235,7 +235,7 @@ export default function OffersScreen() {
               onPress={() => setActiveTab(tab.key)}
               className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
             >
-              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
+              <Text className={`text-base font-inter-semibold ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
                 {tab.label}
               </Text>
             </TouchableOpacity>

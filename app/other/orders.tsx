@@ -250,7 +250,7 @@ export default function OrdersScreen() {
         <View className="flex-1 justify-center items-center py-20">
           <Feather name="package" color="#666666" size={64} style={{ marginBottom: 24 }} />
           <Text className="text-gray-900 text-lg font-inter-bold mb-2">No orders found</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center px-6 mb-6">
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center px-6 mb-6">
             {activeTab === 'all' ? "You haven't placed any orders yet" : `No ${activeTab} orders found`}
           </Text>
         </View>
@@ -302,7 +302,7 @@ export default function OrdersScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading orders</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOrders} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -334,7 +334,7 @@ export default function OrdersScreen() {
                 className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
               >
                 <View className="flex-row items-center gap-2">
-                  <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
+                  <Text className={`text-base font-inter-semibold ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
                     {tab.label}
                   </Text>
                   {count > 0 && (

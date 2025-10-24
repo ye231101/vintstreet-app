@@ -85,7 +85,7 @@ const InputField = ({
         className="flex-1 py-3 text-base font-inter"
       />
     </View>
-    {error && <Text className="mt-1 text-xs font-inter text-red-400">{error}</Text>}
+    {error && <Text className="mt-1 text-xs font-inter-semibold text-red-400">{error}</Text>}
   </View>
 );
 
@@ -392,12 +392,12 @@ export default function CheckoutScreen() {
                 onPress={() => setShowCountryPicker(true)}
                 className="flex-row items-center px-3 py-3 rounded-lg bg-white border border-gray-200"
               >
-                <Text className="flex-1 text-base font-inter text-gray-800">
+                <Text className="flex-1 text-base font-inter-semibold text-gray-800">
                   {countries.find(c => c.code === shippingInformation.country)?.name || 'Select Country'}
                 </Text>
                 <Feather name="chevron-down" color="#666" size={20} />
               </TouchableOpacity>
-              <Text className="mt-1 text-xs font-inter text-gray-600">Changing country may affect shipping costs.</Text>
+              <Text className="mt-1 text-xs font-inter-semibold text-gray-600">Changing country may affect shipping costs.</Text>
             </View>
 
             <InputField
@@ -421,7 +421,7 @@ export default function CheckoutScreen() {
 
           {/* Section Content */}
           <View className="p-5">
-            <Text className="mb-4 text-sm font-inter text-gray-600">Shipping for 1 item(s)</Text>
+            <Text className="mb-4 text-sm font-inter-semibold text-gray-600">Shipping for 1 item(s)</Text>
 
             {shippingMethods.map((method, index) => (
               <TouchableOpacity
@@ -447,7 +447,7 @@ export default function CheckoutScreen() {
                     {method.carrier}
                   </Text>
                   <Text
-                    className={`text-sm font-inter ${
+                    className={`text-sm font-inter-semibold ${
                       selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
                     }`}
                   >
@@ -477,7 +477,7 @@ export default function CheckoutScreen() {
           {/* Section Content */}
           <View className="p-5">
             <Text className="text-base font-inter-bold text-gray-800 mb-2">Secure Payment via Stripe</Text>
-            <Text className="text-sm font-inter text-gray-600">
+            <Text className="text-sm font-inter-semibold text-gray-600">
               You'll be redirected to Stripe's secure checkout to complete your payment. Your card details are never
               stored on our servers.
             </Text>
@@ -495,7 +495,7 @@ export default function CheckoutScreen() {
             {canProceedToCheckout() ? 'Complete Order' : 'Complete Required Fields'}
           </Text>
           {!canProceedToCheckout() && (
-            <Text className="text-white text-xs font-inter mt-1 text-center">{getValidationMessage()}</Text>
+            <Text className="text-white text-xs font-inter-semibold mt-1 text-center">{getValidationMessage()}</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -554,12 +554,12 @@ export default function CheckoutScreen() {
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
-                        <Text className={`text-base font-inter ${
+                        <Text className={`text-base font-inter-semibold ${
                           shippingInformation.country === country.code ? 'text-blue-600 font-inter-bold' : 'text-gray-800'
                         }`}>
                           {country.name}
                         </Text>
-                        <Text className={`text-sm font-inter ${
+                        <Text className={`text-sm font-inter-semibold ${
                           shippingInformation.country === country.code ? 'text-blue-500' : 'text-gray-500'
                         }`}>
                           {country.code}
@@ -574,8 +574,8 @@ export default function CheckoutScreen() {
               ) : (
                 <View className="p-8 items-center">
                   <Feather name="search" color="#999" size={32} />
-                  <Text className="text-gray-500 font-inter mt-2">No countries found</Text>
-                  <Text className="text-gray-400 font-inter text-sm mt-1">Try a different search term</Text>
+                  <Text className="text-gray-500 font-inter-semibold mt-2">No countries found</Text>
+                  <Text className="text-gray-400 font-inter-semibold text-sm mt-1">Try a different search term</Text>
                 </View>
               )}
             </ScrollView>

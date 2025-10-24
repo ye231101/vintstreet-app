@@ -235,7 +235,7 @@ export default function SellerProfileScreen() {
           <View className="w-full bg-gray-100" style={{ aspectRatio: 1 }} />
         )}
         <View className="p-2">
-          <Text className="text-sm font-inter text-gray-800" numberOfLines={2}>
+          <Text className="text-sm font-inter-semibold text-gray-800" numberOfLines={2}>
             {item.product_name}
           </Text>
           <Text className="text-base font-inter-semibold text-black mt-1">
@@ -256,8 +256,8 @@ export default function SellerProfileScreen() {
         <Text className="text-sm font-inter-semibold text-gray-800">{item.customerName}</Text>
         {renderStars(item.rating, 16)}
       </View>
-      <Text className="text-sm font-inter text-gray-700 leading-5 mb-2">{item.comment}</Text>
-      <Text className="text-xs font-inter text-gray-500">
+      <Text className="text-sm font-inter-semibold text-gray-700 leading-5 mb-2">{item.comment}</Text>
+      <Text className="text-xs font-inter-semibold text-gray-500">
         {new Date(item.dateCreated).toLocaleDateString('en-US', {
           month: '2-digit',
           day: '2-digit',
@@ -271,7 +271,7 @@ export default function SellerProfileScreen() {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#000" />
-        <Text className="text-sm font-inter text-gray-600 mt-3">Loading seller profile...</Text>
+        <Text className="text-sm font-inter-semibold text-gray-600 mt-3">Loading seller profile...</Text>
       </View>
     );
   }
@@ -281,7 +281,7 @@ export default function SellerProfileScreen() {
       <View className="flex-1 items-center justify-center bg-white p-4">
         <Feather name="user-x" size={64} color="#999" />
         <Text className="text-xl font-inter-bold text-gray-800 mt-4">Seller Not Found</Text>
-        <Text className="text-sm font-inter text-gray-600 mt-2 text-center">
+        <Text className="text-sm font-inter-semibold text-gray-600 mt-2 text-center">
           This seller profile doesn't exist or has been removed.
         </Text>
         <Pressable className="bg-black px-6 py-3 rounded-lg mt-4" onPress={() => router.back()}>
@@ -312,14 +312,14 @@ export default function SellerProfileScreen() {
             <View className="flex-1">
               <Text className="text-xl font-inter-bold text-gray-800">{displayName}</Text>
               {sellerProfile.username && (
-                <Text className="text-sm font-inter text-gray-500 mt-1">@{sellerProfile.username}</Text>
+                <Text className="text-sm font-inter-semibold text-gray-500 mt-1">@{sellerProfile.username}</Text>
               )}
-              {sellerProfile.bio && <Text className="text-sm font-inter text-gray-700 mt-2">{sellerProfile.bio}</Text>}
+              {sellerProfile.bio && <Text className="text-sm font-inter-semibold text-gray-700 mt-2">{sellerProfile.bio}</Text>}
 
               {/* Stats */}
               <View className="flex-row items-center mt-3">
                 {renderStars(reviewStats?.averageRating || 0, 16)}
-                <Text className="text-sm font-inter text-gray-600 ml-2">
+                <Text className="text-sm font-inter-semibold text-gray-600 ml-2">
                   {reviewStats?.averageRating?.toFixed(1) || '0.0'} ({reviewStats?.totalReviews || 0} reviews)
                 </Text>
               </View>
@@ -358,7 +358,7 @@ export default function SellerProfileScreen() {
               onPress={() => setActiveTab('products')}
             >
               <Text
-                className={`text-center text-sm font-inter ${
+                className={`text-center text-sm font-inter-semibold ${
                   activeTab === 'products' ? 'font-inter-semibold text-black' : 'text-gray-600'
                 }`}
               >
@@ -370,7 +370,7 @@ export default function SellerProfileScreen() {
               onPress={() => setActiveTab('shows')}
             >
               <Text
-                className={`text-center text-sm font-inter ${
+                className={`text-center text-sm font-inter-semibold ${
                   activeTab === 'shows' ? 'font-inter-semibold text-black' : 'text-gray-600'
                 }`}
               >
@@ -382,7 +382,7 @@ export default function SellerProfileScreen() {
               onPress={() => setActiveTab('reviews')}
             >
               <Text
-                className={`text-center text-sm font-inter ${
+                className={`text-center text-sm font-inter-semibold ${
                   activeTab === 'reviews' ? 'font-inter-semibold text-black' : 'text-gray-600'
                 }`}
               >
@@ -406,7 +406,7 @@ export default function SellerProfileScreen() {
             ) : (
               <View className="items-center justify-center py-12">
                 <Feather name="shopping-bag" size={48} color="#999" />
-                <Text className="text-base font-inter text-gray-600 mt-3">No products available</Text>
+                <Text className="text-base font-inter-semibold text-gray-600 mt-3">No products available</Text>
               </View>
             )}
           </View>
@@ -417,7 +417,7 @@ export default function SellerProfileScreen() {
               <Text className="text-lg font-inter-semibold text-gray-900">Upcoming Shows</Text>
               {upcomingShows.length > 0 && (
                 <Pressable>
-                  <Text className="text-sm font-inter text-gray-600">View All</Text>
+                  <Text className="text-sm font-inter-semibold text-gray-600">View All</Text>
                 </Pressable>
               )}
             </View>
@@ -440,13 +440,13 @@ export default function SellerProfileScreen() {
                     )}
                     <Text className="text-base font-inter-semibold text-gray-900 mb-1">{show.title}</Text>
                     {show.description && (
-                      <Text className="text-sm font-inter text-gray-600 mb-2" numberOfLines={2}>
+                      <Text className="text-sm font-inter-semibold text-gray-600 mb-2" numberOfLines={2}>
                         {show.description}
                       </Text>
                     )}
                     <View className="flex-row items-center">
                       <Feather name="calendar" size={14} color="#666" />
-                      <Text className="text-xs font-inter text-gray-500 ml-1">
+                      <Text className="text-xs font-inter-semibold text-gray-500 ml-1">
                         {new Date(show.scheduled_start_time || show.start_time).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -464,7 +464,7 @@ export default function SellerProfileScreen() {
                 <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center mb-3">
                   <Feather name="calendar" size={32} color="#999" />
                 </View>
-                <Text className="text-base font-inter text-gray-600">No upcoming shows</Text>
+                <Text className="text-base font-inter-semibold text-gray-600">No upcoming shows</Text>
               </View>
             )}
           </View>
@@ -476,7 +476,7 @@ export default function SellerProfileScreen() {
                 <Text className="text-lg font-inter-semibold text-gray-900 mb-4">Leave a Review</Text>
 
                 {/* Rating Label */}
-                <Text className="text-sm font-inter text-gray-600 mb-2">Rating</Text>
+                <Text className="text-sm font-inter-semibold text-gray-600 mb-2">Rating</Text>
 
                 {/* Star Rating */}
                 <View className="flex-row mb-4">
@@ -492,7 +492,7 @@ export default function SellerProfileScreen() {
                 </View>
 
                 {/* Comment Label */}
-                <Text className="text-sm font-inter text-gray-600 mb-2">Comment</Text>
+                <Text className="text-sm font-inter-semibold text-gray-600 mb-2">Comment</Text>
 
                 {/* Comment */}
                 <TextInput
@@ -529,7 +529,7 @@ export default function SellerProfileScreen() {
             ) : (
               <View className="items-center justify-center py-12">
                 <MaterialIcons name="rate-review" size={48} color="#999" />
-                <Text className="text-base font-inter text-gray-600 mt-3">No reviews yet</Text>
+                <Text className="text-base font-inter-semibold text-gray-600 mt-3">No reviews yet</Text>
               </View>
             )}
 
@@ -542,8 +542,8 @@ export default function SellerProfileScreen() {
                     <Text className="text-sm font-inter-semibold text-gray-800">{userReview.customerName}</Text>
                     {renderStars(userReview.rating, 16)}
                   </View>
-                  <Text className="text-sm font-inter text-gray-700 leading-5 mb-2">{userReview.comment}</Text>
-                  <Text className="text-xs font-inter text-gray-500">
+                  <Text className="text-sm font-inter-semibold text-gray-700 leading-5 mb-2">{userReview.comment}</Text>
+                  <Text className="text-xs font-inter-semibold text-gray-500">
                     {new Date(userReview.dateCreated).toLocaleDateString('en-US', {
                       month: '2-digit',
                       day: '2-digit',
@@ -564,7 +564,7 @@ export default function SellerProfileScreen() {
               <Feather name="user" size={18} color="#000" />
               <Text className="text-base font-inter-semibold text-gray-900 ml-2">About</Text>
             </View>
-            <Text className="text-sm font-inter text-gray-600">{sellerProfile.shop_name || displayName}</Text>
+            <Text className="text-sm font-inter-semibold text-gray-600">{sellerProfile.shop_name || displayName}</Text>
           </View>
 
           {/* Contact */}
@@ -574,7 +574,7 @@ export default function SellerProfileScreen() {
               <Text className="text-base font-inter-semibold text-gray-900 ml-2">Contact</Text>
             </View>
             <Pressable onPress={handleMessageSeller}>
-              <Text className="text-sm font-inter text-blue-600">Contact via message</Text>
+              <Text className="text-sm font-inter-semibold text-blue-600">Contact via message</Text>
             </Pressable>
           </View>
 
@@ -584,7 +584,7 @@ export default function SellerProfileScreen() {
               <Feather name="map-pin" size={18} color="#000" />
               <Text className="text-base font-inter-semibold text-gray-900 ml-2">Location</Text>
             </View>
-            <Text className="text-sm font-inter text-gray-600">
+            <Text className="text-sm font-inter-semibold text-gray-600">
               {sellerProfile.location || 'Location not specified'}
             </Text>
           </View>

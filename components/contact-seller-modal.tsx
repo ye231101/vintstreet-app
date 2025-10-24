@@ -100,7 +100,7 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
                   <Feather name="x" size={20} color="#666" />
                 </Pressable>
               </View>
-              <Text className="text-sm font-inter text-gray-600">
+              <Text className="text-sm font-inter-semibold text-gray-600">
                 Send a message to {sellerName}
                 {productName ? ` about ${productName}` : ''}
               </Text>
@@ -118,13 +118,13 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
               {/* Order Reference */}
               {orderId && (
                 <View className="p-3 bg-gray-100 rounded-lg mb-4">
-                  <Text className="text-sm font-inter text-gray-600">Order #{orderId.slice(-8)}</Text>
+                  <Text className="text-sm font-inter-semibold text-gray-600">Order #{orderId.slice(-8)}</Text>
                 </View>
               )}
 
               {/* Subject */}
               <View className="mb-4">
-                <Text className="text-sm font-inter text-gray-700 mb-2">Subject *</Text>
+                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Subject *</Text>
                 <DropDownPicker
                   open={showSubjectDropdown}
                   value={contactSubject}
@@ -172,7 +172,7 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
 
               {/* Message */}
               <View className="mb-4">
-                <Text className="text-sm font-inter text-gray-700 mb-2">Message *</Text>
+                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Message *</Text>
                 <TextInput
                   className="border border-gray-300 rounded-lg px-4 py-3 h-48"
                   placeholder="Type your message here..."
@@ -183,7 +183,7 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
                   onChangeText={setContactMessage}
                   maxLength={1000}
                 />
-                <Text className="text-xs font-inter text-gray-500 text-right mt-1">
+                <Text className="text-xs font-inter-semibold text-gray-500 text-right mt-1">
                   {contactMessage.length}/1000 characters
                 </Text>
               </View>

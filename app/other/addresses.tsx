@@ -134,7 +134,7 @@ export default function AddressesScreen() {
             <Text className="text-gray-600 text-base font-inter-medium mt-3 mb-2">
               No {addressType} address saved
             </Text>
-            <Text className="text-gray-500 text-sm font-inter text-center mb-4">
+            <Text className="text-gray-500 text-sm font-inter-semibold text-center mb-4">
               Add your {addressType} address to continue
             </Text>
             <TouchableOpacity onPress={onAdd} className="bg-blue-500 rounded-lg py-3 px-6 w-full items-center">
@@ -160,9 +160,9 @@ export default function AddressesScreen() {
     onDelete: () => void;
   }) => (
     <View className="bg-gray-50 rounded-lg p-4 border border-blue-500/30">
-      <Text className="text-gray-900 text-sm font-inter mb-1">{name}</Text>
-      <Text className="text-gray-600 text-sm font-inter mb-1">{address}</Text>
-      {phone && <Text className="text-gray-600 text-sm font-inter mb-4">{phone}</Text>}
+      <Text className="text-gray-900 text-sm font-inter-semibold mb-1">{name}</Text>
+      <Text className="text-gray-600 text-sm font-inter-semibold mb-1">{address}</Text>
+      {phone && <Text className="text-gray-600 text-sm font-inter-semibold mb-4">{phone}</Text>}
       <View className="flex-row justify-end">
         <TouchableOpacity onPress={onEdit} className="mr-2 p-2">
           <Feather name="edit" color="#007AFF" size={20} />
@@ -206,7 +206,7 @@ export default function AddressesScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading addresses</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadAddresses} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>

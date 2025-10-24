@@ -93,7 +93,7 @@ export default function ListingsScreen() {
 
           {/* Product Description */}
           {product.product_description && (
-            <Text className="text-gray-600 text-sm font-inter mb-3" numberOfLines={2}>
+            <Text className="text-gray-600 text-sm font-inter-semibold mb-3" numberOfLines={2}>
               {product.product_description}
             </Text>
           )}
@@ -113,7 +113,7 @@ export default function ListingsScreen() {
                   })}
             </Text>
             {product.discounted_price !== null && (
-              <Text className="text-sm font-inter text-gray-400 line-through ml-2">
+              <Text className="text-sm font-inter-semibold text-gray-400 line-through ml-2">
                 £
                 {product.starting_price.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
@@ -127,14 +127,14 @@ export default function ListingsScreen() {
           {product.product_categories && (
             <View className="flex-row items-center mb-3">
               <Feather name="tag" size={14} color="#666" />
-              <Text className="text-gray-600 text-xs font-inter ml-1">{product.product_categories.name}</Text>
+              <Text className="text-gray-600 text-xs font-inter-semibold ml-1">{product.product_categories.name}</Text>
             </View>
           )}
 
           {/* Created Date */}
           <View className="flex-row items-center mb-4 border-t border-gray-100 pt-3">
             <Feather name="calendar" size={14} color="#666" />
-            <Text className="text-gray-600 text-xs font-inter ml-1">
+            <Text className="text-gray-600 text-xs font-inter-semibold ml-1">
               Created {new Date(product.created_at).toLocaleDateString()}
             </Text>
           </View>
@@ -225,7 +225,7 @@ export default function ListingsScreen() {
         <View className="flex-1 justify-center items-center px-8 bg-white rounded-xl py-12 shadow-sm">
           <Feather name="package" color="#666" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4">No products yet</Text>
-          <Text className="text-gray-600 text-sm font-inter mt-2 text-center">Create your first product template</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold mt-2 text-center">Create your first product template</Text>
         </View>
       );
     }
@@ -275,7 +275,7 @@ export default function ListingsScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading products</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadProducts} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>

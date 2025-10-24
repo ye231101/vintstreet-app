@@ -2,14 +2,14 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Order, ordersService } from '../../api/services/orders.service';
@@ -130,7 +130,7 @@ export default function OrdersScreen() {
 
             <View className="flex-1">
               <Text className="text-gray-900 font-inter-medium text-base mb-1">{item.name}</Text>
-              <Text className="text-gray-600 text-sm font-inter mb-1">Quantity: {item.quantity}</Text>
+              <Text className="text-gray-600 text-sm font-inter-semibold mb-1">Quantity: {item.quantity}</Text>
               <Text className="text-gray-900 font-inter-bold text-base">
                 £{item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
@@ -143,7 +143,7 @@ export default function OrdersScreen() {
       <View className="h-px bg-gray-200" />
 
       {/* Order actions */}
-      <View className="flex-row justify-between items-center p-4">
+      <View className="flex-row items-center justify-between p-4">
         <Text className="text-gray-900 font-inter-bold text-base">
           Total: £{order.totals.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Text>
@@ -248,7 +248,7 @@ export default function OrdersScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading orders</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOrders} className="bg-blue-500 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -277,7 +277,7 @@ export default function OrdersScreen() {
               onPress={() => setActiveTab(tab.key)}
               className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
             >
-              <Text className={`text-base font-inter ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
+              <Text className={`text-base font-inter-semibold ${activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'}`}>
                 {tab.label}
               </Text>
             </TouchableOpacity>

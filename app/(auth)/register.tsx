@@ -79,7 +79,7 @@ const InputField = memo(
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
           keyboardType={keyboardType}
-          className="flex-1 font-inter text-base h-14"
+          className="flex-1 font-inter-semibold text-base h-14"
         />
         {showPasswordToggle && (
           <Pressable onPress={onTogglePassword} hitSlop={8}>
@@ -312,7 +312,7 @@ export default function RegisterScreen() {
             {/* Error message */}
             {error && (
               <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4">
-                <Text className="font-inter text-red-700">{error}</Text>
+                <Text className="font-inter-semibold text-red-700">{error}</Text>
               </View>
             )}
 
@@ -388,7 +388,7 @@ export default function RegisterScreen() {
               disabled={loading}
               className={`h-14 rounded-lg items-center justify-center mb-6 ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="font-inter text-white text-base">
+              <Text className="font-inter-semibold text-white text-base">
                 {loading ? <ActivityIndicator size="small" color="white" /> : 'Create Account'}
               </Text>
             </Pressable>
@@ -397,7 +397,7 @@ export default function RegisterScreen() {
             <View className="flex-row justify-center items-center">
               <Text className="font-inter">Already have an account? </Text>
               <Pressable onPress={() => router.back()}>
-                <Text className="font-inter text-gray-800 font-medium">Login</Text>
+                <Text className="font-inter-semibold text-gray-800 font-medium">Login</Text>
               </Pressable>
             </View>
           </View>

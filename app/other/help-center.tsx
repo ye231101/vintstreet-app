@@ -100,12 +100,12 @@ export default function HelpCenterScreen() {
   }) => (
     <View>
       <TouchableOpacity onPress={onToggle} className="flex-row items-center py-3 px-4">
-        <Text className="text-gray-900 text-base font-inter flex-1">{question}</Text>
+        <Text className="text-gray-900 text-base font-inter-semibold flex-1">{question}</Text>
         <Feather name={isExpanded ? 'chevron-up' : 'chevron-down'} size={16} color="#666" />
       </TouchableOpacity>
       {isExpanded && (
         <View className="px-4 pb-3">
-          <Text className="text-gray-600 text-sm font-inter leading-5">{answer}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold leading-5">{answer}</Text>
         </View>
       )}
     </View>
@@ -128,7 +128,7 @@ export default function HelpCenterScreen() {
           <View className="bg-white rounded-xl flex-row items-center px-3 mb-6 shadow-sm">
             <Feather name="search" size={20} color="#666" />
             <TextInput
-              className="flex-1 text-gray-900 text-base font-inter py-4 px-3"
+              className="flex-1 text-gray-900 text-base font-inter-semibold py-4 px-3"
               placeholder="Search help articles..."
               placeholderTextColor="#999"
               value={searchQuery}

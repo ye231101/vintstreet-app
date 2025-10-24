@@ -104,13 +104,13 @@ export default function MessagesScreen() {
       <View className="flex-1 bg-white">
         {isLoading ? (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-base font-inter text-gray-600">Loading conversations...</Text>
+            <Text className="text-base font-inter-semibold text-gray-600">Loading conversations...</Text>
           </View>
         ) : error ? (
           <View className="flex-1 justify-center items-center px-8">
             <Feather name="alert-circle" size={64} color="#ff4444" />
             <Text className="text-lg font-inter-bold text-gray-600 mt-4 mb-2">Error loading conversations</Text>
-            <Text className="text-sm font-inter text-gray-400 text-center mb-4">{error}</Text>
+            <Text className="text-sm font-inter-semibold text-gray-400 text-center mb-4">{error}</Text>
             <TouchableOpacity onPress={loadConversations} className="bg-black rounded-lg py-3 px-6">
               <Text className="text-white text-base font-inter-bold">Retry</Text>
             </TouchableOpacity>
@@ -119,13 +119,13 @@ export default function MessagesScreen() {
           <View className="flex-1 justify-center items-center px-8">
             <Feather name="message-circle" size={64} color="#ccc" />
             <Text className="text-lg font-inter-bold text-gray-600 mt-4 mb-2">No conversations yet</Text>
-            <Text className="text-sm font-inter text-gray-400 text-center">Start a conversation with a seller</Text>
+            <Text className="text-sm font-inter-semibold text-gray-400 text-center">Start a conversation with a seller</Text>
           </View>
         ) : filteredConversations.length === 0 ? (
           <View className="flex-1 justify-center items-center px-8">
             <Feather name="search" size={64} color="#ccc" />
             <Text className="text-lg font-inter-bold text-gray-600 mt-4 mb-2">No results found</Text>
-            <Text className="text-sm font-inter text-gray-400 text-center">Try searching with different keywords</Text>
+            <Text className="text-sm font-inter-semibold text-gray-400 text-center">Try searching with different keywords</Text>
           </View>
         ) : (
           <ScrollView
@@ -163,18 +163,18 @@ export default function MessagesScreen() {
                   </View>
 
                   {/* Subject */}
-                  <Text className="text-sm font-inter text-gray-600 mb-0.5">
+                  <Text className="text-sm font-inter-semibold text-gray-600 mb-0.5">
                     {conversation.subject || 'No subject'}
                   </Text>
 
                   {/* Last Message */}
-                  <Text className="text-xs font-inter text-gray-400 max-w-4/5" numberOfLines={1}>
+                  <Text className="text-xs font-inter-semibold text-gray-400 max-w-4/5" numberOfLines={1}>
                     {conversation.last_message || 'No messages yet'}
                   </Text>
                 </View>
 
                 {/* Time */}
-                <Text className="text-xs font-inter text-gray-400">{formatTime(conversation.last_message_time)}</Text>
+                <Text className="text-xs font-inter-semibold text-gray-400">{formatTime(conversation.last_message_time)}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>

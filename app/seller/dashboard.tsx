@@ -182,7 +182,7 @@ export default function DashboardScreen() {
 
   const StatsCard = ({ title, value, isPositive = true }: { title: string; value: string; isPositive?: boolean }) => (
     <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
-      <Text className="text-gray-600 text-sm font-inter mb-2">{title}</Text>
+      <Text className="text-gray-600 text-sm font-inter-semibold mb-2">{title}</Text>
       <Text className="text-gray-900 text-2xl font-inter-bold">{value}</Text>
     </View>
   );
@@ -207,14 +207,14 @@ export default function DashboardScreen() {
     if (statusItems.length === 0) {
       return (
         <View className="bg-white rounded-xl p-4 shadow-sm">
-          <Text className="text-gray-600 text-sm font-inter text-center">No orders yet</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center">No orders yet</Text>
         </View>
       );
     }
 
     return (
       <View className="bg-white rounded-xl p-4 shadow-sm">
-        <View className="flex-row justify-between items-center mb-4">
+        <View className="flex-row items-center justify-between mb-4">
           <Text className="text-gray-900 text-base font-inter-bold">Order Status</Text>
           <Text className="text-gray-600 text-sm font-inter">{summary.totalOrders} Total</Text>
         </View>
@@ -222,7 +222,7 @@ export default function DashboardScreen() {
         {statusItems.map((item, index) => (
           <View key={index} className="flex-row items-center mb-2">
             <View className="w-3 h-3 rounded-full mr-3" style={{ backgroundColor: item.color }} />
-            <Text className="text-gray-900 text-sm font-inter flex-1">{item.label}</Text>
+            <Text className="text-gray-900 text-sm font-inter-semibold flex-1">{item.label}</Text>
             <Text className="text-gray-900 text-sm font-inter-bold">{item.count}</Text>
           </View>
         ))}
@@ -301,7 +301,7 @@ export default function DashboardScreen() {
         {sellerSettings.rating.count > 0 && (
           <View className="flex-row items-center">
             <Feather name="star" color="#666" size={16} />
-            <Text className="text-gray-600 text-xs font-inter ml-2">Rating</Text>
+            <Text className="text-gray-600 text-xs font-inter-semibold ml-2">Rating</Text>
             <Text className="text-gray-900 text-sm ml-2">
               {sellerSettings.rating.rating} ({sellerSettings.rating.count} reviews)
             </Text>
@@ -379,7 +379,7 @@ export default function DashboardScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={48} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading dashboard data</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadDashboardData} className="bg-blue-600 rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-bold">Retry</Text>
           </TouchableOpacity>
@@ -427,7 +427,7 @@ export default function DashboardScreen() {
         <View className="p-4">
           {/* Period Selector */}
           <View className="flex-row items-center mb-4">
-            <Text className="text-gray-600 text-sm font-inter mr-2">Period:</Text>
+            <Text className="text-gray-600 text-sm font-inter-semibold mr-2">Period:</Text>
             <View className="bg-gray-200 rounded px-3 py-1.5">
               <Text className="text-gray-900 text-sm font-inter-bold">
                 {periodOptions.find((p) => p.value === selectedPeriod)?.label}
@@ -460,7 +460,7 @@ export default function DashboardScreen() {
           {/* Quick Actions */}
           <Text className="text-gray-900 text-lg font-inter-bold mb-3">Quick Actions</Text>
           <View className="bg-white rounded-xl p-4 mb-6 shadow-sm">
-            <View className="flex-row justify-between items-center mb-3">
+            <View className="flex-row items-center justify-between mb-3">
               <TouchableOpacity
                 onPress={() => router.push('/seller/orders')}
                 className="flex-1 bg-gray-100 rounded-lg p-3 mr-1 items-center"
@@ -519,7 +519,7 @@ export default function DashboardScreen() {
           {/* Store Profile */}
           {sellerSettings && (
             <>
-              <View className="flex-row justify-between items-center mb-3">
+              <View className="flex-row items-center justify-between mb-3">
                 <Text className="text-gray-900 text-lg font-inter-bold">Store Profile</Text>
                 <TouchableOpacity onPress={() => router.push('/other/app-settings')}>
                   <Text className="text-blue-600 text-base font-inter">Edit</Text>
@@ -531,7 +531,7 @@ export default function DashboardScreen() {
           )}
 
           {/* Recent Orders */}
-          <View className="flex-row justify-between items-center mb-3">
+          <View className="flex-row items-center justify-between mb-3">
             <Text className="text-gray-900 text-lg font-inter-bold">Recent Orders</Text>
             <TouchableOpacity onPress={() => router.push('/seller/orders')}>
               <Text className="text-blue-600 text-base font-inter">View All</Text>

@@ -178,7 +178,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
         <View className="flex-1 justify-center items-center py-12">
           <Feather name="user-x" size={48} color="#EF4444" />
           <Text className="text-gray-900 text-lg font-inter-semibold mt-4 mb-2">Authentication Required</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center">
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center">
             Please sign in to manage your shipping settings.
           </Text>
         </View>
@@ -189,7 +189,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
       return (
         <View className="flex-1 justify-center items-center py-12">
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text className="text-gray-600 text-sm font-inter mt-4">Loading...</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold mt-4">Loading...</Text>
         </View>
       );
     }
@@ -204,11 +204,11 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                 <View className="flex-row items-center">
                   <Text className="text-lg font-inter-semibold text-gray-900 mr-3">Shipping From:</Text>
                   {addressData.return_city ? (
-                    <Text className="text-sm font-inter text-gray-600">
+                    <Text className="text-sm font-inter-semibold text-gray-600">
                       {addressData.return_city}, {addressData.return_postal_code}, {addressData.return_country}
                     </Text>
                   ) : (
-                    <Text className="text-sm font-inter text-gray-600">Not set</Text>
+                    <Text className="text-sm font-inter-semibold text-gray-600">Not set</Text>
                   )}
                 </View>
                 <TouchableOpacity
@@ -226,7 +226,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
               <View className="flex-col gap-4">
                 <View className="flex-row gap-4">
                   <View className="flex-1">
-                    <Text className="text-sm font-inter text-gray-700 mb-2">City *</Text>
+                    <Text className="text-sm font-inter-semibold text-gray-700 mb-2">City *</Text>
                     <TextInput
                       value={addressData.return_city}
                       onChangeText={(text) => setAddressData((prev) => ({ ...prev, return_city: text }))}
@@ -236,7 +236,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                     />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-sm font-inter text-gray-700 mb-2">Postcode *</Text>
+                    <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Postcode *</Text>
                     <TextInput
                       value={addressData.return_postal_code}
                       onChangeText={(text) => setAddressData((prev) => ({ ...prev, return_postal_code: text }))}
@@ -248,7 +248,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                 </View>
 
                 <View>
-                  <Text className="text-sm font-inter text-gray-700 mb-2">Country *</Text>
+                  <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Country *</Text>
                   <DropDownPicker
                     open={countryOpen}
                     value={countryValue}
@@ -319,7 +319,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
         {/* Shipping Providers Section */}
         <View className="mb-6">
           <Text className="text-lg font-inter-semibold text-gray-900 mb-2">Shipping Providers</Text>
-          <Text className="text-sm font-inter text-gray-600 mb-4">Select providers and set delivery timeframe</Text>
+          <Text className="text-sm font-inter-semibold text-gray-600 mb-4">Select providers and set delivery timeframe</Text>
 
           {/* Provider Cards */}
           <View className="flex-col gap-3 mb-6">
@@ -334,7 +334,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                 <View className="flex-row items-start justify-between">
                   <View className="flex-1">
                     <Text className="text-base font-inter-semibold text-gray-900 mb-1">{provider.name}</Text>
-                    <Text className="text-xs font-inter text-gray-600">{provider.description}</Text>
+                    <Text className="text-xs font-inter-semibold text-gray-600">{provider.description}</Text>
                   </View>
                   <View
                     className={`w-5 h-5 rounded border-2 flex items-center justify-center ml-2 ${
@@ -351,13 +351,13 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
           {/* Delivery Timeframe */}
           <View className="bg-white rounded-xl border border-gray-200 p-4">
             <Text className="text-base font-inter-semibold text-gray-900 mb-2">Delivery Timeframe</Text>
-            <Text className="text-sm font-inter text-gray-600 mb-4">
+            <Text className="text-sm font-inter-semibold text-gray-600 mb-4">
               Set your estimated delivery time (applies to all providers)
             </Text>
 
             <View className="flex-row gap-4">
               <View className="flex-1">
-                <Text className="text-sm font-inter text-gray-700 mb-2">Minimum Days</Text>
+                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Minimum Days</Text>
                 <TextInput
                   keyboardType="numeric"
                   value={deliveryTimeframe.min}
@@ -367,7 +367,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                 />
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-inter text-gray-700 mb-2">Maximum Days</Text>
+                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Maximum Days</Text>
                 <TextInput
                   keyboardType="numeric"
                   value={deliveryTimeframe.max}
@@ -400,7 +400,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
             <View className="flex-row items-center justify-between mb-2">
               <View>
                 <Text className="text-xl font-inter-bold text-gray-900">Shipping Settings</Text>
-                <Text className="text-sm font-inter text-gray-600 mt-1">
+                <Text className="text-sm font-inter-semibold text-gray-600 mt-1">
                   Manage your shipping address and delivery options
                 </Text>
               </View>

@@ -2,15 +2,15 @@ import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { messagesService } from '../../api/services/messages.service';
@@ -260,7 +260,7 @@ export default function MessageDetailScreen() {
         <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-inter`}>{message.content}</Text>
       </View>
 
-      <Text className={`text-xs font-inter text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
+      <Text className={`text-xs font-inter-semibold text-gray-400 mt-1 ${message.isSent ? 'mr-3' : 'ml-3'}`}>
         {formatTime(message.dateSent)}
       </Text>
     </View>
@@ -304,7 +304,7 @@ export default function MessageDetailScreen() {
         >
           {isLoading ? (
             <View className="flex-1 justify-center items-center py-12">
-              <Text className="text-base font-inter text-gray-600">Loading messages...</Text>
+              <Text className="text-base font-inter-semibold text-gray-600">Loading messages...</Text>
             </View>
           ) : (
             messageItems.map((item: MessageItem, index: number) => {
@@ -334,7 +334,7 @@ export default function MessageDetailScreen() {
             style={{ maxHeight: 250 }}
           >
             <TextInput
-              className="flex-1 text-sm font-inter text-black"
+              className="flex-1 text-sm font-inter-semibold text-black"
               style={{ maxHeight: 250 }}
               placeholder="Type a message..."
               placeholderTextColor="#999"
@@ -387,7 +387,7 @@ export default function MessageDetailScreen() {
               conversation.
             </Text>
 
-            <Text className="text-sm font-inter text-black mb-2">Reason for reporting</Text>
+            <Text className="text-sm font-inter-semibold text-black mb-2">Reason for reporting</Text>
             <TextInput
               value={reportReason}
               onChangeText={setReportReason}

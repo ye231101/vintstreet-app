@@ -164,7 +164,7 @@ Thank you,
               }`}
             >
               <Text
-                className={`text-sm font-inter ${selectedCategory === category ? 'text-blue-500' : 'text-gray-900'}`}
+                className={`text-sm font-inter-semibold ${selectedCategory === category ? 'text-blue-500' : 'text-gray-900'}`}
               >
                 {category}
               </Text>
@@ -197,7 +197,7 @@ Thank you,
       <Feather name={icon as any} color="#666" size={20} />
       <View className="ml-3 flex-1">
         <Text className="text-gray-600 text-xs font-inter">{title}</Text>
-        <Text className={`text-sm font-inter ${isTappable ? 'text-blue-500 underline' : 'text-gray-900'}`}>{value}</Text>
+        <Text className={`text-sm font-inter-semibold ${isTappable ? 'text-blue-500 underline' : 'text-gray-900'}`}>{value}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -234,7 +234,7 @@ Thank you,
           <TextInput
             value={message}
             onChangeText={setMessage}
-            className="bg-white rounded-xl p-4 text-gray-900 text-base font-inter min-h-30 shadow-sm"
+            className="bg-white rounded-xl p-4 text-gray-900 text-base font-inter-semibold min-h-30 shadow-sm"
             placeholder="Please provide as much detail as possible..."
             placeholderTextColor="#999"
             multiline

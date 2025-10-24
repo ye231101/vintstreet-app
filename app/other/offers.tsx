@@ -7,14 +7,14 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Offer } from '../../api/services/offers.service';
@@ -301,31 +301,31 @@ export default function MyOffersScreen() {
           </Text>
           {offer.listing?.category_name && (
             <View className="bg-gray-100 px-2 py-1 rounded self-start mb-2">
-              <Text className="text-xs font-inter text-gray-700">{offer.listing.category_name}</Text>
+              <Text className="text-xs font-inter-semibold text-gray-700">{offer.listing.category_name}</Text>
             </View>
           )}
           <View className="mb-2">
-            <View className="flex-row justify-between items-center mb-1">
-              <Text className="text-xs font-inter text-gray-600">Original:</Text>
+            <View className="flex-row items-center justify-between mb-1">
+              <Text className="text-xs font-inter-semibold text-gray-600">Original:</Text>
               <Text className="text-sm font-inter-medium text-gray-800 line-through">
                 £{offer.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
-            <View className="flex-row justify-between items-center">
-              <Text className="text-xs font-inter text-gray-600">Your Offer:</Text>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-xs font-inter-semibold text-gray-600">Your Offer:</Text>
               <Text className="text-lg font-inter-bold text-green-600">
                 £{offer.offerAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
           </View>
-          <Text className="text-xs font-inter text-gray-500">{new Date(offer.createdAt).toLocaleDateString()}</Text>
+          <Text className="text-xs font-inter-semibold text-gray-500">{new Date(offer.createdAt).toLocaleDateString()}</Text>
         </View>
       </View>
 
       {offer.message && (
         <View className="bg-whtie p-3 rounded-lg mb-3 border border-yellow-100">
           <Text className="text-sm font-inter-bold text-black mb-1">Your Message:</Text>
-          <Text className="text-sm font-inter text-gray-600" numberOfLines={2}>
+          <Text className="text-sm font-inter-semibold text-gray-600" numberOfLines={2}>
             {offer.message}
           </Text>
         </View>
@@ -366,10 +366,10 @@ export default function MyOffersScreen() {
               </Text>
               {offer.listing?.category_name && (
                 <View className="bg-white px-2 py-0.5 rounded self-start mt-1">
-                  <Text className="text-xs font-inter text-gray-700">{offer.listing.category_name}</Text>
+                  <Text className="text-xs font-inter-semibold text-gray-700">{offer.listing.category_name}</Text>
                 </View>
               )}
-              <Text className="text-sm font-inter text-gray-600 mt-1">
+              <Text className="text-sm font-inter-semibold text-gray-600 mt-1">
                 {new Date(offer.createdAt).toLocaleDateString()}
               </Text>
             </View>
@@ -428,10 +428,10 @@ export default function MyOffersScreen() {
               </Text>
               {offer.listing?.category_name && (
                 <View className="bg-white px-2 py-0.5 rounded self-start mt-1">
-                  <Text className="text-xs font-inter text-gray-700">{offer.listing.category_name}</Text>
+                  <Text className="text-xs font-inter-semibold text-gray-700">{offer.listing.category_name}</Text>
                 </View>
               )}
-              <Text className="text-sm font-inter text-gray-600 mt-1">
+              <Text className="text-sm font-inter-semibold text-gray-600 mt-1">
                 {new Date(offer.createdAt).toLocaleDateString()}
               </Text>
             </View>
@@ -464,7 +464,7 @@ export default function MyOffersScreen() {
         </View>
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="text-gray-600 font-inter text-sm mt-3">Loading your offers...</Text>
+          <Text className="text-gray-600 font-inter-semibold text-sm mt-3">Loading your offers...</Text>
         </View>
       </SafeAreaView>
     );
@@ -482,7 +482,7 @@ export default function MyOffersScreen() {
         <View className="flex-1 justify-center items-center p-4">
           <Feather name="alert-circle" color="#EF4444" size={64} />
           <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading offers</Text>
-          <Text className="text-gray-600 text-sm font-inter text-center mb-4">{error}</Text>
+          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
           <TouchableOpacity onPress={loadOffers} className="bg-black rounded-lg py-3 px-6">
             <Text className="text-white text-base font-inter-semibold">Retry</Text>
           </TouchableOpacity>
@@ -611,7 +611,7 @@ export default function MyOffersScreen() {
           <View className="flex-1 justify-center items-center py-20 px-6">
             <Feather name="tag" size={64} color="#9CA3AF" />
             <Text className="text-xl font-inter-semibold text-gray-900 mt-4">No offers yet</Text>
-            <Text className="text-sm font-inter text-gray-600 text-center mt-2 mb-6">
+            <Text className="text-sm font-inter-semibold text-gray-600 text-center mt-2 mb-6">
               Start making offers on products you're interested in
             </Text>
             <TouchableOpacity className="bg-black px-6 py-3 rounded-lg" onPress={() => router.back()}>
@@ -622,7 +622,7 @@ export default function MyOffersScreen() {
           <View className="flex-1 justify-center items-center py-20 px-6">
             <Feather name="filter" size={64} color="#9CA3AF" />
             <Text className="text-xl font-inter-semibold text-gray-900 mt-4">No matching offers</Text>
-            <Text className="text-sm font-inter text-gray-600 text-center mt-2 mb-6">Try adjusting your filters</Text>
+            <Text className="text-sm font-inter-semibold text-gray-600 text-center mt-2 mb-6">Try adjusting your filters</Text>
             <TouchableOpacity
               className="bg-black px-6 py-3 rounded-lg"
               onPress={() => {

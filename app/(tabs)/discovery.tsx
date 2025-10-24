@@ -282,7 +282,7 @@ export default function DiscoveryScreen() {
           {isSearching ? (
             <View className="flex-1 justify-center items-center p-2 bg-gray-50">
               <ActivityIndicator size="large" color="#000" />
-              <Text className="mt-4 text-base font-inter text-gray-600">Searching products...</Text>
+              <Text className="mt-4 text-base font-inter-semibold text-gray-600">Searching products...</Text>
             </View>
           ) : (
             <FlatList
@@ -297,7 +297,7 @@ export default function DiscoveryScreen() {
                 <View className="flex-1 justify-center items-center p-2 bg-gray-50">
                   <Feather name="search" size={64} color="#ccc" />
                   <Text className="mt-4 text-lg font-inter-bold text-gray-500 text-center">No results found</Text>
-                  <Text className="mt-2 text-base font-inter text-center text-gray-400">
+                  <Text className="mt-2 text-base font-inter-semibold text-center text-gray-400">
                     Try searching with different keywords
                   </Text>
                 </View>
@@ -312,7 +312,7 @@ export default function DiscoveryScreen() {
       return (
         <View className="flex-1 justify-center items-center p-2 bg-gray-50">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-4 text-base font-inter text-gray-600">Loading categories...</Text>
+          <Text className="mt-4 text-base font-inter-semibold text-gray-600">Loading categories...</Text>
         </View>
       );
     }
@@ -382,7 +382,7 @@ export default function DiscoveryScreen() {
             {isLoadingProducts ? (
               <View className="flex-1 justify-center items-center p-2 bg-gray-50">
                 <ActivityIndicator size="large" color="#000" />
-                <Text className="mt-4 text-base font-inter text-gray-600">Loading products...</Text>
+                <Text className="mt-4 text-base font-inter-semibold text-gray-600">Loading products...</Text>
               </View>
             ) : productsError ? (
               <View className="flex-1 justify-center items-center p-2 bg-gray-50">

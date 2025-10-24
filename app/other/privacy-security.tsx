@@ -197,7 +197,7 @@ export default function PrivacySecurityScreen() {
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-white rounded-xl p-5 m-5 w-11/12">
             <Text className="text-gray-900 text-lg font-inter-bold mb-3">Set Up Two-Factor Authentication</Text>
-            <Text className="text-gray-600 text-sm font-inter mb-5">
+            <Text className="text-gray-600 text-sm font-inter-semibold mb-5">
               We'll send you a verification code via SMS when you log in from a new device.
             </Text>
             <View className="flex-row justify-end">
@@ -230,7 +230,7 @@ export default function PrivacySecurityScreen() {
             <Text className="text-gray-900 text-lg font-inter-bold mb-5">Change Password</Text>
 
             <TextInput
-              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-3 font-inter border border-gray-200"
+              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-3 font-inter-semibold border border-gray-200"
               placeholder="Current Password"
               placeholderTextColor="#999"
               value={currentPassword}
@@ -239,7 +239,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-3 font-inter border border-gray-200"
+              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-3 font-inter-semibold border border-gray-200"
               placeholder="New Password"
               placeholderTextColor="#999"
               value={newPassword}
@@ -248,7 +248,7 @@ export default function PrivacySecurityScreen() {
             />
 
             <TextInput
-              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-5 font-inter border border-gray-200"
+              className="bg-gray-100 rounded-lg p-3 text-gray-900 mb-5 font-inter-semibold border border-gray-200"
               placeholder="Confirm New Password"
               placeholderTextColor="#999"
               value={confirmPassword}
@@ -278,7 +278,7 @@ export default function PrivacySecurityScreen() {
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-white rounded-xl p-5 m-5 w-11/12">
             <Text className="text-gray-900 text-lg font-inter-bold mb-3">Download My Data</Text>
-            <Text className="text-gray-600 text-sm font-inter mb-5">
+            <Text className="text-gray-600 text-sm font-inter-semibold mb-5">
               We'll prepare your data and send it to your registered email address. This may take up to 48 hours.
             </Text>
             <View className="flex-row justify-end">
@@ -303,7 +303,7 @@ export default function PrivacySecurityScreen() {
         <View className="flex-1 bg-black/50 justify-center items-center">
           <View className="bg-white rounded-xl p-5 m-5 w-11/12">
             <Text className="text-gray-900 text-lg font-inter-bold mb-3">Delete Account</Text>
-            <Text className="text-gray-600 text-sm font-inter mb-5">
+            <Text className="text-gray-600 text-sm font-inter-semibold mb-5">
               This action cannot be undone. All your data will be permanently deleted.
             </Text>
             <View className="flex-row justify-end">

@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </View>
 
       <View className="p-4">
-        <Text className="text-sm font-inter mb-3 leading-5" numberOfLines={1}>
+        <Text className="text-sm font-inter-semibold mb-3 leading-5" numberOfLines={1}>
           {product.product_name}
         </Text>
 
@@ -79,7 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   })}
             </Text>
             {product.discounted_price !== null && (
-              <Text className="text-sm font-inter text-gray-400 line-through">
+              <Text className="text-sm font-inter-semibold text-gray-400 line-through">
                 £
                 {product.starting_price.toLocaleString('en-US', {
                   minimumFractionDigits: 2,

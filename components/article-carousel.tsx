@@ -126,7 +126,7 @@ export default function ArticleCarousel() {
                 />
                 <View className="absolute left-4 right-4 bottom-6">
                   <Text className="text-2xl font-inter-bold text-white mb-3">{item.title}</Text>
-                  <Text className="text-base font-inter text-white opacity-95">{item.subtitle}</Text>
+                  <Text className="text-base font-inter-semibold text-white opacity-95">{item.subtitle}</Text>
                 </View>
               </Pressable>
             </View>

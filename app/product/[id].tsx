@@ -9,16 +9,16 @@ import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Dimensions,
-  Image,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    Image,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Pressable,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -103,7 +103,7 @@ export default function ProductDetailScreen() {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#000" />
-        <Text className="text-sm font-inter text-gray-600 mt-3">Loading product...</Text>
+        <Text className="text-sm font-inter-semibold text-gray-600 mt-3">Loading product...</Text>
       </SafeAreaView>
     );
   }
@@ -111,7 +111,7 @@ export default function ProductDetailScreen() {
   if (error) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-base font-inter text-red-600">{error}</Text>
+        <Text className="text-base font-inter-semibold text-red-600">{error}</Text>
       </SafeAreaView>
     );
   }
@@ -119,7 +119,7 @@ export default function ProductDetailScreen() {
   if (!product) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-base font-inter text-gray-600">Product not found</Text>
+        <Text className="text-base font-inter-semibold text-gray-600">Product not found</Text>
       </SafeAreaView>
     );
   }
@@ -217,7 +217,7 @@ export default function ProductDetailScreen() {
             </View>
           ) : (
             <View className="w-full h-60 bg-gray-100 items-center justify-center">
-              <Text className="text-sm font-inter text-gray-500">No image</Text>
+              <Text className="text-sm font-inter-semibold text-gray-500">No image</Text>
             </View>
           )}
 
@@ -228,7 +228,7 @@ export default function ProductDetailScreen() {
             {/* Tag */}
             {product.product_categories?.name ? (
               <View className="self-start bg-gray-100 px-3 py-1 rounded-full mb-3 ml-1">
-                <Text className="text-xs font-inter text-gray-800">{product.product_categories.name}</Text>
+                <Text className="text-xs font-inter-semibold text-gray-800">{product.product_categories.name}</Text>
               </View>
             ) : null}
           </View>
@@ -245,7 +245,7 @@ export default function ProductDetailScreen() {
                   })}
                 </Text>
                 {product.discounted_price != null && (
-                  <Text className="text-base font-inter text-gray-400 line-through">
+                  <Text className="text-base font-inter-semibold text-gray-400 line-through">
                     £
                     {Number(product.starting_price).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
@@ -262,7 +262,7 @@ export default function ProductDetailScreen() {
                   <Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
                 </Pressable>
                 <Pressable className="bg-gray-100 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>
-                  <Text className="text-sm font-inter text-black">Make Offer</Text>
+                  <Text className="text-sm font-inter-semibold text-black">Make Offer</Text>
                 </Pressable>
               </View>
             </View>
@@ -280,7 +280,7 @@ export default function ProductDetailScreen() {
                   onPress={() => setActiveTab(t)}
                 >
                   <Text
-                    className={`text-sm font-inter text-center ${
+                    className={`text-sm font-inter-semibold text-center ${
                       activeTab === t ? 'text-black font-inter-semibold' : 'text-gray-700'
                     }`}
                   >
@@ -292,14 +292,14 @@ export default function ProductDetailScreen() {
 
             <View className="bg-white border border-t-0 border-gray-200 p-4">
               {activeTab === 'description' && (
-                <Text className="text-sm font-inter text-gray-800">{product.product_description || '-'}</Text>
+                <Text className="text-sm font-inter-semibold text-gray-800">{product.product_description || '-'}</Text>
               )}
               {activeTab === 'details' && (
                 <View>
                   {attributesLoading ? (
                     <View className="flex-row items-center justify-center py-4">
                       <ActivityIndicator size="small" color="#000" />
-                      <Text className="text-sm font-inter text-gray-600 ml-2">Loading attributes...</Text>
+                      <Text className="text-sm font-inter-semibold text-gray-600 ml-2">Loading attributes...</Text>
                     </View>
                   ) : productAttributes.length > 0 ? (
                     <View>
@@ -322,19 +322,19 @@ export default function ProductDetailScreen() {
                         return (
                           <View
                             key={index}
-                            className="flex-row justify-between items-center py-3 border-b border-gray-100 last:border-b-0"
+                            className="flex-row items-center justify-between py-3 border-b border-gray-100 last:border-b-0"
                           >
-                            <Text className="text-sm font-inter text-gray-600 flex-1">
+                            <Text className="text-sm font-inter-semibold text-gray-600 flex-1">
                               {attribute.attributes?.name || 'Attribute'}
                             </Text>
-                            <Text className="text-sm font-inter text-gray-800 flex-1 text-right">{getValue()}</Text>
+                            <Text className="text-sm font-inter-semibold text-gray-800 flex-1 text-right">{getValue()}</Text>
                           </View>
                         );
                       })}
                     </View>
                   ) : (
                     <View>
-                      <Text className="text-sm font-inter text-gray-600">No additional details available.</Text>
+                      <Text className="text-sm font-inter-semibold text-gray-600">No additional details available.</Text>
                     </View>
                   )}
                 </View>
@@ -351,7 +351,7 @@ export default function ProductDetailScreen() {
                             className="w-10 h-10 rounded-full"
                           />
                         ) : (
-                          <Text className="text-sm font-inter text-gray-700">
+                          <Text className="text-sm font-inter-semibold text-gray-700">
                             {product.seller_info_view?.shop_name?.charAt(0) ||
                               product.seller_info_view?.full_name?.charAt(0) ||
                               'S'}
@@ -363,7 +363,7 @@ export default function ProductDetailScreen() {
                           {product.seller_info_view?.shop_name || product.seller_info_view?.full_name || 'Seller'}
                         </Text>
                         {formattedDate ? (
-                          <Text className="text-sm font-inter text-gray-500">Listed {formattedDate}</Text>
+                          <Text className="text-sm font-inter-semibold text-gray-500">Listed {formattedDate}</Text>
                         ) : null}
                       </View>
                       <Pressable
@@ -371,7 +371,7 @@ export default function ProductDetailScreen() {
                         className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center"
                       >
                         <Feather name="eye" size={20} color="black" className="mr-2" />
-                        <Text className="text-sm font-inter text-gray-800">View Shop</Text>
+                        <Text className="text-sm font-inter-semibold text-gray-800">View Shop</Text>
                       </Pressable>
                     </View>
 
