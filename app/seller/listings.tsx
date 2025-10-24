@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { listingsService, Product } from '../../api/services/listings.service';
+import { ShippingSettingsModal } from '../../components/shipping-settings-modal';
 import { useAuth } from '../../hooks/use-auth';
 
 export default function ListingsScreen() {
@@ -14,6 +15,7 @@ export default function ListingsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('published');
+  const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
   const { user } = useAuth();
 
   const tabs = [
@@ -302,7 +304,7 @@ export default function ListingsScreen() {
         <View className="mt-4 mb-6">
           <TouchableOpacity
             onPress={() => {
-              showInfoToast('Shipping settings coming soon');
+              setIsShippingModalOpen(true);
             }}
             className="bg-gray-200 rounded-lg py-4 px-5 mb-3 items-center shadow-sm"
           >
@@ -365,6 +367,13 @@ export default function ListingsScreen() {
         {/* Products List */}
         <ProductsList products={products} onRefresh={loadProducts} />
       </ScrollView>
+
+      {/* Shipping Settings Modal */}
+      <ShippingSettingsModal
+        isOpen={isShippingModalOpen}
+        onClose={() => setIsShippingModalOpen(false)}
+        userId={user?.id}
+      />
     </SafeAreaView>
   );
 }

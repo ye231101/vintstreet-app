@@ -1,10 +1,11 @@
 import { CartItem } from '@/api/services/cart.service';
+import { ShippingOption, shippingService } from '@/api/services/shipping.service';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,6 +14,9 @@ export default function CartScreen() {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [shippingOptions, setShippingOptions] = useState<Record<string, ShippingOption[]>>({});
+  const [selectedShipping, setSelectedShipping] = useState<Record<string, string>>({});
+  const [shippingLoading, setShippingLoading] = useState(false);
 
   const handleRefreshCart = async () => {
     if (isRefreshing) return;
@@ -38,14 +42,70 @@ export default function CartScreen() {
     router.push(`/checkout?productId=${productId}`);
   };
 
+  // Fetch shipping options for all sellers in cart
+  useEffect(() => {
+    const fetchShippingOptions = async () => {
+      if (!cart || cart.items.length === 0) {
+        setShippingOptions({});
+        return;
+      }
+
+      setShippingLoading(true);
+      try {
+        const sellerIds = [...new Set(cart.items.map((item) => item.product?.seller_id).filter(Boolean))];
+        const options: Record<string, ShippingOption[]> = {};
+        const selected: Record<string, string> = {};
+
+        for (const sellerId of sellerIds) {
+          if (!sellerId) continue;
+          try {
+            const sellerOptions = await shippingService.getSellerShippingOptionsForBuyer(sellerId);
+            options[sellerId] = sellerOptions;
+            // Auto-select the first (cheapest) option
+            if (sellerOptions.length > 0) {
+              selected[sellerId] = sellerOptions[0].id;
+            }
+          } catch (error) {
+            console.error(`Error fetching shipping options for seller ${sellerId}:`, error);
+            options[sellerId] = [];
+          }
+        }
+
+        setShippingOptions(options);
+        setSelectedShipping(selected);
+      } catch (error) {
+        console.error('Error fetching shipping options:', error);
+      } finally {
+        setShippingLoading(false);
+      }
+    };
+
+    fetchShippingOptions();
+  }, [cart]);
+
+  const handleShippingSelection = (sellerId: string, shippingId: string) => {
+    setSelectedShipping((prev) => ({
+      ...prev,
+      [sellerId]: shippingId,
+    }));
+  };
+
   const CartItemSection = ({ cartItem, onRemove }: { cartItem: CartItem; onRemove: (productId: string) => void }) => {
     if (!cartItem.product) return null;
 
     const product = cartItem.product;
+    const sellerId = product.seller_id;
+    const sellerShippingOptions = shippingOptions[sellerId] || [];
+    const hasShippingOptions = sellerShippingOptions.length > 0;
 
     return (
-      <View key={product.id} className="bg-white rounded-xl">
-        <View className="flex-row items-center gap-3 p-4">
+      <View key={product.id} className="rounded-xl overflow-hidden bg-white border border-gray-400">
+        <View className="flex-row items-center gap-3 p-4 bg-gray-200">
+          <Feather name="shopping-cart" color="#000" size={20} />
+          <Text className="text-base font-inter-bold text-gray-800">Sold by {product.seller_info_view?.shop_name}</Text>
+        </View>
+
+        <View className="flex-row items-center gap-3 p-4 border-t border-gray-200">
           <View className="w-24 h-24 rounded-lg bg-gray-100 overflow-hidden">
             <Image
               source={product.product_image}
@@ -60,6 +120,7 @@ export default function CartScreen() {
             <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={2}>
               {product.product_name}
             </Text>
+            <Text className="text-sm text-gray-600">Qty: 1</Text>
             <View className="flex-row items-center justify-between gap-2">
               <Text className="text-lg font-inter-bold text-gray-800">
                 £
@@ -80,12 +141,74 @@ export default function CartScreen() {
           </View>
         </View>
 
-        <View className="p-4 border-t border-gray-100">
+        {/* Shipping Options Section */}
+        <View className="p-4 border-t border-gray-200">
+          <View className="flex-row items-center gap-2 mb-3">
+            <Feather name="truck" color="#000" size={16} />
+            <Text className="text-base font-inter-semibold text-gray-800">Shipping Options</Text>
+          </View>
+
+          {shippingLoading ? (
+            <View className="flex-row items-center justify-center py-4">
+              <ActivityIndicator size="small" color="#000" />
+              <Text className="ml-2 text-sm text-gray-600">Loading shipping options...</Text>
+            </View>
+          ) : hasShippingOptions ? (
+            <View className="gap-2">
+              {sellerShippingOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.id}
+                  onPress={() => handleShippingSelection(sellerId, option.id)}
+                  className={`flex-row items-center justify-between p-3 border rounded-lg ${
+                    selectedShipping[sellerId] === option.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <View className="flex-row items-center gap-3">
+                    <View
+                      className={`w-4 h-4 rounded-full border-2 ${
+                        selectedShipping[sellerId] === option.id ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                      }`}
+                    >
+                      {selectedShipping[sellerId] === option.id && (
+                        <View className="w-2 h-2 rounded-full bg-white m-0.5" />
+                      )}
+                    </View>
+                    <View>
+                      <Text className="text-sm font-inter-semibold text-gray-800">{option.name}</Text>
+                      {option.estimated_days_min && option.estimated_days_max && (
+                        <Text className="text-xs text-gray-600">
+                          Estimated delivery: {option.estimated_days_min}-{option.estimated_days_max} days
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                  <Text className="text-sm font-inter-bold text-gray-800">£{option.price.toFixed(2)}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <View className="p-4 border border-yellow-500/50 bg-yellow-500/10 rounded-lg">
+              <Text className="text-sm font-inter-semibold text-yellow-700">
+                Shipping options not yet configured by seller
+              </Text>
+              <Text className="text-xs text-gray-600 mt-1">
+                The seller needs to set up shipping options in their dashboard before checkout
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <View className="p-4 border-t border-gray-200">
           <TouchableOpacity
             onPress={() => handleCartItemCheckout(product.id)}
-            className="items-center justify-center px-6 py-3 rounded-lg bg-black"
+            disabled={!hasShippingOptions}
+            className={`items-center justify-center px-6 py-3 rounded-lg ${
+              !hasShippingOptions ? 'bg-gray-400' : 'bg-black'
+            }`}
           >
-            <Text className="text-center text-base font-inter-bold text-white">Checkout with {product.product_name}</Text>
+            <Text className="text-center text-base font-inter-bold text-white">
+              Checkout with {product.product_name}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -96,7 +219,7 @@ export default function CartScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black">
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
@@ -115,7 +238,7 @@ export default function CartScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black">
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
@@ -137,7 +260,7 @@ export default function CartScreen() {
     return (
       <SafeAreaView className="flex-1 bg-black">
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
@@ -165,11 +288,11 @@ export default function CartScreen() {
 
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
 
-        <TouchableOpacity onPress={() => setShowClearModal(true)} className="mr-4 p-2">
+        <TouchableOpacity onPress={() => setShowClearModal(true)} hitSlop={8} className="mr-8">
           <Feather name="trash-2" color="#fff" size={20} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleRefreshCart} className="p-2">
+        <TouchableOpacity onPress={handleRefreshCart}>
           {isRefreshing ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (

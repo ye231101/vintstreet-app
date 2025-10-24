@@ -11,6 +11,7 @@ export { messagesService } from './messages.service';
 export { offersService } from './offers.service';
 export { ordersService } from './orders.service';
 export { reviewsService } from './reviews.service';
+export { shippingService } from './shipping.service';
 export { wishlistService } from './wishlist.service';
 
 // Export all services here as you add them

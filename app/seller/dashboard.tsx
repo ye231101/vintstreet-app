@@ -1,3 +1,5 @@
+import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
+import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -55,6 +57,7 @@ interface SellerSettings {
 }
 
 export default function DashboardScreen() {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reportsData, setReportsData] = useState<ReportsData | null>(null);
@@ -62,6 +65,7 @@ export default function DashboardScreen() {
   const [sellerSettings, setSellerSettings] = useState<SellerSettings | null>(null);
   const [topSellingProducts, setTopSellingProducts] = useState<TopSellingProduct[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState('week');
+  const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
 
   const periodOptions = [
     { value: 'today', label: 'Today' },
@@ -292,38 +296,7 @@ export default function DashboardScreen() {
               {sellerSettings.firstName} {sellerSettings.lastName}
             </Text>
           </View>
-
-          {sellerSettings.trusted && (
-            <View className="items-center">
-              <Feather name="check-circle" color="#34C759" size={20} />
-              <Text className="text-green-500 text-xs font-inter mt-1">Trusted</Text>
-            </View>
-          )}
         </View>
-
-        <View className="flex-row mb-3">
-          <View className="flex-1">
-            <View className="flex-row items-center mb-2">
-              <Feather name="mail" color="#666" size={16} />
-              <Text className="text-gray-600 text-xs font-inter ml-2">Email</Text>
-            </View>
-            <Text className="text-gray-900 text-sm ml-6">{sellerSettings.email}</Text>
-          </View>
-
-          <View className="flex-1">
-            <View className="flex-row items-center mb-2">
-              <Feather name="phone" color="#666" size={16} />
-              <Text className="text-gray-600 text-xs font-inter ml-2">Phone</Text>
-            </View>
-            <Text className="text-gray-900 text-sm ml-6">{sellerSettings.phone || 'Not provided'}</Text>
-          </View>
-        </View>
-
-        <View className="flex-row items-center mb-2">
-          <Feather name="map-pin" color="#666" size={16} />
-          <Text className="text-gray-600 text-xs font-inter ml-2">Address</Text>
-        </View>
-        <Text className="text-gray-900 text-sm mb-3 ml-6">{sellerSettings.address.fullAddress || 'Not provided'}</Text>
 
         {sellerSettings.rating.count > 0 && (
           <View className="flex-row items-center">
@@ -520,6 +493,27 @@ export default function DashboardScreen() {
                 <Text className="text-gray-900 text-xs font-inter-bold">Listings</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Shipping Settings Button */}
+            <TouchableOpacity
+              onPress={() => {
+                if (!user?.id) {
+                  Alert.alert('Authentication Required', 'Please sign in to manage shipping settings.');
+                  return;
+                }
+                setIsShippingModalOpen(true);
+              }}
+              className="bg-blue-50 rounded-lg p-4 mt-4 flex-row items-center"
+            >
+              <Feather name="truck" color="#007AFF" size={20} className="mr-3" />
+              <View className="flex-1">
+                <Text className="text-gray-900 text-sm font-inter-semibold">Shipping Settings</Text>
+                <Text className="text-gray-600 text-xs font-inter">
+                  Manage your shipping options and delivery times
+                </Text>
+              </View>
+              <Feather name="chevron-right" color="#666" size={16} />
+            </TouchableOpacity>
           </View>
 
           {/* Store Profile */}
@@ -532,20 +526,6 @@ export default function DashboardScreen() {
                 </TouchableOpacity>
               </View>
               <StoreProfileCard />
-              <View className="h-6" />
-            </>
-          )}
-
-          {/* Top Selling Products */}
-          {topSellingProducts.length > 0 && (
-            <>
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-gray-900 text-lg font-inter-bold">Top Selling Products</Text>
-                <TouchableOpacity onPress={() => router.push('/seller/listings')}>
-                  <Text className="text-blue-600 text-base font-inter">View All</Text>
-                </TouchableOpacity>
-              </View>
-              <TopProductsList />
               <View className="h-6" />
             </>
           )}
@@ -568,6 +548,13 @@ export default function DashboardScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Shipping Settings Modal */}
+      <ShippingSettingsModal
+        isOpen={isShippingModalOpen}
+        onClose={() => setIsShippingModalOpen(false)}
+        userId={user?.id}
+      />
     </SafeAreaView>
   );
 }
