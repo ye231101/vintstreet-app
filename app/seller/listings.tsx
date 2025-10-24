@@ -220,21 +220,11 @@ export default function ListingsScreen() {
   };
 
   const ProductsList = ({ products, onRefresh }: { products: Product[]; onRefresh: () => void }) => {
-    if (products.length === 0) {
-      return (
-        <View className="flex-1 justify-center items-center px-8 bg-white rounded-xl py-12 shadow-sm">
-          <Feather name="package" color="#666" size={64} />
-          <Text className="text-gray-900 text-lg font-inter-bold mt-4">No products yet</Text>
-          <Text className="text-gray-600 text-sm font-inter-semibold mt-2 text-center">Create your first product template</Text>
-        </View>
-      );
-    }
-
     return (
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
-        className="flex-1 py-4"
+        contentContainerStyle={{ flexGrow: 1 }}
       >
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -243,129 +233,121 @@ export default function ListingsScreen() {
     );
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
-          </TouchableOpacity>
-
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Listings</Text>
-        </View>
-
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#007AFF" />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="mr-4">
-            <Feather name="arrow-left" size={24} color="#333" />
-          </TouchableOpacity>
-
-          <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Listings</Text>
-        </View>
-
-        <View className="flex-1 justify-center items-center p-4">
-          <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">Error loading products</Text>
-          <Text className="text-gray-600 text-sm font-inter-semibold text-center mb-4">{error}</Text>
-          <TouchableOpacity onPress={loadProducts} className="bg-blue-500 rounded-lg py-3 px-6">
-            <Text className="text-white text-base font-inter-bold">Retry</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Feather name="arrow-left" size={24} color="#333" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-gray-900">My Listings</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Listings</Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadProducts} tintColor="#007AFF" />}
-        className="flex-1 px-4"
+        contentContainerStyle={{ flexGrow: 1 }}
       >
-        {/* Action Buttons */}
-        <View className="mt-4 mb-6">
-          <TouchableOpacity
-            onPress={() => {
-              setIsShippingModalOpen(true);
-            }}
-            className="bg-gray-200 rounded-lg py-4 px-5 mb-3 items-center shadow-sm"
-          >
-            <Text className="text-gray-900 text-base font-inter-bold">Shipping Settings</Text>
-          </TouchableOpacity>
+        <View className="flex-1 p-4 bg-gray-50">
+          {/* Action Buttons */}
+          <View className="mb-6">
+            <TouchableOpacity
+              onPress={() => {
+                setIsShippingModalOpen(true);
+              }}
+              className="bg-gray-200 rounded-lg py-4 px-5 mb-3 items-center shadow-sm"
+            >
+              <Text className="text-gray-900 text-base font-inter-bold">Shipping Settings</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => {
-              router.push('/(tabs)/sell');
-            }}
-            className="bg-white rounded-lg py-4 px-5 mb-4 items-center border border-gray-300 shadow-sm"
-          >
-            <Text className="text-gray-900 text-base font-inter-bold">Add Product</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                router.push('/(tabs)/sell');
+              }}
+              className="bg-white rounded-lg py-4 px-5 mb-4 items-center border border-gray-300 shadow-sm"
+            >
+              <Text className="text-gray-900 text-base font-inter-bold">Add Product</Text>
+            </TouchableOpacity>
 
-          {/* Information Banner */}
-          <View className="bg-blue-500 rounded-lg p-4 mb-4 flex-row items-center shadow-sm">
-            <Feather name="info" color="#fff" size={20} className="mr-3" />
-            <View className="flex-1">
-              <Text className="text-white text-sm font-inter">
-                Please <Text className="underline font-inter-bold">select shipping options</Text> for your items to go
-                live on the marketplace.
-              </Text>
+            {/* Information Banner */}
+            <View className="bg-blue-500 rounded-lg p-4 mb-4 flex-row items-center shadow-sm">
+              <Feather name="info" color="#fff" size={20} className="mr-3" />
+              <View className="flex-1">
+                <Text className="text-white text-sm font-inter">
+                  Please <Text className="underline font-inter-bold">select shipping options</Text> for your items to go
+                  live on the marketplace.
+                </Text>
+              </View>
             </View>
+
+            {/* Bulk Upload Button */}
+            <TouchableOpacity
+              onPress={() => {
+                showInfoToast('Bulk upload functionality coming soon');
+              }}
+              className="bg-gray-200 border border-gray-300 rounded-lg py-3 px-4 flex-row items-center justify-center flex-1 shadow-sm"
+            >
+              <Feather name="upload" color="#333" size={16} className="mr-2" />
+              <Text className="text-gray-900 text-sm font-inter-medium">Bulk Upload</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Bulk Upload Button */}
-          <TouchableOpacity
-            onPress={() => {
-              showInfoToast('Bulk upload functionality coming soon');
-            }}
-            className="bg-gray-200 rounded-lg py-3 px-4 flex-row items-center self-end shadow-sm"
-          >
-            <Feather name="upload" color="#333" size={16} className="mr-2" />
-            <Text className="text-gray-900 text-sm font-inter-medium">Bulk Upload</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Category Tabs */}
-        <View className="flex-row gap-3 mb-4">
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key)}
-              className={`${
-                activeTab === tab.key ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
-              } flex-1 rounded-md py-3 px-2 border shadow-sm`}
-            >
-              <Text
+          {/* Category Tabs */}
+          <View className="flex-row gap-3 mb-4">
+            {tabs.map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                onPress={() => setActiveTab(tab.key)}
                 className={`${
-                  activeTab === tab.key ? 'text-white' : 'text-gray-600'
-                } text-xs font-inter-medium text-center`}
+                  activeTab === tab.key ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                } flex-1 rounded-md py-3 px-2 border shadow-sm`}
               >
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+                <Text
+                  className={`${
+                    activeTab === tab.key ? 'text-white' : 'text-gray-600'
+                  } text-xs font-inter-medium text-center`}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        {/* Products List */}
-        <ProductsList products={products} onRefresh={loadProducts} />
+          {/* Products List */}
+          {isLoading ? (
+            <View className="flex-1 justify-center items-center p-4 bg-white rounded-xl shadow-sm">
+              <ActivityIndicator size="large" color="#000" />
+              <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your listings...</Text>
+            </View>
+          ) : error ? (
+            <View className="flex-1 justify-center items-center p-4 bg-white rounded-xl shadow-sm">
+              <Feather name="alert-circle" color="#ff4444" size={64} />
+              <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading products</Text>
+              <TouchableOpacity onPress={loadProducts} className="bg-black rounded-lg py-3 px-6">
+                <Text className="text-base font-inter-bold text-white">Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : products.length > 0 ? (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadProducts} tintColor="#007AFF" />}
+              contentContainerStyle={{ flexGrow: 1 }}
+            >
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </ScrollView>
+          ) : (
+            <View className="flex-1 justify-center items-center p-4 bg-white rounded-xl shadow-sm">
+              <Feather name="package" color="#666" size={64} />
+              <Text className="text-gray-900 text-lg font-inter-bold mt-4">No products yet</Text>
+              <Text className="text-gray-600 text-sm font-inter-semibold mt-2 text-center">
+                Create your first product template
+              </Text>
+            </View>
+          )}
+        </View>
       </ScrollView>
 
       {/* Shipping Settings Modal */}
