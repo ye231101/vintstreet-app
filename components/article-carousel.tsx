@@ -99,7 +99,7 @@ export default function ArticleCarousel() {
   return (
     <View className="items-center">
       <View
-        className="rounded-xl overflow-hidden relative"
+        className="relative overflow-hidden rounded-xl"
         style={{
           width: screenWidth - 16,
           aspectRatio: 16 / 7,
