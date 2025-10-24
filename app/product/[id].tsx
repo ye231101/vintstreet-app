@@ -185,11 +185,7 @@ export default function ProductDetailScreen() {
         </Text>
       </View>
 
-      <ScrollView
-        ref={scrollViewRef}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
+      <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         <View className="flex-1 gap-4 py-4 bg-gray-50">
           {/* Image Carousel */}
           {product.product_images?.length > 0 ? (
@@ -251,15 +247,20 @@ export default function ProductDetailScreen() {
               <View className="flex-row items-center">
                 <Text className="text-2xl font-inter-bold text-black mr-2">
                   £
-                  {Number(product.discounted_price).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {product.discounted_price !== null
+                    ? product.discounted_price.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : product.starting_price.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                 </Text>
-                {product.discounted_price != null && (
+                {product.discounted_price !== null && (
                   <Text className="text-base font-inter-semibold text-gray-400 line-through">
                     £
-                    {Number(product.starting_price).toLocaleString('en-US', {
+                    {product.starting_price.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}

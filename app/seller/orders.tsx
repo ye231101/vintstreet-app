@@ -15,8 +15,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Order, ordersService } from '../../api/services/orders.service';
 import { useAuth } from '../../hooks/use-auth';
 
-// Interfaces are now imported from the orders service
-
 export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -205,7 +203,6 @@ export default function OrdersScreen() {
       </View>
 
       <View className="flex-1 bg-gray-50">
-        {/* Filter Tabs */}
         <View className="px-4 border-b border-gray-200">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {tabs.map((tab) => (
