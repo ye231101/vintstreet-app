@@ -296,38 +296,7 @@ export default function DashboardScreen() {
               {sellerSettings.firstName} {sellerSettings.lastName}
             </Text>
           </View>
-
-          {sellerSettings.trusted && (
-            <View className="items-center">
-              <Feather name="check-circle" color="#34C759" size={20} />
-              <Text className="text-green-500 text-xs font-inter mt-1">Trusted</Text>
-            </View>
-          )}
         </View>
-
-        <View className="flex-row mb-3">
-          <View className="flex-1">
-            <View className="flex-row items-center mb-2">
-              <Feather name="mail" color="#666" size={16} />
-              <Text className="text-gray-600 text-xs font-inter ml-2">Email</Text>
-            </View>
-            <Text className="text-gray-900 text-sm ml-6">{sellerSettings.email}</Text>
-          </View>
-
-          <View className="flex-1">
-            <View className="flex-row items-center mb-2">
-              <Feather name="phone" color="#666" size={16} />
-              <Text className="text-gray-600 text-xs font-inter ml-2">Phone</Text>
-            </View>
-            <Text className="text-gray-900 text-sm ml-6">{sellerSettings.phone || 'Not provided'}</Text>
-          </View>
-        </View>
-
-        <View className="flex-row items-center mb-2">
-          <Feather name="map-pin" color="#666" size={16} />
-          <Text className="text-gray-600 text-xs font-inter ml-2">Address</Text>
-        </View>
-        <Text className="text-gray-900 text-sm mb-3 ml-6">{sellerSettings.address.fullAddress || 'Not provided'}</Text>
 
         {sellerSettings.rating.count > 0 && (
           <View className="flex-row items-center">
@@ -557,20 +526,6 @@ export default function DashboardScreen() {
                 </TouchableOpacity>
               </View>
               <StoreProfileCard />
-              <View className="h-6" />
-            </>
-          )}
-
-          {/* Top Selling Products */}
-          {topSellingProducts.length > 0 && (
-            <>
-              <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-gray-900 text-lg font-inter-bold">Top Selling Products</Text>
-                <TouchableOpacity onPress={() => router.push('/seller/listings')}>
-                  <Text className="text-blue-600 text-base font-inter">View All</Text>
-                </TouchableOpacity>
-              </View>
-              <TopProductsList />
               <View className="h-6" />
             </>
           )}
