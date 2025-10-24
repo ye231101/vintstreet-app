@@ -1,20 +1,20 @@
 import { Product } from '@/api/services/listings.service';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  selectCart,
-  selectCartError,
-  selectCartItemByProductId,
-  selectCartLoading,
-  selectIsCartEmpty,
+    selectCart,
+    selectCartError,
+    selectCartItemByProductId,
+    selectCartLoading,
+    selectIsCartEmpty,
 } from '@/store/selectors/cartSelectors';
 import {
-  addToCartAsync,
-  clearCartAsync,
-  clearError,
-  fetchCart,
-  removeFromCartAsync,
-  resetCart,
-  setError,
+    addToCartAsync,
+    clearCartAsync,
+    clearError,
+    fetchCart,
+    removeFromCartAsync,
+    resetCart,
+    setError,
 } from '@/store/slices/cartSlice';
 import { useEffect } from 'react';
 

@@ -5,79 +5,41 @@ import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface CheckoutItem {
   product?: Product;
 }
 
-interface ShippingAddress {
+interface ShippingInformation {
   firstName: string;
   lastName: string;
-  email: string;
-  phone: string;
   address1: string;
   address2?: string;
   city: string;
   state: string;
   postcode: string;
   country: string;
-}
-
-interface ShippingAddressErrors {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  address1?: string;
-  address2?: string;
-  city?: string;
-  state?: string;
-  postcode?: string;
-}
-
-interface BillingAddress {
-  firstName: string;
-  lastName: string;
-  email: string;
   phone: string;
-  address1: string;
-  address2?: string;
-  city: string;
-  state: string;
-  postcode: string;
-  country: string;
 }
 
-interface BillingAddressErrors {
+interface ShippingInformationErrors {
   firstName?: string;
   lastName?: string;
-  email?: string;
-  phone?: string;
   address1?: string;
   address2?: string;
   city?: string;
   state?: string;
   postcode?: string;
-}
-
-interface CardDetails {
-  cardNumber: string;
-  expiryDate: string;
-  cvc: string;
-  cardholderName: string;
-  country: string;
-  zipCode: string;
-}
-
-interface CardDetailsErrors {
-  cardNumber?: string;
-  expiryDate?: string;
-  cvc?: string;
-  cardholderName?: string;
   country?: string;
-  zipCode?: string;
+  phone?: string;
+}
+
+interface ShippingMethod {
+  carrier: string;
+  deliveryTime: string;
+  cost: string;
 }
 
 interface InputFieldProps {
@@ -134,58 +96,60 @@ export default function CheckoutScreen() {
   const [checkoutItem, setCheckoutItem] = useState<CheckoutItem>();
 
   // Step completion tracking
-  const [stepCompleted, setStepCompleted] = useState([false, false, false]);
+  const [stepCompleted, setStepCompleted] = useState([false, false]);
 
   // Form states
-  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
+  const [shippingInformation, setShippingInformation] = useState<ShippingInformation>({
     firstName: '',
     lastName: '',
-    email: '',
-    phone: '',
     address1: '',
     address2: '',
     city: '',
     state: '',
     postcode: '',
-    country: 'United Kingdom',
-  });
-
-  const [isBillingDifferent, setIsBillingDifferent] = useState(false);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress>({
-    firstName: '',
-    lastName: '',
-    email: '',
+    country: 'GB',
     phone: '',
-    address1: '',
-    address2: '',
-    city: '',
-    state: '',
-    postcode: '',
-    country: 'United Kingdom',
   });
+  const [shippingInformationErrors, setShippingInformationErrors] = useState<ShippingInformationErrors>({});
 
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [cardDetails, setCardDetails] = useState<CardDetails>({
-    cardNumber: '',
-    expiryDate: '',
-    cvc: '',
-    cardholderName: '',
-    country: 'United Kingdom',
-    zipCode: '',
-  });
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState('DPD');
+  const [shippingMethods] = useState<ShippingMethod[]>([
+    { carrier: 'DPD', deliveryTime: '1-10 business days', cost: 'Free' },
+    { carrier: 'Yodel', deliveryTime: '1-10 business days', cost: 'Free' },
+    { carrier: 'Evri', deliveryTime: '1-10 business days', cost: 'Free' },
+  ]);
 
-  // Error states
-  const [shippingAddressErrors, setShippingAddressErrors] = useState<ShippingAddressErrors>({});
-  const [billingAddressErrors, setBillingAddressErrors] = useState<BillingAddressErrors>({});
-  const [cardDetailsErrors, setCardDetailsErrors] = useState<CardDetailsErrors>({});
+  const [countries] = useState([
+    { code: 'GB', name: 'United Kingdom' },
+    { code: 'US', name: 'United States' },
+    { code: 'CA', name: 'Canada' },
+    { code: 'AU', name: 'Australia' },
+    { code: 'DE', name: 'Germany' },
+    { code: 'FR', name: 'France' },
+    { code: 'ES', name: 'Spain' },
+    { code: 'IT', name: 'Italy' },
+    { code: 'NL', name: 'Netherlands' },
+    { code: 'BE', name: 'Belgium' },
+    { code: 'IE', name: 'Ireland' },
+    { code: 'DK', name: 'Denmark' },
+    { code: 'SE', name: 'Sweden' },
+    { code: 'NO', name: 'Norway' },
+    { code: 'FI', name: 'Finland' },
+    { code: 'PL', name: 'Poland' },
+    { code: 'CZ', name: 'Czech Republic' },
+    { code: 'AT', name: 'Austria' },
+    { code: 'CH', name: 'Switzerland' },
+    { code: 'PT', name: 'Portugal' },
+  ]);
 
-  // Address search state
-  const [addressSearch, setAddressSearch] = useState('');
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
 
-  // Progress values for inline Progress Indicator
-  const completedSteps = stepCompleted.filter((step) => step).length;
-  const totalSteps = stepCompleted.length;
-  const progress = totalSteps === 0 ? 0 : completedSteps / totalSteps;
+  // Filter countries based on search
+  const filteredCountries = countries.filter(country =>
+    country.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+    country.code.toLowerCase().includes(countrySearch.toLowerCase())
+  );
 
   useEffect(() => {
     loadCheckoutData();
@@ -193,7 +157,7 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     updateStepCompletion();
-  }, [shippingAddress, isBillingDifferent, billingAddress, cardDetails]);
+  }, [shippingInformation, selectedShippingMethod]);
 
   const loadCheckoutData = () => {
     const cartItem = cart.items.filter((item) => productId === item.product?.id);
@@ -206,33 +170,11 @@ export default function CheckoutScreen() {
   };
 
   // Update functions that clear errors when typing
-  const updateShippingAddress = useCallback((field: keyof ShippingAddress, value: string) => {
-    setShippingAddress((prev) => ({ ...prev, [field]: value }));
+  const updateShippingAddress = useCallback((field: keyof ShippingInformation, value: string) => {
+    setShippingInformation((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
-    setShippingAddressErrors((prev) => {
-      if (prev[field as keyof ShippingAddressErrors]) {
-        return { ...prev, [field]: undefined };
-      }
-      return prev;
-    });
-  }, []);
-
-  const updateBillingAddress = useCallback((field: keyof BillingAddress, value: string) => {
-    setBillingAddress((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    setBillingAddressErrors((prev) => {
-      if (prev[field as keyof BillingAddressErrors]) {
-        return { ...prev, [field]: undefined };
-      }
-      return prev;
-    });
-  }, []);
-
-  const updateCardDetails = useCallback((field: keyof CardDetails, value: string) => {
-    setCardDetails((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    setCardDetailsErrors((prev) => {
-      if (prev[field as keyof CardDetailsErrors]) {
+    setShippingInformationErrors((prev) => {
+      if (prev[field as keyof ShippingInformationErrors]) {
         return { ...prev, [field]: undefined };
       }
       return prev;
@@ -241,35 +183,15 @@ export default function CheckoutScreen() {
 
   const updateStepCompletion = () => {
     const shippingComplete =
-      shippingAddress.firstName.trim() !== '' &&
-      shippingAddress.lastName.trim() !== '' &&
-      shippingAddress.email.trim() !== '' &&
-      shippingAddress.phone.trim() !== '' &&
-      shippingAddress.address1.trim() !== '' &&
-      shippingAddress.city.trim() !== '' &&
-      shippingAddress.state.trim() !== '' &&
-      shippingAddress.postcode.trim() !== '';
+      shippingInformation.firstName.trim() !== '' &&
+      shippingInformation.lastName.trim() !== '' &&
+      shippingInformation.address1.trim() !== '' &&
+      shippingInformation.city.trim() !== '' &&
+      shippingInformation.country.trim() !== '';
 
-    const billingComplete = isBillingDifferent
-      ? billingAddress.firstName.trim() !== '' &&
-        billingAddress.lastName.trim() !== '' &&
-        billingAddress.email.trim() !== '' &&
-        billingAddress.phone.trim() !== '' &&
-        billingAddress.address1.trim() !== '' &&
-        billingAddress.city.trim() !== '' &&
-        billingAddress.state.trim() !== '' &&
-        billingAddress.postcode.trim() !== ''
-      : shippingComplete;
+    const shippingMethodComplete = selectedShippingMethod.trim() !== '';
 
-    const paymentComplete =
-      cardDetails.cardNumber.trim() !== '' &&
-      cardDetails.expiryDate.trim() !== '' &&
-      cardDetails.cvc.trim() !== '' &&
-      cardDetails.cardholderName.trim() !== '' &&
-      cardDetails.country.trim() !== '' &&
-      cardDetails.zipCode.trim() !== '';
-
-    setStepCompleted([shippingComplete, billingComplete, paymentComplete]);
+    setStepCompleted([shippingComplete, shippingMethodComplete]);
   };
 
   const canProceedToCheckout = () => {
@@ -279,9 +201,8 @@ export default function CheckoutScreen() {
   const getValidationMessage = () => {
     const missingFields = [];
 
-    if (!stepCompleted[0]) missingFields.push('Shipping address');
-    if (!stepCompleted[1]) missingFields.push('Billing details');
-    if (!stepCompleted[2]) missingFields.push('Payment method');
+    if (!stepCompleted[0]) missingFields.push('Shipping information');
+    if (!stepCompleted[1]) missingFields.push('Shipping method');
 
     if (missingFields.length === 0) return 'All fields are complete!';
     if (missingFields.length === 1) return `Please complete: ${missingFields[0]}`;
@@ -295,7 +216,7 @@ export default function CheckoutScreen() {
       return;
     }
 
-    Alert.alert('Checkout', 'This would process the payment and create the order');
+    Alert.alert('Checkout', 'This would create the order');
   };
 
   if (isLoading) {
@@ -379,483 +300,187 @@ export default function CheckoutScreen() {
           </View>
         </View>
 
-        {/* Progress Indicator */}
-        <View className="bg-white rounded-xl p-5">
-          <View className="flex-row items-center mb-3">
-            <Feather name="check-square" color="#007AFF" size={20} />
-            <Text className="text-base font-inter-bold text-gray-800 ml-2 flex-1">Checkout Progress</Text>
-            <Text className="text-sm font-inter text-gray-600">
-              {completedSteps} of {totalSteps} completed
-            </Text>
-          </View>
-
-          <View className="h-2 bg-gray-300 rounded mb-2">
-            <View
-              className={`h-2 rounded ${progress === 1 ? 'bg-green-500' : 'bg-blue-500'}`}
-              style={{ width: `${progress * 100}%` }}
-            />
-          </View>
-
-          <Text className={`text-xs ${progress === 1 ? 'font-inter-bold text-green-500' : 'font-inter text-gray-600'}`}>
-            {progress === 1
-              ? 'All steps completed! You can now place your order.'
-              : 'Complete all steps to place your order.'}
-          </Text>
-        </View>
-
-        {/* Shipping Address */}
+        {/* Shipping Information */}
         <View className="bg-white rounded-xl">
           {/* Section Header */}
           <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
-            <View
-              className={`w-10 h-10 mr-4 rounded-full justify-center items-center ${
-                stepCompleted[0] ? 'bg-green-500' : 'bg-gray-100'
-              }`}
-            >
-              {stepCompleted[0] ? (
-                <Feather name="check" color="#fff" size={20} />
-              ) : (
-                <Feather name="map-pin" color="#666" size={20} />
-              )}
-            </View>
-
-            <Text className="flex-1 text-base font-inter-bold text-gray-800">Shipping Address</Text>
+            <Feather name="box" color="#666" size={20} />
+            <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Information</Text>
           </View>
 
           {/* Section Content */}
           <View className="p-5">
-            <InputField
-              label="Enter Shipping Address"
-              value={addressSearch}
-              onChangeText={setAddressSearch}
-              placeholder="Search for your address..."
-              autoCapitalize="none"
-              icon="search"
-            />
-
             <View className="flex-row items-center gap-2">
               <View className="flex-1">
                 <InputField
                   label="First Name"
-                  value={shippingAddress.firstName}
+                  value={shippingInformation.firstName}
                   onChangeText={(text) => updateShippingAddress('firstName', text)}
                   placeholder="First Name"
                   autoCapitalize="none"
-                  icon="user"
                   required
-                  error={shippingAddressErrors.firstName}
+                  error={shippingInformationErrors.firstName}
                 />
               </View>
               <View className="flex-1">
                 <InputField
                   label="Last Name"
-                  value={shippingAddress.lastName}
+                  value={shippingInformation.lastName}
                   onChangeText={(text) => updateShippingAddress('lastName', text)}
                   placeholder="Last Name"
                   autoCapitalize="none"
-                  icon="user"
                   required
-                  error={shippingAddressErrors.lastName}
-                />
-              </View>
-            </View>
-
-            <View className="flex-row items-center gap-2">
-              <View className="flex-1">
-                <InputField
-                  label="Email"
-                  value={shippingAddress.email}
-                  onChangeText={(text) => updateShippingAddress('email', text)}
-                  placeholder="Email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  icon="mail"
-                  required
-                  error={shippingAddressErrors.email}
-                />
-              </View>
-              <View className="flex-1">
-                <InputField
-                  label="Phone"
-                  value={shippingAddress.phone}
-                  onChangeText={(text) => updateShippingAddress('phone', text)}
-                  placeholder="Phone"
-                  keyboardType="numeric"
-                  autoCapitalize="none"
-                  icon="phone"
-                  required
-                  error={shippingAddressErrors.phone}
+                  error={shippingInformationErrors.lastName}
                 />
               </View>
             </View>
 
             <InputField
               label="Address Line 1"
-              value={shippingAddress.address1}
+              value={shippingInformation.address1}
               onChangeText={(text) => updateShippingAddress('address1', text)}
               placeholder="Address Line 1"
               autoCapitalize="none"
-              icon="home"
               required
-              error={shippingAddressErrors.address1}
+              error={shippingInformationErrors.address1}
             />
 
             <InputField
-              label="Address Line 2 (Optional)"
-              value={shippingAddress.address2 || ''}
+              label="Address Line 2"
+              value={shippingInformation.address2 || ''}
               onChangeText={(text) => updateShippingAddress('address2', text)}
-              placeholder="Address Line 2 (Optional)"
+              placeholder="Address Line 2"
               autoCapitalize="none"
-              icon="home"
             />
 
             <InputField
               label="City"
-              value={shippingAddress.city}
+              value={shippingInformation.city}
               onChangeText={(text) => updateShippingAddress('city', text)}
               placeholder="City"
               autoCapitalize="none"
               required
-              error={shippingAddressErrors.city}
+              error={shippingInformationErrors.city}
             />
 
-            <View className="flex-row mb-4">
-              <View className="flex-1 mr-2">
-                <InputField
-                  label="State/Country"
-                  value={shippingAddress.state}
-                  onChangeText={(text) => updateShippingAddress('state', text)}
-                  placeholder="State/Country"
-                  autoCapitalize="none"
-                />
-              </View>
-              <View className="flex-1 ml-2">
-                <InputField
-                  label="Postcode"
-                  value={shippingAddress.postcode}
-                  onChangeText={(text) => updateShippingAddress('postcode', text)}
-                  placeholder="Postcode"
-                  autoCapitalize="none"
-                  required
-                  error={shippingAddressErrors.postcode}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Billing Details */}
-        <View className="bg-white rounded-xl">
-          {/* Section Header */}
-          <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
-            <View
-              className={`w-10 h-10 mr-4 rounded-full justify-center items-center ${
-                stepCompleted[1] ? 'bg-green-500' : 'bg-gray-100'
-              }`}
-            >
-              {stepCompleted[1] ? (
-                <Feather name="check" color="#fff" size={20} />
-              ) : (
-                <Feather name="home" color="#666" size={20} />
-              )}
-            </View>
-
-            <Text className="flex-1 text-base font-inter-bold text-gray-800">Billing Details</Text>
-          </View>
-
-          {/* Section Content */}
-          <View className="p-5">
             <View className="flex-row items-center gap-2">
-              <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">
-                Is billing address different from shipping address?
-              </Text>
-              <Switch
-                value={isBillingDifferent}
-                onValueChange={setIsBillingDifferent}
-                trackColor={{ false: '#e5e5e5', true: '#007AFF' }}
-                thumbColor="#fff"
-              />
+              <View className="flex-1">
+                <InputField
+                  label="State/County"
+                  value={shippingInformation.state}
+                  onChangeText={(text) => updateShippingAddress('state', text)}
+                  placeholder="State/County"
+                  autoCapitalize="none"
+                />
+              </View>
+              <View className="flex-1">
+                <InputField
+                  label="Postal Code"
+                  value={shippingInformation.postcode}
+                  onChangeText={(text) => updateShippingAddress('postcode', text)}
+                  placeholder="Postal Code"
+                  autoCapitalize="none"
+                />
+              </View>
             </View>
 
-            <Text className="my-4 text-sm font-inter text-gray-600">
-              {isBillingDifferent
-                ? 'Please enter your billing address below'
-                : 'Billing address will be the same as shipping address'}
-            </Text>
-
-            {isBillingDifferent && (
-              <>
-                <Text className="my-4 text-base font-inter-bold text-gray-800">Billing Address</Text>
-
-                <View className="flex-row items-center gap-2">
-                  <View className="flex-1">
-                    <InputField
-                      label="First Name"
-                      value={billingAddress.firstName}
-                      onChangeText={(text) => updateBillingAddress('firstName', text)}
-                      placeholder="First Name"
-                      autoCapitalize="none"
-                      icon="user"
-                      required
-                      error={billingAddressErrors.firstName}
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <InputField
-                      label="Last Name"
-                      value={billingAddress.lastName}
-                      onChangeText={(text) => updateBillingAddress('lastName', text)}
-                      placeholder="Last Name"
-                      autoCapitalize="none"
-                      icon="user"
-                      required
-                      error={billingAddressErrors.lastName}
-                    />
-                  </View>
-                </View>
-
-                <View className="flex-row items-center gap-2">
-                  <View className="flex-1">
-                    <InputField
-                      label="Email"
-                      value={billingAddress.email}
-                      onChangeText={(text) => updateBillingAddress('email', text)}
-                      placeholder="Email"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      icon="mail"
-                      required
-                      error={billingAddressErrors.email}
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <InputField
-                      label="Phone"
-                      value={billingAddress.phone}
-                      onChangeText={(text) => updateBillingAddress('phone', text)}
-                      placeholder="Phone"
-                      keyboardType="numeric"
-                      autoCapitalize="none"
-                      icon="phone"
-                      required
-                      error={billingAddressErrors.phone}
-                    />
-                  </View>
-                </View>
-
-                <InputField
-                  label="Address Line 1"
-                  value={billingAddress.address1}
-                  onChangeText={(text) => updateBillingAddress('address1', text)}
-                  placeholder="Address Line 1"
-                  autoCapitalize="none"
-                  icon="home"
-                  required
-                  error={billingAddressErrors.address1}
-                />
-
-                <InputField
-                  label="Address Line 2 (Optional)"
-                  value={billingAddress.address2 || ''}
-                  onChangeText={(text) => updateBillingAddress('address2', text)}
-                  placeholder="Address Line 2 (Optional)"
-                  autoCapitalize="none"
-                  icon="home"
-                />
-
-                <InputField
-                  label="City"
-                  value={billingAddress.city}
-                  onChangeText={(text) => updateBillingAddress('city', text)}
-                  placeholder="City"
-                  autoCapitalize="none"
-                  required
-                  error={billingAddressErrors.city}
-                />
-
-                <View className="flex-row items-center gap-2">
-                  <View className="flex-1 mr-2">
-                    <InputField
-                      label="State/Country"
-                      value={billingAddress.state}
-                      onChangeText={(text) => updateBillingAddress('state', text)}
-                      placeholder="State/Country"
-                      autoCapitalize="none"
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <InputField
-                      label="Postcode"
-                      value={billingAddress.postcode}
-                      onChangeText={(text) => updateBillingAddress('postcode', text)}
-                      placeholder="Postcode"
-                      autoCapitalize="none"
-                      required
-                      error={billingAddressErrors.postcode}
-                    />
-                  </View>
-                </View>
-              </>
-            )}
-
-            <View className="bg-blue-50 rounded-lg p-3 flex-row items-center">
-              <Feather name="shield" color="#1976d2" size={16} />
-              <Text className="text-sm font-inter text-blue-600 ml-2 flex-1">
-                Your billing information is securely stored and only used for order processing.
+            <View className="mb-4">
+              <Text className="mb-2 text-sm font-inter-bold text-gray-800">
+                Country <Text className="text-red-500">*</Text>
               </Text>
+              <TouchableOpacity
+                onPress={() => setShowCountryPicker(true)}
+                className="flex-row items-center px-3 py-3 rounded-lg bg-white border border-gray-200"
+              >
+                <Text className="flex-1 text-base font-inter text-gray-800">
+                  {countries.find(c => c.code === shippingInformation.country)?.name || 'Select Country'}
+                </Text>
+                <Feather name="chevron-down" color="#666" size={20} />
+              </TouchableOpacity>
+              <Text className="mt-1 text-xs font-inter text-gray-600">Changing country may affect shipping costs.</Text>
             </View>
+
+            <InputField
+              label="Phone"
+              value={shippingInformation.phone}
+              onChangeText={(text) => updateShippingAddress('phone', text)}
+              placeholder="Phone"
+              keyboardType="numeric"
+              autoCapitalize="none"
+            />
           </View>
         </View>
 
-        {/* Payment Information */}
+        {/* Shipping Method */}
         <View className="bg-white rounded-xl">
           {/* Section Header */}
           <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
-            <View
-              className={`w-10 h-10 mr-4 rounded-full justify-center items-center ${
-                stepCompleted[2] ? 'bg-green-500' : 'bg-gray-100'
-              }`}
-            >
-              {stepCompleted[2] ? (
-                <Feather name="check" color="#fff" size={20} />
-              ) : (
-                <Feather name="credit-card" color="#666" size={20} />
-              )}
-            </View>
-
-            <Text className="flex-1 text-base font-inter-bold text-gray-800">Payment Information</Text>
+            <Feather name="truck" color="#666" size={20} />
+            <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Method</Text>
           </View>
 
           {/* Section Content */}
           <View className="p-5">
-            <Text className="text-base font-inter-bold text-gray-800 mb-4">Payment Method</Text>
+            <Text className="mb-4 text-sm font-inter text-gray-600">Shipping for 1 item(s)</Text>
 
-            {/* Credit/Debit Card Option */}
-            <TouchableOpacity
-              onPress={() => setPaymentMethod('card')}
-              className={`flex-row items-center mb-3 p-4 rounded-lg border ${
-                paymentMethod === 'card' ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
-              }`}
-            >
-              <Feather name="credit-card" color={paymentMethod === 'card' ? '#1976d2' : '#666'} size={20} />
-              <View className="flex-1 ml-3">
-                <Text
-                  className={`text-base font-inter-bold ${
-                    paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-800'
+            {shippingMethods.map((method, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => setSelectedShippingMethod(method.carrier)}
+                className={`flex-row items-center mb-3 p-4 rounded-lg border ${
+                  selectedShippingMethod === method.carrier ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
+                }`}
+              >
+                <View
+                  className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
+                    selectedShippingMethod === method.carrier ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
                   }`}
                 >
-                  Credit/Debit Card
-                </Text>
-                <Text className={`text-sm font-inter ${paymentMethod === 'card' ? 'text-blue-600' : 'text-gray-600'}`}>
-                  Visa, Mastercard, American Express
-                </Text>
-              </View>
-              {paymentMethod === 'card' && <Feather name="check" color="#1976d2" size={20} />}
-            </TouchableOpacity>
-
-            {/* Google Pay Option */}
-            <TouchableOpacity
-              onPress={() => setPaymentMethod('googlepay')}
-              className={`flex-row items-center mb-3 p-4 rounded-lg border ${
-                paymentMethod === 'googlepay' ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
-              }`}
-            >
-              <Feather name="smartphone" color={paymentMethod === 'googlepay' ? '#1976d2' : '#666'} size={20} />
-              <View className="flex-1 ml-3">
-                <Text
-                  className={`text-base font-inter-bold ${
-                    paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-800'
-                  }`}
-                >
-                  Google Pay
-                </Text>
-                <Text
-                  className={`text-sm font-inter ${paymentMethod === 'googlepay' ? 'text-blue-600' : 'text-gray-600'}`}
-                >
-                  Google Pay (availability will be checked at payment)
-                </Text>
-              </View>
-              {paymentMethod === 'googlepay' && <Feather name="check" color="#1976d2" size={20} />}
-            </TouchableOpacity>
-
-            {paymentMethod === 'card' && (
-              <>
-                <Text className="my-4 text-base font-inter-bold text-gray-800">Card Details</Text>
-
-                <InputField
-                  label="Card Number"
-                  value={cardDetails.cardNumber}
-                  onChangeText={(text) => updateCardDetails('cardNumber', text)}
-                  placeholder="Card number"
-                  keyboardType="numeric"
-                  autoCapitalize="none"
-                  required
-                  // error={cardDetailsErrors.cardNumber}
-                />
-
-                <View className="flex-row items-center gap-2">
-                  <View className="flex-1">
-                    <InputField
-                      label="Expiry Date"
-                      value={cardDetails.expiryDate}
-                      onChangeText={(text) => updateCardDetails('expiryDate', text)}
-                      placeholder="MM/YY"
-                      keyboardType="numeric"
-                      autoCapitalize="none"
-                      required
-                      error={cardDetailsErrors.expiryDate}
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <InputField
-                      label="CVC"
-                      value={cardDetails.cvc}
-                      onChangeText={(text) => updateCardDetails('cvc', text)}
-                      placeholder="CVC"
-                      keyboardType="numeric"
-                      autoCapitalize="none"
-                      required
-                      error={cardDetailsErrors.cvc}
-                    />
-                  </View>
+                  {selectedShippingMethod === method.carrier && <View className="w-2 h-2 rounded-full bg-white" />}
                 </View>
+                <View className="flex-1">
+                  <Text
+                    className={`text-base font-inter-bold ${
+                      selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-800'
+                    }`}
+                  >
+                    {method.carrier}
+                  </Text>
+                  <Text
+                    className={`text-sm font-inter ${
+                      selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
+                    }`}
+                  >
+                    {method.deliveryTime}
+                  </Text>
+                </View>
+                <Text
+                  className={`text-sm font-inter-bold ${
+                    selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
+                  }`}
+                >
+                  {method.cost}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-                <InputField
-                  label="Cardholder Name"
-                  value={cardDetails.cardholderName}
-                  onChangeText={(text) => updateCardDetails('cardholderName', text)}
-                  placeholder="Cardholder Name"
-                  icon="user"
-                  required
-                  error={cardDetailsErrors.cardholderName}
-                />
+        {/* Payment */}
+        <View className="bg-white rounded-xl">
+          {/* Section Header */}
+          <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
+            <Feather name="credit-card" color="#666" size={20} />
+            <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Payment</Text>
+          </View>
 
-                <InputField
-                  label="Country"
-                  value={cardDetails.country}
-                  onChangeText={(text) => updateCardDetails('country', text)}
-                  placeholder="Country"
-                  autoCapitalize="none"
-                />
-
-                <InputField
-                  label="ZIP Code"
-                  value={cardDetails.zipCode}
-                  onChangeText={(text) => updateCardDetails('zipCode', text)}
-                  placeholder="ZIP Code"
-                  keyboardType="numeric"
-                  autoCapitalize="none"
-                  error={cardDetailsErrors.zipCode}
-                />
-              </>
-            )}
-
-            <View className="flex-row items-center p-3 rounded-lg bg-blue-50">
-              <Feather name="shield" color="#1976d2" size={16} />
-              <Text className="text-sm font-inter text-blue-600 ml-2 flex-1">
-                Your payment information is securely processed by Stripe and never stored on our servers.
-              </Text>
-            </View>
+          {/* Section Content */}
+          <View className="p-5">
+            <Text className="text-base font-inter-bold text-gray-800 mb-2">Secure Payment via Stripe</Text>
+            <Text className="text-sm font-inter text-gray-600">
+              You'll be redirected to Stripe's secure checkout to complete your payment. Your card details are never
+              stored on our servers.
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -874,6 +499,89 @@ export default function CheckoutScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Country Picker Modal */}
+      <Modal
+        visible={showCountryPicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCountryPicker(false)}
+      >
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="bg-white rounded-t-3xl max-h-96">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+              <Text className="text-lg font-inter-bold text-gray-800">Select Country</Text>
+              <TouchableOpacity onPress={() => {
+                setShowCountryPicker(false);
+                setCountrySearch('');
+              }}>
+                <Feather name="x" color="#666" size={24} />
+              </TouchableOpacity>
+            </View>
+            
+            {/* Search Input */}
+            <View className="px-4 py-3 border-b border-gray-200">
+              <View className="flex-row items-center px-3 rounded-lg bg-gray-100">
+                <Feather name="search" color="#666" size={16} />
+                <TextInput
+                  value={countrySearch}
+                  onChangeText={setCountrySearch}
+                  placeholder="Search countries..."
+                  className="flex-1 py-2 px-2 text-base font-inter"
+                  autoCapitalize="none"
+                />
+                {countrySearch.length > 0 && (
+                  <TouchableOpacity onPress={() => setCountrySearch('')}>
+                    <Feather name="x" color="#666" size={16} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+            
+            <ScrollView className="max-h-80">
+              {filteredCountries.length > 0 ? (
+                filteredCountries.map((country, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      updateShippingAddress('country', country.code);
+                      setShowCountryPicker(false);
+                      setCountrySearch('');
+                    }}
+                    className={`p-4 border-b border-gray-100 ${
+                      shippingInformation.country === country.code ? 'bg-blue-50' : 'bg-white'
+                    }`}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-1">
+                        <Text className={`text-base font-inter ${
+                          shippingInformation.country === country.code ? 'text-blue-600 font-inter-bold' : 'text-gray-800'
+                        }`}>
+                          {country.name}
+                        </Text>
+                        <Text className={`text-sm font-inter ${
+                          shippingInformation.country === country.code ? 'text-blue-500' : 'text-gray-500'
+                        }`}>
+                          {country.code}
+                        </Text>
+                      </View>
+                      {shippingInformation.country === country.code && (
+                        <Feather name="check" color="#007AFF" size={20} />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View className="p-8 items-center">
+                  <Feather name="search" color="#999" size={32} />
+                  <Text className="text-gray-500 font-inter mt-2">No countries found</Text>
+                  <Text className="text-gray-400 font-inter text-sm mt-1">Try a different search term</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
