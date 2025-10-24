@@ -136,7 +136,7 @@ export default function ArticleCarousel() {
           {articles.map((_, i) => (
             <View
               key={i}
-              className="w-1.5 h-1.5 rounded-full mx-0.75"
+              className="w-1.5 h-1.5 rounded-full mx-1"
               style={{ backgroundColor: i === index ? '#ffffff' : 'rgba(255,255,255,0.5)' }}
             />
           ))}
