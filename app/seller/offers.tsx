@@ -149,29 +149,6 @@ export default function OffersScreen() {
     </View>
   );
 
-  const OffersList = ({ offers, onRefresh }: { offers: Offer[]; onRefresh: () => void }) => {
-    if (offers.length === 0) {
-      return (
-        <View className="flex-1 justify-center items-center py-20">
-          <Feather name="tag" color="#666666" size={64} style={{ marginBottom: 24 }} />
-          <Text className="text-gray-900 text-lg font-inter-bold mb-2">No offers found</Text>
-        </View>
-      );
-    }
-
-    return (
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#007AFF" />}
-        className="flex-1 p-4"
-      >
-        {offers.map((offer) => (
-          <OfferCard key={offer.id} offer={offer} />
-        ))}
-      </ScrollView>
-    );
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
