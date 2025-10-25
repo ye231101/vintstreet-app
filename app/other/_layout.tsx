@@ -80,6 +80,13 @@ export default function OtherLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="edit-profile"
+        options={{
+          title: 'Edit Profile',
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
