@@ -22,22 +22,22 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
   const [sortValue, setSortValue] = useState(sortBy);
   const [priceValue, setPriceValue] = useState(priceFilter);
 
-  const sortItems = [
+  const [sortItems, setSortItems] = useState([
     { label: 'Most Relevant', value: 'Most Relevant' },
     { label: 'Price: Low to High', value: 'Price: Low to High' },
     { label: 'Price: High to Low', value: 'Price: High to Low' },
     { label: 'Newest First', value: 'Newest First' },
     { label: 'Oldest First', value: 'Oldest First' },
     { label: 'Most Popular', value: 'Most Popular' },
-  ];
+  ]);
 
-  const priceItems = [
+  const [priceItems, setPriceItems] = useState([
     { label: 'All Prices', value: 'All Prices' },
     { label: 'Under £50.00', value: 'Under £50.00' },
     { label: '£50.00 - £100.00', value: '£50.00 - £100.00' },
     { label: '£100.00 - £200.00', value: '£100.00 - £200.00' },
     { label: 'Over £200.00', value: 'Over £200.00' },
-  ];
+  ]);
 
   const handleSortChange = (value: string) => {
     setSortValue(value);
@@ -55,13 +55,15 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
       <View className="flex-1">
         <DropDownPicker
           open={priceOpen}
-          value={priceValue}
-          items={priceItems}
           setOpen={setPriceOpen}
+          items={priceItems}
+          setItems={setPriceItems}
+          value={priceValue}
           setValue={(callback) => {
             const newValue = typeof callback === 'function' ? callback(priceValue) : callback;
             handlePriceChange(newValue);
           }}
+          listMode="SCROLLVIEW"
           placeholder="Filter by price"
           style={{
             backgroundColor: '#e5e5e5',
@@ -72,26 +74,18 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           textStyle={{
             fontSize: 14,
             fontFamily: 'Inter',
-            color: '#374151',
           }}
           dropDownContainerStyle={{
             backgroundColor: '#ffffff',
             borderColor: '#e5e7eb',
             borderRadius: 12,
-            marginTop: 4,
-          }}
-          arrowIconStyle={{
-            width: 16,
-            height: 16,
-          }}
-          tickIconStyle={{
-            width: 16,
-            height: 16,
+            maxHeight: 300,
           }}
           scrollViewProps={{
-            scrollEnabled: false,
+            nestedScrollEnabled: true,
+            scrollEnabled: true,
+            showsVerticalScrollIndicator: true,
           }}
-          listMode="SCROLLVIEW"
           zIndex={2000}
           zIndexInverse={2000}
         />
@@ -101,43 +95,37 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
       <View className="flex-1">
         <DropDownPicker
           open={sortOpen}
-          value={sortValue}
-          items={sortItems}
           setOpen={setSortOpen}
+          items={sortItems}
+          setItems={setSortItems}
+          value={sortValue}
           setValue={(callback) => {
             const newValue = typeof callback === 'function' ? callback(sortValue) : callback;
             handleSortChange(newValue);
           }}
+          listMode="SCROLLVIEW"
           placeholder="Sort by"
           style={{
             backgroundColor: '#e5e5e5',
-            borderColor: 'transparent',
+            borderColor: '#d1d5db',
             borderRadius: 12,
             minHeight: 40,
           }}
           textStyle={{
             fontSize: 14,
             fontFamily: 'Inter',
-            color: '#374151',
           }}
           dropDownContainerStyle={{
             backgroundColor: '#ffffff',
             borderColor: '#e5e7eb',
             borderRadius: 12,
-            marginTop: 4,
-          }}
-          arrowIconStyle={{
-            width: 16,
-            height: 16,
-          }}
-          tickIconStyle={{
-            width: 16,
-            height: 16,
+            maxHeight: 300,
           }}
           scrollViewProps={{
-            scrollEnabled: false,
+            nestedScrollEnabled: true,
+            scrollEnabled: true,
+            showsVerticalScrollIndicator: true,
           }}
-          listMode="SCROLLVIEW"
           zIndex={1000}
           zIndexInverse={1000}
         />
