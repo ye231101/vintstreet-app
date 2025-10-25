@@ -20,6 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';
+import { StorageService } from '@/api/services/storage.service';
 
 export default function EditProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -32,6 +33,7 @@ export default function EditProfileScreen() {
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
+  const [newAvatarUri, setNewAvatarUri] = useState<string | null>(null); // Local URI of new photo
 
   const handleChangePhoto = () => {
     setShowPhotoOptions(true);
@@ -57,24 +59,19 @@ export default function EditProfileScreen() {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setImageLoading(true);
         const image = result.assets[0];
 
         // Check file size (2MB = 2097152 bytes)
         if (image.fileSize && image.fileSize > 2097152) {
           showToast('Please select an image smaller than 2MB.', 'danger');
-          setImageLoading(false);
           return;
         }
 
-        // For now, just set the local URI
-        // In a production app, you'd upload this to Supabase Storage
-        setAvatarUrl(image.uri);
+        // Store the new photo URI - will be uploaded when saving
+        setNewAvatarUri(image.uri);
         showToast('Photo will be uploaded when you save changes.', 'success');
-        setImageLoading(false);
       }
     } catch (error) {
-      setImageLoading(false);
       showToast('Failed to take photo.', 'danger');
     }
   };
@@ -99,24 +96,19 @@ export default function EditProfileScreen() {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setImageLoading(true);
         const image = result.assets[0];
 
         // Check file size (2MB = 2097152 bytes)
         if (image.fileSize && image.fileSize > 2097152) {
           showToast('Please select an image smaller than 2MB.', 'danger');
-          setImageLoading(false);
           return;
         }
 
-        // For now, just set the local URI
-        // In a production app, you'd upload this to Supabase Storage
-        setAvatarUrl(image.uri);
+        // Store the new photo URI - will be uploaded when saving
+        setNewAvatarUri(image.uri);
         showToast('Photo will be uploaded when you save changes.', 'success');
-        setImageLoading(false);
       }
     } catch (error) {
-      setImageLoading(false);
       showToast('Failed to select photo.', 'danger');
     }
   };
@@ -138,12 +130,29 @@ export default function EditProfileScreen() {
         return;
       }
 
-      // Update profile
+      let finalAvatarUrl = avatarUrl;
+
+      // Upload new avatar if one was selected
+      if (newAvatarUri && user?.id) {
+        const uploadResult = await StorageService.uploadAvatar(newAvatarUri, user.id);
+
+        if (uploadResult.success && uploadResult.url) {
+          finalAvatarUrl = uploadResult.url;
+          showToast('Avatar uploaded successfully!', 'success');
+        } else {
+          console.error('Avatar upload failed:', uploadResult.error);
+          Alert.alert('Upload Failed', uploadResult.error || 'Failed to upload avatar. Please try again.');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Update profile with all data including new avatar URL
       const result = await updateProfile({
         username: username.trim(),
         full_name: fullName.trim(),
         bio: bio.trim(),
-        avatar_url: avatarUrl,
+        avatar_url: finalAvatarUrl,
       });
 
       if (result && updateProfileAction.fulfilled.match(result)) {
@@ -176,9 +185,15 @@ export default function EditProfileScreen() {
   };
 
   const getAvatarSource = () => {
+    // Show new avatar if selected
+    if (newAvatarUri) {
+      return { uri: newAvatarUri };
+    }
+    // Show existing avatar
     if (avatarUrl) {
       return { uri: avatarUrl };
     }
+    // Show placeholder
     return {
       uri: `https://ui-avatars.com/api/?name=${user?.full_name || 'User'}&length=1&size=200`,
     };

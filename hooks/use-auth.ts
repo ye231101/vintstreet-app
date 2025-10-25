@@ -41,7 +41,7 @@ export const useAuth = () => {
     dispatch(resetPassword(email));
   };
 
-  const updateProfile = async (data: { username?: string; full_name?: string; bio?: string; avatar_url?: string }) => {
+  const updateProfile = async (data: { username?: string; full_name?: string; bio?: string; avatar_url?: string; user_type?: string }) => {
     const result = await dispatch(updateProfileAction(data));
     return result;
   };

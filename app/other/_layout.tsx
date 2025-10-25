@@ -87,6 +87,13 @@ export default function OtherLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="seller-setup"
+        options={{
+          title: 'Set up Seller Account',
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
