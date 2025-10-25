@@ -21,6 +21,13 @@ export default function HomeScreen() {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    // When search text is cleared, reload all products
+    if (searchText === '') {
+      fetchProducts('');
+    }
+  }, [searchText]);
+
   const fetchProducts = async (searchKeyword: string = '') => {
     try {
       setIsLoading(true);
