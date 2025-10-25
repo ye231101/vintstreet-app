@@ -146,9 +146,10 @@ export default function CheckoutScreen() {
   const [countrySearch, setCountrySearch] = useState('');
 
   // Filter countries based on search
-  const filteredCountries = countries.filter(country =>
-    country.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
-    country.code.toLowerCase().includes(countrySearch.toLowerCase())
+  const filteredCountries = countries.filter(
+    (country) =>
+      country.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      country.code.toLowerCase().includes(countrySearch.toLowerCase())
   );
 
   useEffect(() => {
@@ -257,230 +258,237 @@ export default function CheckoutScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
-        className="p-4 bg-gray-50"
       >
-        {/* Order Summary */}
-        <View className="bg-white rounded-xl">
-          {/* Header */}
-          <View className="flex-row items-center p-4 rounded-t-xl bg-white border-b border-gray-200">
-            <Feather name="shopping-bag" color="#666" size={20} />
-            <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Order Summary</Text>
-          </View>
+        <View className="gap-4 p-4 bg-gray-50">
+          {/* Order Summary */}
+          <View className="bg-white rounded-xl">
+            {/* Header */}
+            <View className="flex-row items-center p-4 rounded-t-xl bg-white border-b border-gray-200">
+              <Feather name="shopping-bag" color="#666" size={20} />
+              <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Order Summary</Text>
+            </View>
 
-          <View className="flex-row items-center gap-3 p-4">
-            <Image
-              source={checkoutItem?.product?.product_image}
-              contentFit="cover"
-              placeholder={{ blurhash }}
-              transition={1000}
-              style={{ width: 80, height: 80, borderRadius: 8 }}
-            />
+            <View className="flex-row items-center gap-3 p-4">
+              <Image
+                source={checkoutItem?.product?.product_image}
+                contentFit="cover"
+                placeholder={{ blurhash }}
+                transition={1000}
+                style={{ width: 80, height: 80, borderRadius: 8 }}
+              />
 
-            <View className="flex-1 gap-2">
-              <Text className="mb-1 text-sm font-inter-bold text-gray-800">{checkoutItem?.product?.product_name}</Text>
-              <View className="self-start items-center justify-center px-4 py-1 rounded-full bg-gray-200">
-                <Text className="text-xs font-inter-semibold text-gray-600">
-                  {checkoutItem?.product?.product_categories?.name}
+              <View className="flex-1 gap-2">
+                <Text className="mb-1 text-sm font-inter-bold text-gray-800">
+                  {checkoutItem?.product?.product_name}
                 </Text>
+                <View className="self-start items-center justify-center px-4 py-1 rounded-full bg-gray-200">
+                  <Text className="text-xs font-inter-semibold text-gray-600">
+                    {checkoutItem?.product?.product_categories?.name}
+                  </Text>
+                </View>
               </View>
-            </View>
 
-            <Text className="text-base font-inter-bold text-gray-800">
-              £
-              {checkoutItem?.product?.discounted_price !== null
-                ? checkoutItem?.product?.discounted_price.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-                : checkoutItem?.product?.starting_price.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-            </Text>
-          </View>
-        </View>
-
-        {/* Shipping Information */}
-        <View className="bg-white rounded-xl">
-          {/* Section Header */}
-          <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
-            <Feather name="box" color="#666" size={20} />
-            <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Information</Text>
-          </View>
-
-          {/* Section Content */}
-          <View className="p-5">
-            <View className="flex-row items-center gap-2">
-              <View className="flex-1">
-                <InputField
-                  label="First Name"
-                  value={shippingInformation.firstName}
-                  onChangeText={(text) => updateShippingAddress('firstName', text)}
-                  placeholder="First Name"
-                  autoCapitalize="none"
-                  required
-                  error={shippingInformationErrors.firstName}
-                />
-              </View>
-              <View className="flex-1">
-                <InputField
-                  label="Last Name"
-                  value={shippingInformation.lastName}
-                  onChangeText={(text) => updateShippingAddress('lastName', text)}
-                  placeholder="Last Name"
-                  autoCapitalize="none"
-                  required
-                  error={shippingInformationErrors.lastName}
-                />
-              </View>
-            </View>
-
-            <InputField
-              label="Address Line 1"
-              value={shippingInformation.address1}
-              onChangeText={(text) => updateShippingAddress('address1', text)}
-              placeholder="Address Line 1"
-              autoCapitalize="none"
-              required
-              error={shippingInformationErrors.address1}
-            />
-
-            <InputField
-              label="Address Line 2"
-              value={shippingInformation.address2 || ''}
-              onChangeText={(text) => updateShippingAddress('address2', text)}
-              placeholder="Address Line 2"
-              autoCapitalize="none"
-            />
-
-            <InputField
-              label="City"
-              value={shippingInformation.city}
-              onChangeText={(text) => updateShippingAddress('city', text)}
-              placeholder="City"
-              autoCapitalize="none"
-              required
-              error={shippingInformationErrors.city}
-            />
-
-            <View className="flex-row items-center gap-2">
-              <View className="flex-1">
-                <InputField
-                  label="State/County"
-                  value={shippingInformation.state}
-                  onChangeText={(text) => updateShippingAddress('state', text)}
-                  placeholder="State/County"
-                  autoCapitalize="none"
-                />
-              </View>
-              <View className="flex-1">
-                <InputField
-                  label="Postal Code"
-                  value={shippingInformation.postcode}
-                  onChangeText={(text) => updateShippingAddress('postcode', text)}
-                  placeholder="Postal Code"
-                  autoCapitalize="none"
-                />
-              </View>
-            </View>
-
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-inter-bold text-gray-800">
-                Country <Text className="text-red-500">*</Text>
+              <Text className="text-base font-inter-bold text-gray-800">
+                £
+                {checkoutItem?.product?.discounted_price !== null
+                  ? checkoutItem?.product?.discounted_price.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : checkoutItem?.product?.starting_price.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
               </Text>
-              <TouchableOpacity
-                onPress={() => setShowCountryPicker(true)}
-                className="flex-row items-center px-3 py-3 rounded-lg bg-white border border-gray-200"
-              >
-                <Text className="flex-1 text-base font-inter-semibold text-gray-800">
-                  {countries.find(c => c.code === shippingInformation.country)?.name || 'Select Country'}
-                </Text>
-                <Feather name="chevron-down" color="#666" size={20} />
-              </TouchableOpacity>
-              <Text className="mt-1 text-xs font-inter-semibold text-gray-600">Changing country may affect shipping costs.</Text>
+            </View>
+          </View>
+
+          {/* Shipping Information */}
+          <View className="bg-white rounded-xl">
+            {/* Section Header */}
+            <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
+              <Feather name="box" color="#666" size={20} />
+              <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Information</Text>
             </View>
 
-            <InputField
-              label="Phone"
-              value={shippingInformation.phone}
-              onChangeText={(text) => updateShippingAddress('phone', text)}
-              placeholder="Phone"
-              keyboardType="numeric"
-              autoCapitalize="none"
-            />
-          </View>
-        </View>
-
-        {/* Shipping Method */}
-        <View className="bg-white rounded-xl">
-          {/* Section Header */}
-          <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
-            <Feather name="truck" color="#666" size={20} />
-            <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Method</Text>
-          </View>
-
-          {/* Section Content */}
-          <View className="p-5">
-            <Text className="mb-4 text-sm font-inter-semibold text-gray-600">Shipping for 1 item(s)</Text>
-
-            {shippingMethods.map((method, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => setSelectedShippingMethod(method.carrier)}
-                className={`flex-row items-center mb-3 p-4 rounded-lg border ${
-                  selectedShippingMethod === method.carrier ? 'bg-blue-50 border-blue-600' : 'bg-white border-gray-200'
-                }`}
-              >
-                <View
-                  className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
-                    selectedShippingMethod === method.carrier ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
-                  }`}
-                >
-                  {selectedShippingMethod === method.carrier && <View className="w-2 h-2 rounded-full bg-white" />}
+            {/* Section Content */}
+            <View className="p-5">
+              <View className="flex-row items-center gap-2">
+                <View className="flex-1">
+                  <InputField
+                    label="First Name"
+                    value={shippingInformation.firstName}
+                    onChangeText={(text) => updateShippingAddress('firstName', text)}
+                    placeholder="First Name"
+                    autoCapitalize="none"
+                    required
+                    error={shippingInformationErrors.firstName}
+                  />
                 </View>
                 <View className="flex-1">
-                  <Text
-                    className={`text-base font-inter-bold ${
-                      selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-800'
+                  <InputField
+                    label="Last Name"
+                    value={shippingInformation.lastName}
+                    onChangeText={(text) => updateShippingAddress('lastName', text)}
+                    placeholder="Last Name"
+                    autoCapitalize="none"
+                    required
+                    error={shippingInformationErrors.lastName}
+                  />
+                </View>
+              </View>
+
+              <InputField
+                label="Address Line 1"
+                value={shippingInformation.address1}
+                onChangeText={(text) => updateShippingAddress('address1', text)}
+                placeholder="Address Line 1"
+                autoCapitalize="none"
+                required
+                error={shippingInformationErrors.address1}
+              />
+
+              <InputField
+                label="Address Line 2"
+                value={shippingInformation.address2 || ''}
+                onChangeText={(text) => updateShippingAddress('address2', text)}
+                placeholder="Address Line 2"
+                autoCapitalize="none"
+              />
+
+              <InputField
+                label="City"
+                value={shippingInformation.city}
+                onChangeText={(text) => updateShippingAddress('city', text)}
+                placeholder="City"
+                autoCapitalize="none"
+                required
+                error={shippingInformationErrors.city}
+              />
+
+              <View className="flex-row items-center gap-2">
+                <View className="flex-1">
+                  <InputField
+                    label="State/County"
+                    value={shippingInformation.state}
+                    onChangeText={(text) => updateShippingAddress('state', text)}
+                    placeholder="State/County"
+                    autoCapitalize="none"
+                  />
+                </View>
+                <View className="flex-1">
+                  <InputField
+                    label="Postal Code"
+                    value={shippingInformation.postcode}
+                    onChangeText={(text) => updateShippingAddress('postcode', text)}
+                    placeholder="Postal Code"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-inter-bold text-gray-800">
+                  Country <Text className="text-red-500">*</Text>
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowCountryPicker(true)}
+                  className="flex-row items-center px-3 py-3 rounded-lg bg-white border border-gray-200"
+                >
+                  <Text className="flex-1 text-base font-inter-semibold text-gray-800">
+                    {countries.find((c) => c.code === shippingInformation.country)?.name || 'Select Country'}
+                  </Text>
+                  <Feather name="chevron-down" color="#666" size={20} />
+                </TouchableOpacity>
+                <Text className="mt-1 text-xs font-inter-semibold text-gray-600">
+                  Changing country may affect shipping costs.
+                </Text>
+              </View>
+
+              <InputField
+                label="Phone"
+                value={shippingInformation.phone}
+                onChangeText={(text) => updateShippingAddress('phone', text)}
+                placeholder="Phone"
+                keyboardType="numeric"
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          {/* Shipping Method */}
+          <View className="bg-white rounded-xl">
+            {/* Section Header */}
+            <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
+              <Feather name="truck" color="#666" size={20} />
+              <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Method</Text>
+            </View>
+
+            {/* Section Content */}
+            <View className="p-5">
+              <Text className="mb-4 text-sm font-inter-semibold text-gray-600">Shipping for 1 item(s)</Text>
+
+              {shippingMethods.map((method, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => setSelectedShippingMethod(method.carrier)}
+                  className={`flex-row items-center mb-3 p-4 rounded-lg border ${
+                    selectedShippingMethod === method.carrier
+                      ? 'bg-blue-50 border-blue-600'
+                      : 'bg-white border-gray-200'
+                  }`}
+                >
+                  <View
+                    className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
+                      selectedShippingMethod === method.carrier ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
                     }`}
                   >
-                    {method.carrier}
-                  </Text>
+                    {selectedShippingMethod === method.carrier && <View className="w-2 h-2 rounded-full bg-white" />}
+                  </View>
+                  <View className="flex-1">
+                    <Text
+                      className={`text-base font-inter-bold ${
+                        selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-800'
+                      }`}
+                    >
+                      {method.carrier}
+                    </Text>
+                    <Text
+                      className={`text-sm font-inter-semibold ${
+                        selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
+                      }`}
+                    >
+                      {method.deliveryTime}
+                    </Text>
+                  </View>
                   <Text
-                    className={`text-sm font-inter-semibold ${
+                    className={`text-sm font-inter-bold ${
                       selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
                     }`}
                   >
-                    {method.deliveryTime}
+                    {method.cost}
                   </Text>
-                </View>
-                <Text
-                  className={`text-sm font-inter-bold ${
-                    selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
-                  }`}
-                >
-                  {method.cost}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Payment */}
-        <View className="bg-white rounded-xl">
-          {/* Section Header */}
-          <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
-            <Feather name="credit-card" color="#666" size={20} />
-            <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Payment</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
-          {/* Section Content */}
-          <View className="p-5">
-            <Text className="text-base font-inter-bold text-gray-800 mb-2">Secure Payment via Stripe</Text>
-            <Text className="text-sm font-inter-semibold text-gray-600">
-              You'll be redirected to Stripe's secure checkout to complete your payment. Your card details are never
-              stored on our servers.
-            </Text>
+          {/* Payment */}
+          <View className="bg-white rounded-xl">
+            {/* Section Header */}
+            <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
+              <Feather name="credit-card" color="#666" size={20} />
+              <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Payment</Text>
+            </View>
+
+            {/* Section Content */}
+            <View className="p-5">
+              <Text className="text-base font-inter-bold text-gray-800 mb-2">Secure Payment via Stripe</Text>
+              <Text className="text-sm font-inter-semibold text-gray-600">
+                You'll be redirected to Stripe's secure checkout to complete your payment. Your card details are never
+                stored on our servers.
+              </Text>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -511,14 +519,16 @@ export default function CheckoutScreen() {
           <View className="bg-white rounded-t-3xl max-h-96">
             <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-lg font-inter-bold text-gray-800">Select Country</Text>
-              <TouchableOpacity onPress={() => {
-                setShowCountryPicker(false);
-                setCountrySearch('');
-              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowCountryPicker(false);
+                  setCountrySearch('');
+                }}
+              >
                 <Feather name="x" color="#666" size={24} />
               </TouchableOpacity>
             </View>
-            
+
             {/* Search Input */}
             <View className="px-4 py-3 border-b border-gray-200">
               <View className="flex-row items-center px-3 rounded-lg bg-gray-100">
@@ -537,7 +547,7 @@ export default function CheckoutScreen() {
                 )}
               </View>
             </View>
-            
+
             <ScrollView className="max-h-80">
               {filteredCountries.length > 0 ? (
                 filteredCountries.map((country, index) => (
@@ -554,14 +564,20 @@ export default function CheckoutScreen() {
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
-                        <Text className={`text-base font-inter-semibold ${
-                          shippingInformation.country === country.code ? 'text-blue-600 font-inter-bold' : 'text-gray-800'
-                        }`}>
+                        <Text
+                          className={`text-base font-inter-semibold ${
+                            shippingInformation.country === country.code
+                              ? 'text-blue-600 font-inter-bold'
+                              : 'text-gray-800'
+                          }`}
+                        >
                           {country.name}
                         </Text>
-                        <Text className={`text-sm font-inter-semibold ${
-                          shippingInformation.country === country.code ? 'text-blue-500' : 'text-gray-500'
-                        }`}>
+                        <Text
+                          className={`text-sm font-inter-semibold ${
+                            shippingInformation.country === country.code ? 'text-blue-500' : 'text-gray-500'
+                          }`}
+                        >
                           {country.code}
                         </Text>
                       </View>
