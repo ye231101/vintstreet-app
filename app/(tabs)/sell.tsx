@@ -644,7 +644,7 @@ export default function SellScreen() {
         sub_subcategory_id: selectedSubSubcategoryId || null,
         sub_sub_subcategory_id: selectedSubSubSubcategoryId || null,
         brand_id: selectedBrandId || null,
-        stock_quantity: itemType === 'multi' && stockQuantity ? parseInt(stockQuantity) : null,
+        stock_quantity: itemType === 'single' ? 1 : itemType === 'multi' && stockQuantity ? parseInt(stockQuantity) : 1,
         status: 'published' as const,
         moderation_status: 'approved',
       };

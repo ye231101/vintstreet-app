@@ -7,39 +7,47 @@ import TopCategory from '@/components/top-category';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const PRODUCTS_PER_PAGE = 5;
 
 export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchText, setSearchText] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    // When search text is cleared, reload all products
-    if (searchText === '') {
-      fetchProducts('');
-    }
-  }, [searchText]);
-
-  const fetchProducts = async (searchKeyword: string = '') => {
+  const fetchProducts = async () => {
     try {
       setIsLoading(true);
       setError(null);
+      setCurrentPage(0);
+      setHasMore(true);
 
-      if (searchKeyword.trim()) {
-        const results = await listingsService.searchListings(searchKeyword);
-        setProducts(results);
-      } else {
-        const apiProducts = await listingsService.getListings();
-        setProducts(apiProducts);
-      }
+      const filters = searchKeyword.trim() ? { searchKeyword: searchKeyword.trim() } : {};
+      const result = await listingsService.getListingsInfinite(0, PRODUCTS_PER_PAGE, filters);
+
+      setProducts(result.products);
+      setHasMore(result.nextPage !== undefined);
+      setCurrentPage(result.nextPage || 0);
     } catch (err) {
       console.error('Error loading products:', err);
       setProducts([]);
@@ -49,11 +57,37 @@ export default function HomeScreen() {
     }
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
+  const loadMoreProducts = async () => {
+    if (isLoadingMore || !hasMore) return;
+
     try {
-      const apiProducts = await listingsService.getListings();
-      setProducts(apiProducts);
+      setIsLoadingMore(true);
+
+      const filters = searchKeyword.trim() ? { searchKeyword: searchKeyword.trim() } : {};
+      const result = await listingsService.getListingsInfinite(currentPage, PRODUCTS_PER_PAGE, filters);
+
+      setProducts((prev) => [...prev, ...result.products]);
+      setHasMore(result.nextPage !== undefined);
+      setCurrentPage(result.nextPage || currentPage);
+    } catch (err) {
+      console.error('Error loading more products:', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      setCurrentPage(0);
+      setHasMore(true);
+
+      const filters = searchKeyword.trim() ? { searchKeyword: searchKeyword.trim() } : {};
+      const result = await listingsService.getListingsInfinite(0, PRODUCTS_PER_PAGE, filters);
+
+      setProducts(result.products);
+      setHasMore(result.nextPage !== undefined);
+      setCurrentPage(result.nextPage || 0);
       setError(null);
     } catch (err) {
       console.error('Error refreshing:', err);
@@ -63,13 +97,30 @@ export default function HomeScreen() {
     }
   };
 
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+  };
+
+  const handleScroll = ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (isCloseToBottom(nativeEvent)) {
+      loadMoreProducts();
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 mb-50 bg-black">
       {/* Search Bar */}
-      <SearchBar value={searchText} onChangeText={(text) => setSearchText(text)} onSearch={fetchProducts} />
+      <SearchBar
+        value={searchKeyword}
+        onChangeText={(text) => setSearchKeyword(text)}
+        onSearch={() => fetchProducts()}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={10}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ flexGrow: 1 }}
       >
@@ -124,6 +175,14 @@ export default function HomeScreen() {
                   </View>
                 )}
               </View>
+
+              {/* Load More Indicator */}
+              {isLoadingMore && (
+                <View className="items-center justify-center py-4">
+                  <ActivityIndicator size="small" color="#000" />
+                  <Text className="mt-2 text-sm font-inter-medium text-gray-600">Loading more products...</Text>
+                </View>
+              )}
             </View>
           )}
         </View>
