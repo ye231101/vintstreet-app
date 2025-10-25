@@ -36,6 +36,7 @@ export interface InfiniteQueryResult {
 }
 
 export interface ListingsFilters {
+  searchKeyword?: string;
   activeCategory?: string;
   activeSubcategory?: string;
   activeSubSubcategory?: string;
@@ -48,13 +49,13 @@ class ListingsService {
   /**
    * Get listings with infinite scroll support and optimized seller fetching
    * @param pageParam - Current page offset
+   * @param pageSize - Number of products per page
    * @param filters - Filter options for listings
-   * @param productsPerPage - Number of products per page
    */
   async getListingsInfinite(
     pageParam: number = 0,
+    pageSize: number = 20,
     filters: ListingsFilters = {},
-    productsPerPage: number = 20
   ): Promise<InfiniteQueryResult> {
     try {
       let query = supabase
@@ -83,6 +84,11 @@ class ListingsService {
         .eq('product_type', 'shop')
         .eq('status', 'published');
 
+      // Apply search filter
+      if (filters.searchKeyword && filters.searchKeyword.trim()) {
+        query = query.or(`product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`);
+      }
+
       // Apply server-side filters
       if (filters.activeCategory) {
         query = query.eq('category_id', filters.activeCategory);
@@ -100,7 +106,7 @@ class ListingsService {
         query = query.in('brand_id', Array.from(filters.selectedBrands));
       }
 
-      query = query.order('created_at', { ascending: false }).range(pageParam, pageParam + productsPerPage - 1);
+      query = query.order('created_at', { ascending: false }).range(pageParam, pageParam + pageSize - 1);
 
       const { data, error } = await query;
       if (error) throw error;
@@ -118,7 +124,7 @@ class ListingsService {
 
       return {
         products: productsWithSellers,
-        nextPage: data && data.length === productsPerPage ? pageParam + productsPerPage : undefined,
+        nextPage: data && data.length === pageSize ? pageParam + pageSize : undefined,
       };
     } catch (error) {
       console.error('Error fetching listings infinite:', error);
@@ -128,7 +134,6 @@ class ListingsService {
 
   /**
    * Get listings for a specific stream
-   * @param streamId - The stream ID to fetch listings for
    */
   async getListings(): Promise<Product[]> {
     try {
@@ -177,47 +182,6 @@ class ListingsService {
       return productsWithSellers;
     } catch (error) {
       console.error('Error fetching listings:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get listings filtered by a category slug
-   * Tries common schema patterns: category_slug (eq) or category_slugs (array contains)
-   */
-  async getListingsByCategorySlug(categorySlug: string, sort?: string): Promise<Product[]> {
-    try {
-      // Only try category_slug. We won't attempt category_slugs to avoid column errors.
-      const { data, error } = await (supabase as any)
-        .from('listings')
-        .select('*')
-        .eq('category_slug' as any, categorySlug);
-
-      if (error) throw new Error(`Failed to fetch listings by category: ${error.message}`);
-
-      // Optional sorting
-      // We perform client-side sort to avoid depending on DB columns that may not exist
-      const items = ((data as unknown as Product[]) || []).slice();
-      if (sort) {
-        switch (sort) {
-          case 'price:asc':
-            items.sort(
-              (a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0)
-            );
-            break;
-          case 'price:desc':
-            items.sort(
-              (a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0)
-            );
-            break;
-          default:
-            break;
-        }
-      }
-
-      return this.transformListingsData(items);
-    } catch (error) {
-      console.error('Error fetching listings by category:', error);
       throw error;
     }
   }
