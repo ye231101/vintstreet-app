@@ -402,7 +402,7 @@ export default function ProductDetailScreen() {
 
           {/* Tabs */}
           <View className="px-4">
-            <View className="flex-row bg-white rounded-lg overflow-hidden border border-gray-200">
+            <View className="flex-row bg-white rounded-t-lg overflow-hidden border border-gray-200">
               {(['description', 'details', 'seller'] as const).map((t) => (
                 <Pressable
                   key={t}
@@ -447,36 +447,38 @@ export default function ProductDetailScreen() {
                   ) : productAttributes.length > 0 ? (
                     <View>
                       <Text className="text-sm font-inter-bold text-gray-800 mb-3">Product Attributes</Text>
-                      {productAttributes.map((attribute: any, index: number) => {
-                        // Extract the correct value based on data type
-                        const getValue = () => {
-                          if (attribute.value_text !== null) return attribute.value_text;
-                          if (attribute.value_number !== null) return attribute.value_number.toString();
-                          if (attribute.value_boolean !== null) return attribute.value_boolean ? 'Yes' : 'No';
-                          if (attribute.value_date !== null) {
-                            try {
-                              return new Date(attribute.value_date).toLocaleDateString();
-                            } catch {
-                              return attribute.value_date;
+                      <View className="gap-2">
+                        {productAttributes.map((attribute: any, index: number) => {
+                          // Extract the correct value based on data type
+                          const getValue = () => {
+                            if (attribute.value_text !== null) return attribute.value_text;
+                            if (attribute.value_number !== null) return attribute.value_number.toString();
+                            if (attribute.value_boolean !== null) return attribute.value_boolean ? 'Yes' : 'No';
+                            if (attribute.value_date !== null) {
+                              try {
+                                return new Date(attribute.value_date).toLocaleDateString();
+                              } catch {
+                                return attribute.value_date;
+                              }
                             }
-                          }
-                          return '-';
-                        };
+                            return '-';
+                          };
 
-                        return (
-                          <View
-                            key={index}
-                            className="flex-row items-center justify-between py-3 border-b border-gray-100 last:border-b-0"
-                          >
-                            <Text className="text-sm font-inter-semibold text-gray-600 flex-1">
-                              {attribute.attributes?.name || 'Attribute'}
-                            </Text>
-                            <Text className="text-sm font-inter-semibold text-gray-800 flex-1 text-right">
-                              {getValue()}
-                            </Text>
-                          </View>
-                        );
-                      })}
+                          return (
+                            <View
+                              key={index}
+                              className="flex-row items-center justify-between border-b border-gray-100 last:border-b-0"
+                            >
+                              <Text className="text-sm font-inter-semibold text-gray-600 flex-1">
+                                {attribute.attributes?.name || 'Attribute'}
+                              </Text>
+                              <Text className="text-sm font-inter-semibold text-gray-800 flex-1 text-right">
+                                {getValue()}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
                     </View>
                   ) : (
                     <View>
