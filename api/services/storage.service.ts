@@ -9,19 +9,23 @@ export interface UploadResult {
 
 export class StorageService {
   private static readonly BUCKET_NAME = 'product-images';
+  private static readonly AVATAR_BUCKET_NAME = 'avatars';
 
   /**
-   * Upload a single image to Supabase storage
+   * Upload avatar image to Supabase storage
    * @param imageUri - Local URI of the image
    * @param userId - User ID for organizing files
    * @returns Promise with upload result
    */
-  static async uploadImage(imageUri: string, userId: string): Promise<{ success: boolean; url?: string; error?: string }> {
+  static async uploadAvatar(
+    imageUri: string,
+    userId: string
+  ): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
       // Convert image to base64
       const response = await fetch(imageUri);
       const blob = await response.blob();
-      
+
       // Convert blob to base64
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -32,51 +36,121 @@ export class StorageService {
 
       // Remove data URL prefix
       const base64Data = base64.split(',')[1];
-      
-      // Generate unique filename
-      const fileName = `${userId}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
-      
+
+      // Generate unique filename for avatar (one per user, so we can overwrite)
+      const fileName = `${userId}/avatar_${Date.now()}.jpg`;
+
       // Upload to Supabase storage
       const { data, error } = await supabase.storage
-        .from(this.BUCKET_NAME)
+        .from(this.AVATAR_BUCKET_NAME)
         .upload(fileName, decode(base64Data), {
           contentType: 'image/jpeg',
-          upsert: false
+          upsert: true, // Allow overwriting old avatar
         });
 
       if (error) {
-        console.error('Upload error:', error);
-        
+        console.error('Avatar upload error:', error);
+
         // Check if it's an authentication error
         if (error.message.includes('JWT') || error.message.includes('token') || error.message.includes('auth')) {
           return { success: false, error: 'Authentication expired. Please log in again.' };
         }
-        
+
         return { success: false, error: error.message };
       }
 
       // Get public URL
-      const { data: publicUrlData } = supabase.storage
-        .from(this.BUCKET_NAME)
-        .getPublicUrl(fileName);
+      const { data: publicUrlData } = supabase.storage.from(this.AVATAR_BUCKET_NAME).getPublicUrl(fileName);
+
+      return { success: true, url: publicUrlData.publicUrl };
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+
+      // Check if it's an authentication error
+      if (
+        error instanceof Error &&
+        (error.message.includes('JWT') ||
+          error.message.includes('token') ||
+          error.message.includes('auth') ||
+          error.message.includes('unauthorized'))
+      ) {
+        return { success: false, error: 'Authentication expired. Please log in again.' };
+      }
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      };
+    }
+  }
+
+  /**
+   * Upload a single image to Supabase storage
+   * @param imageUri - Local URI of the image
+   * @param userId - User ID for organizing files
+   * @returns Promise with upload result
+   */
+  static async uploadImage(
+    imageUri: string,
+    userId: string
+  ): Promise<{ success: boolean; url?: string; error?: string }> {
+    try {
+      // Convert image to base64
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+
+      // Convert blob to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      // Remove data URL prefix
+      const base64Data = base64.split(',')[1];
+
+      // Generate unique filename
+      const fileName = `${userId}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage.from(this.BUCKET_NAME).upload(fileName, decode(base64Data), {
+        contentType: 'image/jpeg',
+        upsert: false,
+      });
+
+      if (error) {
+        console.error('Upload error:', error);
+
+        // Check if it's an authentication error
+        if (error.message.includes('JWT') || error.message.includes('token') || error.message.includes('auth')) {
+          return { success: false, error: 'Authentication expired. Please log in again.' };
+        }
+
+        return { success: false, error: error.message };
+      }
+
+      // Get public URL
+      const { data: publicUrlData } = supabase.storage.from(this.BUCKET_NAME).getPublicUrl(fileName);
 
       return { success: true, url: publicUrlData.publicUrl };
     } catch (error) {
       console.error('Upload error:', error);
-      
+
       // Check if it's an authentication error
-      if (error instanceof Error && (
-        error.message.includes('JWT') || 
-        error.message.includes('token') || 
-        error.message.includes('auth') ||
-        error.message.includes('unauthorized')
-      )) {
+      if (
+        error instanceof Error &&
+        (error.message.includes('JWT') ||
+          error.message.includes('token') ||
+          error.message.includes('auth') ||
+          error.message.includes('unauthorized'))
+      ) {
         return { success: false, error: 'Authentication expired. Please log in again.' };
       }
-      
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -103,7 +177,7 @@ export class StorageService {
     return {
       success: results.length > 0,
       urls: results,
-      errors: errors.length > 0 ? errors : undefined
+      errors: errors.length > 0 ? errors : undefined,
     };
   }
 
@@ -120,9 +194,7 @@ export class StorageService {
       const userId = urlParts[urlParts.length - 2];
       const fullPath = `${userId}/${fileName}`;
 
-      const { error } = await supabase.storage
-        .from(this.BUCKET_NAME)
-        .remove([fullPath]);
+      const { error } = await supabase.storage.from(this.BUCKET_NAME).remove([fullPath]);
 
       if (error) {
         console.error('Delete error:', error);
@@ -132,9 +204,9 @@ export class StorageService {
       return { success: true };
     } catch (error) {
       console.error('Delete error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -156,7 +228,7 @@ export class StorageService {
 
     return {
       success: errors.length === 0,
-      errors: errors.length > 0 ? errors : undefined
+      errors: errors.length > 0 ? errors : undefined,
     };
   }
 }

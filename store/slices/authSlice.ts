@@ -147,7 +147,7 @@ export const resetPassword = createAsyncThunk('auth/resetPassword', async (email
 
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (data: { username?: string; full_name?: string; bio?: string; avatar_url?: string }) => {
+  async (data: { username?: string; full_name?: string; bio?: string; avatar_url?: string; user_type?: string }) => {
     const { error, success } = await authService.updateProfile(data);
 
     if (error || !success) {

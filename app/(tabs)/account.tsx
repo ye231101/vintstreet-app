@@ -58,41 +58,64 @@ export default function AccountScreen() {
         <View className="px-2 py-4">
           <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SELLER HUB</Text>
 
-          <Pressable onPress={() => router.push('/seller/dashboard')} className="flex-row items-center px-4 py-3">
-            <Feather name="shopping-cart" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Seller Dashboard</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
+          {user?.user_type === 'buyer' ? (
+            // Show "Set up Seller Account" for buyers only
+            <Pressable
+              onPress={() => router.push('/other/seller-setup')}
+              className="flex-row items-center px-4 py-3 mx-2 bg-blue-50 rounded-xl"
+            >
+              <View className="p-2 mr-3 bg-blue-100 rounded-lg">
+                <Feather name="briefcase" size={24} color="#3B82F6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-inter-bold text-blue-600">Set up Seller Account</Text>
+                <Text className="text-xs font-inter-regular text-gray-600">Start selling your vintage items</Text>
+              </View>
+              <Feather name="chevron-right" size={20} color="#3B82F6" />
+            </Pressable>
+          ) : (
+            // Show full seller menu for sellers and both
+            <>
+              <Pressable onPress={() => router.push('/seller/dashboard')} className="flex-row items-center px-4 py-3">
+                <Feather name="shopping-cart" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Seller Dashboard</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center px-4 py-3">
-            <Feather name="grid" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Listings</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
+              <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center px-4 py-3">
+                <Feather name="grid" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Listings</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/orders')} className="flex-row items-center py-3 px-4">
-            <Feather name="shopping-bag" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Orders</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
+              <Pressable onPress={() => router.push('/seller/orders')} className="flex-row items-center py-3 px-4">
+                <Feather name="shopping-bag" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Orders</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/offers')} className="flex-row items-center px-4 py-3">
-            <Feather name="tag" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Offers</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
+              <Pressable onPress={() => router.push('/seller/offers')} className="flex-row items-center px-4 py-3">
+                <Feather name="tag" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Offers</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
 
-          <Pressable onPress={() => router.push('/seller/reviews')} className="flex-row items-center px-4 py-3">
-            <Feather name="star" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Reviews</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
+              <Pressable onPress={() => router.push('/seller/reviews')} className="flex-row items-center px-4 py-3">
+                <Feather name="star" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Reviews</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
 
-          <Pressable onPress={() => router.push('/other/payment-setup')} className="flex-row items-center px-4 py-3">
-            <Feather name="credit-card" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Payment Setup</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
+              <Pressable
+                onPress={() => router.push('/other/payment-setup')}
+                className="flex-row items-center px-4 py-3"
+              >
+                <Feather name="credit-card" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Payment Setup</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
+            </>
+          )}
         </View>
 
         {/* Divider */}

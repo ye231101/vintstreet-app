@@ -425,6 +425,7 @@ class AuthService {
     full_name?: string;
     bio?: string;
     avatar_url?: string;
+    user_type?: string;
   }): Promise<{ error: string | null; success: boolean }> {
     try {
       // Get current user ID
@@ -447,6 +448,7 @@ class AuthService {
           full_name: data.full_name,
           bio: data.bio,
           avatar_url: data.avatar_url,
+          user_type: data.user_type,
         })
         .eq('user_id', user.id);
 
