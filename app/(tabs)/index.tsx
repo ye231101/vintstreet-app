@@ -7,47 +7,48 @@ import TopCategory from '@/components/top-category';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const PRODUCTS_PER_PAGE = 5;
+const PRODUCTS_PER_PAGE = 10;
 
 export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [currentPage, setCurrentPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageInput, setPageInput] = useState('1');
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+    setPageInput(currentPage.toString());
+  }, [currentPage]);
 
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      setCurrentPage(0);
-      setHasMore(true);
 
+      const pageOffset = (currentPage - 1) * PRODUCTS_PER_PAGE;
       const filters = searchKeyword.trim() ? { searchKeyword: searchKeyword.trim() } : {};
-      const result = await listingsService.getListingsInfinite(0, PRODUCTS_PER_PAGE, filters);
+      const result = await listingsService.getListingsInfinite(pageOffset, PRODUCTS_PER_PAGE, filters);
 
       setProducts(result.products);
-      setHasMore(result.nextPage !== undefined);
-      setCurrentPage(result.nextPage || 0);
+
+      // Calculate total pages based on whether there are more products
+      if (result.total !== undefined) {
+        setTotalPages(Math.ceil(result.total / PRODUCTS_PER_PAGE));
+      } else {
+        // If we got fewer products than requested, we're on the last page
+        if (result.products.length < PRODUCTS_PER_PAGE) {
+          setTotalPages(currentPage);
+        } else if (result.nextPage === undefined) {
+          setTotalPages(currentPage);
+        }
+      }
     } catch (err) {
       console.error('Error loading products:', err);
       setProducts([]);
@@ -57,38 +58,17 @@ export default function HomeScreen() {
     }
   };
 
-  const loadMoreProducts = async () => {
-    if (isLoadingMore || !hasMore) return;
-
-    try {
-      setIsLoadingMore(true);
-
-      const filters = searchKeyword.trim() ? { searchKeyword: searchKeyword.trim() } : {};
-      const result = await listingsService.getListingsInfinite(currentPage, PRODUCTS_PER_PAGE, filters);
-
-      setProducts((prev) => [...prev, ...result.products]);
-      setHasMore(result.nextPage !== undefined);
-      setCurrentPage(result.nextPage || currentPage);
-    } catch (err) {
-      console.error('Error loading more products:', err);
-    } finally {
-      setIsLoadingMore(false);
-    }
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchProducts();
   };
 
   const onRefresh = async () => {
     try {
       setRefreshing(true);
-      setCurrentPage(0);
-      setHasMore(true);
-
-      const filters = searchKeyword.trim() ? { searchKeyword: searchKeyword.trim() } : {};
-      const result = await listingsService.getListingsInfinite(0, PRODUCTS_PER_PAGE, filters);
-
-      setProducts(result.products);
-      setHasMore(result.nextPage !== undefined);
-      setCurrentPage(result.nextPage || 0);
+      setCurrentPage(1);
       setError(null);
+      await fetchProducts();
     } catch (err) {
       console.error('Error refreshing:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh products');
@@ -97,30 +77,41 @@ export default function HomeScreen() {
     }
   };
 
-  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
-    const paddingToBottom = 20;
-    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
-  const handleScroll = ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (isCloseToBottom(nativeEvent)) {
-      loadMoreProducts();
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageInputChange = (text: string) => {
+    // Only allow numbers
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setPageInput(numericValue);
+  };
+
+  const handlePageInputSubmit = () => {
+    const pageNumber = parseInt(pageInput, 10);
+    if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    } else {
+      // Reset to current page if invalid
+      setPageInput(currentPage.toString());
     }
   };
 
   return (
     <SafeAreaView className="flex-1 mb-50 bg-black">
       {/* Search Bar */}
-      <SearchBar
-        value={searchKeyword}
-        onChangeText={(text) => setSearchKeyword(text)}
-        onSearch={() => fetchProducts()}
-      />
+      <SearchBar value={searchKeyword} onChangeText={(text) => setSearchKeyword(text)} onSearch={handleSearch} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={10}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ flexGrow: 1 }}
       >
@@ -144,22 +135,23 @@ export default function HomeScreen() {
           </View>
 
           {/* All Listings Section */}
-          {isLoading ? (
-            <View className="flex-1 items-center justify-center p-4">
-              <ActivityIndicator size="large" color="#000" />
-              <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading products...</Text>
-            </View>
-          ) : error ? (
-            <View className="flex-1 justify-center items-center p-4">
-              <Feather name="alert-circle" color="#ff4444" size={64} />
-              <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading products</Text>
-              <TouchableOpacity onPress={() => fetchProducts()} className="bg-black rounded-lg py-3 px-6">
-                <Text className="text-base font-inter-bold text-white">Retry</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View className="px-2">
-              <Text className="text-sm font-inter-bold text-black mb-3">ALL LISTINGS</Text>
+          <View className="px-2">
+            <Text className="text-sm font-inter-bold text-black mb-3">ALL LISTINGS</Text>
+
+            {isLoading ? (
+              <View className="flex-1 items-center justify-center p-4">
+                <ActivityIndicator size="large" color="#000" />
+                <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading products...</Text>
+              </View>
+            ) : error ? (
+              <View className="flex-1 justify-center items-center p-4">
+                <Feather name="alert-circle" color="#ff4444" size={64} />
+                <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading products</Text>
+                <TouchableOpacity onPress={() => fetchProducts()} className="bg-black rounded-lg py-3 px-6">
+                  <Text className="text-base font-inter-bold text-white">Retry</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <View className="flex-row flex-wrap justify-between gap-2">
                 {products.length > 0 ? (
                   products.map((item) => (
@@ -175,16 +167,54 @@ export default function HomeScreen() {
                   </View>
                 )}
               </View>
+            )}
 
-              {/* Load More Indicator */}
-              {isLoadingMore && (
-                <View className="items-center justify-center py-4">
-                  <ActivityIndicator size="small" color="#000" />
-                  <Text className="mt-2 text-sm font-inter-medium text-gray-600">Loading more products...</Text>
+            {/* Pagination Controls - Always visible */}
+            {totalPages > 1 && (
+              <View className="mt-6 mb-4">
+                {/* Pagination Buttons */}
+                <View className="flex-row justify-center items-center gap-3">
+                  {/* Prev Arrow */}
+                  <TouchableOpacity
+                    onPress={goToPrevPage}
+                    disabled={currentPage === 1 || isLoading}
+                    className="px-3 py-2"
+                  >
+                    <Text className={`${currentPage === 1 || isLoading ? 'text-gray-400' : 'text-black'}`}>
+                      <Feather name="chevron-left" size={24} color="black" />
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Current Page Input / Total Pages */}
+                  <View className="flex-row items-center gap-2">
+                    <TextInput
+                      value={pageInput}
+                      onChangeText={handlePageInputChange}
+                      onSubmitEditing={handlePageInputSubmit}
+                      onBlur={handlePageInputSubmit}
+                      keyboardType="number-pad"
+                      returnKeyType="done"
+                      editable={!isLoading}
+                      className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-center text-base font-inter-medium text-black min-w-[50px]"
+                    />
+                    <Text className="text-base font-inter-medium text-gray-600">/</Text>
+                    <Text className="text-base font-inter-medium text-black">{totalPages}</Text>
+                  </View>
+
+                  {/* Next Arrow */}
+                  <TouchableOpacity
+                    onPress={goToNextPage}
+                    disabled={currentPage === totalPages || isLoading}
+                    className="px-3 py-2"
+                  >
+                    <Text className={`${currentPage === totalPages || isLoading ? 'text-gray-400' : 'text-black'}`}>
+                      <Feather name="chevron-right" size={24} color="black" />
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-            </View>
-          )}
+              </View>
+            )}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

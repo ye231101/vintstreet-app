@@ -49,6 +49,7 @@ export interface Product {
 export interface InfiniteQueryResult {
   products: Product[];
   nextPage: number | undefined;
+  total?: number;
 }
 
 export interface ListingsFilters {
@@ -74,6 +75,39 @@ class ListingsService {
     filters: ListingsFilters = {},
   ): Promise<InfiniteQueryResult> {
     try {
+      // Build the count query with the same filters
+      let countQuery = supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('product_type', 'shop')
+        .eq('status', 'published');
+
+      // Apply search filter to count query
+      if (filters.searchKeyword && filters.searchKeyword.trim()) {
+        countQuery = countQuery.or(`product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`);
+      }
+
+      // Apply server-side filters to count query
+      if (filters.activeCategory) {
+        countQuery = countQuery.eq('category_id', filters.activeCategory);
+      }
+      if (filters.activeSubcategory) {
+        countQuery = countQuery.eq('subcategory_id', filters.activeSubcategory);
+      }
+      if (filters.activeSubSubcategory) {
+        countQuery = countQuery.eq('sub_subcategory_id', filters.activeSubSubcategory);
+      }
+      if (filters.activeSubSubSubcategory) {
+        countQuery = countQuery.eq('sub_sub_subcategory_id', filters.activeSubSubSubcategory);
+      }
+      if (filters.selectedBrands && filters.selectedBrands.size > 0) {
+        countQuery = countQuery.in('brand_id', Array.from(filters.selectedBrands));
+      }
+
+      // Get total count
+      const { count } = await countQuery;
+
+      // Build the data query
       let query = supabase
         .from('listings')
         .select(
@@ -141,6 +175,7 @@ class ListingsService {
       return {
         products: productsWithSellers,
         nextPage: data && data.length === pageSize ? pageParam + pageSize : undefined,
+        total: count || 0,
       };
     } catch (error) {
       console.error('Error fetching listings infinite:', error);
