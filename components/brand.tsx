@@ -5,32 +5,39 @@ import { Dimensions, ScrollView, View } from 'react-native';
 const { width: screenWidth } = Dimensions.get('window');
 
 interface Brand {
+  id: number;
   name: string;
   image: string;
 }
 
 const brands = [
   {
+    id: 1,
     name: "Levi's",
     image: 'https://1000logos.net/wp-content/uploads/2017/03/Levis-Logo.png',
   },
   {
+    id: 2,
     name: 'Adidas',
     image: 'https://1000logos.net/wp-content/uploads/2016/10/Adidas-Logo.png',
   },
   {
+    id: 3,
     name: 'H&M',
     image: 'https://1000logos.net/wp-content/uploads/2017/02/HM-Logo.png',
   },
   {
+    id: 4,
     name: 'Nike',
     image: 'https://1000logos.net/wp-content/uploads/2021/11/Nike-Logo.png',
   },
   {
+    id: 5,
     name: 'Zara',
     image: 'https://1000logos.net/wp-content/uploads/2022/08/Zara-logо.png',
   },
   {
+    id: 6,
     name: 'Gucci',
     image: 'https://1000logos.net/wp-content/uploads/2017/01/Gucci-Logo.png',
   },
@@ -56,8 +63,8 @@ export default function Brand() {
         const second = brands[colIndex * 2 + 1];
         return (
           <View key={colIndex}>
-            {first && <BrandCard brand={first} />}
-            {second && <BrandCard brand={second} />}
+            {first && <BrandCard key={first.id} brand={first} />}
+            {second && <BrandCard key={second.id} brand={second} />}
           </View>
         );
       })}
