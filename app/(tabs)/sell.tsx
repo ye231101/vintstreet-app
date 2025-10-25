@@ -70,6 +70,7 @@ export default function SellScreen() {
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [stockQuantity, setStockQuantity] = useState('');
+  const [isMarketplaceListing, setIsMarketplaceListing] = useState(true);
 
   const itemTypeOptions = [
     { key: 'single', label: 'Single Item' },
@@ -113,6 +114,9 @@ export default function SellScreen() {
         setPrice(product.starting_price ? product.starting_price.toString() : '');
         setSalePrice(product.discounted_price ? product.discounted_price.toString() : '');
         setStockQuantity(product.stock_quantity ? product.stock_quantity.toString() : '');
+        
+        // Set marketplace visibility based on status
+        setIsMarketplaceListing(product.status === 'published');
 
         // Set images
         if (product.product_images && product.product_images.length > 0) {
@@ -579,6 +583,7 @@ export default function SellScreen() {
       setSubSubcategories([]);
       setSubSubSubcategories([]);
       setCurrentCategoryLevel('category');
+      setIsMarketplaceListing(true);
     } catch (error) {
       console.error('Error saving draft:', error);
       Alert.alert('Error', 'Failed to save draft. Please try again.');
@@ -645,7 +650,7 @@ export default function SellScreen() {
         sub_sub_subcategory_id: selectedSubSubSubcategoryId || null,
         brand_id: selectedBrandId || null,
         stock_quantity: itemType === 'single' ? 1 : itemType === 'multi' && stockQuantity ? parseInt(stockQuantity) : 1,
-        status: 'published' as const,
+        status: isMarketplaceListing ? 'published' as const : 'private' as const,
         moderation_status: 'approved',
       };
 
@@ -653,10 +658,16 @@ export default function SellScreen() {
       let product;
       if (productId) {
         product = await listingsService.updateProduct(productId, productData);
-        Alert.alert('Success', 'Product updated and published successfully!');
+        const message = isMarketplaceListing
+          ? 'Product updated and published to marketplace successfully!'
+          : 'Product updated and saved to your shop successfully!';
+        Alert.alert('Success', message);
       } else {
         product = await listingsService.createProduct(productData);
-        Alert.alert('Success', 'Product published to marketplace successfully!');
+        const message = isMarketplaceListing
+          ? 'Product published to marketplace successfully!'
+          : 'Product saved to your shop successfully!';
+        Alert.alert('Success', message);
       }
 
       // Save dynamic attributes if any
@@ -688,6 +699,7 @@ export default function SellScreen() {
       setSubSubcategories([]);
       setSubSubSubcategories([]);
       setCurrentCategoryLevel('category');
+      setIsMarketplaceListing(true);
     } catch (error) {
       console.error('Error publishing product:', error);
       Alert.alert('Error', 'Failed to publish product. Please try again.');
@@ -757,6 +769,7 @@ export default function SellScreen() {
     setSubSubcategories([]);
     setSubSubSubcategories([]);
     setCurrentCategoryLevel('category');
+    setIsMarketplaceListing(true);
     // Navigate away (this would be handled by the navigation system)
   };
 
@@ -1088,6 +1101,38 @@ export default function SellScreen() {
                   />
                 </View>
               )}
+            </View>
+
+            {/* Product Visibility Section */}
+            <View className="p-4 rounded-lg bg-white">
+              <View className="flex-row items-center mb-2">
+                <Feather name="globe" size={20} color="#000" className="mr-2" />
+                <Text className="text-lg font-inter-bold text-black">Product Visibility</Text>
+              </View>
+              <Text className="mb-4 text-sm font-inter-semibold text-gray-600">
+                Control where your product appears
+              </Text>
+
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <Text className="text-sm font-inter-semibold text-black">List on Marketplace</Text>
+                  <Text className="text-xs font-inter-semibold text-gray-500 mt-1">
+                    {isMarketplaceListing ? 'Visible to all users' : 'Only visible in your shop'}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setIsMarketplaceListing(!isMarketplaceListing)}
+                  className={`w-14 h-8 rounded-full justify-center ${
+                    isMarketplaceListing ? 'bg-blue-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <View
+                    className={`w-6 h-6 rounded-full bg-white shadow-lg ${
+                      isMarketplaceListing ? 'ml-7' : 'ml-1'
+                    }`}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Action Buttons */}
