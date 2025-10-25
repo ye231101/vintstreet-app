@@ -114,7 +114,7 @@ export default function SellScreen() {
         setPrice(product.starting_price ? product.starting_price.toString() : '');
         setSalePrice(product.discounted_price ? product.discounted_price.toString() : '');
         setStockQuantity(product.stock_quantity ? product.stock_quantity.toString() : '');
-        
+
         // Set marketplace visibility based on status
         setIsMarketplaceListing(product.status === 'published');
 
@@ -650,7 +650,7 @@ export default function SellScreen() {
         sub_sub_subcategory_id: selectedSubSubSubcategoryId || null,
         brand_id: selectedBrandId || null,
         stock_quantity: itemType === 'single' ? 1 : itemType === 'multi' && stockQuantity ? parseInt(stockQuantity) : 1,
-        status: isMarketplaceListing ? 'published' as const : 'private' as const,
+        status: isMarketplaceListing ? ('published' as const) : ('private' as const),
         moderation_status: 'approved',
       };
 
@@ -798,8 +798,8 @@ export default function SellScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         className="flex-1"
       >
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1 bg-gray-50">
-          <View className="flex-1 gap-4 p-4">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+          <View className="flex-1 gap-4 p-4 bg-gray-50">
             {/* Product Images Section */}
             <View className="p-4 rounded-lg bg-white">
               <Text className="mb-4 text-lg font-inter-bold text-black">Product Images (Multiple)</Text>
@@ -1109,9 +1109,7 @@ export default function SellScreen() {
                 <Feather name="globe" size={20} color="#000" className="mr-2" />
                 <Text className="text-lg font-inter-bold text-black">Product Visibility</Text>
               </View>
-              <Text className="mb-4 text-sm font-inter-semibold text-gray-600">
-                Control where your product appears
-              </Text>
+              <Text className="mb-4 text-sm font-inter-semibold text-gray-600">Control where your product appears</Text>
 
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
@@ -1127,9 +1125,7 @@ export default function SellScreen() {
                   }`}
                 >
                   <View
-                    className={`w-6 h-6 rounded-full bg-white shadow-lg ${
-                      isMarketplaceListing ? 'ml-7' : 'ml-1'
-                    }`}
+                    className={`w-6 h-6 rounded-full bg-white shadow-lg ${isMarketplaceListing ? 'ml-7' : 'ml-1'}`}
                   />
                 </TouchableOpacity>
               </View>

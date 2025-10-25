@@ -24,7 +24,7 @@ export default function AccountScreen() {
         {/* Profile Header Section */}
         <View className="flex-row items-center p-4">
           {/* Profile Avatar */}
-          <View className="items-center justify-center w-24 h-24 mr-4 rounded-xl bg-gray-200">
+          <View className="items-center justify-center w-24 h-24 mr-4 overflow-hidden rounded-full bg-gray-200">
             <Image
               source={{
                 uri: user?.avatar_url
@@ -32,7 +32,7 @@ export default function AccountScreen() {
                   : `https://ui-avatars.com/api/?name=${user?.full_name}&length=1`,
               }}
               resizeMode="cover"
-              style={{ width: '100%', height: '100%', borderRadius: 12 }}
+              style={{ width: '100%', height: '100%' }}
             />
           </View>
 

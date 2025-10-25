@@ -114,80 +114,78 @@ export default function PrivacySecurityScreen() {
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Privacy & Security</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-4">
-        {/* Security Section */}
-        <View className="mt-4 bg-white">
-          <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">SECURITY</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 gap-4 p-4 bg-gray-50">
+          {/* Security Section */}
+          <View className="bg-white">
+            <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">SECURITY</Text>
 
-          <SettingsSwitch
-            title="Two-Factor Authentication"
-            subtitle="Add an extra layer of security to your account"
-            value={twoFactorAuth}
-            onValueChange={handleTwoFactorToggle}
-          />
+            <SettingsSwitch
+              title="Two-Factor Authentication"
+              subtitle="Add an extra layer of security to your account"
+              value={twoFactorAuth}
+              onValueChange={handleTwoFactorToggle}
+            />
 
-          <SettingsSwitch
-            title="Biometric Login"
-            subtitle="Use fingerprint or face recognition to log in"
-            value={biometricLogin}
-            onValueChange={setBiometricLogin}
-          />
+            <SettingsSwitch
+              title="Biometric Login"
+              subtitle="Use fingerprint or face recognition to log in"
+              value={biometricLogin}
+              onValueChange={setBiometricLogin}
+            />
 
-          <SettingsItem title="Change Password" onPress={handleChangePassword} />
-        </View>
+            <SettingsItem title="Change Password" onPress={handleChangePassword} />
+          </View>
 
-        {/* Privacy Section */}
-        <View className="mt-4 bg-white">
-          <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">PRIVACY</Text>
+          {/* Privacy Section */}
+          <View className="bg-white">
+            <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">PRIVACY</Text>
 
-          <SettingsSwitch
-            title="Location Services"
-            subtitle="Allow app to access your location"
-            value={locationServices}
-            onValueChange={setLocationServices}
-          />
+            <SettingsSwitch
+              title="Location Services"
+              subtitle="Allow app to access your location"
+              value={locationServices}
+              onValueChange={setLocationServices}
+            />
 
-          <SettingsSwitch
-            title="Activity Status"
-            subtitle="Show when you're active on the app"
-            value={activityStatus}
-            onValueChange={setActivityStatus}
-          />
+            <SettingsSwitch
+              title="Activity Status"
+              subtitle="Show when you're active on the app"
+              value={activityStatus}
+              onValueChange={setActivityStatus}
+            />
 
-          <SettingsSwitch
-            title="Profile Visibility"
-            subtitle="Make your profile visible to other users"
-            value={profileVisibility}
-            onValueChange={setProfileVisibility}
-          />
-        </View>
+            <SettingsSwitch
+              title="Profile Visibility"
+              subtitle="Make your profile visible to other users"
+              value={profileVisibility}
+              onValueChange={setProfileVisibility}
+            />
+          </View>
 
-        {/* Data & Privacy Section */}
-        <View className="mt-4 bg-white">
-          <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">DATA & PRIVACY</Text>
+          {/* Data & Privacy Section */}
+          <View className="bg-white">
+            <Text className="text-gray-500 text-xs font-inter-bold px-4 pt-4 uppercase">DATA & PRIVACY</Text>
 
-          <SettingsItem
-            title="Privacy Policy"
-            onPress={() => Alert.alert('Privacy Policy', 'Privacy policy content')}
-          />
+            <SettingsItem
+              title="Privacy Policy"
+              onPress={() => Alert.alert('Privacy Policy', 'Privacy policy content')}
+            />
 
-          <SettingsItem
-            title="Terms of Service"
-            onPress={() => Alert.alert('Terms of Service', 'Terms of service content')}
-          />
+            <SettingsItem
+              title="Terms of Service"
+              onPress={() => Alert.alert('Terms of Service', 'Terms of service content')}
+            />
 
-          <SettingsItem title="Download My Data" onPress={handleDownloadData} />
-        </View>
+            <SettingsItem title="Download My Data" onPress={handleDownloadData} />
+          </View>
 
-        {/* Delete Account Button */}
-        <View className="p-4">
-          <TouchableOpacity onPress={handleDeleteAccount} className="bg-red-500 py-4 px-6 rounded-xl items-center">
+          {/* Delete Account Button */}
+          <TouchableOpacity onPress={handleDeleteAccount} className="bg-red-500 mt-2 py-4 px-6 rounded-xl items-center">
             <Text className="text-white text-base font-inter-bold">Delete Account</Text>
           </TouchableOpacity>
         </View>
-        </ScrollView>
-      </View>
+      </ScrollView>
 
       {/* Two-Factor Authentication Modal */}
       <Modal

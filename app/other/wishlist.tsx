@@ -153,7 +153,8 @@ export default function WishlistScreen() {
           <ScrollView
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#007AFF" />}
-            className="flex-1 p-4"
+            contentContainerStyle={{ flexGrow: 1 }}
+            className="p-4"
           >
             {wishlist.map((item) => (
               <WishlistCard key={item.id} item={item} />

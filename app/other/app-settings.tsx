@@ -1,114 +1,34 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Modal, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AppSettingsScreen() {
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState('GBP');
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-  const [showClearDataModal, setShowClearDataModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const languages = ['English', 'Spanish', 'French', 'German', 'Italian'];
-  const currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
+  const currencies = [
+    { code: 'GBP', symbol: '£', name: 'GBP' },
+    { code: 'USD', symbol: '$', name: 'USD' },
+    { code: 'EUR', symbol: '€', name: 'EUR' },
+    { code: 'CAD', symbol: 'C$', name: 'CAD' },
+    { code: 'AUD', symbol: 'A$', name: 'AUD' },
+    { code: 'JPY', symbol: '¥', name: 'JPY' },
+  ];
 
-  const handleClearData = () => {
-    Alert.alert('Success', 'App data has been cleared successfully.');
-    setShowClearDataModal(false);
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true);
   };
 
-  const SettingsSwitch = ({
-    title,
-    subtitle,
-    value,
-    onValueChange,
-  }: {
-    title: string;
-    subtitle: string;
-    value: boolean;
-    onValueChange: (value: boolean) => void;
-  }) => (
-    <View className="px-4 py-3">
-      <View className="flex-row items-center justify-between">
-        <View className="flex-1 mr-4">
-          <Text className="text-gray-900 text-base font-inter-bold mb-1">{title}</Text>
-          <Text className="text-gray-600 text-sm font-inter">{subtitle}</Text>
-        </View>
-        <Switch
-          value={value}
-          onValueChange={onValueChange}
-          trackColor={{ false: '#E5E7EB', true: '#007AFF' }}
-          thumbColor={value ? '#fff' : '#999'}
-        />
-      </View>
-    </View>
-  );
-
-  const SettingsDropdown = ({ title, value, onPress }: { title: string; value: string; onPress: () => void }) => (
-    <TouchableOpacity onPress={onPress} className="px-4 py-4 flex-row items-center justify-between">
-      <Text className="text-gray-900 text-base font-inter-bold">{title}</Text>
-      <View className="flex-row items-center">
-        <Text className="text-gray-600 text-sm font-inter-semibold mr-2">{value}</Text>
-        <Feather name="chevron-down" size={16} color="#666" />
-      </View>
-    </TouchableOpacity>
-  );
-
-  const InfoTile = ({ title, value }: { title: string; value: string }) => (
-    <View className="px-4 py-4 border-b border-gray-200 flex-row items-center justify-between">
-      <Text className="text-gray-900 text-base font-inter-bold">{title}</Text>
-      <Text className="text-gray-600 text-sm font-inter">{value}</Text>
-    </View>
-  );
-
-  const InlineDropdown = ({
-    items,
-    selectedValue,
-    onSelect,
-    visible,
-    onClose,
-    topPosition = 200,
-  }: {
-    items: string[];
-    selectedValue: string;
-    onSelect: (value: string) => void;
-    visible: boolean;
-    onClose: () => void;
-    topPosition?: number;
-  }) => {
-    if (!visible) return null;
-
-    return (
-      <View className="absolute inset-0 z-50">
-        <TouchableOpacity className="flex-1 bg-black/30" onPress={onClose} activeOpacity={1} />
-        {/* Dropdown positioned to the right */}
-        <View className="absolute right-4 bg-white rounded-lg min-w-30 shadow-2xl" style={{ top: topPosition }}>
-          {items.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                onSelect(item);
-                onClose();
-              }}
-              className={`px-4 py-3 flex-row items-center justify-between ${
-                index < items.length - 1 ? 'border-b border-gray-200' : ''
-              }`}
-            >
-              <Text className={`text-sm font-inter-semibold ${selectedValue === item ? 'text-blue-500' : 'text-gray-900'}`}>
-                {item}
-              </Text>
-              {selectedValue === item && <Feather name="check" size={16} color="#007AFF" />}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    );
+  const confirmDeleteAccount = () => {
+    Alert.alert('Account Deleted', 'Your account has been permanently deleted.');
+    setShowDeleteModal(false);
+    // Add actual delete logic here
   };
+
+  const selectedCurrencyData = currencies.find((c) => c.code === selectedCurrency) || currencies[0];
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -118,130 +38,129 @@ export default function AppSettingsScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">App Settings</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Account Settings</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <View className="flex-1 relative">
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-          {/* Notifications Section */}
-          <View className="mt-4">
-            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">NOTIFICATIONS</Text>
-
-            <SettingsSwitch
-              title="Push Notifications"
-              subtitle="Receive push notifications for updates"
-              value={pushNotifications}
-              onValueChange={setPushNotifications}
-            />
-
-            <SettingsSwitch
-              title="Email Notifications"
-              subtitle="Receive email updates and newsletters"
-              value={emailNotifications}
-              onValueChange={setEmailNotifications}
-            />
-          </View>
-
-          {/* Divider */}
-          <View className="h-px bg-gray-200 mx-4 my-4" />
-
-          {/* Appearance Section */}
-          <View>
-            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">APPEARANCE</Text>
-
-            <SettingsSwitch
-              title="Dark Mode"
-              subtitle="Use dark theme throughout the app"
-              value={darkMode}
-              onValueChange={setDarkMode}
-            />
-          </View>
-
-          {/* Divider */}
-          <View className="h-px bg-gray-200 mx-4 my-4" />
-
-          {/* Language & Region Section */}
-          <View>
-            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">LANGUAGE & REGION</Text>
-
-            <SettingsDropdown
-              title="Language"
-              value={selectedLanguage}
-              onPress={() => setShowLanguageDropdown(!showLanguageDropdown)}
-            />
-
-            <SettingsDropdown
-              title="Currency"
-              value={selectedCurrency}
-              onPress={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-            />
-          </View>
-
-          {/* Divider */}
-          <View className="h-px bg-gray-200 mx-4 my-4" />
-
-          {/* App Info Section */}
-          <View>
-            <Text className="text-gray-500 text-xs font-inter-bold ml-4 mb-2 uppercase">APP INFO</Text>
-
-            <InfoTile title="Version" value="1.0.0 (Build 123)" />
-
-            <InfoTile title="Device ID" value="VS-12345-ABCD" />
-          </View>
-
-          {/* Clear Data Button */}
-          <View className="p-4">
-            <TouchableOpacity
-              onPress={() => setShowClearDataModal(true)}
-              className="bg-red-500 py-4 px-6 rounded-xl items-center"
-            >
-              <Text className="text-white text-base font-inter-bold">Clear App Data</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-
-        {/* Inline Language Dropdown */}
-        <InlineDropdown
-          items={languages}
-          selectedValue={selectedLanguage}
-          onSelect={setSelectedLanguage}
-          visible={showLanguageDropdown}
-          onClose={() => setShowLanguageDropdown(false)}
-          topPosition={200}
-        />
-
-        {/* Inline Currency Dropdown */}
-        <InlineDropdown
-          items={currencies}
-          selectedValue={selectedCurrency}
-          onSelect={setSelectedCurrency}
-          visible={showCurrencyDropdown}
-          onClose={() => setShowCurrencyDropdown(false)}
-          topPosition={250}
-        />
-        </View>
-      </View>
-
-      {/* Clear Data Confirmation Modal */}
-      <Modal
-        visible={showClearDataModal}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowClearDataModal(false)}
-      >
-        <View className="flex-1 bg-black/50 justify-center items-center">
-          <View className="bg-white rounded-xl p-5 m-5 w-11/12">
-            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Clear App Data</Text>
-            <Text className="text-gray-600 text-sm font-inter-semibold mb-5">
-              This will clear all app data including saved preferences. This action cannot be undone.
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 p-4 gap-4 bg-gray-50">
+          {/* Preferred Currency Section */}
+          <View className="p-4 rounded-lg bg-white shadow-sm">
+            <Text className="mb-2 text-sm font-inter-semibold text-black">Preferred Currency</Text>
+            <Text className="mb-3 text-xs font-inter-regular text-gray-500">
+              Choose your preferred currency for displaying prices
             </Text>
-            <View className="flex-row justify-end">
-              <TouchableOpacity onPress={() => setShowClearDataModal(false)} className="mr-4">
-                <Text className="text-gray-600 text-base">Cancel</Text>
+
+            {/* Currency Dropdown */}
+            <View className="relative">
+              <TouchableOpacity
+                onPress={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
+                className="flex-row items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg"
+              >
+                <Text className="text-base font-inter-regular text-black">
+                  {selectedCurrencyData.symbol} {selectedCurrencyData.name}
+                </Text>
+                <Feather name="chevron-down" size={20} color="#9CA3AF" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleClearData}>
-                <Text className="text-red-500 text-base">Clear Data</Text>
+
+              {/* Currency Dropdown List */}
+              {showCurrencyDropdown && (
+                <View className="absolute top-14 left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+                  {currencies.map((currency, index) => (
+                    <TouchableOpacity
+                      key={currency.code}
+                      onPress={() => {
+                        setSelectedCurrency(currency.code);
+                        setShowCurrencyDropdown(false);
+                      }}
+                      className={`flex-row items-center justify-between px-4 py-3 ${
+                        index < currencies.length - 1 ? 'border-b border-gray-200' : ''
+                      }`}
+                    >
+                      <Text
+                        className={`text-base font-inter-regular ${
+                          selectedCurrency === currency.code ? 'text-black font-inter-semibold' : 'text-gray-700'
+                        }`}
+                      >
+                        {currency.symbol} {currency.name}
+                      </Text>
+                      {selectedCurrency === currency.code && <Feather name="check" size={20} color="#000" />}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+
+          {/* Email Notifications Section */}
+          <View className="p-4 rounded-lg bg-white shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1 pr-4">
+                <Text className="mb-1 text-sm font-inter-semibold text-black">Email Notifications</Text>
+                <Text className="text-xs font-inter-regular text-gray-500">
+                  Receive notifications about orders and updates
+                </Text>
+              </View>
+              <TouchableOpacity className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-200">
+                <Text className="text-sm font-inter-semibold text-black">Manage</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Privacy Settings Section */}
+          <View className="p-4 rounded-lg bg-white shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1 pr-4">
+                <Text className="mb-1 text-sm font-inter-semibold text-black">Privacy Settings</Text>
+                <Text className="text-xs font-inter-regular text-gray-500">
+                  Control who can see your profile and activity
+                </Text>
+              </View>
+              <TouchableOpacity className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-200">
+                <Text className="text-sm font-inter-semibold text-black">Manage</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Delete Account Section */}
+          <View className="p-4 rounded-lg bg-white shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1 pr-4">
+                <Text className="mb-1 text-sm font-inter-semibold text-black">Delete Account</Text>
+                <Text className="text-xs font-inter-regular text-gray-500">
+                  Permanently delete your account and all data
+                </Text>
+              </View>
+              <TouchableOpacity onPress={handleDeleteAccount} className="px-4 py-2 rounded-lg bg-red-500">
+                <Text className="text-sm font-inter-semibold text-white">Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        visible={showDeleteModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-center items-center px-5">
+          <View className="bg-white rounded-xl p-6 w-full max-w-sm">
+            <Text className="text-xl font-inter-bold text-black mb-3">Delete Account</Text>
+            <Text className="text-sm font-inter-regular text-gray-600 mb-6">
+              Are you sure you want to permanently delete your account? This action cannot be undone and all your data
+              will be lost.
+            </Text>
+            <View className="gap-3">
+              <TouchableOpacity onPress={confirmDeleteAccount} className="py-3 px-6 bg-red-500 rounded-lg items-center">
+                <Text className="text-base font-inter-semibold text-white">Yes, Delete My Account</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowDeleteModal(false)}
+                className="py-3 px-6 bg-gray-200 rounded-lg items-center"
+              >
+                <Text className="text-base font-inter-semibold text-black">Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>

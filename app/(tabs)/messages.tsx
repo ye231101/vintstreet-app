@@ -132,10 +132,10 @@ export default function MessagesScreen() {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1 }}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} tintColor="#000" />
             }
+            contentContainerStyle={{ flexGrow: 1 }}
           >
             {filteredConversations.map((conversation) => (
               <TouchableOpacity

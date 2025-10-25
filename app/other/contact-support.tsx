@@ -2,22 +2,22 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Linking, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ContactSupportScreen() {
-  const [selectedCategory, setSelectedCategory] = useState('Order Issue');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('Order Issue');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-
-  const supportCategories = [
-    'Order Issue',
-    'Payment Problem',
-    'Account Access',
-    'Technical Issue',
-    'Product Question',
-    'Other',
-  ];
+  const [categoryItems, setCategoryItems] = useState([
+    { label: 'Order Issue', value: 'Order Issue' },
+    { label: 'Payment Problem', value: 'Payment Problem' },
+    { label: 'Account Access', value: 'Account Access' },
+    { label: 'Technical Issue', value: 'Technical Issue' },
+    { label: 'Product Question', value: 'Product Question' },
+    { label: 'Other', value: 'Other' },
+  ]);
 
   const handleSubmitRequest = async () => {
     if (!message.trim()) {
@@ -141,40 +141,6 @@ Thank you,
     }
   };
 
-  const CategoryDropdown = () => {
-    if (!showCategoryDropdown) return null;
-
-    return (
-      <View className="absolute inset-0 z-50">
-        <TouchableOpacity
-          className="flex-1 bg-black/30"
-          onPress={() => setShowCategoryDropdown(false)}
-          activeOpacity={1}
-        />
-        <View className="absolute top-25 left-4 right-4 bg-white rounded-lg shadow-2xl">
-          {supportCategories.map((category, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                setSelectedCategory(category);
-                setShowCategoryDropdown(false);
-              }}
-              className={`px-4 py-3 flex-row items-center justify-between ${
-                index < supportCategories.length - 1 ? 'border-b border-gray-200' : ''
-              }`}
-            >
-              <Text
-                className={`text-sm font-inter-semibold ${selectedCategory === category ? 'text-blue-500' : 'text-gray-900'}`}
-              >
-                {category}
-              </Text>
-              {selectedCategory === category && <Feather name="check" size={16} color="#007AFF" />}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    );
-  };
 
   const ContactMethod = ({
     icon,
@@ -197,7 +163,9 @@ Thank you,
       <Feather name={icon as any} color="#666" size={20} />
       <View className="ml-3 flex-1">
         <Text className="text-gray-600 text-xs font-inter">{title}</Text>
-        <Text className={`text-sm font-inter-semibold ${isTappable ? 'text-blue-500 underline' : 'text-gray-900'}`}>{value}</Text>
+        <Text className={`text-sm font-inter-semibold ${isTappable ? 'text-blue-500 underline' : 'text-gray-900'}`}>
+          {value}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -213,37 +181,70 @@ Thank you,
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Contact Support</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <View className="p-4">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 p-4 bg-gray-50">
           {/* Support Categories */}
-          <Text className="text-gray-900 text-base font-inter-bold mb-2">What can we help you with?</Text>
-
-          <TouchableOpacity
-            onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
-            className="bg-white rounded-xl px-3 py-4 flex-row items-center justify-between shadow-sm"
-          >
-            <Text className="text-gray-900 text-base font-inter">{selectedCategory}</Text>
-            <Feather name="chevron-down" size={20} color="#666" />
-          </TouchableOpacity>
-
-          <View className="h-6" />
+          <View className="mb-4" style={{ zIndex: 3000 }}>
+            <Text className="text-gray-900 text-base font-inter-bold mb-2">What can we help you with?</Text>
+            <DropDownPicker
+              open={showCategoryDropdown}
+              value={selectedCategory}
+              items={categoryItems}
+              listMode="SCROLLVIEW"
+              setOpen={setShowCategoryDropdown}
+              setValue={setSelectedCategory}
+              setItems={setCategoryItems}
+              placeholder="Select a category"
+              style={{
+                borderColor: '#D1D5DB',
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                backgroundColor: '#fff',
+              }}
+              textStyle={{
+                fontSize: 14,
+                fontFamily: 'Inter',
+              }}
+              placeholderStyle={{
+                color: '#9CA3AF',
+                fontSize: 14,
+                fontFamily: 'Inter',
+              }}
+              dropDownContainerStyle={{
+                borderColor: '#D1D5DB',
+                borderRadius: 8,
+                backgroundColor: '#fff',
+                maxHeight: 300,
+              }}
+              listItemLabelStyle={{
+                fontSize: 14,
+                fontFamily: 'Inter',
+              }}
+              scrollViewProps={{
+                nestedScrollEnabled: true,
+                scrollEnabled: true,
+                showsVerticalScrollIndicator: true,
+              }}
+              disableLocalSearch={false}
+            />
+          </View>
 
           {/* Message Field */}
-          <Text className="text-gray-900 text-base font-inter-bold mb-2">Describe your issue</Text>
+          <View className="mb-6" style={{ zIndex: 1000 }}>
+            <Text className="text-gray-900 text-base font-inter-bold mb-2">Describe your issue</Text>
 
-          <TextInput
-            value={message}
-            onChangeText={setMessage}
-            className="bg-white rounded-xl p-4 text-gray-900 text-base font-inter-semibold min-h-30 shadow-sm"
-            placeholder="Please provide as much detail as possible..."
-            placeholderTextColor="#999"
-            multiline
-            numberOfLines={5}
-            textAlignVertical="top"
-          />
-
-          <View className="h-6" />
+            <TextInput
+              value={message}
+              onChangeText={setMessage}
+              className="bg-white rounded-xl p-4 text-gray-900 text-base font-inter-semibold min-h-30 shadow-sm"
+              placeholder="Please provide as much detail as possible..."
+              placeholderTextColor="#999"
+              multiline
+              numberOfLines={5}
+              textAlignVertical="top"
+            />
+          </View>
 
           {/* Quick Email Button */}
           <TouchableOpacity
@@ -296,11 +297,7 @@ Thank you,
             <ContactMethod icon="clock" title="Hours" value="Mon-Fri, 9:00 AM - 6:00 PM EST" />
           </View>
         </View>
-        </ScrollView>
-
-        {/* Category Dropdown */}
-        <CategoryDropdown />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

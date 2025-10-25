@@ -239,7 +239,8 @@ export default function OrdersScreen() {
           <ScrollView
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOrders} tintColor="#007AFF" />}
-            className="flex-1 p-4"
+            contentContainerStyle={{ flexGrow: 1 }}
+            className="p-4"
           >
             {getFilteredOrders().map((order) => (
               <OrderCard key={order.id} order={order} />

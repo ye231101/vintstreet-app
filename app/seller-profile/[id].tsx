@@ -295,7 +295,7 @@ export default function SellerProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-black">
-      <ScrollView className="flex-1 bg-gray-50">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="flex-1 bg-gray-50">
         {/* Header Section */}
         <View className="bg-white px-4 py-6 border-b border-gray-200">
           <View className="flex-row items-start">

@@ -127,12 +127,12 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
                 <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Subject *</Text>
                 <DropDownPicker
                   open={showSubjectDropdown}
-                  value={contactSubject}
                   items={subjectItems}
+                  value={contactSubject}
                   listMode="SCROLLVIEW"
                   setOpen={setShowSubjectDropdown}
-                  setValue={setContactSubject}
                   setItems={setSubjectItems}
+                  setValue={setContactSubject}
                   placeholder="Select a subject"
                   style={{
                     borderColor: '#D1D5DB',
@@ -153,9 +153,6 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
                     borderColor: '#D1D5DB',
                     borderRadius: 8,
                     maxHeight: 300,
-                  }}
-                  listItemContainerStyle={{
-                    paddingVertical: 12,
                   }}
                   listItemLabelStyle={{
                     fontSize: 14,
