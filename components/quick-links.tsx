@@ -6,7 +6,7 @@ const { width: screenWidth } = Dimensions.get('window');
 
 type NavigationType = 'internal' | 'helpCenter';
 
-interface ArticleItem {
+interface QuickLink {
   id: number;
   title: string;
   subtitle: string;
@@ -16,7 +16,7 @@ interface ArticleItem {
   routeName?: string;
 }
 
-const articles: ArticleItem[] = [
+const quickLinks: QuickLink[] = [
   {
     id: 1,
     title: 'Meet Vint Street',
@@ -64,7 +64,7 @@ const articles: ArticleItem[] = [
   },
 ];
 
-export default function ArticleCarousel() {
+export default function QuickLinks() {
   const scrollRef = useRef<ScrollView | null>(null);
   const [index, setIndex] = useState(0);
 
@@ -82,7 +82,7 @@ export default function ArticleCarousel() {
     } catch (e) {}
   };
 
-  const handleTap = (item: ArticleItem) => {
+  const handleTap = (item: QuickLink) => {
     switch (item.navigationType) {
       case 'internal': {
         break;
@@ -114,7 +114,7 @@ export default function ArticleCarousel() {
           scrollEventThrottle={16}
           className="absolute inset-0"
         >
-          {articles.map((item) => (
+          {quickLinks.map((item) => (
             <View key={item.id} style={{ width: screenWidth - 16 }}>
               <Pressable onPress={() => handleTap(item)} className="w-full relative" style={{ aspectRatio: 16 / 7 }}>
                 <Image source={item.image} resizeMode="cover" className="w-full h-full" />
@@ -133,7 +133,7 @@ export default function ArticleCarousel() {
           ))}
         </ScrollView>
         <View pointerEvents="none" className="absolute left-0 right-0 bottom-3 flex-row justify-center items-center">
-          {articles.map((_, i) => (
+          {quickLinks.map((_, i) => (
             <View
               key={i}
               className="w-1.5 h-1.5 rounded-full mx-1"

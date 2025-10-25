@@ -1,148 +1,14 @@
 import { listingsService, Product } from '@/api/services/listings.service';
-import ArticleCarousel from '@/components/article-carousel';
+import Brand from '@/components/brand';
 import ProductCard from '@/components/product-card';
+import QuickLinks from '@/components/quick-links';
 import SearchBar from '@/components/search-bar';
+import TopCategory from '@/components/top-category';
 import { Feather } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width: screenWidth } = Dimensions.get('window');
-
-interface TopCategory {
-  title: string;
-  image: string;
-}
-
-const topCategories = [
-  {
-    title: 'Caps',
-    image: require('@/assets/images/cat_caps.jpg'),
-  },
-  {
-    title: 'Denim',
-    image: require('@/assets/images/cat_denim.jpg'),
-  },
-  {
-    title: 'Vinyl',
-    image: require('@/assets/images/cat_vinyl.jpg'),
-  },
-  {
-    title: 'Football Shirts',
-    image: require('@/assets/images/cat_football_shirts.jpg'),
-  },
-  {
-    title: 'Gaming',
-    image: require('@/assets/images/cat_gaming.jpg'),
-  },
-  {
-    title: "Levi's",
-    image: require('@/assets/images/cat_levis.jpg'),
-  },
-  {
-    title: 'Nike',
-    image: require('@/assets/images/cat_nike.jpg'),
-  },
-  {
-    title: 'Tees',
-    image: require('@/assets/images/cat_tees.jpg'),
-  },
-  {
-    title: 'VeeFriends',
-    image: require('@/assets/images/cat_veefriends.jpg'),
-  },
-  {
-    title: 'Y2K',
-    image: require('@/assets/images/cat_y2k.jpg'),
-  },
-];
-
-const TopCategoryCard = ({ category }: { category: TopCategory }) => (
-  <Pressable
-    key={category.title}
-    onPress={() => router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.title)}` as any)}
-    className="relative mr-2 overflow-hidden rounded-lg border border-gray-200"
-    style={{
-      width: screenWidth / 2,
-      height: (screenWidth / 2) * (9 / 16),
-    }}
-  >
-    <Image source={category.image} contentFit="cover" transition={1000} style={{ width: '100%', height: '100%' }} />
-    {/* 3-step gradient overlay */}
-    <View className="absolute inset-0 bg-transparent">
-      <LinearGradient
-        colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0)']}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        locations={[0.0, 0.5, 0.8]}
-        className="absolute inset-0"
-      />
-    </View>
-    {/* Title with arrow */}
-    <View className="absolute left-3 right-3 bottom-3 flex-row items-center justify-between">
-      <Text className="text-base font-inter-bold text-white" numberOfLines={1}>
-        {category.title}
-      </Text>
-      <Feather name="chevron-right" size={16} color="white" />
-    </View>
-  </Pressable>
-);
-
-interface Brand {
-  name: string;
-  image: string;
-}
-
-const brands = [
-  {
-    name: "Levi's",
-    image: 'https://1000logos.net/wp-content/uploads/2017/03/Levis-Logo.png',
-  },
-  {
-    name: 'Adidas',
-    image: 'https://1000logos.net/wp-content/uploads/2016/10/Adidas-Logo.png',
-  },
-  {
-    name: 'H&M',
-    image: 'https://1000logos.net/wp-content/uploads/2017/02/HM-Logo.png',
-  },
-  {
-    name: 'Nike',
-    image: 'https://1000logos.net/wp-content/uploads/2021/11/Nike-Logo.png',
-  },
-  {
-    name: 'Zara',
-    image: 'https://1000logos.net/wp-content/uploads/2022/08/Zara-logо.png',
-  },
-  {
-    name: 'Gucci',
-    image: 'https://1000logos.net/wp-content/uploads/2017/01/Gucci-Logo.png',
-  },
-];
-
-const BrandCard = ({ brand }: { brand: Brand }) => (
-  <View
-    className="bg-white rounded-lg p-2 mr-2 mb-2 border border-gray-200 items-center justify-center"
-    style={{
-      width: screenWidth / 3,
-      height: screenWidth / 4,
-    }}
-  >
-    <Image source={brand.image} contentFit="contain" transition={1000} style={{ width: '100%', height: '100%' }} />
-  </View>
-);
 
 export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -204,34 +70,19 @@ export default function HomeScreen() {
           {/* Quick Links Section */}
           <View className="px-2">
             <Text className="text-sm font-inter-bold text-black mb-3">QUICK LINKS</Text>
-            <ArticleCarousel />
+            <QuickLinks />
           </View>
 
           {/* Top Categories Section */}
           <View className="pl-2">
             <Text className="text-sm font-inter-bold text-black mb-3">TOP CATEGORIES</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {topCategories.map((category) => (
-                <TopCategoryCard key={category.title} category={category} />
-              ))}
-            </ScrollView>
+            <TopCategory />
           </View>
 
           {/* Brands Section */}
           <View className="pl-2">
             <Text className="text-sm font-inter-bold text-black mb-3">BRANDS YOU MAY LIKE</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {Array.from({ length: Math.ceil(brands.length / 2) }).map((_, colIndex) => {
-                const first = brands[colIndex * 2];
-                const second = brands[colIndex * 2 + 1];
-                return (
-                  <View key={colIndex}>
-                    {first && <BrandCard brand={first} />}
-                    {second && <BrandCard brand={second} />}
-                  </View>
-                );
-              })}
-            </ScrollView>
+            <Brand />
           </View>
 
           {/* All Listings Section */}
