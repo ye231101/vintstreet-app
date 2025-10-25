@@ -3,9 +3,10 @@ import { listingsService } from '@/api/services/listings.service';
 import { ContactSellerModal } from '@/components/contact-seller-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
 import { useAppSelector } from '@/store/hooks';
 import { showInfoToast } from '@/utils/toast';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
@@ -29,6 +30,7 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const { addItem } = useCart();
+  const { toggleItem: toggleWishlist, isInWishlist } = useWishlist();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [product, setProduct] = useState<any>(null);
@@ -46,6 +48,10 @@ export default function ProductDetailScreen() {
 
   // Image carousel state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Related products state
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [relatedProductsLoading, setRelatedProductsLoading] = useState(false);
 
   const load = async () => {
     try {
@@ -92,6 +98,65 @@ export default function ProductDetailScreen() {
 
     loadAttributes();
   }, [id]);
+
+  // Load related products
+  useEffect(() => {
+    const loadRelatedProducts = async () => {
+      if (!product?.category_id || !id) return;
+
+      try {
+        setRelatedProductsLoading(true);
+
+        // Fetch related products from the same category
+        const { data, error } = await supabase
+          .from('listings')
+          .select(
+            `
+            id,
+            product_name,
+            starting_price,
+            discounted_price,
+            product_image,
+            product_images,
+            seller_id,
+            category_id,
+            product_categories(id, name)
+          `
+          )
+          .eq('product_type', 'shop')
+          .eq('status', 'published')
+          .eq('category_id', product.category_id)
+          .neq('id', id)
+          .limit(4);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          // Fetch seller info for all related products
+          const sellerIds = [...new Set(data.map((p: any) => p.seller_id))];
+          const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
+          const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+
+          const productsWithSellers = data.map((p: any) => ({
+            ...p,
+            seller_info_view: sellersMap.get(p.seller_id) || null,
+          }));
+
+          setRelatedProducts(productsWithSellers);
+        } else {
+          setRelatedProducts([]);
+        }
+      } catch (error) {
+        console.error('Error loading related products:', error);
+        setRelatedProducts([]);
+      } finally {
+        setRelatedProductsLoading(false);
+      }
+    };
+
+    loadRelatedProducts();
+  }, [product?.category_id, id]);
 
   // Keep header title in sync with product name (safe even when product is null)
   useLayoutEffect(() => {
@@ -233,12 +298,66 @@ export default function ProductDetailScreen() {
           <View className="px-4">
             <Text className="text-2xl font-inter-bold text-black mb-2">{product.product_name}</Text>
 
-            {/* Tag */}
-            {product.product_categories?.name ? (
-              <View className="self-start bg-gray-200 px-3 py-1 rounded-full mb-3 ml-1">
-                <Text className="text-xs font-inter-semibold text-gray-800">{product.product_categories.name}</Text>
+            {/* Category Breadcrumb */}
+            {(product.product_categories?.name ||
+              product.product_subcategories?.name ||
+              product.product_sub_subcategories?.name ||
+              product.product_sub_sub_subcategories?.name) && (
+              <View className="flex-row items-center flex-wrap mb-2 ml-1">
+                {product.product_categories?.name && (
+                  <>
+                    <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
+                      <Text className="text-xs font-inter-semibold text-gray-800">
+                        {product.product_categories.name}
+                      </Text>
+                    </View>
+                    {product.product_subcategories?.name && (
+                      <Text className="text-xs font-inter-semibold text-gray-400 mr-2 mb-2">›</Text>
+                    )}
+                  </>
+                )}
+                {product.product_subcategories?.name && (
+                  <>
+                    <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
+                      <Text className="text-xs font-inter-semibold text-gray-800">
+                        {product.product_subcategories.name}
+                      </Text>
+                    </View>
+                    {product.product_sub_subcategories?.name && (
+                      <Text className="text-xs font-inter-semibold text-gray-400 mr-2 mb-2">›</Text>
+                    )}
+                  </>
+                )}
+                {product.product_sub_subcategories?.name && (
+                  <>
+                    <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
+                      <Text className="text-xs font-inter-semibold text-gray-800">
+                        {product.product_sub_subcategories.name}
+                      </Text>
+                    </View>
+                    {product.product_sub_sub_subcategories?.name && (
+                      <Text className="text-xs font-inter-semibold text-gray-400 mr-2 mb-2">›</Text>
+                    )}
+                  </>
+                )}
+                {product.product_sub_sub_subcategories?.name && (
+                  <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
+                    <Text className="text-xs font-inter-semibold text-gray-800">
+                      {product.product_sub_sub_subcategories.name}
+                    </Text>
+                  </View>
+                )}
               </View>
-            ) : null}
+            )}
+
+            {/* Brand */}
+            {product.brands?.name && (
+              <View className="flex-row items-center mb-3 ml-1">
+                <View className="bg-black px-3 py-1 rounded-full">
+                  <Text className="text-xs font-inter-semibold text-white">{product.brands.name}</Text>
+                </View>
+              </View>
+            )}
           </View>
 
           {/* Price and actions */}
@@ -308,7 +427,18 @@ export default function ProductDetailScreen() {
                 <Text className="text-sm font-inter-semibold text-gray-800">{product.product_description || '-'}</Text>
               )}
               {activeTab === 'details' && (
-                <View>
+                <View className="gap-4">
+                  {/* Brand Information */}
+                  {product.brands?.name && (
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-sm font-inter-bold text-gray-800">Brand</Text>
+                      <Text className="text-sm font-inter-semibold text-gray-800">{product.brands.name}</Text>
+                    </View>
+                  )}
+
+                  <View className="h-px bg-gray-200" />
+
+                  {/* Product Attributes */}
                   {attributesLoading ? (
                     <View className="flex-row items-center justify-center py-4">
                       <ActivityIndicator size="small" color="#000" />
@@ -316,6 +446,7 @@ export default function ProductDetailScreen() {
                     </View>
                   ) : productAttributes.length > 0 ? (
                     <View>
+                      <Text className="text-sm font-inter-bold text-gray-800 mb-3">Product Attributes</Text>
                       {productAttributes.map((attribute: any, index: number) => {
                         // Extract the correct value based on data type
                         const getValue = () => {
@@ -350,7 +481,7 @@ export default function ProductDetailScreen() {
                   ) : (
                     <View>
                       <Text className="text-sm font-inter-semibold text-gray-600">
-                        No additional details available.
+                        No additional attributes available.
                       </Text>
                     </View>
                   )}
@@ -408,6 +539,98 @@ export default function ProductDetailScreen() {
               )}
             </View>
           </View>
+
+          {/* Related Products Section */}
+          {relatedProducts.length > 0 && (
+            <View className="px-4">
+              <Text className="text-xl font-inter-bold text-black my-4">Related Products</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
+                {relatedProducts.map((relatedProduct: any) => (
+                  <Pressable
+                    key={relatedProduct.id}
+                    onPress={() => router.push(`/product/${relatedProduct.id}` as any)}
+                    className="w-44 bg-white rounded-lg overflow-hidden mx-2 border border-gray-200"
+                  >
+                    {/* Product Image */}
+                    <View className="w-full h-44 bg-gray-100 relative">
+                      {relatedProduct.product_image || relatedProduct.product_images?.[0] ? (
+                        <Image
+                          source={{
+                            uri: relatedProduct.product_image || relatedProduct.product_images?.[0],
+                          }}
+                          className="w-full h-full"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View className="w-full h-full items-center justify-center">
+                          <Feather name="image" size={32} color="#ccc" />
+                        </View>
+                      )}
+
+                      {/* Wishlist Heart Icon */}
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(relatedProduct);
+                        }}
+                        className="absolute top-2 right-2 bg-white p-1.5 rounded-full"
+                        style={{
+                          elevation: 2,
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.1,
+                          shadowRadius: 4,
+                        }}
+                      >
+                        <FontAwesome
+                          name={isInWishlist(relatedProduct.id) ? 'heart' : 'heart-o'}
+                          size={18}
+                          color={isInWishlist(relatedProduct.id) ? '#ef4444' : 'black'}
+                          fill={isInWishlist(relatedProduct.id) ? '#ef4444' : 'transparent'}
+                        />
+                      </Pressable>
+                    </View>
+
+                    {/* Product Info */}
+                    <View className="p-2.5">
+                      <Text className="text-sm font-inter-bold text-black mb-1" numberOfLines={1}>
+                        {relatedProduct.product_name}
+                      </Text>
+                      <Text className="text-xs font-inter-semibold text-gray-500 mb-2" numberOfLines={1}>
+                        By{' '}
+                        {relatedProduct.seller_info_view?.shop_name ||
+                          relatedProduct.seller_info_view?.full_name ||
+                          'Seller'}
+                      </Text>
+
+                      {/* Price and Actions */}
+                      <View className="flex-row items-center justify-between">
+                        <Text className="text-base font-inter-bold text-black">
+                          £
+                          {(relatedProduct.discounted_price !== null
+                            ? relatedProduct.discounted_price
+                            : relatedProduct.starting_price
+                          ).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </Text>
+                        <Pressable
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            addItem(relatedProduct);
+                          }}
+                          className="bg-black p-1.5 rounded-lg"
+                        >
+                          <Feather name="plus" size={16} color="white" />
+                        </Pressable>
+                      </View>
+                    </View>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          )}
         </View>
       </ScrollView>
 
