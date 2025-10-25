@@ -214,9 +214,8 @@ export default function PaymentMethodsScreen() {
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Payment Methods</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <View className="p-4">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 p-4 bg-gray-50">
           {/* Add New Payment Method */}
           <View className="bg-white rounded-xl p-4 mb-6 shadow-sm">
             <Text className="text-gray-600 text-sm font-inter-semibold mb-4">Add a new payment method</Text>
@@ -246,7 +245,9 @@ export default function PaymentMethodsScreen() {
             <View className="bg-white rounded-xl p-5 border border-gray-200 items-center mb-6 shadow-sm">
               <Feather name="credit-card" color="#666" size={32} />
               <Text className="text-gray-600 text-base font-inter-medium mt-3 mb-2">No payment methods saved</Text>
-              <Text className="text-gray-500 text-sm font-inter-semibold text-center">Add a payment method to continue</Text>
+              <Text className="text-gray-500 text-sm font-inter-semibold text-center">
+                Add a payment method to continue
+              </Text>
             </View>
           )}
 
@@ -273,8 +274,7 @@ export default function PaymentMethodsScreen() {
             />
           </View>
         </View>
-        </ScrollView>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

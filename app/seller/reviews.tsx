@@ -182,7 +182,8 @@ export default function ReviewsScreen() {
             <ScrollView
               showsVerticalScrollIndicator={false}
               refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadReviews} tintColor="#007AFF" />}
-              className="flex-1 p-4"
+              contentContainerStyle={{ flexGrow: 1 }}
+              className="p-4"
             >
               {reviews.map((review) => (
                 <ReviewCard key={review.id} review={review} />

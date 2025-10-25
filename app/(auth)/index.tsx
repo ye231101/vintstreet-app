@@ -22,9 +22,8 @@ export default function IndexScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
-        className="p-6"
       >
-        <View className="flex-1 items-center justify-center">
+        <View className="flex-1 items-center justify-center p-6">
           <View className="w-full max-w-lg">
             <View className="items-center mb-10">
               <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />

@@ -131,9 +131,7 @@ export default function AddressesScreen() {
         <View className="bg-gray-50 rounded-lg p-5 border border-gray-200">
           <View className="items-center">
             <Feather name={icon as any} color="#666" size={32} />
-            <Text className="text-gray-600 text-base font-inter-medium mt-3 mb-2">
-              No {addressType} address saved
-            </Text>
+            <Text className="text-gray-600 text-base font-inter-medium mt-3 mb-2">No {addressType} address saved</Text>
             <Text className="text-gray-500 text-sm font-inter-semibold text-center mb-4">
               Add your {addressType} address to continue
             </Text>
@@ -230,9 +228,8 @@ export default function AddressesScreen() {
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Addresses</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <View className="p-4">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 p-4 bg-gray-50">
           {/* Shipping Address Section */}
           <AddressSection
             title="Shipping Address"
@@ -257,8 +254,7 @@ export default function AddressesScreen() {
             onDelete={() => deleteAddress('billing')}
           />
         </View>
-        </ScrollView>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

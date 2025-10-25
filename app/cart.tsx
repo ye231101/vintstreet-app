@@ -304,9 +304,9 @@ export default function CartScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefreshCart} tintColor="#007AFF" />}
-        className="flex-1 bg-gray-50"
+        contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1 gap-4 p-4">
+        <View className="flex-1 gap-4 p-4 bg-gray-50">
           {cart.items.map((item) => (
             <CartItemSection
               key={item.product?.id || item.id}

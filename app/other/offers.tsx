@@ -104,11 +104,7 @@ export default function MyOffersScreen() {
         </View>
         <View
           className={`rounded-full px-3 py-1.5 ${
-            offer.status === 'pending'
-              ? 'bg-orange-500'
-              : offer.status === 'accepted'
-                ? 'bg-green-500'
-                : 'bg-red-500'
+            offer.status === 'pending' ? 'bg-orange-500' : offer.status === 'accepted' ? 'bg-green-500' : 'bg-red-500'
           }`}
         >
           <Text className="text-white font-inter-bold text-xs">
@@ -141,10 +137,7 @@ export default function MyOffersScreen() {
       <View className="flex-row items-center justify-between">
         <Text className="text-gray-600 text-xs font-inter">Expires: {formatDate(offer.expiresAt)}</Text>
         {offer.status === 'pending' && (
-          <TouchableOpacity
-            onPress={() => handleCancelOffer(offer.id)}
-            className="bg-red-500 rounded px-3 py-1.5"
-          >
+          <TouchableOpacity onPress={() => handleCancelOffer(offer.id)} className="bg-red-500 rounded px-3 py-1.5">
             <Text className="text-white text-xs font-inter-bold">Cancel</Text>
           </TouchableOpacity>
         )}
@@ -201,7 +194,8 @@ export default function MyOffersScreen() {
           <ScrollView
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOffers} tintColor="#007AFF" />}
-            className="flex-1 p-4"
+            contentContainerStyle={{ flexGrow: 1 }}
+            className="p-4"
           >
             {getFilteredOffers().map((offer) => (
               <OfferCard key={offer.id} offer={offer} />

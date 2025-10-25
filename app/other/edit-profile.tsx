@@ -1,6 +1,9 @@
+import { StorageService } from '@/api/services/storage.service';
 import { useAuth } from '@/hooks/use-auth';
+import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -18,9 +21,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
-import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';
-import { StorageService } from '@/api/services/storage.service';
 
 export default function EditProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -200,133 +200,134 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
-          <Feather name="arrow-left" size={24} color="#000" />
+      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text className="text-lg font-inter-bold text-black">Edit Profile</Text>
-        <View className="w-10" />
+
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Edit Profile</Text>
       </View>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-        keyboardVerticalOffset={0}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           className="flex-1"
-          contentContainerStyle={{ paddingBottom: 40 }}
         >
-          {/* Profile Picture Section */}
-          <View className="px-6 py-6 mt-2 bg-white">
-            <Text className="mb-4 text-base font-inter-semibold text-black">Profile Picture</Text>
+          <View className="flex-1 gap-4 p-4 bg-gray-50">
+            {/* Profile Picture Section */}
+            <View className="p-4 rounded-lg bg-white">
+              <Text className="mb-4 text-base font-inter-semibold text-black">Profile Picture</Text>
 
-            <View className="flex-row items-center">
-              <View className="relative">
-                <View className="items-center justify-center w-20 h-20 overflow-hidden rounded-full bg-gray-200">
-                  {imageLoading ? (
-                    <ActivityIndicator size="small" color="#000" />
-                  ) : (
-                    <Image source={getAvatarSource()} style={{ width: '100%', height: '100%' }} />
-                  )}
+              <View className="flex-row items-center">
+                <View className="relative">
+                  <View className="items-center justify-center w-24 h-24 mr-4 overflow-hidden rounded-full bg-gray-200">
+                    {imageLoading ? (
+                      <ActivityIndicator size="small" color="#000" />
+                    ) : (
+                      <Image source={getAvatarSource()} style={{ width: '100%', height: '100%' }} />
+                    )}
+                  </View>
+                </View>
+
+                <View className="flex-1">
+                  <TouchableOpacity
+                    onPress={handleChangePhoto}
+                    disabled={imageLoading}
+                    className="flex-row items-center self-start px-4 py-2 rounded-lg bg-gray-100 border border-gray-200"
+                  >
+                    <Feather name="camera" size={16} color="#000" />
+                    <Text className="ml-2 text-sm font-inter-semibold text-black">Change Photo</Text>
+                  </TouchableOpacity>
+                  <Text className="mt-3 text-xs font-inter-regular text-gray-500">
+                    JPG, GIF or PNG. Max size of 2MB
+                  </Text>
                 </View>
               </View>
+            </View>
 
-              <TouchableOpacity
-                onPress={handleChangePhoto}
-                disabled={imageLoading}
-                className="flex-row items-center px-4 py-2 ml-4 bg-gray-100 rounded-lg"
+            {/* Personal Information Section */}
+            <View className="p-4 rounded-lg bg-white">
+              <Text className="mb-4 text-base font-inter-semibold text-black">Personal Information</Text>
+
+              {/* Username */}
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Username</Text>
+                <TextInput
+                  value={username}
+                  onChangeText={setUsername}
+                  placeholder="Enter username"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
+                />
+              </View>
+
+              {/* Full Name */}
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Full Name</Text>
+                <TextInput
+                  value={fullName}
+                  onChangeText={setFullName}
+                  placeholder="Enter full name"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
+                />
+              </View>
+
+              {/* Email (Read-only) */}
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Email</Text>
+                <TextInput
+                  value={user?.email}
+                  editable={false}
+                  placeholder="Email"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-gray-500 bg-gray-100 border border-gray-200 rounded-lg"
+                />
+                <Text className="mt-1 text-xs font-inter-regular text-gray-500">
+                  Email cannot be changed. Contact support if you need to update your email.
+                </Text>
+              </View>
+
+              {/* Bio */}
+              <View className="mb-4">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Bio</Text>
+                <TextInput
+                  value={bio}
+                  onChangeText={setBio}
+                  placeholder="Tell us about yourself..."
+                  placeholderTextColor="#9CA3AF"
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
+                  style={{ minHeight: 100 }}
+                />
+              </View>
+
+              {/* Save Button */}
+              <Pressable
+                onPress={handleSaveChanges}
+                disabled={loading}
+                className={`flex-row items-center justify-center px-6 py-4 mt-4 bg-black rounded-lg ${
+                  loading ? 'opacity-50' : ''
+                }`}
               >
-                <Feather name="camera" size={16} color="#000" />
-                <Text className="ml-2 text-sm font-inter-semibold text-black">Change Photo</Text>
-              </TouchableOpacity>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Feather name="save" size={18} color="#fff" />
+                    <Text className="ml-2 text-base font-inter-semibold text-white">Save Changes</Text>
+                  </>
+                )}
+              </Pressable>
             </View>
-
-            <Text className="mt-3 text-xs font-inter-regular text-gray-500">JPG, GIF or PNG. Max size of 2MB</Text>
           </View>
-
-          {/* Personal Information Section */}
-          <View className="px-6 py-6 mt-2 bg-white">
-            <Text className="mb-4 text-base font-inter-semibold text-black">Personal Information</Text>
-
-            {/* Username */}
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Username</Text>
-              <TextInput
-                value={username}
-                onChangeText={setUsername}
-                placeholder="Enter username"
-                placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
-              />
-            </View>
-
-            {/* Full Name */}
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Full Name</Text>
-              <TextInput
-                value={fullName}
-                onChangeText={setFullName}
-                placeholder="Enter full name"
-                placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
-              />
-            </View>
-
-            {/* Email (Read-only) */}
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Email</Text>
-              <TextInput
-                value={user?.email}
-                editable={false}
-                placeholder="Email"
-                placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter-regular text-gray-500 bg-gray-100 border border-gray-200 rounded-lg"
-              />
-              <Text className="mt-1 text-xs font-inter-regular text-gray-500">
-                Email cannot be changed. Contact support if you need to update your email.
-              </Text>
-            </View>
-
-            {/* Bio */}
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Bio</Text>
-              <TextInput
-                value={bio}
-                onChangeText={setBio}
-                placeholder="Tell us about yourself..."
-                placeholderTextColor="#9CA3AF"
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
-                style={{ minHeight: 100 }}
-              />
-            </View>
-
-            {/* Save Button */}
-            <Pressable
-              onPress={handleSaveChanges}
-              disabled={loading}
-              className={`flex-row items-center justify-center px-6 py-4 mt-4 bg-black rounded-lg ${
-                loading ? 'opacity-50' : ''
-              }`}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <>
-                  <Feather name="save" size={18} color="#fff" />
-                  <Text className="ml-2 text-base font-inter-semibold text-white">Save Changes</Text>
-                </>
-              )}
-            </Pressable>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </ScrollView>
 
       {/* Photo Options Modal */}
       <Modal

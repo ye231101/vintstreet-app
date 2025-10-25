@@ -266,9 +266,8 @@ export default function PaymentSetupScreen() {
         )}
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <View className="p-4">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 p-4 bg-gray-50">
           {/* PayPal Section */}
           <Text className="text-gray-900 text-2xl font-inter-bold mb-4">PayPal Account</Text>
 
@@ -353,8 +352,7 @@ export default function PaymentSetupScreen() {
             </>
           )}
         </View>
-        </ScrollView>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

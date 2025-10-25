@@ -122,9 +122,8 @@ export default function HelpCenterScreen() {
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Help Center</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <View className="p-4">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 p-4 bg-gray-50">
           {/* Search Bar */}
           <View className="bg-white rounded-xl flex-row items-center px-3 mb-6 shadow-sm">
             <Feather name="search" size={20} color="#666" />
@@ -171,14 +170,13 @@ export default function HelpCenterScreen() {
           {/* Divider */}
           <View className="h-px bg-gray-200 my-6" />
         </View>
-        </ScrollView>
+      </ScrollView>
 
-        {/* Contact Support Button */}
-        <View className="p-4 bg-gray-50 border-t border-gray-200">
-          <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
-            <Text className="text-white text-base font-inter-bold">Contact Support</Text>
-          </TouchableOpacity>
-        </View>
+      {/* Contact Support Button */}
+      <View className="p-4 bg-gray-50 border-t border-gray-200">
+        <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
+          <Text className="text-white text-base font-inter-bold">Contact Support</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

@@ -295,8 +295,8 @@ export default function MessageDetailScreen() {
       {/* Messages Area */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
         onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
         <View className="flex-1 py-4 bg-gray-50">
           {isLoading ? (

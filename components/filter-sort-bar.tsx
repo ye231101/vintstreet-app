@@ -55,20 +55,20 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
       <View className="flex-1">
         <DropDownPicker
           open={priceOpen}
-          setOpen={setPriceOpen}
           items={priceItems}
-          setItems={setPriceItems}
           value={priceValue}
+          listMode="SCROLLVIEW"
+          setOpen={setPriceOpen}
+          setItems={setPriceItems}
           setValue={(callback) => {
             const newValue = typeof callback === 'function' ? callback(priceValue) : callback;
             handlePriceChange(newValue);
           }}
-          listMode="SCROLLVIEW"
           placeholder="Filter by price"
           style={{
             backgroundColor: '#e5e5e5',
             borderColor: '#d1d5db',
-            borderRadius: 12,
+            borderRadius: 8,
             minHeight: 40,
           }}
           textStyle={{
@@ -76,9 +76,8 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
             fontFamily: 'Inter',
           }}
           dropDownContainerStyle={{
-            backgroundColor: '#ffffff',
             borderColor: '#e5e7eb',
-            borderRadius: 12,
+            borderRadius: 8,
             maxHeight: 300,
           }}
           scrollViewProps={{
@@ -95,20 +94,20 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
       <View className="flex-1">
         <DropDownPicker
           open={sortOpen}
-          setOpen={setSortOpen}
           items={sortItems}
-          setItems={setSortItems}
           value={sortValue}
+          listMode="SCROLLVIEW"
+          setOpen={setSortOpen}
+          setItems={setSortItems}
           setValue={(callback) => {
             const newValue = typeof callback === 'function' ? callback(sortValue) : callback;
             handleSortChange(newValue);
           }}
-          listMode="SCROLLVIEW"
           placeholder="Sort by"
           style={{
             backgroundColor: '#e5e5e5',
             borderColor: '#d1d5db',
-            borderRadius: 12,
+            borderRadius: 8,
             minHeight: 40,
           }}
           textStyle={{
@@ -116,9 +115,8 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
             fontFamily: 'Inter',
           }}
           dropDownContainerStyle={{
-            backgroundColor: '#ffffff',
             borderColor: '#e5e7eb',
-            borderRadius: 12,
+            borderRadius: 8,
             maxHeight: 300,
           }}
           scrollViewProps={{

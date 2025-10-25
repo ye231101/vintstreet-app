@@ -44,8 +44,8 @@ export default function ForgotPasswordScreen() {
   if (isSuccess) {
     return (
       <SafeAreaView className="flex-1 bg-white">
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="p-6">
-          <View className="flex-1 items-center justify-center">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+          <View className="flex-1 items-center justify-center p-6">
             <View className="w-full max-w-lg items-center">
               {/* Success Icon */}
               <View className="mb-6">
@@ -82,75 +82,74 @@ export default function ForgotPasswordScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {/* Header */}
+      <View className="flex-row items-center p-6">
+        <Pressable onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="black" />
+        </Pressable>
+        <Text className="text-xl font-inter-bold flex-1 ml-6">Forgot Password</Text>
+      </View>
+
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
-        className="p-6"
       >
-        <View className="flex-1">
-          {/* Header */}
-          <View className="flex-row items-center mb-5 w-full pt-2.5">
-            <Pressable onPress={() => router.back()} hitSlop={8}>
-              <Feather name="arrow-left" size={24} color="black" />
-            </Pressable>
-            <Text className="text-xl font-inter-bold flex-1 ml-6">Forgot Password</Text>
-          </View>
-
-          <View className="flex-1 items-center justify-center">
-            <View className="w-full max-w-lg items-center">
-              {/* Logo */}
-              <View className="items-center mb-8">
-                <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
-              </View>
-
-              {/* Title */}
-              <Text className="text-2xl font-inter-bold text-center mb-4">Forgot your password?</Text>
-
-              {/* Description */}
-              <Text className="text-base font-inter-semibold text-center text-gray-600 leading-6 mb-8">
-                Enter your email address and we'll send you instructions to reset your password.
-              </Text>
-
-              {/* Error message */}
-              {error && (
-                <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4 w-full">
-                  <Text className="font-inter-semibold text-red-700">{error}</Text>
-                </View>
-              )}
-
-              {/* Email Input Field */}
-              <View className="w-full mb-6">
-                <View
-                  className={`border rounded-lg flex-row items-center px-3 h-13 bg-white ${
-                    emailError ? 'border-red-400' : 'border-gray-300'
-                  }`}
-                >
-                  <Text className="mr-2">
-                    <Feather name="mail" size={24} color="black" />
-                  </Text>
-                  <TextInput
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={handleEmailChange}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    className="flex-1 font-inter-semibold text-base h-13"
-                  />
-                </View>
-                {emailError && <Text className="text-red-400 text-xs mt-1 font-inter">{emailError}</Text>}
-              </View>
-
-              {/* Reset Password Button */}
-              <Pressable
-                onPress={handleResetPassword}
-                disabled={loading}
-                className={`h-12 rounded-lg items-center justify-center w-full ${loading ? 'bg-gray-400' : 'bg-black'}`}
-              >
-                <Text className="font-inter-semibold text-white text-base">{loading ? 'Sending...' : 'Reset Password'}</Text>
-              </Pressable>
+        <View className="flex-1 items-center justify-center p-6">
+          <View className="w-full max-w-lg items-center">
+            {/* Logo */}
+            <View className="items-center mb-8">
+              <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
             </View>
+
+            {/* Title */}
+            <Text className="text-2xl font-inter-bold text-center mb-4">Forgot your password?</Text>
+
+            {/* Description */}
+            <Text className="text-base font-inter-semibold text-center text-gray-600 leading-6 mb-8">
+              Enter your email address and we'll send you instructions to reset your password.
+            </Text>
+
+            {/* Error message */}
+            {error && (
+              <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg mb-4 w-full">
+                <Text className="font-inter-semibold text-red-700">{error}</Text>
+              </View>
+            )}
+
+            {/* Email Input Field */}
+            <View className="w-full mb-6">
+              <View
+                className={`border rounded-lg flex-row items-center px-3 h-13 bg-white ${
+                  emailError ? 'border-red-400' : 'border-gray-300'
+                }`}
+              >
+                <Text className="mr-2">
+                  <Feather name="mail" size={24} color="black" />
+                </Text>
+                <TextInput
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={handleEmailChange}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  className="flex-1 font-inter-semibold text-base h-13"
+                />
+              </View>
+              {emailError && <Text className="text-red-400 text-xs mt-1 font-inter">{emailError}</Text>}
+            </View>
+
+            {/* Reset Password Button */}
+            <Pressable
+              onPress={handleResetPassword}
+              disabled={loading}
+              className={`h-12 rounded-lg items-center justify-center w-full ${loading ? 'bg-gray-400' : 'bg-black'}`}
+            >
+              <Text className="font-inter-semibold text-white text-base">
+                {loading ? 'Sending...' : 'Reset Password'}
+              </Text>
+            </Pressable>
           </View>
         </View>
       </ScrollView>

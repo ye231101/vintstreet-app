@@ -288,9 +288,9 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 flex-col gap-6 bg-white p-6">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="w-full flex-row items-center">
+      <View className="flex-row items-center p-6">
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Feather name="arrow-left" size={24} color="black" />
         </Pressable>
@@ -302,7 +302,7 @@ export default function RegisterScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1 items-center justify-center">
+        <View className="flex-1 items-center justify-center p-6">
           <View className="w-full max-w-lg">
             {/* Logo */}
             <View className="items-center mb-10">
