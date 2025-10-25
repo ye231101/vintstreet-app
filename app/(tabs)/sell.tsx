@@ -858,7 +858,7 @@ export default function SellScreen() {
                     )}
                   </View>
 
-                  <View className="flex-row flex-wrap gap-4">
+                  <View className="flex-row flex-wrap gap-6 mt-2">
                     {productImages.map((imageUri, index) => {
                       const isUploaded = uploadedImageUrls[index];
                       const isUploading = isUploadingImages && !isUploaded;
