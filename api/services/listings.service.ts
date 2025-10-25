@@ -21,6 +21,22 @@ export interface Product {
     id: string;
     name: string;
   } | null;
+  product_subcategories?: {
+    id: string;
+    name: string;
+  } | null;
+  product_sub_subcategories?: {
+    id: string;
+    name: string;
+  } | null;
+  product_sub_sub_subcategories?: {
+    id: string;
+    name: string;
+  } | null;
+  brands?: {
+    id: string;
+    name: string;
+  } | null;
   seller_info_view: {
     shop_name: string;
     display_name_format?: string;
@@ -336,7 +352,11 @@ class ListingsService {
           status,
           created_at,
           stock_quantity,
-          product_categories(id, name)
+          product_categories(id, name),
+          product_subcategories(id, name),
+          product_sub_subcategories(id, name),
+          product_sub_sub_subcategories(id, name),
+          brands(id, name)
         `
         )
         .eq('id', listingId)
