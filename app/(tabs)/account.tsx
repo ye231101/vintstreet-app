@@ -45,7 +45,7 @@ export default function AccountScreen() {
               </TouchableOpacity>
             </View>
             <Text className="text-sm font-inter-semibold text-black">{user?.email || 'Not signed in'}</Text>
-            <Pressable className="mt-1">
+            <Pressable onPress={() => router.push('/other/edit-profile')} className="mt-1">
               <Text className="text-sm font-inter-semibold text-blue-500">Edit Profile</Text>
             </Pressable>
           </View>

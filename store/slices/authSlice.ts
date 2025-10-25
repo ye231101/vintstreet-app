@@ -100,13 +100,7 @@ export const loginUser = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
-  async (data: {
-    email: string;
-    fullName: string;
-    username: string;
-    accountType: string;
-    password: string;
-  }) => {
+  async (data: { email: string; fullName: string; username: string; accountType: string; password: string }) => {
     if (data.username.trim().length < 3 || data.email.trim().length === 0 || data.password.trim().length < 6) {
       throw new Error('Invalid registration data');
     }
@@ -150,6 +144,28 @@ export const resetPassword = createAsyncThunk('auth/resetPassword', async (email
 
   return { success: true };
 });
+
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (data: { username?: string; full_name?: string; bio?: string; avatar_url?: string }) => {
+    const { error, success } = await authService.updateProfile(data);
+
+    if (error || !success) {
+      throw new Error(error || 'Failed to update profile');
+    }
+
+    // Get updated user data
+    const { user: updatedUser } = await authService.getCurrentUser();
+
+    if (updatedUser) {
+      // Update storage with new user data
+      await setStorageValue(KEY_USER_DATA, JSON.stringify(updatedUser));
+      return updatedUser;
+    }
+
+    throw new Error('Failed to retrieve updated user data');
+  }
+);
 
 export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   try {
@@ -272,6 +288,20 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Password reset failed';
+      })
+      // Update profile
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Profile update failed';
       })
       // Logout
       .addCase(logoutUser.pending, (state) => {

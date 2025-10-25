@@ -11,6 +11,18 @@ import {
   mapSupabaseUserToAuthUser,
 } from '../types/auth.types';
 
+// Profile data from database
+interface ProfileData {
+  user_id: string;
+  username?: string;
+  full_name?: string;
+  bio?: string;
+  avatar_url?: string;
+  user_type?: string;
+  preferred_currency?: string;
+  is_blocked?: string;
+}
+
 /**
  * Auth Service
  * Handles all authentication operations with Supabase
@@ -116,8 +128,38 @@ class AuthService {
         };
       }
 
+      // Get profile data from profiles table
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', authData.user.id)
+        .single();
+
+      // Map auth user data
+      const authUser = mapSupabaseUserToAuthUser(authData.user);
+
+      if (!authUser) {
+        return {
+          user: null,
+          session: null,
+          error: 'Failed to map user data',
+        };
+      }
+
+      // Merge with profile data if available
+      const user = profileData
+        ? {
+            ...authUser,
+            username: (profileData as unknown as ProfileData).username || authUser.username,
+            full_name: (profileData as unknown as ProfileData).full_name || authUser.full_name,
+            bio: (profileData as unknown as ProfileData).bio || authUser.bio,
+            avatar_url: (profileData as unknown as ProfileData).avatar_url || authUser.avatar_url,
+            user_type: (profileData as unknown as ProfileData).user_type || authUser.user_type,
+          }
+        : authUser;
+
       return {
-        user: mapSupabaseUserToAuthUser(authData.user),
+        user,
         session: authData.session,
         error: null,
       };
@@ -234,8 +276,42 @@ class AuthService {
         return { user: null, error: error.message };
       }
 
+      if (!data.user) {
+        return { user: null, error: 'No user found' };
+      }
+
+      // Get profile data from profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', data.user.id)
+        .single();
+
+      // Map auth user data
+      const authUser = mapSupabaseUserToAuthUser(data.user);
+
+      if (!authUser) {
+        return { user: null, error: 'Failed to map user data' };
+      }
+
+      // Merge with profile data if available
+      if (profileData && !profileError) {
+        return {
+          user: {
+            ...authUser,
+            username: (profileData as unknown as ProfileData).username || authUser.username,
+            full_name: (profileData as unknown as ProfileData).full_name || authUser.full_name,
+            bio: (profileData as unknown as ProfileData).bio || authUser.bio,
+            avatar_url: (profileData as unknown as ProfileData).avatar_url || authUser.avatar_url,
+            user_type: (profileData as unknown as ProfileData).user_type || authUser.user_type,
+          },
+          error: null,
+        };
+      }
+
+      // Return auth user data if profile not found
       return {
-        user: mapSupabaseUserToAuthUser(data.user),
+        user: authUser,
         error: null,
       };
     } catch (error) {
@@ -336,6 +412,60 @@ class AuthService {
     } catch (error) {
       // If there's an error, assume email doesn't exist
       return false;
+    }
+  }
+
+  /**
+   * Update user profile
+   * @param data - Profile data to update
+   * @returns Response with success status
+   */
+  async updateProfile(data: {
+    username?: string;
+    full_name?: string;
+    bio?: string;
+    avatar_url?: string;
+  }): Promise<{ error: string | null; success: boolean }> {
+    try {
+      // Get current user ID
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        return {
+          error: 'User not authenticated',
+          success: false,
+        };
+      }
+
+      // Update profile in profiles table
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username: data.username,
+          full_name: data.full_name,
+          bio: data.bio,
+          avatar_url: data.avatar_url,
+        })
+        .eq('user_id', user.id);
+
+      if (error) {
+        return {
+          error: error.message,
+          success: false,
+        };
+      }
+
+      return {
+        error: null,
+        success: true,
+      };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Profile update failed',
+        success: false,
+      };
     }
   }
 

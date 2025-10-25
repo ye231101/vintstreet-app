@@ -1,5 +1,12 @@
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { clearError, loginUser, logoutUser, registerUser, resetPassword } from '@/store/slices/authSlice';
+import {
+  clearError,
+  loginUser,
+  logoutUser,
+  registerUser,
+  resetPassword,
+  updateProfile as updateProfileAction,
+} from '@/store/slices/authSlice';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -10,13 +17,7 @@ export const useAuth = () => {
     dispatch(loginUser({ email, password }));
   };
 
-  const register = async (
-    email: string,
-    fullName: string,
-    username: string,
-    accountType: string,
-    password: string
-  ) => {
+  const register = async (email: string, fullName: string, username: string, accountType: string, password: string) => {
     if (loading) return;
 
     const result = await dispatch(
@@ -40,6 +41,11 @@ export const useAuth = () => {
     dispatch(resetPassword(email));
   };
 
+  const updateProfile = async (data: { username?: string; full_name?: string; bio?: string; avatar_url?: string }) => {
+    const result = await dispatch(updateProfileAction(data));
+    return result;
+  };
+
   const logout = async () => {
     if (loading) return;
     dispatch(logoutUser());
@@ -58,6 +64,7 @@ export const useAuth = () => {
     login,
     register,
     resetPassword: resetPasswordAction,
+    updateProfile,
     logout,
     clearError: clearAuthError,
   };
