@@ -17,58 +17,57 @@ const topCategories: TopCategory[] = [
   {
     id: 1,
     title: 'Caps',
-    image: require('@/assets/images/cat_caps.jpg'),
+    image: require('@/assets/images/cat/cat_caps.jpg'),
   },
   {
     id: 2,
     title: 'Denim',
-    image: require('@/assets/images/cat_denim.jpg'),
+    image: require('@/assets/images/cat/cat_denim.jpg'),
   },
   {
     id: 3,
     title: 'Vinyl',
-    image: require('@/assets/images/cat_vinyl.jpg'),
+    image: require('@/assets/images/cat/cat_vinyl.jpg'),
   },
   {
     id: 4,
     title: 'Football Shirts',
-    image: require('@/assets/images/cat_football_shirts.jpg'),
+    image: require('@/assets/images/cat/cat_football_shirts.jpg'),
   },
   {
     id: 5,
     title: 'Gaming',
-    image: require('@/assets/images/cat_gaming.jpg'),
+    image: require('@/assets/images/cat/cat_gaming.jpg'),
   },
   {
     id: 6,
     title: "Levi's",
-    image: require('@/assets/images/cat_levis.jpg'),
+    image: require('@/assets/images/cat/cat_levis.jpg'),
   },
   {
     id: 7,
     title: 'Nike',
-    image: require('@/assets/images/cat_nike.jpg'),
+    image: require('@/assets/images/cat/cat_nike.jpg'),
   },
   {
     id: 8,
     title: 'Tees',
-    image: require('@/assets/images/cat_tees.jpg'),
+    image: require('@/assets/images/cat/cat_tees.jpg'),
   },
   {
     id: 9,
     title: 'VeeFriends',
-    image: require('@/assets/images/cat_veefriends.jpg'),
+    image: require('@/assets/images/cat/cat_veefriends.jpg'),
   },
   {
     id: 10,
     title: 'Y2K',
-    image: require('@/assets/images/cat_y2k.jpg'),
+    image: require('@/assets/images/cat/cat_y2k.jpg'),
   },
 ];
 
 const TopCategoryCard = ({ category }: { category: TopCategory }) => (
   <Pressable
-    key={category.title}
     onPress={() => router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.title)}` as any)}
     className="relative mr-2 overflow-hidden rounded-lg border border-gray-200"
     style={{
@@ -101,7 +100,7 @@ export default function TopCategory() {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       {topCategories.map((category) => (
-        <TopCategoryCard key={category.title} category={category} />
+        <TopCategoryCard key={category.id} category={category} />
       ))}
     </ScrollView>
   );
