@@ -1,3 +1,4 @@
+import { supabase } from '@/api/config/supabase';
 import { useAuth } from '@/hooks/use-auth';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -11,10 +12,10 @@ import {
   ScrollView,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '@/api/config/supabase';
 
 export default function ShopSettingsScreen() {
   const { user } = useAuth();
@@ -201,42 +202,54 @@ export default function ShopSettingsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-1 items-center justify-center">
+      <SafeAreaView className="flex-1 bg-black">
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+            <Feather name="arrow-left" size={24} color="#fff" />
+          </TouchableOpacity>
+
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Shop Settings</Text>
+        </View>
+
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
           <ActivityIndicator size="large" color="#000" />
+          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your shop settings...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
-          <Pressable onPress={() => router.back()} className="p-2 -ml-2">
-            <Feather name="arrow-left" size={24} color="#000" />
-          </Pressable>
-          <Text className="text-xl font-inter-bold text-black">Shop Settings</Text>
-          <Pressable
-            onPress={handleViewShop}
-            className="flex-row items-center px-3 py-2 border border-gray-300 rounded-lg"
-          >
-            <Feather name="eye" size={16} color="#000" />
-            <Text className="ml-1 text-sm font-inter-semibold text-black">View Shop</Text>
-          </Pressable>
-        </View>
+    <SafeAreaView className="flex-1 bg-black">
+      {/* Header */}
+      <View className="flex-row items-center p-4 gap-4 bg-black border-b border-gray-700">
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Feather name="arrow-left" size={24} color="#fff" />
+        </TouchableOpacity>
 
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+        <Text className="flex-1 text-lg font-inter-bold text-white">Shop Settings</Text>
+
+        <Pressable onPress={handleViewShop} className="flex-row items-center">
+          <Feather name="eye" size={16} color="#fff" />
+          <Text className="ml-2 text-sm font-inter-semibold text-white">View Shop</Text>
+        </Pressable>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          className="flex-1 p-4 gap-4 bg-gray-50"
+        >
           {/* Business Information */}
-          <View className="p-4 mt-2 bg-white">
-            <View className="flex-row items-center mb-4">
+          <View className="p-4 gap-4 rounded-lg bg-white">
+            <View className="flex-row items-center gap-2">
               <Feather name="briefcase" size={20} color="#000" />
-              <Text className="ml-2 text-lg font-inter-bold text-black">Business Information</Text>
+              <Text className="text-lg font-inter-bold text-black">Business Information</Text>
             </View>
 
             {/* Shop Name and Business Name */}
-            <View className="flex-row gap-4 mb-4">
+            <View className="flex-row gap-4">
               <View className="flex-1">
                 <Text className="mb-2 text-sm font-inter-semibold text-black">
                   Shop Name <Text className="text-red-500">*</Text>
@@ -263,7 +276,7 @@ export default function ShopSettingsScreen() {
             </View>
 
             {/* Shop Tagline */}
-            <View className="mb-4">
+            <View>
               <Text className="mb-2 text-sm font-inter-semibold text-black">Shop Tagline</Text>
               <TextInput
                 value={shopTagline}
@@ -273,11 +286,13 @@ export default function ShopSettingsScreen() {
                 maxLength={100}
                 className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
               />
-              <Text className="mt-1 text-xs font-inter-regular text-gray-500">{shopTagline.length}/100 characters</Text>
+              <Text className="mt-1 text-xs font-inter-semibold text-gray-500 text-right">
+                {shopTagline.length}/100 characters
+              </Text>
             </View>
 
             {/* Shop Description */}
-            <View className="mb-4">
+            <View>
               <Text className="mb-2 text-sm font-inter-semibold text-black">Shop Description</Text>
               <TextInput
                 value={shopDescription}
@@ -289,22 +304,23 @@ export default function ShopSettingsScreen() {
                 maxLength={1000}
                 textAlignVertical="top"
                 className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                style={{ height: 100 }}
               />
-              <Text className="mt-1 text-xs font-inter-regular text-gray-500">
+              <Text className="mt-1 text-xs font-inter-semibold text-gray-500 text-right">
                 {shopDescription.length}/1000 characters
               </Text>
             </View>
 
             {/* Display Name Preference */}
-            <View className="mb-4">
-              <View className="flex-row items-center mb-3">
+            <View className="gap-2">
+              <View className="flex-row items-center gap-2">
                 <Feather name="user" size={16} color="#000" />
-                <Text className="ml-2 text-sm font-inter-semibold text-black">Display Name Preference</Text>
+                <Text className="text-sm font-inter-semibold text-black">Display Name Preference</Text>
               </View>
 
               <Pressable
                 onPress={() => setDisplayNamePreference('shop_name')}
-                className="flex-row items-center px-4 py-3 mb-3 bg-white border border-gray-200 rounded-xl"
+                className="flex-row items-center px-4 py-3 bg-white border border-gray-200 rounded-lg"
               >
                 <View
                   className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
@@ -323,7 +339,7 @@ export default function ShopSettingsScreen() {
 
               <Pressable
                 onPress={() => setDisplayNamePreference('personal_name')}
-                className="flex-row items-center px-4 py-3 bg-white border border-gray-200 rounded-xl"
+                className="flex-row items-center px-4 py-3 bg-white border border-gray-200 rounded-lg"
               >
                 <View
                   className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
@@ -340,74 +356,70 @@ export default function ShopSettingsScreen() {
             </View>
 
             {/* Tax ID and Business License */}
-            <View className="flex-row gap-4">
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Tax ID (Optional)</Text>
-                <TextInput
-                  value={taxId}
-                  onChangeText={setTaxId}
-                  placeholder="Tax identification number"
-                  placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
+            <View className="flex-1">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Tax ID (Optional)</Text>
+              <TextInput
+                value={taxId}
+                onChangeText={setTaxId}
+                placeholder="Tax identification number"
+                placeholderTextColor="#9CA3AF"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+            </View>
 
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Business License (Optional)</Text>
-                <TextInput
-                  value={businessLicense}
-                  onChangeText={setBusinessLicense}
-                  placeholder="Business license number"
-                  placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
+            <View className="flex-1">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Business License (Optional)</Text>
+              <TextInput
+                value={businessLicense}
+                onChangeText={setBusinessLicense}
+                placeholder="Business license number"
+                placeholderTextColor="#9CA3AF"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
             </View>
           </View>
 
           {/* Contact Information */}
-          <View className="p-4 mt-4 bg-white">
-            <View className="flex-row items-center mb-4">
+          <View className="p-4 gap-4 rounded-lg bg-white">
+            <View className="flex-row items-center gap-2">
               <Feather name="mail" size={20} color="#000" />
-              <Text className="ml-2 text-lg font-inter-bold text-black">Contact Information</Text>
+              <Text className="text-lg font-inter-bold text-black">Contact Information</Text>
             </View>
 
-            <View className="flex-row gap-4">
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Email</Text>
-                <TextInput
-                  value={contactEmail}
-                  onChangeText={setContactEmail}
-                  placeholder="customer@yourshop.com"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
+            <View className="flex-1">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Email</Text>
+              <TextInput
+                value={contactEmail}
+                onChangeText={setContactEmail}
+                placeholder="customer@yourshop.com"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+            </View>
 
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Phone</Text>
-                <TextInput
-                  value={contactPhone}
-                  onChangeText={setContactPhone}
-                  placeholder="+1 (555) 123-4567"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="phone-pad"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
+            <View className="flex-1">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Phone</Text>
+              <TextInput
+                value={contactPhone}
+                onChangeText={setContactPhone}
+                placeholder="+1 (555) 123-4567"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="phone-pad"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
             </View>
           </View>
 
           {/* Return Address */}
-          <View className="p-4 mt-4 bg-white">
-            <View className="flex-row items-center mb-4">
+          <View className="p-4 gap-4 rounded-lg bg-white">
+            <View className="flex-row items-center gap-2">
               <Feather name="map-pin" size={20} color="#000" />
-              <Text className="ml-2 text-lg font-inter-bold text-black">Return Address</Text>
+              <Text className="text-lg font-inter-bold text-black">Return Address</Text>
             </View>
 
-            <View className="mb-4">
+            <View>
               <Text className="mb-2 text-sm font-inter-semibold text-black">Address Line 1</Text>
               <TextInput
                 value={returnAddressLine1}
@@ -418,7 +430,7 @@ export default function ShopSettingsScreen() {
               />
             </View>
 
-            <View className="mb-4">
+            <View>
               <Text className="mb-2 text-sm font-inter-semibold text-black">Address Line 2 (Optional)</Text>
               <TextInput
                 value={returnAddressLine2}
@@ -429,7 +441,7 @@ export default function ShopSettingsScreen() {
               />
             </View>
 
-            <View className="flex-row gap-4">
+            <View className="flex-row gap-2">
               <View className="flex-1">
                 <Text className="mb-2 text-sm font-inter-semibold text-black">City</Text>
                 <TextInput
@@ -467,10 +479,13 @@ export default function ShopSettingsScreen() {
           </View>
 
           {/* Policies */}
-          <View className="p-4 mt-4 mb-4 bg-white">
-            <Text className="mb-4 text-lg font-inter-bold text-black">Policies</Text>
+          <View className="p-4 gap-4 rounded-lg bg-white">
+            <View className="flex-row items-center gap-2">
+              <Feather name="file-text" size={20} color="#000" />
+              <Text className="text-lg font-inter-bold text-black">Policies</Text>
+            </View>
 
-            <View className="mb-4">
+            <View>
               <Text className="mb-2 text-sm font-inter-semibold text-black">Shipping Policy</Text>
               <TextInput
                 value={shippingPolicy}
@@ -481,10 +496,11 @@ export default function ShopSettingsScreen() {
                 numberOfLines={5}
                 textAlignVertical="top"
                 className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                style={{ height: 100 }}
               />
             </View>
 
-            <View className="mb-4">
+            <View>
               <Text className="mb-2 text-sm font-inter-semibold text-black">Return Policy</Text>
               <TextInput
                 value={returnPolicy}
@@ -498,26 +514,26 @@ export default function ShopSettingsScreen() {
               />
             </View>
           </View>
-        </ScrollView>
+        </KeyboardAvoidingView>
+      </ScrollView>
 
-        {/* Save Button */}
-        <View className="px-4 py-4 bg-white border-t border-gray-200">
-          <Pressable
-            onPress={handleSaveProfile}
-            disabled={loading}
-            className={`py-4 rounded-xl ${loading ? 'bg-gray-400' : 'bg-black'}`}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <View className="flex-row items-center justify-center">
-                <Feather name="save" size={18} color="#fff" />
-                <Text className="ml-2 text-base font-inter-bold text-white">Save Profile</Text>
-              </View>
-            )}
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
+      {/* Save Button */}
+      <View className="p-4 bg-white border-t border-gray-200">
+        <Pressable
+          onPress={handleSaveProfile}
+          disabled={loading}
+          className={`py-4 rounded-xl ${loading ? 'bg-gray-400' : 'bg-black'}`}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <View className="flex-row items-center justify-center">
+              <Feather name="save" size={20} color="#fff" />
+              <Text className="ml-2 text-base font-inter-bold text-white">Save Profile</Text>
+            </View>
+          )}
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }

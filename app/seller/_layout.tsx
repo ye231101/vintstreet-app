@@ -25,6 +25,13 @@ export default function SellerLayout() {
         }}
       />
       <Stack.Screen
+        name="shop-settings"
+        options={{
+          title: 'Shop Settings',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="listings"
         options={{
           title: 'My Listings',
