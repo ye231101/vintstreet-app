@@ -312,7 +312,7 @@ export default function CheckoutScreen() {
             </View>
 
             {/* Section Content */}
-            <View className="p-5">
+            <View className="p-4">
               <View className="flex-row items-center gap-2">
                 <View className="flex-1">
                   <InputField
@@ -425,7 +425,7 @@ export default function CheckoutScreen() {
             </View>
 
             {/* Section Content */}
-            <View className="p-5">
+            <View className="p-4">
               <Text className="mb-4 text-sm font-inter-semibold text-gray-600">Shipping for 1 item(s)</Text>
 
               {shippingMethods.map((method, index) => (
@@ -482,7 +482,7 @@ export default function CheckoutScreen() {
             </View>
 
             {/* Section Content */}
-            <View className="p-5">
+            <View className="p-4">
               <Text className="text-base font-inter-bold text-gray-800 mb-2">Secure Payment via Stripe</Text>
               <Text className="text-sm font-inter-semibold text-gray-600">
                 You'll be redirected to Stripe's secure checkout to complete your payment. Your card details are never
@@ -494,7 +494,7 @@ export default function CheckoutScreen() {
       </ScrollView>
 
       {/* Bottom Action Button */}
-      <View className="p-5 bg-white border-t border-gray-200">
+      <View className="p-4 bg-white border-t border-gray-200">
         <TouchableOpacity
           onPress={processCheckout}
           className={`rounded-2xl py-4 items-center ${canProceedToCheckout() ? 'bg-black' : 'bg-orange-500'}`}

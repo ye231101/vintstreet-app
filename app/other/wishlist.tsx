@@ -106,17 +106,17 @@ export default function WishlistScreen() {
                   onPress={() => handleAddToCart(item)}
                   disabled={addingToCartId === item.id || isInCart}
                   className={`${
-                    isInCart ? 'bg-gray-100 border border-gray-200' : 'bg-black'
+                    isInCart ? 'bg-gray-100 border border-gray-200' : 'bg-black border border-black'
                   } rounded-lg px-3 py-2 flex-row items-center gap-1.5`}
                 >
                   {addingToCartId === item.id ? (
-                    <Feather name="loader" size={14} color={isInCart ? '#000' : 'white'} />
+                    <ActivityIndicator size="small" color="#fff" />
                   ) : isInCart ? (
-                    <Feather name="check" size={14} color="#000" />
+                    <Feather name="check" size={16} color="#000" />
                   ) : (
-                    <Feather name="shopping-cart" size={14} color="white" />
+                    <Feather name="shopping-cart" size={16} color="white" />
                   )}
-                  <Text className={`${isInCart ? 'text-black' : 'text-white'} text-xs font-inter-medium`}>
+                  <Text className={`${isInCart ? 'text-black' : 'text-white'} text-sm font-inter-medium`}>
                     {addingToCartId === item.id ? 'Adding...' : isInCart ? 'Added to Cart' : 'Add'}
                   </Text>
                 </TouchableOpacity>

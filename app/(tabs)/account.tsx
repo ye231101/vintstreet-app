@@ -83,7 +83,7 @@ export default function AccountScreen() {
               </Pressable>
 
               <Pressable
-                onPress={() => router.push('/other/shop-settings')}
+                onPress={() => router.push('/seller/shop-settings')}
                 className="flex-row items-center px-4 py-3"
               >
                 <Feather name="settings" size={24} color="#000" />

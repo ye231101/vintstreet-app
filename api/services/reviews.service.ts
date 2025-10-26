@@ -1,5 +1,14 @@
 import { supabase } from '../config/supabase';
 
+export interface ReviewReply {
+  id: string;
+  review_id: string;
+  seller_id: string;
+  reply_text: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Review {
   id: string;
   buyer_id: string;
@@ -11,6 +20,7 @@ export interface Review {
   productImage?: string;
   dateCreated: string;
   isVerified: boolean;
+  replies?: ReviewReply[];
 }
 
 export interface ApiReview {
@@ -25,6 +35,7 @@ export interface ApiReview {
     username?: string;
     avatar_url?: string | null;
   };
+  review_replies?: ReviewReply[];
 }
 
 export interface ReviewStats {
@@ -67,10 +78,28 @@ class ReviewsService {
       // Create a map of profiles
       const profilesMap = new Map((profilesData || []).map((profile: any) => [profile.user_id, profile]));
 
-      // Merge reviews with profiles
+      // Fetch review replies
+      const reviewIds = reviewsData.map((review: any) => review.id);
+      const { data: repliesData } = await supabase
+        .from('review_replies')
+        .select('*')
+        .in('review_id', reviewIds)
+        .order('created_at', { ascending: true });
+
+      // Create a map of replies
+      const repliesMap = new Map<string, ReviewReply[]>();
+      (repliesData || []).forEach((reply: any) => {
+        if (!repliesMap.has(reply.review_id)) {
+          repliesMap.set(reply.review_id, []);
+        }
+        repliesMap.get(reply.review_id)?.push(reply as ReviewReply);
+      });
+
+      // Merge reviews with profiles and replies
       const reviewsWithProfiles = reviewsData.map((review: any) => ({
         ...review,
         buyer_profile: profilesMap.get(review.buyer_id) || null,
+        review_replies: repliesMap.get(review.id) || [],
       }));
 
       // Transform API data to match the UI interface
@@ -153,10 +182,28 @@ class ReviewsService {
       // Create a map of profiles
       const profilesMap = new Map((profilesData || []).map((profile: any) => [profile.user_id, profile]));
 
-      // Merge reviews with profiles
+      // Fetch review replies
+      const reviewIds = reviewsData.map((review: any) => review.id);
+      const { data: repliesData } = await supabase
+        .from('review_replies')
+        .select('*')
+        .in('review_id', reviewIds)
+        .order('created_at', { ascending: true });
+
+      // Create a map of replies
+      const repliesMap = new Map<string, ReviewReply[]>();
+      (repliesData || []).forEach((reply: any) => {
+        if (!repliesMap.has(reply.review_id)) {
+          repliesMap.set(reply.review_id, []);
+        }
+        repliesMap.get(reply.review_id)?.push(reply as ReviewReply);
+      });
+
+      // Merge reviews with profiles and replies
       const reviewsWithProfiles = reviewsData.map((review: any) => ({
         ...review,
         buyer_profile: profilesMap.get(review.buyer_id) || null,
+        review_replies: repliesMap.get(review.id) || [],
       }));
 
       return this.transformReviewsData((reviewsWithProfiles as unknown as ApiReview[]) || []);
@@ -187,8 +234,38 @@ class ReviewsService {
         productImage: undefined, // Would need to fetch from product data
         dateCreated: apiReview.created_at,
         isVerified: true, // Mock verification status
+        replies: apiReview.review_replies || [],
       };
     });
+  }
+
+  /**
+   * Post a reply to a review
+   * @param reviewId - The review ID to reply to
+   * @param sellerId - The seller's user ID
+   * @param replyText - The reply text
+   */
+  async postReply(reviewId: string, sellerId: string, replyText: string): Promise<ReviewReply> {
+    try {
+      const { data, error } = await supabase
+        .from('review_replies')
+        .insert({
+          review_id: reviewId,
+          seller_id: sellerId,
+          reply_text: replyText,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to post reply: ${error.message}`);
+      }
+
+      return data as unknown as ReviewReply;
+    } catch (error) {
+      console.error('Error posting reply:', error);
+      throw error;
+    }
   }
 }
 

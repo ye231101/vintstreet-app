@@ -5,7 +5,7 @@ import { blurhash } from '@/utils';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useState } from 'react';
-import { Dimensions, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable, Text, View } from 'react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -106,11 +106,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
             } rounded-lg w-10 h-10 items-center justify-center`}
           >
             {isAddingToCart ? (
-              <Feather name="loader" size={20} color="#000" />
+              <ActivityIndicator size="small" color="#000" />
             ) : isInCart ? (
               <Feather name="check" size={20} color="#000" />
             ) : (
-              <Feather name="plus" size={20} color="#000" />
+              <Feather name="shopping-cart" size={20} color="#000" />
             )}
           </Pressable>
         </View>
