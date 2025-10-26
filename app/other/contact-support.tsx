@@ -141,7 +141,6 @@ Thank you,
     }
   };
 
-
   const ContactMethod = ({
     icon,
     title,
@@ -184,7 +183,7 @@ Thank you,
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         <View className="flex-1 p-4 bg-gray-50">
           {/* Support Categories */}
-          <View className="mb-4" style={{ zIndex: 3000 }}>
+          <View className="mb-4">
             <Text className="text-gray-900 text-base font-inter-bold mb-2">What can we help you with?</Text>
             <DropDownPicker
               open={showCategoryDropdown}
@@ -227,11 +226,13 @@ Thank you,
                 showsVerticalScrollIndicator: true,
               }}
               disableLocalSearch={false}
+              zIndex={3000}
+              zIndexInverse={1000}
             />
           </View>
 
           {/* Message Field */}
-          <View className="mb-6" style={{ zIndex: 1000 }}>
+          <View className="mb-6">
             <Text className="text-gray-900 text-base font-inter-bold mb-2">Describe your issue</Text>
 
             <TextInput
@@ -243,6 +244,7 @@ Thank you,
               multiline
               numberOfLines={5}
               textAlignVertical="top"
+              style={{ minHeight: 100 }}
             />
           </View>
 

@@ -2,21 +2,21 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AppSettingsScreen() {
-  const [selectedCurrency, setSelectedCurrency] = useState('GBP');
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>('GBP');
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  const currencies = [
-    { code: 'GBP', symbol: '£', name: 'GBP' },
-    { code: 'USD', symbol: '$', name: 'USD' },
-    { code: 'EUR', symbol: '€', name: 'EUR' },
-    { code: 'CAD', symbol: 'C$', name: 'CAD' },
-    { code: 'AUD', symbol: 'A$', name: 'AUD' },
-    { code: 'JPY', symbol: '¥', name: 'JPY' },
-  ];
+  const [currencyItems, setCurrencyItems] = useState([
+    { label: 'GBP', value: 'GBP' },
+    { label: 'USD', value: 'USD' },
+    { label: 'EUR', value: 'EUR' },
+    { label: 'CAD', value: 'CAD' },
+    { label: 'AUD', value: 'AUD' },
+    { label: 'JPY', value: 'JPY' },
+  ]);
 
   const handleDeleteAccount = () => {
     setShowDeleteModal(true);
@@ -27,8 +27,6 @@ export default function AppSettingsScreen() {
     setShowDeleteModal(false);
     // Add actual delete logic here
   };
-
-  const selectedCurrencyData = currencies.find((c) => c.code === selectedCurrency) || currencies[0];
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -42,53 +40,59 @@ export default function AppSettingsScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 p-4 gap-4 bg-gray-50">
+        <View className="flex-1 gap-4 p-4 bg-gray-50">
           {/* Preferred Currency Section */}
-          <View className="p-4 rounded-lg bg-white shadow-sm">
-            <Text className="mb-2 text-sm font-inter-semibold text-black">Preferred Currency</Text>
+          <View className="">
+            <Text className="text-gray-900 text-base font-inter-bold mb-2">Preferred Currency</Text>
             <Text className="mb-3 text-xs font-inter-regular text-gray-500">
               Choose your preferred currency for displaying prices
             </Text>
 
             {/* Currency Dropdown */}
-            <View className="relative">
-              <TouchableOpacity
-                onPress={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
-                className="flex-row items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg"
-              >
-                <Text className="text-base font-inter-regular text-black">
-                  {selectedCurrencyData.symbol} {selectedCurrencyData.name}
-                </Text>
-                <Feather name="chevron-down" size={20} color="#9CA3AF" />
-              </TouchableOpacity>
-
-              {/* Currency Dropdown List */}
-              {showCurrencyDropdown && (
-                <View className="absolute top-14 left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
-                  {currencies.map((currency, index) => (
-                    <TouchableOpacity
-                      key={currency.code}
-                      onPress={() => {
-                        setSelectedCurrency(currency.code);
-                        setShowCurrencyDropdown(false);
-                      }}
-                      className={`flex-row items-center justify-between px-4 py-3 ${
-                        index < currencies.length - 1 ? 'border-b border-gray-200' : ''
-                      }`}
-                    >
-                      <Text
-                        className={`text-base font-inter-regular ${
-                          selectedCurrency === currency.code ? 'text-black font-inter-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {currency.symbol} {currency.name}
-                      </Text>
-                      {selectedCurrency === currency.code && <Feather name="check" size={20} color="#000" />}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
+            <DropDownPicker
+              open={showCurrencyDropdown}
+              value={selectedCurrency}
+              items={currencyItems}
+              listMode="SCROLLVIEW"
+              setOpen={setShowCurrencyDropdown}
+              setValue={setSelectedCurrency}
+              setItems={setCurrencyItems}
+              placeholder="Select a currency"
+              style={{
+                borderColor: '#D1D5DB',
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                backgroundColor: '#fff',
+              }}
+              textStyle={{
+                fontSize: 14,
+                fontFamily: 'Inter',
+              }}
+              placeholderStyle={{
+                color: '#9CA3AF',
+                fontSize: 14,
+                fontFamily: 'Inter',
+              }}
+              dropDownContainerStyle={{
+                borderColor: '#D1D5DB',
+                borderRadius: 8,
+                backgroundColor: '#fff',
+                maxHeight: 300,
+              }}
+              listItemLabelStyle={{
+                fontSize: 14,
+                fontFamily: 'Inter',
+              }}
+              scrollViewProps={{
+                nestedScrollEnabled: true,
+                scrollEnabled: true,
+                showsVerticalScrollIndicator: true,
+              }}
+              disableLocalSearch={false}
+              zIndex={3000}
+              zIndexInverse={1000}
+            />
           </View>
 
           {/* Email Notifications Section */}
