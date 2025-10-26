@@ -164,6 +164,8 @@ export const ContactSellerModal: React.FC<ContactSellerModalProps> = ({
                     showsVerticalScrollIndicator: true,
                   }}
                   disableLocalSearch={false}
+                  zIndex={3000}
+                  zIndexInverse={1000}
                 />
               </View>
 

@@ -85,8 +85,8 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
             scrollEnabled: true,
             showsVerticalScrollIndicator: true,
           }}
-          zIndex={2000}
-          zIndexInverse={2000}
+          zIndex={3000}
+          zIndexInverse={1000}
         />
       </View>
 
@@ -124,7 +124,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
             scrollEnabled: true,
             showsVerticalScrollIndicator: true,
           }}
-          zIndex={1000}
+          zIndex={3000}
           zIndexInverse={1000}
         />
       </View>
