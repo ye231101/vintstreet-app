@@ -82,6 +82,15 @@ export default function AccountScreen() {
                 <Feather name="chevron-right" size={16} color="#000" />
               </Pressable>
 
+              <Pressable
+                onPress={() => router.push('/other/shop-settings')}
+                className="flex-row items-center px-4 py-3"
+              >
+                <Feather name="settings" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Shop Settings</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
+
               <Pressable onPress={() => router.push('/seller/listings')} className="flex-row items-center px-4 py-3">
                 <Feather name="grid" size={24} color="#000" />
                 <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Listings</Text>

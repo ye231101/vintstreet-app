@@ -1,0 +1,523 @@
+import { useAuth } from '@/hooks/use-auth';
+import { showToast } from '@/utils/toast';
+import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { supabase } from '@/api/config/supabase';
+
+export default function ShopSettingsScreen() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userFullName, setUserFullName] = useState('');
+
+  // Business Information
+  const [shopName, setShopName] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [shopTagline, setShopTagline] = useState('');
+  const [shopDescription, setShopDescription] = useState('');
+  const [displayNamePreference, setDisplayNamePreference] = useState<'shop_name' | 'personal_name'>('shop_name');
+  const [taxId, setTaxId] = useState('');
+  const [businessLicense, setBusinessLicense] = useState('');
+
+  // Contact Information
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+
+  // Return Address
+  const [returnAddressLine1, setReturnAddressLine1] = useState('');
+  const [returnAddressLine2, setReturnAddressLine2] = useState('');
+  const [returnCity, setReturnCity] = useState('');
+  const [returnState, setReturnState] = useState('');
+  const [returnPostalCode, setReturnPostalCode] = useState('');
+  const [returnCountry, setReturnCountry] = useState('US');
+
+  // Policies
+  const [shippingPolicy, setShippingPolicy] = useState('');
+  const [returnPolicy, setReturnPolicy] = useState('');
+
+  useEffect(() => {
+    loadShopSettings();
+  }, []);
+
+  const loadShopSettings = async () => {
+    try {
+      setIsLoading(true);
+
+      if (!user?.id) return;
+
+      // Load user profile for full name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        setUserFullName(profile.full_name || '');
+      }
+
+      // Load seller profile data
+      const { data: sellerProfile, error: sellerError } = await supabase
+        .from('seller_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (sellerError && sellerError.code !== 'PGRST116') {
+        console.error('Error loading seller profile:', sellerError);
+        return;
+      }
+
+      if (sellerProfile) {
+        setShopName(sellerProfile.shop_name || '');
+        setBusinessName(sellerProfile.business_name || '');
+        setShopTagline(sellerProfile.shop_tagline || '');
+        setShopDescription(sellerProfile.shop_description || '');
+        setDisplayNamePreference(sellerProfile.display_name_format || 'shop_name');
+        setTaxId(sellerProfile.tax_id || '');
+        setBusinessLicense(sellerProfile.business_license || '');
+        setContactEmail(sellerProfile.contact_email || '');
+        setContactPhone(sellerProfile.contact_phone || '');
+        setReturnAddressLine1(sellerProfile.return_address_line1 || '');
+        setReturnAddressLine2(sellerProfile.return_address_line2 || '');
+        setReturnCity(sellerProfile.return_city || '');
+        setReturnState(sellerProfile.return_state || '');
+        setReturnPostalCode(sellerProfile.return_postal_code || '');
+        setReturnCountry(sellerProfile.return_country || 'US');
+        setShippingPolicy(sellerProfile.shipping_policy || '');
+        setReturnPolicy(sellerProfile.return_policy || '');
+      }
+    } catch (error) {
+      console.error('Error loading shop settings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getPersonalNamePreview = () => {
+    if (!userFullName) return 'e.g., John S.';
+
+    const nameParts = userFullName.trim().split(' ');
+    if (nameParts.length >= 2) {
+      const firstName = nameParts[0];
+      const surnameInitial = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+      return `${firstName} ${surnameInitial}.`;
+    }
+    return userFullName;
+  };
+
+  const getShopNamePreview = () => {
+    return shopName || 'Your Shop Name';
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setLoading(true);
+
+      if (!user?.id) {
+        showToast('User not authenticated', 'danger');
+        return;
+      }
+
+      if (!shopName.trim()) {
+        showToast('Shop name is required', 'danger');
+        return;
+      }
+
+      // Check if seller profile exists
+      const { data: existing } = await supabase
+        .from('seller_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const profileData = {
+        business_name: businessName.trim() || null,
+        shop_name: shopName.trim(),
+        shop_tagline: shopTagline.trim() || null,
+        shop_description: shopDescription.trim() || null,
+        display_name_format: displayNamePreference,
+        contact_email: contactEmail.trim() || null,
+        contact_phone: contactPhone.trim() || null,
+        return_address_line1: returnAddressLine1.trim() || null,
+        return_address_line2: returnAddressLine2.trim() || null,
+        return_city: returnCity.trim() || null,
+        return_state: returnState.trim() || null,
+        return_postal_code: returnPostalCode.trim() || null,
+        return_country: returnCountry,
+        shipping_policy: shippingPolicy.trim() || null,
+        return_policy: returnPolicy.trim() || null,
+        tax_id: taxId.trim() || null,
+        business_license: businessLicense.trim() || null,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (existing) {
+        // Update existing seller profile
+        const { error } = await supabase.from('seller_profiles').update(profileData).eq('user_id', user.id);
+
+        if (error) {
+          throw new Error(`Failed to update seller profile: ${error.message}`);
+        }
+      } else {
+        // Insert new seller profile
+        const { error } = await supabase.from('seller_profiles').insert({
+          user_id: user.id,
+          ...profileData,
+        });
+
+        if (error) {
+          throw new Error(`Failed to create seller profile: ${error.message}`);
+        }
+      }
+
+      showToast('Shop settings saved successfully!', 'success');
+      router.replace('/account');
+    } catch (error) {
+      console.error('Error saving shop settings:', error);
+      showToast(error instanceof Error ? error.message : 'Failed to save shop settings', 'danger');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewShop = () => {
+    if (user?.id) {
+      router.push(`/seller-profile/${user.id}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#000" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+        {/* Header */}
+        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+          <Pressable onPress={() => router.back()} className="p-2 -ml-2">
+            <Feather name="arrow-left" size={24} color="#000" />
+          </Pressable>
+          <Text className="text-xl font-inter-bold text-black">Shop Settings</Text>
+          <Pressable
+            onPress={handleViewShop}
+            className="flex-row items-center px-3 py-2 border border-gray-300 rounded-lg"
+          >
+            <Feather name="eye" size={16} color="#000" />
+            <Text className="ml-1 text-sm font-inter-semibold text-black">View Shop</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+          {/* Business Information */}
+          <View className="p-4 mt-2 bg-white">
+            <View className="flex-row items-center mb-4">
+              <Feather name="briefcase" size={20} color="#000" />
+              <Text className="ml-2 text-lg font-inter-bold text-black">Business Information</Text>
+            </View>
+
+            {/* Shop Name and Business Name */}
+            <View className="flex-row gap-4 mb-4">
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">
+                  Shop Name <Text className="text-red-500">*</Text>
+                </Text>
+                <TextInput
+                  value={shopName}
+                  onChangeText={setShopName}
+                  placeholder="Shop name"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Business Name</Text>
+                <TextInput
+                  value={businessName}
+                  onChangeText={setBusinessName}
+                  placeholder="Business name"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+            </View>
+
+            {/* Shop Tagline */}
+            <View className="mb-4">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Shop Tagline</Text>
+              <TextInput
+                value={shopTagline}
+                onChangeText={setShopTagline}
+                placeholder="A catchy one-liner for your shop"
+                placeholderTextColor="#9CA3AF"
+                maxLength={100}
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+              <Text className="mt-1 text-xs font-inter-regular text-gray-500">{shopTagline.length}/100 characters</Text>
+            </View>
+
+            {/* Shop Description */}
+            <View className="mb-4">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Shop Description</Text>
+              <TextInput
+                value={shopDescription}
+                onChangeText={setShopDescription}
+                placeholder="Tell customers about your shop..."
+                placeholderTextColor="#9CA3AF"
+                multiline
+                numberOfLines={5}
+                maxLength={1000}
+                textAlignVertical="top"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+              <Text className="mt-1 text-xs font-inter-regular text-gray-500">
+                {shopDescription.length}/1000 characters
+              </Text>
+            </View>
+
+            {/* Display Name Preference */}
+            <View className="mb-4">
+              <View className="flex-row items-center mb-3">
+                <Feather name="user" size={16} color="#000" />
+                <Text className="ml-2 text-sm font-inter-semibold text-black">Display Name Preference</Text>
+              </View>
+
+              <Pressable
+                onPress={() => setDisplayNamePreference('shop_name')}
+                className="flex-row items-center px-4 py-3 mb-3 bg-white border border-gray-200 rounded-xl"
+              >
+                <View
+                  className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+                    displayNamePreference === 'shop_name' ? 'border-black' : 'border-gray-300'
+                  }`}
+                >
+                  {displayNamePreference === 'shop_name' && <View className="w-3 h-3 bg-black rounded-full" />}
+                </View>
+                <View className="flex-1 ml-3">
+                  <Text className="text-base font-inter-semibold text-black">{getShopNamePreview()}</Text>
+                  <Text className="text-xs font-inter-regular text-gray-500">
+                    Show shop name on product and seller pages
+                  </Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                onPress={() => setDisplayNamePreference('personal_name')}
+                className="flex-row items-center px-4 py-3 bg-white border border-gray-200 rounded-xl"
+              >
+                <View
+                  className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+                    displayNamePreference === 'personal_name' ? 'border-black' : 'border-gray-300'
+                  }`}
+                >
+                  {displayNamePreference === 'personal_name' && <View className="w-3 h-3 bg-black rounded-full" />}
+                </View>
+                <View className="flex-1 ml-3">
+                  <Text className="text-base font-inter-semibold text-black">{getPersonalNamePreview()}</Text>
+                  <Text className="text-xs font-inter-regular text-gray-500">Show first name and surname initial</Text>
+                </View>
+              </Pressable>
+            </View>
+
+            {/* Tax ID and Business License */}
+            <View className="flex-row gap-4">
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Tax ID (Optional)</Text>
+                <TextInput
+                  value={taxId}
+                  onChangeText={setTaxId}
+                  placeholder="Tax identification number"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Business License (Optional)</Text>
+                <TextInput
+                  value={businessLicense}
+                  onChangeText={setBusinessLicense}
+                  placeholder="Business license number"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Contact Information */}
+          <View className="p-4 mt-4 bg-white">
+            <View className="flex-row items-center mb-4">
+              <Feather name="mail" size={20} color="#000" />
+              <Text className="ml-2 text-lg font-inter-bold text-black">Contact Information</Text>
+            </View>
+
+            <View className="flex-row gap-4">
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Email</Text>
+                <TextInput
+                  value={contactEmail}
+                  onChangeText={setContactEmail}
+                  placeholder="customer@yourshop.com"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Phone</Text>
+                <TextInput
+                  value={contactPhone}
+                  onChangeText={setContactPhone}
+                  placeholder="+1 (555) 123-4567"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="phone-pad"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Return Address */}
+          <View className="p-4 mt-4 bg-white">
+            <View className="flex-row items-center mb-4">
+              <Feather name="map-pin" size={20} color="#000" />
+              <Text className="ml-2 text-lg font-inter-bold text-black">Return Address</Text>
+            </View>
+
+            <View className="mb-4">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Address Line 1</Text>
+              <TextInput
+                value={returnAddressLine1}
+                onChangeText={setReturnAddressLine1}
+                placeholder="Street address"
+                placeholderTextColor="#9CA3AF"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+            </View>
+
+            <View className="mb-4">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Address Line 2 (Optional)</Text>
+              <TextInput
+                value={returnAddressLine2}
+                onChangeText={setReturnAddressLine2}
+                placeholder="Apartment, suite, etc."
+                placeholderTextColor="#9CA3AF"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+            </View>
+
+            <View className="flex-row gap-4">
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">City</Text>
+                <TextInput
+                  value={returnCity}
+                  onChangeText={setReturnCity}
+                  placeholder="City"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">State</Text>
+                <TextInput
+                  value={returnState}
+                  onChangeText={setReturnState}
+                  placeholder="State"
+                  placeholderTextColor="#9CA3AF"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="mb-2 text-sm font-inter-semibold text-black">ZIP Code</Text>
+                <TextInput
+                  value={returnPostalCode}
+                  onChangeText={setReturnPostalCode}
+                  placeholder="ZIP code"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="number-pad"
+                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Policies */}
+          <View className="p-4 mt-4 mb-4 bg-white">
+            <Text className="mb-4 text-lg font-inter-bold text-black">Policies</Text>
+
+            <View className="mb-4">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Shipping Policy</Text>
+              <TextInput
+                value={shippingPolicy}
+                onChangeText={setShippingPolicy}
+                placeholder="Describe your shipping policies, delivery times, costs..."
+                placeholderTextColor="#9CA3AF"
+                multiline
+                numberOfLines={5}
+                textAlignVertical="top"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+            </View>
+
+            <View className="mb-4">
+              <Text className="mb-2 text-sm font-inter-semibold text-black">Return Policy</Text>
+              <TextInput
+                value={returnPolicy}
+                onChangeText={setReturnPolicy}
+                placeholder="Describe your return and refund policies..."
+                placeholderTextColor="#9CA3AF"
+                multiline
+                numberOfLines={5}
+                textAlignVertical="top"
+                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+              />
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Save Button */}
+        <View className="px-4 py-4 bg-white border-t border-gray-200">
+          <Pressable
+            onPress={handleSaveProfile}
+            disabled={loading}
+            className={`py-4 rounded-xl ${loading ? 'bg-gray-400' : 'bg-black'}`}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <View className="flex-row items-center justify-center">
+                <Feather name="save" size={18} color="#fff" />
+                <Text className="ml-2 text-base font-inter-bold text-white">Save Profile</Text>
+              </View>
+            )}
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
