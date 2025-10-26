@@ -376,7 +376,7 @@ export default function ProductDetailScreen() {
 
           {/* Price and actions */}
           <View className="px-4">
-            <View className="flex-row items-center justify-between py-2">
+            <View className="flex-row items-center justify-between">
               <View className="px-1">
                 <Text className="text-2xl font-inter-bold text-black mr-2">
                   £
@@ -401,29 +401,37 @@ export default function ProductDetailScreen() {
                 )}
               </View>
               <View className="flex-row items-center">
-                <Pressable
-                  className={`flex-row items-center px-4 py-3 rounded-lg mr-2 ${
-                    cartItem ? 'bg-gray-100 border border-gray-200' : 'bg-black'
-                  }`}
+                <TouchableOpacity
                   onPress={handleAddToCart}
                   disabled={!!cartItem || isAddingToCart}
+                  className={`flex-row items-center px-4 py-2 rounded-lg mr-2 ${
+                    cartItem ? 'bg-gray-100 border border-gray-200' : 'bg-black border border-black'
+                  }`}
                 >
                   {isAddingToCart ? (
-                    <Feather name="loader" size={16} color="#fff" className="mr-2" />
+                    <View className="flex-row items-center gap-2">
+                      <ActivityIndicator size="small" color="#fff" />
+                      <Text className="text-sm font-inter-semibold text-white">Adding...</Text>
+                    </View>
                   ) : cartItem ? (
-                    <Feather name="check" size={16} color="#000" className="mr-2" />
-                  ) : null}
-                  <Text className={`text-sm font-inter-semibold ${cartItem ? 'text-black' : 'text-white'}`}>
-                    {isAddingToCart ? 'Adding...' : cartItem ? 'Added to Cart' : 'Add to Cart'}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  className="flex-row items-center px-4 py-3 rounded-lg mr-2 bg-white border border-gray-200"
+                    <View className="flex-row items-center gap-2">
+                      <Feather name="check" size={16} color="#000" />
+                      <Text className="text-sm font-inter-semibold text-black">Added to Cart</Text>
+                    </View>
+                  ) : (
+                    <View className="flex-row items-center gap-2">
+                      <Feather name="shopping-cart" size={16} color="white" />
+                      <Text className="text-sm font-inter-semibold text-white">Add to Cart</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="flex-row items-center px-4 py-2 rounded-lg mr-2 bg-white border border-gray-200"
                   onPress={() => setIsOfferOpen(true)}
                 >
                   <Feather name="message-circle" size={16} color="#000" className="mr-2" />
                   <Text className="text-sm font-inter-semibold text-black">Make Offer</Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -578,104 +586,104 @@ export default function ProductDetailScreen() {
                 {relatedProducts.map((relatedProduct: any) => {
                   const isRelatedInCart = cart.items.some((cartItem) => cartItem.product?.id === relatedProduct.id);
                   return (
-                  <Pressable
-                    key={relatedProduct.id}
-                    onPress={() => router.push(`/product/${relatedProduct.id}` as any)}
-                    className="w-44 bg-white rounded-lg overflow-hidden mx-2 border border-gray-200"
-                  >
-                    {/* Product Image */}
-                    <View className="w-full h-44 bg-gray-100 relative">
-                      {relatedProduct.product_image || relatedProduct.product_images?.[0] ? (
-                        <Image
-                          source={{
-                            uri: relatedProduct.product_image || relatedProduct.product_images?.[0],
-                          }}
-                          className="w-full h-full"
-                          resizeMode="cover"
-                        />
-                      ) : (
-                        <View className="w-full h-full items-center justify-center">
-                          <Feather name="image" size={32} color="#ccc" />
-                        </View>
-                      )}
+                    <Pressable
+                      key={relatedProduct.id}
+                      onPress={() => router.push(`/product/${relatedProduct.id}` as any)}
+                      className="w-44 bg-white rounded-lg overflow-hidden mx-2 border border-gray-200"
+                    >
+                      {/* Product Image */}
+                      <View className="w-full h-44 bg-gray-100 relative">
+                        {relatedProduct.product_image || relatedProduct.product_images?.[0] ? (
+                          <Image
+                            source={{
+                              uri: relatedProduct.product_image || relatedProduct.product_images?.[0],
+                            }}
+                            className="w-full h-full"
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          <View className="w-full h-full items-center justify-center">
+                            <Feather name="image" size={32} color="#ccc" />
+                          </View>
+                        )}
 
-                      {/* Wishlist Heart Icon */}
-                      <Pressable
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          toggleWishlist(relatedProduct);
-                        }}
-                        className="absolute top-2 right-2 bg-white p-1.5 rounded-full"
-                        style={{
-                          elevation: 2,
-                          shadowColor: '#000',
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.1,
-                          shadowRadius: 4,
-                        }}
-                      >
-                        <FontAwesome
-                          name={isInWishlist(relatedProduct.id) ? 'heart' : 'heart-o'}
-                          size={18}
-                          color={isInWishlist(relatedProduct.id) ? '#ef4444' : 'black'}
-                          fill={isInWishlist(relatedProduct.id) ? '#ef4444' : 'transparent'}
-                        />
-                      </Pressable>
-                    </View>
-
-                    {/* Product Info */}
-                    <View className="p-2.5">
-                      <Text className="text-sm font-inter-bold text-black mb-1" numberOfLines={1}>
-                        {relatedProduct.product_name}
-                      </Text>
-                      <Text className="text-xs font-inter-semibold text-gray-500 mb-2" numberOfLines={1}>
-                        By{' '}
-                        {relatedProduct.seller_info_view?.shop_name ||
-                          relatedProduct.seller_info_view?.full_name ||
-                          'Seller'}
-                      </Text>
-
-                      {/* Price and Actions */}
-                      <View className="flex-row items-center justify-between">
-                        <Text className="text-base font-inter-bold text-black">
-                          £
-                          {(relatedProduct.discounted_price !== null
-                            ? relatedProduct.discounted_price
-                            : relatedProduct.starting_price
-                          ).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
+                        {/* Wishlist Heart Icon */}
                         <Pressable
-                          onPress={async (e) => {
+                          onPress={(e) => {
                             e.stopPropagation();
-                            if (isRelatedInCart) return;
-                            try {
-                              setAddingRelatedProductId(relatedProduct.id);
-                              await addItem(relatedProduct);
-                            } catch (error) {
-                              console.error('Error adding to cart:', error);
-                            } finally {
-                              setAddingRelatedProductId(null);
-                            }
+                            toggleWishlist(relatedProduct);
                           }}
-                          disabled={addingRelatedProductId === relatedProduct.id || isRelatedInCart}
-                          className={`${
-                            isRelatedInCart ? 'bg-gray-100 border border-gray-300' : 'bg-black'
-                          } p-1.5 rounded-lg`}
+                          className="absolute top-2 right-2 bg-white p-1.5 rounded-full"
+                          style={{
+                            elevation: 2,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 4,
+                          }}
                         >
-                          {addingRelatedProductId === relatedProduct.id ? (
-                            <Feather name="loader" size={16} color={isRelatedInCart ? '#000' : 'white'} />
-                          ) : isRelatedInCart ? (
-                            <Feather name="check" size={16} color="#000" />
-                          ) : (
-                            <Feather name="plus" size={16} color="white" />
-                          )}
+                          <FontAwesome
+                            name={isInWishlist(relatedProduct.id) ? 'heart' : 'heart-o'}
+                            size={18}
+                            color={isInWishlist(relatedProduct.id) ? '#ef4444' : 'black'}
+                            fill={isInWishlist(relatedProduct.id) ? '#ef4444' : 'transparent'}
+                          />
                         </Pressable>
                       </View>
-                    </View>
-                  </Pressable>
+
+                      {/* Product Info */}
+                      <View className="p-2.5">
+                        <Text className="text-sm font-inter-bold text-black mb-1" numberOfLines={1}>
+                          {relatedProduct.product_name}
+                        </Text>
+                        <Text className="text-xs font-inter-semibold text-gray-500 mb-2" numberOfLines={1}>
+                          By{' '}
+                          {relatedProduct.seller_info_view?.shop_name ||
+                            relatedProduct.seller_info_view?.full_name ||
+                            'Seller'}
+                        </Text>
+
+                        {/* Price and Actions */}
+                        <View className="flex-row items-center justify-between">
+                          <Text className="text-base font-inter-bold text-black">
+                            £
+                            {(relatedProduct.discounted_price !== null
+                              ? relatedProduct.discounted_price
+                              : relatedProduct.starting_price
+                            ).toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </Text>
+                          <Pressable
+                            onPress={async (e) => {
+                              e.stopPropagation();
+                              if (isRelatedInCart) return;
+                              try {
+                                setAddingRelatedProductId(relatedProduct.id);
+                                await addItem(relatedProduct);
+                              } catch (error) {
+                                console.error('Error adding to cart:', error);
+                              } finally {
+                                setAddingRelatedProductId(null);
+                              }
+                            }}
+                            disabled={addingRelatedProductId === relatedProduct.id || isRelatedInCart}
+                            className={`${
+                              isRelatedInCart ? 'bg-gray-100 border border-gray-300' : 'bg-black'
+                            } p-1.5 rounded-lg`}
+                          >
+                            {addingRelatedProductId === relatedProduct.id ? (
+                              <ActivityIndicator size="small" color={isRelatedInCart ? '#000' : '#fff'} />
+                            ) : isRelatedInCart ? (
+                              <Feather name="check" size={16} color="#000" />
+                            ) : (
+                              <Feather name="plus" size={16} color="white" />
+                            )}
+                          </Pressable>
+                        </View>
+                      </View>
+                    </Pressable>
                   );
                 })}
               </ScrollView>

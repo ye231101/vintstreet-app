@@ -1,10 +1,19 @@
-import { Feather } from '@expo/vector-icons';
+import { Review, reviewsService } from '@/api/services/reviews.service';
+import { useAuth } from '@/hooks/use-auth';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Review, reviewsService } from '../../api/services/reviews.service';
-import { useAuth } from '../../hooks/use-auth';
 
 export default function ReviewsScreen() {
   const [isLoading, setIsLoading] = useState(true);
@@ -13,13 +22,16 @@ export default function ReviewsScreen() {
   const [averageRating, setAverageRating] = useState(0);
   const [totalSales, setTotalSales] = useState(0);
   const [sortFilter, setSortFilter] = useState<'all' | 'high-to-low' | 'low-to-high'>('all');
+  const [replyText, setReplyText] = useState<{ [key: string]: string }>({});
+  const [showReplyBox, setShowReplyBox] = useState<{ [key: string]: boolean }>({});
+  const [isSubmittingReply, setIsSubmittingReply] = useState<{ [key: string]: boolean }>({});
   const { user } = useAuth();
 
   useEffect(() => {
     if (user?.id) {
       loadReviews();
     }
-  }, [user?.id]);
+  }, [user?.id, sortFilter]);
 
   const loadReviews = async () => {
     if (!user?.id) {
@@ -62,41 +74,83 @@ export default function ReviewsScreen() {
     }
   };
 
+  const toggleReplyBox = (reviewId: string) => {
+    setShowReplyBox((prev) => ({
+      ...prev,
+      [reviewId]: !prev[reviewId],
+    }));
+  };
+
+  const updateReplyText = (reviewId: string, text: string) => {
+    setReplyText((prev) => ({
+      ...prev,
+      [reviewId]: text,
+    }));
+  };
+
+  const handleReply = async (reviewId: string) => {
+    const reply = replyText[reviewId]?.trim();
+    if (!reply) {
+      showErrorToast('Please enter a reply');
+      return;
+    }
+
+    if (!user?.id) {
+      showErrorToast('User not authenticated');
+      return;
+    }
+
+    setIsSubmittingReply((prev) => ({ ...prev, [reviewId]: true }));
+
+    try {
+      const newReply = await reviewsService.postReply(reviewId, user.id, reply);
+
+      // Update the reviews state by adding the new reply to the specific review
+      setReviews((prevReviews) =>
+        prevReviews.map((review) => {
+          if (review.id === reviewId) {
+            return {
+              ...review,
+              replies: [...(review.replies || []), newReply],
+            };
+          }
+          return review;
+        })
+      );
+
+      // Clear reply text and hide reply box
+      setReplyText((prev) => ({ ...prev, [reviewId]: '' }));
+      setShowReplyBox((prev) => ({ ...prev, [reviewId]: false }));
+
+      showSuccessToast('Reply posted successfully!');
+    } catch (err) {
+      console.error('Error posting reply:', err);
+      showErrorToast('Failed to post reply. Please try again.');
+    } finally {
+      setIsSubmittingReply((prev) => ({ ...prev, [reviewId]: false }));
+    }
+  };
+
   const renderStars = (rating: number, size: number = 16) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Feather key={i} name="star" size={size} color={i <= rating ? '#FFD700' : '#E0E0E0'} className="mr-0.5" />
-      );
+      let starName: 'star' | 'star-half-o' | 'star-o';
+
+      if (rating >= i) {
+        // Full star
+        starName = 'star';
+      } else if (Math.ceil(rating) >= i) {
+        // Half star
+        starName = 'star-half-o';
+      } else {
+        // Empty star
+        starName = 'star-o';
+      }
+
+      stars.push(<FontAwesome key={i} name={starName} size={size} color="#FFD700" className="mr-0.5" />);
     }
     return stars;
   };
-
-  const ReviewCard = ({ review }: { review: Review }) => (
-    <View className="mb-4">
-      {/* Product Name */}
-      <Text className="text-gray-900 font-inter-bold text-base mb-2">{review.productName}</Text>
-
-      {/* Reviewer and Date */}
-      <View className="flex-row items-center mb-2">
-        <View className="w-5 h-5 rounded-full bg-gray-200 mr-2 justify-center items-center">
-          <Feather name="user" color="#666" size={12} />
-        </View>
-        <Text className="text-gray-600 text-sm font-inter">
-          {review.customerName} on {formatDate(review.dateCreated)}
-        </Text>
-      </View>
-
-      {/* Star Rating */}
-      <View className="flex-row items-center mb-3">{renderStars(review.rating, 16)}</View>
-
-      {/* Review Comment */}
-      <Text className="text-gray-900 text-sm font-inter-semibold leading-5">{review.comment}</Text>
-
-      {/* Divider */}
-      <View className="h-px bg-gray-200 mt-4" />
-    </View>
-  );
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -129,7 +183,7 @@ export default function ReviewsScreen() {
             <View className="items-center py-6 bg-gray-50 border-b border-gray-200">
               <Text className="text-gray-900 text-5xl font-inter-bold mb-2">{averageRating}</Text>
 
-              <View className="flex-row mb-2">{renderStars(Math.floor(averageRating), 24)}</View>
+              <View className="flex-row mb-2">{renderStars(averageRating, 24)}</View>
 
               <Text className="text-gray-600 text-sm font-inter">{totalSales} sales</Text>
             </View>
@@ -139,7 +193,7 @@ export default function ReviewsScreen() {
               <TouchableOpacity
                 onPress={() => setSortFilter('all')}
                 className={`border rounded py-2 px-4 mr-2 ${
-                  sortFilter === 'all' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                  sortFilter === 'all' ? 'bg-black border-black' : 'bg-white border-gray-300'
                 }`}
               >
                 <Text className={`text-sm font-inter-medium ${sortFilter === 'all' ? 'text-white' : 'text-gray-900'}`}>
@@ -150,7 +204,7 @@ export default function ReviewsScreen() {
               <TouchableOpacity
                 onPress={() => setSortFilter('high-to-low')}
                 className={`border rounded py-2 px-4 mr-2 ${
-                  sortFilter === 'high-to-low' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                  sortFilter === 'high-to-low' ? 'bg-black border-black' : 'bg-white border-gray-300'
                 }`}
               >
                 <Text
@@ -165,7 +219,7 @@ export default function ReviewsScreen() {
               <TouchableOpacity
                 onPress={() => setSortFilter('low-to-high')}
                 className={`border rounded py-2 px-4 ${
-                  sortFilter === 'low-to-high' ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                  sortFilter === 'low-to-high' ? 'bg-black border-black' : 'bg-white border-gray-300'
                 }`}
               >
                 <Text
@@ -186,7 +240,100 @@ export default function ReviewsScreen() {
               className="p-4"
             >
               {reviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
+                <View key={review.id} className="mb-4">
+                  {/* Product Name */}
+                  <Text className="text-gray-900 font-inter-bold text-base mb-2">{review.productName}</Text>
+
+                  {/* Reviewer and Date */}
+                  <View className="flex-row items-center mb-2">
+                    <View className="w-5 h-5 rounded-full bg-gray-200 mr-2 justify-center items-center">
+                      <Feather name="user" color="#666" size={12} />
+                    </View>
+                    <Text className="text-gray-600 text-sm font-inter">
+                      {review.customerName} on {formatDate(review.dateCreated)}
+                    </Text>
+                  </View>
+
+                  {/* Star Rating */}
+                  <View className="flex-row items-center mb-3">{renderStars(review.rating, 16)}</View>
+
+                  {/* Review Comment */}
+                  <Text className="text-gray-900 text-sm font-inter-semibold leading-5">{review.comment}</Text>
+
+                  {/* Existing Replies */}
+                  {review.replies && review.replies.length > 0 && (
+                    <View className="mt-4 pl-4 border-l-2 border-gray-300">
+                      {review.replies.map((reply) => (
+                        <View key={reply.id} className="bg-blue-50 rounded-lg p-3 my-1">
+                          <View className="flex-row items-center mb-2">
+                            <View className="w-5 h-5 rounded-full bg-blue-200 mr-2 justify-center items-center">
+                              <Feather name="corner-down-right" size={12} color="#3b82f6" />
+                            </View>
+                            <Text className="text-sm font-inter-semibold text-gray-900">You replied</Text>
+                            <Text className="text-xs text-gray-600 ml-2">{formatDate(reply.created_at)}</Text>
+                          </View>
+                          <Text className="text-sm font-inter text-gray-800 pl-7">{reply.reply_text}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* Reply Section */}
+                  {(!review.replies || review.replies.length === 0) && (
+                    <View className="mt-4 pt-4 border-t border-gray-200">
+                      {!showReplyBox[review.id] ? (
+                        <TouchableOpacity
+                          onPress={() => toggleReplyBox(review.id)}
+                          className="flex-row items-center bg-black rounded-lg py-2 px-4 self-start"
+                        >
+                          <Feather name="corner-down-right" size={16} color="#fff" />
+                          <Text className="text-white text-sm font-inter-medium ml-2">Reply to Review</Text>
+                        </TouchableOpacity>
+                      ) : (
+                      <View>
+                        <TextInput
+                          placeholder="Write your reply..."
+                          value={replyText[review.id] || ''}
+                          onChangeText={(text) => updateReplyText(review.id, text)}
+                          multiline
+                          numberOfLines={3}
+                          className="border border-gray-300 rounded-lg p-3 text-sm font-inter text-gray-900 mb-3"
+                          style={{ minHeight: 80, textAlignVertical: 'top' }}
+                        />
+                        <View className="flex-row gap-2">
+                          <TouchableOpacity
+                            onPress={() => handleReply(review.id)}
+                            disabled={!replyText[review.id]?.trim() || isSubmittingReply[review.id]}
+                            className={`flex-row items-center rounded-lg py-2 px-4 ${
+                              !replyText[review.id]?.trim() || isSubmittingReply[review.id]
+                                ? 'bg-gray-300'
+                                : 'bg-black'
+                            }`}
+                          >
+                            {isSubmittingReply[review.id] ? (
+                              <ActivityIndicator size="small" color="#fff" />
+                            ) : (
+                              <Feather name="send" size={16} color="#fff" />
+                            )}
+                            <Text className="text-white text-sm font-inter-medium ml-2">
+                              {isSubmittingReply[review.id] ? 'Posting...' : 'Post Reply'}
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => toggleReplyBox(review.id)}
+                            className="border border-gray-300 rounded-lg py-2 px-4"
+                          >
+                            <Text className="text-gray-900 text-sm font-inter-medium">Cancel</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                      )}
+                    </View>
+                  )}
+
+                  {/* Divider */}
+                  <View className="h-px bg-gray-200 mt-4" />
+                </View>
               ))}
             </ScrollView>
           </>
