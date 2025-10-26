@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { sellerService } from '@/api/services';
 
 interface ReportsData {
   summary: {
@@ -37,6 +38,8 @@ interface TopSellingProduct {
   title: string;
   soldQty: number;
   formattedSoldQty: string;
+  revenue?: number;
+  formattedRevenue?: string;
 }
 
 interface SellerSettings {
@@ -75,92 +78,37 @@ export default function DashboardScreen() {
   ];
 
   useEffect(() => {
-    loadDashboardData();
-  }, [selectedPeriod]);
+    if (user?.id) {
+      loadDashboardData();
+    }
+  }, [selectedPeriod, user?.id]);
 
   const loadDashboardData = async () => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Fetch all dashboard data in parallel
+      const [reports, orders, settings, topProducts] = await Promise.all([
+        sellerService.getDashboardReports(user.id, selectedPeriod),
+        sellerService.getRecentOrders(user.id, 5),
+        sellerService.getSellerSettings(user.id),
+        sellerService.getTopSellingProducts(user.id, selectedPeriod, 5),
+      ]);
 
-      // Mock data - replace with actual data fetching
-      const mockReportsData: ReportsData = {
-        summary: {
-          totalSales: 1250.5,
-          formattedTotalSales: '£1,250.50',
-          totalOrders: 15,
-          pageviews: 1250,
-          sellerBalance: 850.25,
-          formattedSellerBalance: '£850.25',
-          processingOrders: 3,
-          completedOrders: 8,
-          onHoldOrders: 1,
-          pendingOrders: 2,
-          cancelledOrders: 1,
-          refundedOrders: 0,
-        },
-      };
-
-      const mockRecentOrders: RecentOrder[] = [
-        {
-          id: '1',
-          number: '#1001',
-          status: 'processing',
-          total: 89.99,
-          formattedTotal: '£89.99',
-          dateCreated: '2024-01-15T10:30:00Z',
-        },
-        {
-          id: '2',
-          number: '#1002',
-          status: 'completed',
-          total: 125.5,
-          formattedTotal: '£125.50',
-          dateCreated: '2024-01-14T14:20:00Z',
-        },
-      ];
-
-      const mockSellerSettings: SellerSettings = {
-        storeName: 'Vintage Street Store',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@vintagestreet.com',
-        phone: '+1234567890',
-        address: {
-          fullAddress: '123 Vintage Lane, London, UK',
-        },
-        gravatar: '',
-        trusted: true,
-        rating: {
-          rating: 4.8,
-          count: 127,
-        },
-      };
-
-      const mockTopProducts: TopSellingProduct[] = [
-        {
-          id: '1',
-          title: 'Vintage Nike Air Max',
-          soldQty: 25,
-          formattedSoldQty: '25',
-        },
-        {
-          id: '2',
-          title: 'Retro Adidas Jacket',
-          soldQty: 18,
-          formattedSoldQty: '18',
-        },
-      ];
-
-      setReportsData(mockReportsData);
-      setRecentOrders(mockRecentOrders);
-      setSellerSettings(mockSellerSettings);
-      setTopSellingProducts(mockTopProducts);
-    } catch (err) {
-      setError('Error loading dashboard data');
+      setReportsData(reports);
+      setRecentOrders(orders);
+      setSellerSettings(settings);
+      setTopSellingProducts(topProducts);
+    } catch (err: any) {
+      console.error('Error loading dashboard data:', err);
+      setError(err?.message || 'Error loading dashboard data');
     } finally {
       setIsLoading(false);
     }

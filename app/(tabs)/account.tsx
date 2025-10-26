@@ -97,6 +97,15 @@ export default function AccountScreen() {
                 <Feather name="chevron-right" size={16} color="#000" />
               </Pressable>
 
+              <Pressable
+                onPress={() => router.push('/seller/my-messages')}
+                className="flex-row items-center px-4 py-3"
+              >
+                <Feather name="mail" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Messages</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
+
               <Pressable onPress={() => router.push('/seller/orders')} className="flex-row items-center py-3 px-4">
                 <Feather name="shopping-bag" size={24} color="#000" />
                 <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Orders</Text>

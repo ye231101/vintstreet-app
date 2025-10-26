@@ -105,6 +105,81 @@ class MessagesService {
   }
 
   /**
+   * Get received messages for a user (where user is the recipient)
+   * @param userId - The user ID to fetch received messages for
+   */
+  async getReceivedMessages(userId: string): Promise<Conversation[]> {
+    try {
+      // Get messages where user is the recipient only
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('recipient_id', userId)
+        .is('parent_message_id', null)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(`Failed to fetch received messages: ${error.message}`);
+      }
+
+      // Group messages by thread (same subject and sender)
+      const threadMap = new Map<string, Conversation>();
+
+      for (const msg of (data as unknown as ApiMessage[]) || []) {
+        const senderId = msg.sender_id;
+        const threadKey = `${msg.subject}-${senderId}`;
+
+        if (!threadMap.has(threadKey)) {
+          // Fetch sender's profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, username')
+            .eq('user_id', senderId)
+            .single();
+
+          threadMap.set(threadKey, {
+            id: threadKey,
+            subject: msg.subject,
+            other_user_id: senderId,
+            other_user_name:
+              (profile as unknown as { full_name: string; username: string })?.full_name ||
+              (profile as unknown as { username: string })?.username ||
+              'Unknown User',
+            last_message: msg.message,
+            last_message_time: msg.created_at,
+            unread_count: 0,
+            messages: [],
+          });
+        }
+
+        const thread = threadMap.get(threadKey)!;
+        thread.messages.push(msg);
+
+        // Update last message and time if this message is more recent
+        if (new Date(msg.created_at) > new Date(thread.last_message_time)) {
+          thread.last_message = msg.message;
+          thread.last_message_time = msg.created_at;
+        }
+
+        // Count unread messages
+        if (msg.status === 'unread') {
+          thread.unread_count++;
+        }
+      }
+
+      // Sort threads by last message time (most recent first)
+      const sortedThreads = Array.from(threadMap.values()).sort(
+        (a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime()
+      );
+
+      return sortedThreads;
+    } catch (error) {
+      console.error('Error fetching received messages:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get messages for a specific conversation
    * @param conversationId - The conversation ID
    * @param userId - The current user ID
