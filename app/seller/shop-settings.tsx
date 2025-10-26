@@ -66,7 +66,7 @@ export default function ShopSettingsScreen() {
         .maybeSingle();
 
       if (profile) {
-        setUserFullName(profile.full_name || '');
+        setUserFullName((profile as any).full_name || '');
       }
 
       // Load seller profile data
@@ -82,23 +82,24 @@ export default function ShopSettingsScreen() {
       }
 
       if (sellerProfile) {
-        setShopName(sellerProfile.shop_name || '');
-        setBusinessName(sellerProfile.business_name || '');
-        setShopTagline(sellerProfile.shop_tagline || '');
-        setShopDescription(sellerProfile.shop_description || '');
-        setDisplayNamePreference(sellerProfile.display_name_format || 'shop_name');
-        setTaxId(sellerProfile.tax_id || '');
-        setBusinessLicense(sellerProfile.business_license || '');
-        setContactEmail(sellerProfile.contact_email || '');
-        setContactPhone(sellerProfile.contact_phone || '');
-        setReturnAddressLine1(sellerProfile.return_address_line1 || '');
-        setReturnAddressLine2(sellerProfile.return_address_line2 || '');
-        setReturnCity(sellerProfile.return_city || '');
-        setReturnState(sellerProfile.return_state || '');
-        setReturnPostalCode(sellerProfile.return_postal_code || '');
-        setReturnCountry(sellerProfile.return_country || 'US');
-        setShippingPolicy(sellerProfile.shipping_policy || '');
-        setReturnPolicy(sellerProfile.return_policy || '');
+        const profile = sellerProfile as any;
+        setShopName(profile.shop_name || '');
+        setBusinessName(profile.business_name || '');
+        setShopTagline(profile.shop_tagline || '');
+        setShopDescription(profile.shop_description || '');
+        setDisplayNamePreference(profile.display_name_format || 'shop_name');
+        setTaxId(profile.tax_id || '');
+        setBusinessLicense(profile.business_license || '');
+        setContactEmail(profile.contact_email || '');
+        setContactPhone(profile.contact_phone || '');
+        setReturnAddressLine1(profile.return_address_line1 || '');
+        setReturnAddressLine2(profile.return_address_line2 || '');
+        setReturnCity(profile.return_city || '');
+        setReturnState(profile.return_state || '');
+        setReturnPostalCode(profile.return_postal_code || '');
+        setReturnCountry(profile.return_country || 'US');
+        setShippingPolicy(profile.shipping_policy || '');
+        setReturnPolicy(profile.return_policy || '');
       }
     } catch (error) {
       console.error('Error loading shop settings:', error);
