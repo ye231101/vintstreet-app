@@ -87,6 +87,13 @@ export default function OtherLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="shop-settings"
+        options={{
+          title: 'Shop Settings',
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
