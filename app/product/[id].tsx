@@ -5,6 +5,7 @@ import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { useAppSelector } from '@/store/hooks';
+import { selectCartItemByProductId } from '@/store/selectors/cartSelectors';
 import { showInfoToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -29,7 +30,7 @@ export default function ProductDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
-  const { addItem } = useCart();
+  const { addItem, cart } = useCart();
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlist();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +53,12 @@ export default function ProductDetailScreen() {
   // Related products state
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [relatedProductsLoading, setRelatedProductsLoading] = useState(false);
+
+  // Add to cart loading state
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [addingRelatedProductId, setAddingRelatedProductId] = useState<string | null>(null);
+  // Check if product is in cart
+  const cartItem = useAppSelector((state) => selectCartItemByProductId(id || '')(state));
 
   const load = async () => {
     try {
@@ -165,8 +172,15 @@ export default function ProductDetailScreen() {
     navigation.setOptions?.({ title: headerTitle });
   }, [navigation, product]);
 
-  const handleAddToCart = () => {
-    addItem(product);
+  const handleAddToCart = async () => {
+    try {
+      setIsAddingToCart(true);
+      await addItem(product);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   const handleViewShop = () => {
@@ -363,7 +377,7 @@ export default function ProductDetailScreen() {
           {/* Price and actions */}
           <View className="px-4">
             <View className="flex-row items-center justify-between py-2">
-              <View className="flex-row items-center">
+              <View className="px-1">
                 <Text className="text-2xl font-inter-bold text-black mr-2">
                   £
                   {product.discounted_price !== null
@@ -388,12 +402,26 @@ export default function ProductDetailScreen() {
               </View>
               <View className="flex-row items-center">
                 <Pressable
-                  className="flex-row items-center bg-black px-4 py-3 rounded-lg mr-2"
+                  className={`flex-row items-center px-4 py-3 rounded-lg mr-2 ${
+                    cartItem ? 'bg-gray-100 border border-gray-200' : 'bg-black'
+                  }`}
                   onPress={handleAddToCart}
+                  disabled={!!cartItem || isAddingToCart}
                 >
-                  <Text className="text-white text-sm font-inter-semibold">Add to Cart</Text>
+                  {isAddingToCart ? (
+                    <Feather name="loader" size={16} color="#fff" className="mr-2" />
+                  ) : cartItem ? (
+                    <Feather name="check" size={16} color="#000" className="mr-2" />
+                  ) : null}
+                  <Text className={`text-sm font-inter-semibold ${cartItem ? 'text-black' : 'text-white'}`}>
+                    {isAddingToCart ? 'Adding...' : cartItem ? 'Added to Cart' : 'Add to Cart'}
+                  </Text>
                 </Pressable>
-                <Pressable className="bg-gray-200 px-4 py-3 rounded-lg" onPress={() => setIsOfferOpen(true)}>
+                <Pressable
+                  className="flex-row items-center px-4 py-3 rounded-lg mr-2 bg-white border border-gray-200"
+                  onPress={() => setIsOfferOpen(true)}
+                >
+                  <Feather name="message-circle" size={16} color="#000" className="mr-2" />
                   <Text className="text-sm font-inter-semibold text-black">Make Offer</Text>
                 </Pressable>
               </View>
@@ -547,7 +575,9 @@ export default function ProductDetailScreen() {
             <View className="px-4">
               <Text className="text-xl font-inter-bold text-black my-4">Related Products</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
-                {relatedProducts.map((relatedProduct: any) => (
+                {relatedProducts.map((relatedProduct: any) => {
+                  const isRelatedInCart = cart.items.some((cartItem) => cartItem.product?.id === relatedProduct.id);
+                  return (
                   <Pressable
                     key={relatedProduct.id}
                     onPress={() => router.push(`/product/${relatedProduct.id}` as any)}
@@ -618,18 +648,36 @@ export default function ProductDetailScreen() {
                           })}
                         </Text>
                         <Pressable
-                          onPress={(e) => {
+                          onPress={async (e) => {
                             e.stopPropagation();
-                            addItem(relatedProduct);
+                            if (isRelatedInCart) return;
+                            try {
+                              setAddingRelatedProductId(relatedProduct.id);
+                              await addItem(relatedProduct);
+                            } catch (error) {
+                              console.error('Error adding to cart:', error);
+                            } finally {
+                              setAddingRelatedProductId(null);
+                            }
                           }}
-                          className="bg-black p-1.5 rounded-lg"
+                          disabled={addingRelatedProductId === relatedProduct.id || isRelatedInCart}
+                          className={`${
+                            isRelatedInCart ? 'bg-gray-100 border border-gray-300' : 'bg-black'
+                          } p-1.5 rounded-lg`}
                         >
-                          <Feather name="plus" size={16} color="white" />
+                          {addingRelatedProductId === relatedProduct.id ? (
+                            <Feather name="loader" size={16} color={isRelatedInCart ? '#000' : 'white'} />
+                          ) : isRelatedInCart ? (
+                            <Feather name="check" size={16} color="#000" />
+                          ) : (
+                            <Feather name="plus" size={16} color="white" />
+                          )}
                         </Pressable>
                       </View>
                     </View>
                   </Pressable>
-                ))}
+                  );
+                })}
               </ScrollView>
             </View>
           )}

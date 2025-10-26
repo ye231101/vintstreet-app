@@ -4,7 +4,7 @@ import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash } from '@/utils';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -22,13 +22,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
   width = screenWidth / 2 - 12,
   height = width * (4 / 3),
 }) => {
-  const { addItem } = useCart();
+  const { addItem, cart } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const isWishlisted = isInWishlist(product.id);
+  const isInCart = cart.items.some((cartItem) => cartItem.product?.id === product.id);
 
-  const handleAddToCart = () => {
-    addItem(product);
+  const handleAddToCart = async () => {
+    try {
+      setIsAddingToCart(true);
+      await addItem(product);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   const handleToggleWishlist = () => {
@@ -91,9 +100,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           <Pressable
             onPress={handleAddToCart}
-            className="bg-white border border-gray-200 rounded-lg w-10 h-10 items-center justify-center"
+            disabled={isAddingToCart || isInCart}
+            className={`${
+              isInCart ? 'bg-gray-100 border-2 border-gray-300' : 'bg-white border border-gray-200'
+            } rounded-lg w-10 h-10 items-center justify-center`}
           >
-            <Feather name="plus" size={20} color="black" />
+            {isAddingToCart ? (
+              <Feather name="loader" size={20} color="#000" />
+            ) : isInCart ? (
+              <Feather name="check" size={20} color="#000" />
+            ) : (
+              <Feather name="plus" size={20} color="#000" />
+            )}
           </Pressable>
         </View>
       </View>
