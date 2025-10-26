@@ -1,3 +1,4 @@
+import { supabase } from '@/api/config/supabase';
 import { useAuth } from '@/hooks/use-auth';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -14,7 +15,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '@/api/config/supabase';
 
 const CATEGORIES = [
   { id: 'mens_fashion', label: "Men's Fashion" },
@@ -157,9 +157,13 @@ export default function SellerSetupScreen() {
     }
   };
 
+  const handleClose = () => {
+    router.push('/account');
+  };
+
   const renderProgressBar = () => {
     return (
-      <View className="flex-row items-center justify-center px-4 py-6">
+      <View className="flex-row items-center justify-center p-4">
         {[1, 2, 3].map((step, index) => (
           <React.Fragment key={step}>
             <View className={`h-1 flex-1 ${step <= currentStep ? 'bg-black' : 'bg-gray-300'}`} />
@@ -171,17 +175,17 @@ export default function SellerSetupScreen() {
   };
 
   const renderStep1 = () => (
-    <View className="flex-1">
-      <View className="px-6 py-8">
+    <View className="flex-1 p-4">
+      <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">
           What type of things would you like to sell?
         </Text>
         <Text className="text-sm font-inter-regular text-gray-600 text-center">Select all that apply</Text>
       </View>
 
-      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
-        <View className="pb-6">
-          {CATEGORIES.map((category, index) => (
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 justify-center p-2">
+          {CATEGORIES.map((category) => (
             <Pressable
               key={category.id}
               onPress={() => toggleCategory(category.id)}
@@ -202,8 +206,12 @@ export default function SellerSetupScreen() {
         </View>
       </ScrollView>
 
-      <View className="px-6 pb-6">
-        <Pressable onPress={handleContinueStep1} className="py-4 bg-gray-600 rounded-xl">
+      <View className="px-2">
+        <Pressable
+          onPress={handleContinueStep1}
+          disabled={selectedCategories.length === 0}
+          className={`py-4 rounded-xl ${selectedCategories.length === 0 ? 'bg-gray-400' : 'bg-black'}`}
+        >
           <Text className="text-base font-inter-bold text-center text-white">Continue</Text>
         </Pressable>
       </View>
@@ -211,56 +219,66 @@ export default function SellerSetupScreen() {
   );
 
   const renderStep2 = () => (
-    <View className="flex-1">
-      <View className="px-6 py-8">
+    <View className="flex-1 p-4">
+      <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">How would you like to sell?</Text>
         <Text className="text-sm font-inter-regular text-gray-600 text-center">You can choose one or both</Text>
       </View>
 
-      <View className="flex-1 px-4 justify-center">
-        <Pressable
-          onPress={() => setUploadListings(!uploadListings)}
-          className={`px-6 py-6 mb-4 bg-white border rounded-xl ${uploadListings ? 'border-black' : 'border-gray-200'}`}
-        >
-          <View className="flex-row items-center">
-            <View
-              className={`w-5 h-5 border-2 rounded mr-4 items-center justify-center ${
-                uploadListings ? 'bg-black border-black' : 'border-gray-300'
-              }`}
-            >
-              {uploadListings && <Feather name="check" size={14} color="#fff" />}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="flex-1">
+        <View className="flex-1 justify-center p-2">
+          <Pressable
+            onPress={() => setUploadListings(!uploadListings)}
+            className={`px-6 py-6 mb-4 bg-white border rounded-xl ${
+              uploadListings ? 'border-black' : 'border-gray-200'
+            }`}
+          >
+            <View className="flex-row items-center">
+              <View
+                className={`w-5 h-5 border-2 rounded mr-4 items-center justify-center ${
+                  uploadListings ? 'bg-black border-black' : 'border-gray-300'
+                }`}
+              >
+                {uploadListings && <Feather name="check" size={14} color="#fff" />}
+              </View>
+              <View className="flex-1">
+                <Text className="text-lg font-inter-bold text-black mb-1">Upload listings</Text>
+                <Text className="text-sm font-inter-regular text-gray-600">
+                  Create product listings to sell anytime
+                </Text>
+              </View>
             </View>
-            <View className="flex-1">
-              <Text className="text-lg font-inter-bold text-black mb-1">Upload listings</Text>
-              <Text className="text-sm font-inter-regular text-gray-600">Create product listings to sell anytime</Text>
-            </View>
-          </View>
-        </Pressable>
+          </Pressable>
 
-        <Pressable
-          onPress={() => setLivestream(!livestream)}
-          className={`px-6 py-6 bg-white border rounded-xl ${livestream ? 'border-black' : 'border-gray-200'}`}
-        >
-          <View className="flex-row items-center">
-            <View
-              className={`w-5 h-5 border-2 rounded mr-4 items-center justify-center ${
-                livestream ? 'bg-black border-black' : 'border-gray-300'
-              }`}
-            >
-              {livestream && <Feather name="check" size={14} color="#fff" />}
+          <Pressable
+            onPress={() => setLivestream(!livestream)}
+            className={`px-6 py-6 bg-white border rounded-xl ${livestream ? 'border-black' : 'border-gray-200'}`}
+          >
+            <View className="flex-row items-center">
+              <View
+                className={`w-5 h-5 border-2 rounded mr-4 items-center justify-center ${
+                  livestream ? 'bg-black border-black' : 'border-gray-300'
+                }`}
+              >
+                {livestream && <Feather name="check" size={14} color="#fff" />}
+              </View>
+              <View className="flex-1">
+                <Text className="text-lg font-inter-bold text-black mb-1">Livestream</Text>
+                <Text className="text-sm font-inter-regular text-gray-600">
+                  Sell live and engage with buyers in real-time
+                </Text>
+              </View>
             </View>
-            <View className="flex-1">
-              <Text className="text-lg font-inter-bold text-black mb-1">Livestream</Text>
-              <Text className="text-sm font-inter-regular text-gray-600">
-                Sell live and engage with buyers in real-time
-              </Text>
-            </View>
-          </View>
-        </Pressable>
-      </View>
+          </Pressable>
+        </View>
+      </ScrollView>
 
-      <View className="px-6 pb-6">
-        <Pressable onPress={handleContinueStep2} className="py-4 bg-gray-600 rounded-xl">
+      <View className="px-2">
+        <Pressable
+          onPress={handleContinueStep2}
+          disabled={!uploadListings && !livestream}
+          className={`py-4 rounded-xl ${!uploadListings && !livestream ? 'bg-gray-400' : 'bg-black'}`}
+        >
           <Text className="text-base font-inter-bold text-center text-white">Continue</Text>
         </Pressable>
       </View>
@@ -268,17 +286,17 @@ export default function SellerSetupScreen() {
   );
 
   const renderStep3 = () => (
-    <View className="flex-1">
-      <View className="px-6 py-8">
+    <View className="flex-1 p-4">
+      <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">Your shop name</Text>
         <Text className="text-sm font-inter-regular text-gray-600 text-center">
           Choose a memorable name for your shop
         </Text>
       </View>
 
-      <View className="flex-1 px-6 justify-center">
-        <View className="mb-2">
-          <Text className="mb-3 text-sm font-inter-semibold text-black">Shop name</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 justify-center p-2">
+          <Text className="mb-3 text-sm font-inter-bold text-black">Shop name</Text>
           <TextInput
             value={shopName}
             onChangeText={setShopName}
@@ -287,15 +305,17 @@ export default function SellerSetupScreen() {
             maxLength={50}
             className="px-5 py-4 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-xl"
           />
-          <Text className="mt-2 text-xs font-inter-regular text-gray-500">{shopName.length}/50 characters</Text>
+          <Text className="mt-2 text-xs font-inter-semibold text-gray-500 text-right">
+            {shopName.length}/50 characters
+          </Text>
         </View>
-      </View>
+      </ScrollView>
 
-      <View className="px-6 pb-6">
+      <View className="px-2">
         <Pressable
           onPress={handleCompleteSetup}
-          disabled={loading}
-          className={`py-4 rounded-xl ${loading ? 'bg-gray-400' : 'bg-gray-600'}`}
+          disabled={loading || !shopName.trim()}
+          className={`py-4 rounded-xl ${loading || !shopName.trim() ? 'bg-gray-400' : 'bg-black'}`}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
@@ -308,21 +328,23 @@ export default function SellerSetupScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+    <SafeAreaView className="flex-1 bg-black">
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 bg-gray-50">
         {/* Header */}
-        <View className="bg-white">
-          <View className="flex-row items-center justify-between px-4 py-4">
-            <Pressable onPress={handleBack} className="p-2 -ml-2">
+        <View className="bg-white p-4">
+          <View className="flex-row items-center justify-between">
+            <Pressable onPress={handleBack} className="p-2">
+              <Feather name="arrow-left" size={24} color="#000" />
+            </Pressable>
+            <Pressable onPress={handleClose} className="p-2">
               <Feather name="x" size={24} color="#000" />
             </Pressable>
-            <View style={{ width: 40 }} />
           </View>
 
           {/* Progress Bar */}
           {renderProgressBar()}
 
-          <View className="items-center pb-2">
+          <View className="items-center">
             <Text className="text-sm font-inter-semibold text-gray-600">Step {currentStep} of 3</Text>
           </View>
         </View>

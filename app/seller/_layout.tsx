@@ -11,6 +11,13 @@ export default function SellerLayout() {
       }}
     >
       <Stack.Screen
+        name="seller-setup"
+        options={{
+          title: 'Set up Seller Account',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="dashboard"
         options={{
           title: 'Seller Dashboard',

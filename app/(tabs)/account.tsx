@@ -61,7 +61,7 @@ export default function AccountScreen() {
           {user?.user_type === 'buyer' ? (
             // Show "Set up Seller Account" for buyers only
             <Pressable
-              onPress={() => router.push('/other/seller-setup')}
+              onPress={() => router.push('/seller/seller-setup')}
               className="flex-row items-center px-4 py-3 mx-2 bg-blue-50 rounded-xl"
             >
               <View className="p-2 mr-3 bg-blue-100 rounded-lg">
