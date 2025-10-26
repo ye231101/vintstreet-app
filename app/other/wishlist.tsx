@@ -13,6 +13,7 @@ export default function WishlistScreen() {
   const { items: wishlist, removeItem, isLoading, refresh } = useWishlist();
   const { addItem: addToCart, cart } = useCart();
   const [refreshing, setRefreshing] = useState(false);
+  const [addingToCartId, setAddingToCartId] = useState<string | null>(null);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -24,13 +25,20 @@ export default function WishlistScreen() {
     await removeItem(productId, productName);
   };
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = async (product: Product) => {
     // Check if item is already in cart
     const existingItem = cart.items.find((cartItem) => cartItem.product?.id === product.id);
     if (existingItem) {
       return;
     }
-    addToCart(product);
+    try {
+      setAddingToCartId(product.id);
+      await addToCart(product);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setAddingToCartId(null);
+    }
   };
 
   const navigateToProduct = (itemId: string) => {
@@ -40,6 +48,7 @@ export default function WishlistScreen() {
   const WishlistCard = ({ item }: { item: Product }) => {
     const hasDiscount = item.discounted_price && item.discounted_price < item.starting_price;
     const finalPrice = item.discounted_price || item.starting_price;
+    const isInCart = cart.items.some((cartItem) => cartItem.product?.id === item.id);
 
     return (
       <TouchableOpacity
@@ -61,7 +70,7 @@ export default function WishlistScreen() {
 
           {/* Product Info */}
           <View className="flex-1 p-4 justify-between">
-            <View>
+            <View className="mb-2">
               <Text className="text-gray-900 font-inter-medium text-base mb-1" numberOfLines={1}>
                 {item.product_name}
               </Text>
@@ -70,7 +79,7 @@ export default function WishlistScreen() {
               </Text>
             </View>
 
-            <View className="flex-row justify-between items-end">
+            <View className="flex-row justify-between items-center">
               <View className="flex-1">
                 {hasDiscount ? (
                   <View>
@@ -95,10 +104,21 @@ export default function WishlistScreen() {
               <View className="flex-row gap-2">
                 <TouchableOpacity
                   onPress={() => handleAddToCart(item)}
-                  className="bg-black rounded-lg px-3 py-2 flex-row items-center gap-1.5"
+                  disabled={addingToCartId === item.id || isInCart}
+                  className={`${
+                    isInCart ? 'bg-gray-100 border border-gray-200' : 'bg-black'
+                  } rounded-lg px-3 py-2 flex-row items-center gap-1.5`}
                 >
-                  <Feather name="shopping-cart" size={14} color="white" />
-                  <Text className="text-white text-xs font-inter-medium">Add</Text>
+                  {addingToCartId === item.id ? (
+                    <Feather name="loader" size={14} color={isInCart ? '#000' : 'white'} />
+                  ) : isInCart ? (
+                    <Feather name="check" size={14} color="#000" />
+                  ) : (
+                    <Feather name="shopping-cart" size={14} color="white" />
+                  )}
+                  <Text className={`${isInCart ? 'text-black' : 'text-white'} text-xs font-inter-medium`}>
+                    {addingToCartId === item.id ? 'Adding...' : isInCart ? 'Added to Cart' : 'Add'}
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
