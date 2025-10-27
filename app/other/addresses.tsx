@@ -1,8 +1,12 @@
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/api/config/supabase';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 interface Address {
   id: string;
@@ -18,28 +22,82 @@ interface Address {
 }
 
 export default function AddressesScreen() {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [shippingAddress, setShippingAddress] = useState<Address | null>(null);
   const [billingAddress, setBillingAddress] = useState<Address | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAddresses();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadAddresses();
+    }, [user?.id])
+  );
 
   const loadAddresses = async () => {
+    if (!user?.id) {
+      setError('User not found');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API call - replace with actual implementation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { data, error: fetchError } = await supabase
+        .from('buyer_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-      // Mock data - replace with actual data fetching
-      setShippingAddress(null);
-      setBillingAddress(null);
-    } catch (err) {
-      setError('Error loading addresses');
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      if (data) {
+        const profile = data as any;
+        // Parse shipping address
+        if (profile.shipping_address_line1 && profile.shipping_city && profile.shipping_country) {
+          setShippingAddress({
+            id: 'shipping',
+            name: `${profile.shipping_first_name || ''} ${profile.shipping_last_name || ''}`.trim(),
+            addressLine1: profile.shipping_address_line1,
+            addressLine2: profile.shipping_address_line2 || undefined,
+            city: profile.shipping_city,
+            state: profile.shipping_state || undefined,
+            postcode: profile.shipping_postal_code || '',
+            country: profile.shipping_country,
+            phone: profile.shipping_phone || undefined,
+            type: 'shipping',
+          });
+        } else {
+          setShippingAddress(null);
+        }
+
+        // Parse billing address
+        if (profile.billing_address_line1 && profile.billing_city && profile.billing_country) {
+          setBillingAddress({
+            id: 'billing',
+            name: `${profile.billing_first_name || ''} ${profile.billing_last_name || ''}`.trim(),
+            addressLine1: profile.billing_address_line1,
+            addressLine2: profile.billing_address_line2 || undefined,
+            city: profile.billing_city,
+            state: profile.billing_state || undefined,
+            postcode: profile.billing_postal_code || '',
+            country: profile.billing_country,
+            phone: profile.billing_phone || undefined,
+            type: 'billing',
+          });
+        } else {
+          setBillingAddress(null);
+        }
+      } else {
+        setShippingAddress(null);
+        setBillingAddress(null);
+      }
+    } catch (err: any) {
+      console.error('Error loading addresses:', err);
+      setError(err.message || 'Error loading addresses');
     } finally {
       setIsLoading(false);
     }
@@ -66,9 +124,46 @@ export default function AddressesScreen() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
+          if (!user?.id) {
+            showErrorToast('User not found');
+            return;
+          }
+
           try {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            let updateData: any = {};
+
+            if (type === 'shipping') {
+              updateData = {
+                shipping_first_name: null,
+                shipping_last_name: null,
+                shipping_address_line1: null,
+                shipping_address_line2: null,
+                shipping_city: null,
+                shipping_state: null,
+                shipping_postal_code: null,
+                shipping_country: null,
+                shipping_phone: null,
+              };
+            } else {
+              updateData = {
+                billing_first_name: null,
+                billing_last_name: null,
+                billing_address_line1: null,
+                billing_address_line2: null,
+                billing_city: null,
+                billing_state: null,
+                billing_postal_code: null,
+                billing_country: null,
+                billing_phone: null,
+              };
+            }
+
+            const { error: deleteError } = await supabase
+              .from('buyer_profiles')
+              .update(updateData)
+              .eq('user_id', user.id);
+
+            if (deleteError) throw deleteError;
 
             if (type === 'shipping') {
               setShippingAddress(null);
@@ -76,9 +171,10 @@ export default function AddressesScreen() {
               setBillingAddress(null);
             }
 
-            Alert.alert('Success', `${type} address deleted`);
-          } catch (err) {
-            Alert.alert('Error', 'Failed to delete address');
+            showSuccessToast(`${type} address deleted successfully`);
+          } catch (err: any) {
+            console.error('Error deleting address:', err);
+            showErrorToast(err.message || 'Failed to delete address');
           }
         },
       },
