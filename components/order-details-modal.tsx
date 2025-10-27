@@ -1,12 +1,12 @@
 import { Order, ordersService } from '@/api/services/orders.service';
 import { ContactModal } from '@/components/contact-modal';
+import { DropdownComponent, DropdownItem } from '@/components/dropdown';
 import { blurhash } from '@/utils';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 
 interface OrderDetailsModalProps {
   visible: boolean;
@@ -20,36 +20,34 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
   const [trackingNumber, setTrackingNumber] = useState(order.tracking_number || '');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isSavingTracking, setIsSavingTracking] = useState(false);
-  const [statusPickerOpen, setStatusPickerOpen] = useState(false);
-  const [statusOptions, setStatusOptions] = useState([
+  const STATUS_OPTIONS: DropdownItem[] = [
     {
       label: 'Pending',
       value: 'pending',
-      icon: () => <View className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FFCC00' }} />,
     },
     {
       label: 'Processing',
       value: 'processing',
-      icon: () => <View className="w-2 h-2 rounded-full" style={{ backgroundColor: '#007AFF' }} />,
     },
     {
       label: 'Shipped',
       value: 'shipped',
-      icon: () => <View className="w-2 h-2 rounded-full" style={{ backgroundColor: '#AF52DE' }} />,
     },
     {
       label: 'Delivered',
       value: 'delivered',
-      icon: () => <View className="w-2 h-2 rounded-full" style={{ backgroundColor: '#34C759' }} />,
     },
     {
       label: 'Cancelled',
       value: 'cancelled',
-      icon: () => <View className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FF4444' }} />,
     },
-  ]);
+  ];
 
   const [showContactModal, setShowContactModal] = useState(false);
+
+  useEffect(() => {
+    setSelectedStatus(order.delivery_status || 'processing');
+  }, [order]);
 
   const handleStatusChange = async (newStatus: string | null) => {
     if (!newStatus || newStatus === order.delivery_status) return;
@@ -189,49 +187,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
               {/* Order Status */}
               <View className="gap-2">
                 <Text className="text-sm font-inter-semibold text-gray-700">Order Status</Text>
-                <DropDownPicker
-                  open={statusPickerOpen}
-                  items={statusOptions}
+                <DropdownComponent
+                  data={STATUS_OPTIONS}
                   value={selectedStatus}
-                  listMode="SCROLLVIEW"
-                  setOpen={setStatusPickerOpen}
-                  setItems={setStatusOptions}
-                  setValue={setSelectedStatus}
-                  onChangeValue={handleStatusChange}
+                  placeholder="Select a status"
+                  onChange={(item: DropdownItem) => handleStatusChange(item.value)}
                   disabled={isUpdating}
-                  placeholder="Select status"
-                  style={{
-                    borderColor: '#D1D5DB',
-                    borderRadius: 8,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                  }}
-                  textStyle={{
-                    fontSize: 14,
-                    fontFamily: 'Inter',
-                  }}
-                  placeholderStyle={{
-                    color: '#9CA3AF',
-                    fontSize: 14,
-                    fontFamily: 'Inter',
-                  }}
-                  dropDownContainerStyle={{
-                    borderColor: '#D1D5DB',
-                    borderRadius: 8,
-                    maxHeight: 300,
-                  }}
-                  listItemLabelStyle={{
-                    fontSize: 14,
-                    fontFamily: 'Inter',
-                  }}
-                  scrollViewProps={{
-                    nestedScrollEnabled: true,
-                    scrollEnabled: true,
-                    showsVerticalScrollIndicator: true,
-                  }}
-                  disableLocalSearch={false}
-                  zIndex={3000}
-                  zIndexInverse={1000}
                 />
               </View>
 
@@ -239,7 +200,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
                 <View className="flex-row items-center px-4 py-3 bg-gray-50 rounded-lg">
                   <View className="w-20 h-20 rounded-lg bg-gray-200 mr-4 overflow-hidden">
                     <Image
-                      source={{ uri: order.listings.product_image }}
+                      source={order.listings.product_image}
                       contentFit="cover"
                       placeholder={{ blurhash }}
                       transition={1000}

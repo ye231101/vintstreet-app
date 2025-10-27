@@ -2,8 +2,18 @@ import { ShippingAddress, ShippingProvider, shippingService } from '@/api/servic
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
+import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Modal,
+  Pressable,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { DropdownComponent, DropdownItem } from './dropdown';
 
 interface ShippingSettingsModalProps {
   isOpen: boolean;
@@ -27,7 +37,6 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
   const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [providers, setProviders] = useState<ShippingProvider[]>([]);
-  const [countryOpen, setCountryOpen] = useState(false);
   const [countryValue, setCountryValue] = useState('GB');
 
   useEffect(() => {
@@ -152,14 +161,13 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
     setDeliveryTimeframe({ min: '', max: '' });
     setAddressData({ return_city: '', return_postal_code: '', return_country: 'GB' });
     setIsEditingAddress(false);
-    setCountryOpen(false);
     setCountryValue('GB');
     setIsSavingAddress(false);
     setIsSavingSettings(false);
     onClose();
   };
 
-  const countryOptions = [
+  const COUNTRY_OPTIONS: DropdownItem[] = [
     { label: 'United Kingdom', value: 'GB' },
     { label: 'United States', value: 'US' },
     { label: 'Canada', value: 'CA' },
@@ -188,8 +196,8 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
     if (isLoading) {
       return (
         <View className="flex-1 justify-center items-center py-12">
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text className="text-gray-600 text-sm font-inter-semibold mt-4">Loading...</Text>
+          <ActivityIndicator size="large" color="#000" />
+          <Text className="text-gray-600 text-sm font-inter-semibold mt-2">Loading...</Text>
         </View>
       );
     }
@@ -249,45 +257,13 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
 
                 <View>
                   <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Country *</Text>
-                  <DropDownPicker
-                    open={countryOpen}
+                  <DropdownComponent
+                    data={COUNTRY_OPTIONS}
                     value={countryValue}
-                    items={countryOptions}
-                    setOpen={setCountryOpen}
-                    setValue={setCountryValue}
-                    onSelectItem={(item) => {
-                      if (item.value) {
-                        setAddressData((prev) => ({ ...prev, return_country: item.value as string }));
-                      }
-                    }}
-                    placeholder="Select country"
-                    style={{
-                      backgroundColor: 'white',
-                      borderColor: '#D1D5DB',
-                      borderWidth: 1,
-                      borderRadius: 8,
-                    }}
-                    textStyle={{
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                      color: '#111827',
-                    }}
-                    dropDownContainerStyle={{
-                      backgroundColor: 'white',
-                      borderColor: '#D1D5DB',
-                      borderWidth: 1,
-                      borderRadius: 8,
-                    }}
-                    arrowIconStyle={{
-                      width: 20,
-                      height: 20,
-                    }}
-                    tickIconStyle={{
-                      width: 16,
-                      height: 16,
-                    }}
-                    zIndex={3000}
-                    zIndexInverse={1000}
+                    placeholder="Select a country"
+                    onChange={(item: DropdownItem) =>
+                      setAddressData((prev) => ({ ...prev, return_country: item.value as string }))
+                    }
                   />
                 </View>
 
@@ -295,7 +271,6 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                   <TouchableOpacity
                     onPress={() => {
                       setIsEditingAddress(false);
-                      setCountryOpen(false);
                     }}
                     className="border border-gray-300 rounded-lg px-4 py-2"
                   >
@@ -319,7 +294,9 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
         {/* Shipping Providers Section */}
         <View className="mb-6">
           <Text className="text-lg font-inter-semibold text-gray-900 mb-2">Shipping Providers</Text>
-          <Text className="text-sm font-inter-semibold text-gray-600 mb-4">Select providers and set delivery timeframe</Text>
+          <Text className="text-sm font-inter-semibold text-gray-600 mb-4">
+            Select providers and set delivery timeframe
+          </Text>
 
           {/* Provider Cards */}
           <View className="flex-col gap-3 mb-6">
@@ -389,12 +366,9 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
 
   return (
     <Modal visible={isOpen} transparent animationType="slide" onRequestClose={handleClose}>
-      <Pressable className="flex-1 bg-black/50" onPress={handleClose}>
+      <Pressable className="flex-1 bg-black/50">
         <View className="flex-1" />
-        <View 
-          className="bg-white w-full rounded-t-3xl" 
-          style={{ height: modalHeight }}
-        >
+        <View className="bg-white w-full rounded-t-3xl" style={{ height: modalHeight }}>
           {/* Fixed Header */}
           <View className="p-6 border-b border-gray-200">
             <View className="flex-row items-center justify-between mb-2">
@@ -414,11 +388,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
           <FlatList
             data={data}
             keyExtractor={(item) => item.id}
-            renderItem={() => (
-              <View className="flex-1 p-6">
-                {renderContent()}
-              </View>
-            )}
+            renderItem={() => <View className="flex-1 p-6">{renderContent()}</View>}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ flexGrow: 1 }}

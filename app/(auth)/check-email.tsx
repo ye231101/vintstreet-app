@@ -106,9 +106,9 @@ export default function CheckEmailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 flex-col gap-6 bg-white p-6">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="w-full flex-row items-center">
+      <View className="flex-row items-center p-6">
         <Pressable onPress={() => router.replace('/(auth)')} hitSlop={8}>
           <Feather name="arrow-left" size={24} color="black" />
         </Pressable>
@@ -120,104 +120,85 @@ export default function CheckEmailScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1">
-          <View className="flex-1 items-center justify-center">
-            <View className="w-full max-w-lg items-center">
-              {/* Logo */}
-              <View className="items-center mb-8">
-                <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
-              </View>
-
-              {/* Title */}
-              <Text className="text-3xl font-inter-bold text-center mb-4">Verify Your Email</Text>
-
-              {/* Description */}
-              <Text className="text-base font-inter-semibold text-center text-gray-600 leading-6 mb-2">
+        <View className="flex-1 items-center justify-center p-6">
+          <View className="gap-4 w-full max-w-lg">
+            {/* Logo */}
+            <View className="items-center">
+              <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
+              <Text className="mt-4 text-2xl font-inter-bold text-center">Verify Your Email</Text>
+              <Text className="mt-2 text-base font-inter-semibold text-gray-500 text-center">
                 We've sent a confirmation link to
               </Text>
+            </View>
 
-              <Text className="text-lg font-inter-semibold text-center text-black mb-8">{email}</Text>
+            <Text className="mt-2 text-xl font-inter-semibold text-center text-black">{email}</Text>
 
-              {/* Instructions */}
-              <View className="bg-gray-100 p-5 rounded-xl mb-6 w-full">
-                <Text className="text-sm font-inter-semibold text-center text-gray-800 leading-5">
-                  Click the link in the email to confirm your account and get started.
-                </Text>
-              </View>
+            <View className="p-5 rounded-lg bg-gray-100">
+              <Text className="text-sm font-inter-semibold text-center text-gray-800 leading-5">
+                Click the link in the email to confirm your account and get started.
+              </Text>
+            </View>
 
-              {/* Checking Status Indicator */}
-              {!isConfirmed && (
-                <View
-                  className={`flex-row items-center justify-center mb-6 p-3 rounded-lg ${
-                    checkingStatus ? 'bg-blue-50' : 'bg-gray-100'
-                  }`}
-                >
-                  <Feather name="refresh-cw" size={16} color={checkingStatus ? '#1976d2' : '#999'} className="mr-2" />
-                  <Text className={`text-sm font-inter-semibold ${checkingStatus ? 'text-blue-600' : 'text-gray-500'}`}>
-                    Waiting for email confirmation...
-                  </Text>
-                </View>
-              )}
-
-              {/* Confirmed Status Indicator */}
-              {isConfirmed && (
-                <View className="flex-row items-center justify-center mb-6 p-3 bg-green-50 rounded-lg">
-                  <Feather name="check-circle" size={16} color="#4CAF50" className="mr-2" />
-                  <Text className="text-sm font-inter-semibold text-green-600">Email confirmed! Redirecting...</Text>
-                </View>
-              )}
-
-              {/* Helpful Tips */}
-              <View className="w-full mb-8">
-                <View className="flex-row items-start mb-3">
-                  <Feather name="info" size={18} color="#666" className="mr-3 mt-0.5" />
-                  <Text className="flex-1 text-sm font-inter-semibold text-gray-600 leading-5">
-                    Check your spam or junk folder if you don't see the email
-                  </Text>
-                </View>
-
-                <View className="flex-row items-start mb-3">
-                  <Feather name="info" size={18} color="#666" className="mr-3 mt-0.5" />
-                  <Text className="flex-1 text-sm font-inter-semibold text-gray-600 leading-5">
-                    The confirmation link will expire in 24 hours
-                  </Text>
-                </View>
-
-                <View className="flex-row items-start">
-                  <Feather name="info" size={18} color="#666" className="mr-3 mt-0.5" />
-                  <Text className="flex-1 text-sm font-inter-semibold text-gray-600 leading-5">
-                    After clicking the link, return to this screen and you'll be automatically signed in
-                  </Text>
-                </View>
-              </View>
-
-              {/* Important Note for Mobile */}
-              <View className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500 mb-8 w-full">
-                <Text className="text-sm font-inter-semibold text-orange-800 mb-2">📱 Mobile Users:</Text>
-                <Text className="text-xs font-inter-semibold text-orange-800 leading-4">
-                  Click the link in your email, then come back to this app. We'll automatically detect your confirmation
-                  and sign you in!
-                </Text>
-              </View>
-
-              {/* Resend Email Button */}
-              <Pressable
-                onPress={handleResendEmail}
-                disabled={resendLoading}
-                className={`h-12 rounded-lg items-center justify-center w-full mb-4 ${
-                  resendLoading ? 'bg-gray-400' : 'bg-black'
+            {!isConfirmed && (
+              <View
+                className={`flex-row items-center justify-center p-3 rounded-lg ${
+                  checkingStatus ? 'bg-blue-50' : 'bg-gray-100'
                 }`}
               >
-                <Text className="font-inter-semibold text-white text-base">
-                  {resendLoading ? 'Sending...' : 'Resend Confirmation Email'}
+                <Feather name="refresh-cw" size={16} color={checkingStatus ? '#1976d2' : '#999'} className="mr-2" />
+                <Text className={`text-sm font-inter-semibold ${checkingStatus ? 'text-blue-600' : 'text-gray-500'}`}>
+                  Waiting for email confirmation...
                 </Text>
-              </Pressable>
+              </View>
+            )}
 
-              {/* Return to Login */}
-              <Pressable onPress={() => router.replace('/(auth)')}>
-                <Text className="font-inter-semibold text-gray-600 text-sm">Return to Login</Text>
-              </Pressable>
+            {isConfirmed && (
+              <View className="flex-row items-center justify-center p-3 rounded-lg bg-green-50">
+                <Feather name="check-circle" size={16} color="#4CAF50" className="mr-2" />
+                <Text className="text-sm font-inter-semibold text-green-600">Email confirmed! Redirecting...</Text>
+              </View>
+            )}
+
+            <View className="flex-1 gap-2">
+              <View className="flex-row items-start gap-2">
+                <Feather name="info" size={18} color="#666" />
+                <Text className="flex-1 text-sm font-inter-semibold text-gray-600 leading-5">
+                  Check your spam or junk folder if you don't see the email
+                </Text>
+              </View>
+
+              <View className="flex-row items-start gap-2">
+                <Feather name="info" size={18} color="#666" />
+                <Text className="flex-1 text-sm font-inter-semibold text-gray-600 leading-5">
+                  The confirmation link will expire in 24 hours
+                </Text>
+              </View>
+
+              <View className="flex-row items-start gap-2">
+                <Feather name="info" size={18} color="#666" />
+                <Text className="flex-1 text-sm font-inter-semibold text-gray-600 leading-5">
+                  After clicking the link, return to this screen and you'll be automatically signed in
+                </Text>
+              </View>
             </View>
+
+            <View className="gap-2 p-4 rounded-lg bg-orange-50 border-l-4 border-orange-500">
+              <Text className="text-sm font-inter-semibold text-orange-800">📱 Mobile Users:</Text>
+              <Text className="text-xs font-inter-semibold text-orange-800 leading-4">
+                Click the link in your email, then come back to this app. We'll automatically detect your confirmation
+                and sign you in!
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={handleResendEmail}
+              disabled={resendLoading}
+              className={`items-center justify-center h-14 rounded-lg ${resendLoading ? 'bg-gray-400' : 'bg-black'}`}
+            >
+              <Text className="font-inter-semibold text-white text-base">
+                {resendLoading ? 'Sending...' : 'Resend Confirmation Email'}
+              </Text>
+            </Pressable>
           </View>
         </View>
       </ScrollView>

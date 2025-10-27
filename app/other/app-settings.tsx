@@ -1,22 +1,21 @@
+import { DropdownComponent, DropdownItem } from '@/components/dropdown';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AppSettingsScreen() {
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>('GBP');
-  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('GBP');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [currencyItems, setCurrencyItems] = useState([
+  const CURRENCY_OPTIONS: DropdownItem[] = [
     { label: 'GBP', value: 'GBP' },
     { label: 'USD', value: 'USD' },
     { label: 'EUR', value: 'EUR' },
     { label: 'CAD', value: 'CAD' },
     { label: 'AUD', value: 'AUD' },
     { label: 'JPY', value: 'JPY' },
-  ]);
+  ];
 
   const handleDeleteAccount = () => {
     setShowDeleteModal(true);
@@ -49,49 +48,11 @@ export default function AppSettingsScreen() {
             </Text>
 
             {/* Currency Dropdown */}
-            <DropDownPicker
-              open={showCurrencyDropdown}
+            <DropdownComponent
+              data={CURRENCY_OPTIONS}
               value={selectedCurrency}
-              items={currencyItems}
-              listMode="SCROLLVIEW"
-              setOpen={setShowCurrencyDropdown}
-              setValue={setSelectedCurrency}
-              setItems={setCurrencyItems}
               placeholder="Select a currency"
-              style={{
-                borderColor: '#D1D5DB',
-                borderRadius: 8,
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                backgroundColor: '#fff',
-              }}
-              textStyle={{
-                fontSize: 14,
-                fontFamily: 'Inter',
-              }}
-              placeholderStyle={{
-                color: '#9CA3AF',
-                fontSize: 14,
-                fontFamily: 'Inter',
-              }}
-              dropDownContainerStyle={{
-                borderColor: '#D1D5DB',
-                borderRadius: 8,
-                backgroundColor: '#fff',
-                maxHeight: 300,
-              }}
-              listItemLabelStyle={{
-                fontSize: 14,
-                fontFamily: 'Inter',
-              }}
-              scrollViewProps={{
-                nestedScrollEnabled: true,
-                scrollEnabled: true,
-                showsVerticalScrollIndicator: true,
-              }}
-              disableLocalSearch={false}
-              zIndex={3000}
-              zIndexInverse={1000}
+              onChange={(item: DropdownItem) => setSelectedCurrency(item.value)}
             />
           </View>
 
