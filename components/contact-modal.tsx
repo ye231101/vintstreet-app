@@ -15,9 +15,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { messagesService } from '../api/services/messages.service';
 import { useAuth } from '../hooks/use-auth';
+import { DropdownComponent, DropdownItem } from './dropdown';
 
 interface ContactModalProps {
   visible: boolean;
@@ -31,10 +31,9 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
   const { user } = useAuth();
 
-  const [subjectItems, setSubjectItems] = useState([
+  const SUBJECT_OPTIONS: DropdownItem[] = [
     { label: 'Product Inquiry', value: 'Product Inquiry' },
     { label: 'Shipping Question', value: 'Shipping Question' },
     { label: 'Payment Issue', value: 'Payment Issue' },
@@ -43,7 +42,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
     { label: 'Order Update', value: 'Order Update' },
     { label: 'General Question', value: 'General Question' },
     { label: 'Other', value: 'Other' },
-  ]);
+  ];
 
   const handleSubmit = async () => {
     if (!subject.trim() || !message.trim()) {
@@ -79,7 +78,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
       onClose();
       setSubject('');
       setMessage('');
-      setShowSubjectDropdown(false);
     } catch (error: any) {
       console.error('Error sending message:', error);
       const errorMessage = error?.message || 'Failed to send message. Please try again.';
@@ -129,7 +127,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
               showsVerticalScrollIndicator={false}
               nestedScrollEnabled={true}
               keyboardShouldPersistTaps="handled"
-              scrollEnabled={!showSubjectDropdown}
               contentContainerStyle={{ flexGrow: 1 }}
               className="p-4"
             >
@@ -144,47 +141,11 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
                 {/* Subject */}
                 <View className="gap-2">
                   <Text className="text-sm font-inter-semibold text-gray-700">Subject *</Text>
-                  <DropDownPicker
-                    open={showSubjectDropdown}
-                    items={subjectItems}
+                  <DropdownComponent
+                    data={SUBJECT_OPTIONS}
                     value={subject}
-                    listMode="SCROLLVIEW"
-                    setOpen={setShowSubjectDropdown}
-                    setItems={setSubjectItems}
-                    setValue={setSubject}
                     placeholder="Select a subject"
-                    style={{
-                      borderColor: '#D1D5DB',
-                      borderRadius: 8,
-                      paddingHorizontal: 16,
-                      paddingVertical: 12,
-                    }}
-                    textStyle={{
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                    }}
-                    placeholderStyle={{
-                      color: '#9CA3AF',
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                    }}
-                    dropDownContainerStyle={{
-                      borderColor: '#D1D5DB',
-                      borderRadius: 8,
-                      maxHeight: 300,
-                    }}
-                    listItemLabelStyle={{
-                      fontSize: 14,
-                      fontFamily: 'Inter',
-                    }}
-                    scrollViewProps={{
-                      nestedScrollEnabled: true,
-                      scrollEnabled: true,
-                      showsVerticalScrollIndicator: true,
-                    }}
-                    disableLocalSearch={false}
-                    zIndex={3000}
-                    zIndexInverse={1000}
+                    onChange={(item: DropdownItem) => setSubject(item.value)}
                   />
                 </View>
 

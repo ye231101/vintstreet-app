@@ -1,23 +1,22 @@
+import { DropdownComponent, DropdownItem } from '@/components/dropdown';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Linking, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ContactSupportScreen() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>('Order Issue');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [categoryItems, setCategoryItems] = useState([
+  const CATEGORY_OPTIONS: DropdownItem[] = [
     { label: 'Order Issue', value: 'Order Issue' },
     { label: 'Payment Problem', value: 'Payment Problem' },
     { label: 'Account Access', value: 'Account Access' },
     { label: 'Technical Issue', value: 'Technical Issue' },
     { label: 'Product Question', value: 'Product Question' },
     { label: 'Other', value: 'Other' },
-  ]);
+  ];
 
   const handleSubmitRequest = async () => {
     if (!message.trim()) {
@@ -185,49 +184,11 @@ Thank you,
           {/* Support Categories */}
           <View className="mb-4">
             <Text className="text-gray-900 text-base font-inter-bold mb-2">What can we help you with?</Text>
-            <DropDownPicker
-              open={showCategoryDropdown}
+            <DropdownComponent
+              data={CATEGORY_OPTIONS}
               value={selectedCategory}
-              items={categoryItems}
-              listMode="SCROLLVIEW"
-              setOpen={setShowCategoryDropdown}
-              setValue={setSelectedCategory}
-              setItems={setCategoryItems}
               placeholder="Select a category"
-              style={{
-                borderColor: '#D1D5DB',
-                borderRadius: 8,
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                backgroundColor: '#fff',
-              }}
-              textStyle={{
-                fontSize: 14,
-                fontFamily: 'Inter',
-              }}
-              placeholderStyle={{
-                color: '#9CA3AF',
-                fontSize: 14,
-                fontFamily: 'Inter',
-              }}
-              dropDownContainerStyle={{
-                borderColor: '#D1D5DB',
-                borderRadius: 8,
-                backgroundColor: '#fff',
-                maxHeight: 300,
-              }}
-              listItemLabelStyle={{
-                fontSize: 14,
-                fontFamily: 'Inter',
-              }}
-              scrollViewProps={{
-                nestedScrollEnabled: true,
-                scrollEnabled: true,
-                showsVerticalScrollIndicator: true,
-              }}
-              disableLocalSearch={false}
-              zIndex={3000}
-              zIndexInverse={1000}
+              onChange={(item: DropdownItem) => setSelectedCategory(item.value)}
             />
           </View>
 
