@@ -189,7 +189,7 @@ export default function OrdersScreen() {
       </View>
 
       <View className="flex-1 bg-gray-50">
-        <View className="px-4 border-b border-gray-200">
+        <View className="border-b border-gray-200">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {tabs.map((tab) => {
               const count = getTabCount(tab.key);
