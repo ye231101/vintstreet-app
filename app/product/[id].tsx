@@ -1,5 +1,5 @@
 import { supabase } from '@/api/config/supabase';
-import { listingsService } from '@/api/services/listings.service';
+import { listingsService, Product } from '@/api/services/listings.service';
 import { ContactModal } from '@/components/contact-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';
@@ -34,7 +34,7 @@ export default function ProductDetailScreen() {
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlist();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'seller'>('description');
   const { user } = useAppSelector((state) => state.auth);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -51,7 +51,7 @@ export default function ProductDetailScreen() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Related products state
-  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [relatedProductsLoading, setRelatedProductsLoading] = useState(false);
 
   // Add to cart loading state
@@ -175,7 +175,7 @@ export default function ProductDetailScreen() {
   const handleAddToCart = async () => {
     try {
       setIsAddingToCart(true);
-      await addItem(product);
+      await addItem(product as Product);
     } catch (error) {
       console.error('Error adding to cart:', error);
     } finally {
@@ -184,7 +184,7 @@ export default function ProductDetailScreen() {
   };
 
   const handleViewShop = () => {
-    router.push(`/seller-profile/${product.seller_id}` as any);
+    router.push(`/seller-profile/${product?.seller_id}` as any);
   };
 
   const handleContactSeller = () => {
@@ -203,7 +203,7 @@ export default function ProductDetailScreen() {
 
   const formattedDate = (() => {
     try {
-      if (!product.created_at) return '';
+      if (!product?.created_at) return '';
       const d = new Date(product.created_at);
       const day = d.getDate();
       const month = d.toLocaleDateString('en-US', { month: 'short' });
@@ -579,7 +579,12 @@ export default function ProductDetailScreen() {
           </View>
 
           {/* Related Products Section */}
-          {relatedProducts.length > 0 && (
+          {relatedProductsLoading ? (
+            <View className="flex-row items-center justify-center py-8">
+              <ActivityIndicator size="large" color="#000" />
+              <Text className="ml-3 text-base font-inter text-gray-600">Loading related products...</Text>
+            </View>
+          ) : relatedProducts.length > 0 ? (
             <View className="px-4">
               <Text className="text-xl font-inter-bold text-black my-4">Related Products</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
@@ -688,20 +693,16 @@ export default function ProductDetailScreen() {
                 })}
               </ScrollView>
             </View>
+          ) : (
+            <View className="px-4">
+              <Text className="text-xl font-inter-bold text-black my-4">No related products found</Text>
+            </View>
           )}
         </View>
       </ScrollView>
 
       {/* Make Offer Modal */}
-      <MakeOfferModal
-        isOpen={isOfferOpen}
-        onClose={() => setIsOfferOpen(false)}
-        productId={String(id || '')}
-        productName={product.product_name}
-        currentPrice={Number(product.starting_price)}
-        sellerId={String(product.seller_id || '')}
-        userId={user?.id}
-      />
+      <MakeOfferModal isOpen={isOfferOpen} onClose={() => setIsOfferOpen(false)} product={product} />
 
       {/* Contact Modal */}
       <ContactModal
