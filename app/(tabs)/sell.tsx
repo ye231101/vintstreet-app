@@ -527,7 +527,7 @@ export default function SellScreen() {
         seller_id: user.id,
         product_name: title || 'Untitled Draft',
         product_description: description || null,
-        starting_price: 0,
+        starting_price: price ? parseFloat(price) : 0,
         discounted_price: salePrice ? parseFloat(salePrice) : null,
         product_image: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
         product_images: uploadedImageUrls,
