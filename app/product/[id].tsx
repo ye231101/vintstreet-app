@@ -1,6 +1,6 @@
 import { supabase } from '@/api/config/supabase';
 import { listingsService } from '@/api/services/listings.service';
-import { ContactSellerModal } from '@/components/contact-seller-modal';
+import { ContactModal } from '@/components/contact-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
@@ -703,14 +703,13 @@ export default function ProductDetailScreen() {
         userId={user?.id}
       />
 
-      {/* Contact Seller Modal */}
-      <ContactSellerModal
-        isOpen={isContactModalOpen}
+      {/* Contact Modal */}
+      <ContactModal
+        visible={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
-        sellerId={String(product.seller_id || '')}
-        sellerName={product.seller_info_view?.shop_name || product.seller_info_view?.full_name || 'Seller'}
-        userId={user?.id}
-        productName={product.product_name}
+        order={null}
+        product={product}
+        mode="buyer"
       />
     </SafeAreaView>
   );
