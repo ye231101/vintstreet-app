@@ -341,7 +341,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
           <View className="flex-row items-center justify-center gap-4 p-4 border-t border-gray-200">
             <TouchableOpacity
               onPress={() => showSuccessToast('Shipping label printing functionality coming soon')}
-              className="flex-1 bg-black rounded-lg py-4 flex-row items-center justify-center"
+              className="flex-1 bg-black rounded-lg py-3 flex-row items-center justify-center gap-2"
             >
               <Feather name="printer" size={18} color="#fff" />
               <Text className="text-base font-inter-bold text-white ml-2">Print Shipping Label</Text>
@@ -349,10 +349,10 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
 
             <TouchableOpacity
               onPress={handleMessageBuyer}
-              className="flex-1 bg-gray-200 rounded-lg py-4 flex-row items-center justify-center"
+              className="flex-1 bg-gray-200 rounded-lg py-3 flex-row items-center justify-center gap-2"
             >
               <Feather name="message-square" size={18} color="#000" />
-              <Text className="text-base font-inter-bold text-gray-900 ml-2">Message Buyer</Text>
+              <Text className="text-base font-inter-bold text-gray-900">Message Buyer</Text>
             </TouchableOpacity>
           </View>
         </View>

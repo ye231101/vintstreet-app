@@ -1,18 +1,5 @@
 import { supabase } from '../config/supabase';
 
-export interface BuyerInfo {
-  id: string;
-  name: string;
-  shippingAddress: {
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
-}
-
 export interface Order {
   id: string;
   order_number?: string;

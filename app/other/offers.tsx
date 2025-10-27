@@ -1,23 +1,30 @@
+import { Product } from '@/api/services/listings.service';
+import { Offer, offersService } from '@/api/services/offers.service';
+import { MakeOfferModal } from '@/components/make-offer-modal';
+import { useAuth } from '@/hooks/use-auth';
+import { blurhash } from '@/utils';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Offer, offersService } from '../../api/services/offers.service';
-import { useAuth } from '../../hooks/use-auth';
 
 export default function MyOffersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState('all');
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const { user } = useAuth();
 
   const tabs = [
+    { key: 'all', label: 'All' },
     { key: 'pending', label: 'Pending' },
     { key: 'accepted', label: 'Accepted' },
     { key: 'declined', label: 'Declined' },
-    { key: 'completed', label: 'Completed' },
   ];
 
   useEffect(() => {
@@ -63,6 +70,21 @@ export default function MyOffersScreen() {
     }
   };
 
+  const getTabCount = (key: string) => {
+    switch (key) {
+      case 'all':
+        return offers.length;
+      case 'pending':
+        return offers.filter((o) => o.status === 'pending').length;
+      case 'accepted':
+        return offers.filter((o) => o.status === 'accepted').length;
+      case 'declined':
+        return offers.filter((o) => o.status === 'declined').length;
+      default:
+        return 0;
+    }
+  };
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -76,74 +98,125 @@ export default function MyOffersScreen() {
     }
   };
 
-  const handleCancelOffer = async (offerId: string) => {
-    Alert.alert('Cancel Offer?', 'Are you sure you want to cancel this offer? This action cannot be undone.', [
-      { text: 'Keep Offer', style: 'cancel' },
-      {
-        text: 'Cancel Offer',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await offersService.deleteOffer(offerId);
-            Alert.alert('Success', 'Offer cancelled successfully');
-            loadOffers();
-          } catch (error) {
-            Alert.alert('Error', 'Failed to cancel offer. Please try again.');
-          }
-        },
-      },
-    ]);
+  const handlePayNow = async (offerId: string) => {
+    // try {
+    //   await offersService.updateOfferStatus(offerId, 'paid');
+    //   showSuccessToast('Offer paid successfully');
+    //   loadOffers();
+    // } catch (error) {
+    //   showErrorToast('Failed to pay for offer. Please try again.');
+    // }
   };
 
-  const OfferCard = ({ offer }: { offer: Offer }) => (
-    <View className="bg-white rounded-xl mb-4 p-4 shadow-sm">
-      <View className="flex-row justify-between items-start mb-3">
-        <View className="flex-1">
-          <Text className="text-gray-900 font-inter-bold text-base mb-1">{offer.productName}</Text>
-          <Text className="text-gray-600 text-sm font-inter">To {offer.buyerName || 'Seller'}</Text>
-        </View>
-        <View
-          className={`rounded-full px-3 py-1.5 ${
-            offer.status === 'pending' ? 'bg-orange-500' : offer.status === 'accepted' ? 'bg-green-500' : 'bg-red-500'
-          }`}
-        >
-          <Text className="text-white font-inter-bold text-xs">
-            {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
-          </Text>
-        </View>
-      </View>
+  const handleMakeNewOffer = async (offer: Offer) => {
+    if (!offer.listings) {
+      showErrorToast('Unable to make a new offer. Missing product information.');
+      return;
+    }
+    setSelectedOffer(offer);
+    setIsOfferModalOpen(true);
+  };
 
-      <View className="flex-row items-center justify-between mb-3">
-        <View>
-          <Text className="text-gray-600 text-xs font-inter">Original Price</Text>
-          <Text className="text-gray-900 text-base font-inter-bold">
-            £{offer.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </Text>
-        </View>
-        <View>
-          <Text className="text-gray-600 text-xs font-inter">Offer Amount</Text>
-          <Text className="text-green-500 text-base font-inter-bold">
-            £{offer.offerAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </Text>
-        </View>
-      </View>
+  const handleCancelOffer = async (offerId: string) => {
+    try {
+      await offersService.deleteOffer(offerId);
+      showSuccessToast('Offer cancelled successfully');
+      loadOffers();
+    } catch (error) {
+      showErrorToast('Failed to cancel offer. Please try again.');
+    }
+  };
 
-      {offer.message && (
-        <View className="bg-gray-100 rounded-lg p-3 mb-3">
-          <Text className="text-gray-900 text-sm font-inter">"{offer.message}"</Text>
-        </View>
-      )}
+  const OfferCard = ({ offer }: { offer: Offer }) => {
+    const productName = offer.listings?.product_name || 'Product';
+    const originalPrice = offer.listings?.discounted_price || offer.listings?.starting_price;
+    const expiresAt = offer.expires_at || new Date().toISOString();
+    const productImage = offer.listings?.product_image;
 
-      <View className="flex-row items-center justify-between">
-        <Text className="text-gray-600 text-xs font-inter">Expires: {formatDate(offer.expiresAt)}</Text>
-        {offer.status === 'pending' && (
-          <TouchableOpacity onPress={() => handleCancelOffer(offer.id)} className="bg-red-500 rounded px-3 py-1.5">
-            <Text className="text-white text-xs font-inter-bold">Cancel</Text>
-          </TouchableOpacity>
+    return (
+      <View className="bg-white rounded-xl mb-4 p-4 shadow-sm">
+        <View className="flex-row mb-3">
+          {/* Product Image */}
+          <View className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 mr-3">
+            <Image
+              source={productImage}
+              contentFit="cover"
+              placeholder={{ blurhash }}
+              transition={1000}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </View>
+
+          {/* Product Info */}
+          <View className="flex-1 gap-2">
+            <View className="flex-row justify-between items-start gap-2">
+              <Text className="text-gray-900 font-inter-bold text-base flex-1" numberOfLines={2}>
+                {productName}
+              </Text>
+              <View
+                className="rounded-full px-3 py-1.5"
+                style={{ backgroundColor: `#${offer.status_color.toString(16).padStart(6, '0')}` }}
+              >
+                <Text className="text-white font-inter-bold text-xs">
+                  {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                </Text>
+              </View>
+            </View>
+
+            <View className="flex-1">
+              <View className="flex-row justify-between items-center gap-2">
+                <Text className="text-gray-600 text-sm font-inter">Original Price</Text>
+                <Text className="text-gray-900 text-base font-inter-bold">
+                  £{originalPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </Text>
+              </View>
+              <View className="flex-row justify-between items-center gap-2">
+                <Text className="text-gray-600 text-sm font-inter">Your Offer</Text>
+                <Text className="text-green-500 text-base font-inter-bold">
+                  £{offer.offer_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {offer.message && (
+          <View className="bg-gray-100 rounded-lg p-3 mb-3">
+            <Text className="text-gray-900 text-sm font-inter">"{offer.message}"</Text>
+          </View>
         )}
+
+        <View className="flex-row items-center justify-between">
+          <Text className="text-gray-600 text-xs font-inter">Expires: {formatDate(expiresAt)}</Text>
+          {offer.status === 'pending' && (
+            <TouchableOpacity
+              onPress={() => handleCancelOffer(offer.id)}
+              className="items-center justify-center bg-red-500 rounded px-4 py-2"
+            >
+              <Text className="text-white text-sm font-inter-bold">Cancel</Text>
+            </TouchableOpacity>
+          )}
+          {offer.status === 'accepted' && (
+            <TouchableOpacity
+              onPress={() => handlePayNow(offer.id)}
+              className="flex-row items-center justify-center gap-2 bg-black rounded px-4 py-2"
+            >
+              <Feather name="credit-card" size={16} color="#fff" />
+              <Text className="text-white text-sm font-inter-bold">Pay Now</Text>
+            </TouchableOpacity>
+          )}
+          {offer.status === 'declined' && (
+            <TouchableOpacity
+              onPress={() => handleMakeNewOffer(offer)}
+              className="flex-row items-center justify-center gap-2 rounded px-4 py-2 bg-white border border-gray-200"
+            >
+              <Text className="text-black text-sm font-inter-bold">Make New Offer</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -157,23 +230,26 @@ export default function MyOffersScreen() {
       </View>
 
       <View className="flex-1 bg-gray-50">
-        <View className="px-4 border-b border-gray-200">
+        <View className="border-b border-gray-200">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {tabs.map((tab) => (
-              <TouchableOpacity
-                key={tab.key}
-                onPress={() => setActiveTab(tab.key)}
-                className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
-              >
-                <Text
-                  className={`text-base font-inter-semibold ${
-                    activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'
-                  }`}
+            {tabs.map((tab) => {
+              const count = getTabCount(tab.key);
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  onPress={() => setActiveTab(tab.key)}
+                  className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-black' : 'border-transparent'}`}
                 >
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    className={`text-base font-inter-semibold ${
+                      activeTab === tab.key ? 'text-black' : 'text-gray-600'
+                    }`}
+                  >
+                    {tab.label} {count > 0 ? `(${count})` : ''}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </View>
 
@@ -208,6 +284,19 @@ export default function MyOffersScreen() {
           </View>
         )}
       </View>
+
+      {/* Make Offer Modal */}
+      {selectedOffer?.listings && (
+        <MakeOfferModal
+          isOpen={isOfferModalOpen}
+          onClose={() => {
+            setIsOfferModalOpen(false);
+            setSelectedOffer(null);
+            loadOffers(); // Reload offers after making a new one
+          }}
+          product={selectedOffer.listings as Product}
+        />
+      )}
     </SafeAreaView>
   );
 }
