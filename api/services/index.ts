@@ -14,6 +14,7 @@ export { reviewsService } from './reviews.service';
 export { sellerService } from './seller.service';
 export { shippingService } from './shipping.service';
 export { StorageService } from './storage.service';
+export { streamsService } from './streams.service';
 export { wishlistService } from './wishlist.service';
 
 // Export all services here as you add them
