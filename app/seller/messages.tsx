@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Conversation, messagesService } from '../../api/services/messages.service';
 import { useAuth } from '../../hooks/use-auth';
 
-export default function MyMessagesScreen() {
+export default function MessagesScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);

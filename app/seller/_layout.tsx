@@ -39,6 +39,13 @@ export default function SellerLayout() {
         }}
       />
       <Stack.Screen
+        name="messages"
+        options={{
+          title: 'My Messages',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="orders"
         options={{
           title: 'Orders',
