@@ -446,7 +446,7 @@ export default function DashboardScreen() {
             </View>
           )}
 
-          {/* Recent Orders */}
+          {/* Recent Orders
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-gray-900 text-lg font-inter-bold">Recent Orders</Text>
@@ -455,7 +455,7 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             </View>
             <RecentOrdersList />
-          </View>
+          </View> */}
 
           {/* Financial Summary */}
           {reportsData?.summary && <FinancialSummary />}
