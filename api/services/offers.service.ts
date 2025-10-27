@@ -2,26 +2,33 @@ import { supabase } from '../config/supabase';
 
 export interface Offer {
   id: string;
-  buyerName: string;
-  productName: string;
-  offerAmount: number;
-  originalPrice: number;
-  status: 'pending' | 'accepted' | 'declined';
-  createdAt: string;
-  expiresAt: string;
-  message?: string;
-}
-
-export interface ApiOffer {
-  id: string;
-  offer_amount: number;
-  status: 'pending' | 'accepted' | 'declined';
-  message?: string;
   listing_id?: string;
   buyer_id?: string;
   seller_id?: string;
+  offer_amount: number;
+  message?: string;
+  status: 'pending' | 'accepted' | 'declined';
+  status_color: number;
   created_at?: string;
   expires_at?: string;
+  listings?: {
+    id: string;
+    product_name: string;
+    seller_id: string;
+    product_image?: string;
+    starting_price?: number;
+    discounted_price?: number;
+  };
+  buyer_profile?: {
+    user_id: string;
+    full_name?: string;
+    username?: string;
+  };
+  seller_profile?: {
+    user_id: string;
+    full_name?: string;
+    username?: string;
+  };
 }
 
 class OffersService {
@@ -56,8 +63,61 @@ class OffersService {
         throw new Error(`Failed to fetch offers: ${error.message}`);
       }
 
+      const offers = (data as unknown as Offer[]) || [];
+
+      // Fetch listing details for all offers that have a listing_id
+      const listingIds = offers.map((offer) => offer.listing_id).filter((id): id is string => !!id);
+
+      let listingsMap = new Map<string, any>();
+
+      if (listingIds.length > 0) {
+        const { data: listings } = await supabase
+          .from('listings')
+          .select('id, product_name, seller_id, product_image, starting_price, discounted_price')
+          .in('id', listingIds);
+
+        listingsMap = new Map((listings || []).map((listing: any) => [listing.id, listing]));
+      }
+
+      // Fetch buyer profiles (for sellers viewing offers)
+      let buyerProfilesMap = new Map<string, any>();
+      let sellerProfilesMap = new Map<string, any>();
+
+      if (userType === 'seller') {
+        const buyerIds = offers.map((offer) => offer.buyer_id).filter((id): id is string => !!id);
+
+        if (buyerIds.length > 0) {
+          // Fetch buyer profile data
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, username')
+            .in('user_id', buyerIds);
+          buyerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+        }
+      } else {
+        // Fetch seller profiles (for buyers viewing offers)
+        const sellerIds = offers.map((offer) => offer.seller_id).filter((id): id is string => !!id);
+
+        if (sellerIds.length > 0) {
+          // Fetch seller profile data
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, username')
+            .in('user_id', sellerIds);
+          sellerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+        }
+      }
+
+      // Merge offers with their listing data and buyer/seller info
+      const offersWithData = offers.map((offer) => ({
+        ...offer,
+        listings: offer.listing_id ? listingsMap.get(offer.listing_id) : undefined,
+        buyer_profile: offer.buyer_id ? buyerProfilesMap.get(offer.buyer_id) : undefined,
+        seller_profile: offer.seller_id ? sellerProfilesMap.get(offer.seller_id) : undefined,
+      }));
+
       // Transform API data to match the UI interface
-      return this.transformOffersData((data as unknown as ApiOffer[]) || []);
+      return this.transformOffersData(offersWithData);
     } catch (error) {
       console.error('Error fetching offers:', error);
       throw error;
@@ -88,7 +148,7 @@ class OffersService {
   }
 
   /**
-   * Create a new offer
+   * Create a new offer or update existing one (upsert)
    */
   async createOffer(params: {
     listing_id: string;
@@ -97,27 +157,64 @@ class OffersService {
     offer_amount: number;
     message?: string;
     expires_at?: string;
-  }): Promise<ApiOffer | null> {
+  }): Promise<Offer | null> {
     try {
-      const { data, error } = await supabase
+      // Check if an offer already exists for this buyer and listing
+      const { data: existingOfferData, error: fetchError } = await supabase
         .from('offers')
-        .insert({
-          listing_id: params.listing_id,
-          buyer_id: params.buyer_id,
-          seller_id: params.seller_id,
-          offer_amount: params.offer_amount,
-          message: params.message ?? null,
-          expires_at: params.expires_at ?? null,
-          status: 'pending',
-        })
         .select('*')
-        .single();
+        .eq('listing_id', params.listing_id)
+        .eq('buyer_id', params.buyer_id)
+        .maybeSingle();
 
-      if (error) {
-        throw new Error(`Failed to create offer: ${error.message}`);
+      if (fetchError) {
+        throw new Error(`Failed to check existing offer: ${fetchError.message}`);
       }
 
-      return (data as unknown as ApiOffer) ?? null;
+      const existingOffer = existingOfferData as any;
+
+      if (existingOffer && existingOffer.id) {
+        // Update existing offer
+        const { data, error } = await supabase
+          .from('offers')
+          .update({
+            offer_amount: params.offer_amount,
+            message: params.message ?? null,
+            status: 'pending', // Reset to pending when re-offering
+            expires_at: params.expires_at ?? null,
+            created_at: new Date().toISOString(), // Update timestamp
+          })
+          .eq('id', existingOffer.id)
+          .select('*')
+          .single();
+
+        if (error) {
+          throw new Error(`Failed to update offer: ${error.message}`);
+        }
+
+        return (data as unknown as Offer) ?? null;
+      } else {
+        // Create new offer
+        const { data, error } = await supabase
+          .from('offers')
+          .insert({
+            listing_id: params.listing_id,
+            buyer_id: params.buyer_id,
+            seller_id: params.seller_id,
+            offer_amount: params.offer_amount,
+            message: params.message ?? null,
+            status: 'pending',
+            expires_at: params.expires_at ?? null,
+          })
+          .select('*')
+          .single();
+
+        if (error) {
+          throw new Error(`Failed to create offer: ${error.message}`);
+        }
+
+        return (data as unknown as Offer) ?? null;
+      }
     } catch (error) {
       console.error('Error creating offer:', error);
       throw error;
@@ -160,28 +257,37 @@ class OffersService {
   }
 
   /**
-   * Transform API data to match UI interface
-   * @param apiOffers - Raw offers data from API
+   * Get status configuration for display
+   * @param status - Order status
    */
-  private transformOffersData(apiOffers: ApiOffer[]): Offer[] {
-    return apiOffers.map((apiOffer) => {
-      // Map API status to UI status
-      const statusMap: Record<string, 'pending' | 'accepted' | 'declined'> = {
-        pending: 'pending',
-        accepted: 'accepted',
-        declined: 'declined',
-      };
+  private getStatusConfig(status: string): { status: string; color: number } {
+    const statusMap: Record<string, { status: string; color: number }> = {
+      pending: { status: 'Pending', color: 0xffcc00 },
+      accepted: { status: 'Accepted', color: 0x34c759 },
+      declined: { status: 'Declined', color: 0xff4444 },
+    };
+
+    return statusMap[status] || { status: status, color: 0x999999 };
+  }
+
+  /**
+   * Transform API data to match UI interface
+   * @param offers - Raw offers data from API
+   */
+  private transformOffersData(offers: Offer[]): Offer[] {
+    return offers.map((offer) => {
+      const statusConfig = this.getStatusConfig(offer.status);
 
       return {
-        id: apiOffer.id,
-        buyerName: `Buyer #${apiOffer.id.slice(-6)}`, // Fallback name - would need to fetch from user data
-        productName: `Product #${apiOffer.id.slice(-6)}`, // Fallback name - would need to fetch from product data
-        offerAmount: apiOffer.offer_amount,
-        originalPrice: apiOffer.offer_amount * 1.2, // Mock original price - would need to fetch from product data
-        status: statusMap[apiOffer.status] || 'pending',
-        createdAt: apiOffer.created_at ?? new Date().toISOString(),
-        expiresAt: apiOffer.expires_at ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        message: apiOffer.message || undefined,
+        id: offer.id,
+        offer_amount: offer.offer_amount,
+        message: offer.message || undefined,
+        status: offer.status,
+        status_color: statusConfig.color,
+        created_at: offer.created_at,
+        expires_at: offer.expires_at,
+        listings: offer.listings,
+        buyer_profile: offer.buyer_profile,
       };
     });
   }

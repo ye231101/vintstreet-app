@@ -207,11 +207,11 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
                 </View>
 
                 {/* Actions */}
-                <View className="flex-row gap-3">
+                <View className="flex-row gap-4">
                   <TouchableOpacity
                     onPress={handleSubmit}
                     disabled={isSubmitting || !subject.trim() || !message.trim()}
-                    className={`flex-1 items-center justify-center rounded-lg py-4 flex-row ${
+                    className={`flex-row flex-1 items-center justify-center py-3 rounded-lg ${
                       isSubmitting || !subject.trim() || !message.trim() ? 'bg-gray-300' : 'bg-black'
                     }`}
                   >
@@ -228,7 +228,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
                   <TouchableOpacity
                     onPress={onClose}
                     disabled={isSubmitting}
-                    className="flex-1 bg-gray-200 rounded-lg py-4 flex-row items-center justify-center"
+                    className="flex-1 bg-gray-200 rounded-lg py-3 flex-row items-center justify-center"
                   >
                     <Text className="text-base font-inter-bold text-gray-900 text-center">Cancel</Text>
                   </TouchableOpacity>
