@@ -39,6 +39,13 @@ export default function SellerLayout() {
         }}
       />
       <Stack.Screen
+        name="streams"
+        options={{
+          title: 'My Streams',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="messages"
         options={{
           title: 'My Messages',
