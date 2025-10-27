@@ -81,9 +81,13 @@ class SellerService {
       const totalOrders = ordersList.length;
 
       // Calculate total sales
-      const totalSales = ordersList.reduce((sum, order: any) => {
-        return sum + (parseFloat(order.order_amount) || 0);
-      }, 0);
+      const totalSales = ordersList
+        .filter((o: any) => o.status === 'completed')
+        .reduce((sum, order: any) => {
+          // Assuming 10% platform fee
+          const orderTotal = parseFloat(order.order_amount) || 0;
+          return sum + orderTotal;
+        }, 0);
 
       // Count orders by status
       const processingOrders = ordersList.filter((o: any) => o.status === 'processing').length;
@@ -93,18 +97,13 @@ class SellerService {
       const cancelledOrders = ordersList.filter((o: any) => o.status === 'cancelled').length;
       const refundedOrders = ordersList.filter((o: any) => o.status === 'refunded').length;
 
-      // Calculate seller balance (completed orders minus any fees/withdrawals)
-      // In a real app, this should come from a transactions/balance table
       const sellerBalance = ordersList
         .filter((o: any) => o.status === 'completed')
         .reduce((sum, order: any) => {
-          // Assuming 10% platform fee
           const orderTotal = parseFloat(order.order_amount) || 0;
-          return sum + orderTotal * 0.9;
+          return 0;
         }, 0);
 
-      // Get pageviews (if you have an analytics table)
-      // For now, using a rough estimate based on listings views
       let pageviews = 0;
       try {
         const { data: listings } = await supabase
@@ -113,8 +112,6 @@ class SellerService {
           .eq('seller_id', sellerId)
           .eq('status', 'published');
 
-        // If you have a views/analytics table, query it here
-        // For now, using a placeholder
         pageviews = (listings?.length || 0) * 50; // Rough estimate
       } catch (e) {
         console.warn('Could not fetch pageviews:', e);
@@ -193,7 +190,11 @@ class SellerService {
    * @param period - Time period for analysis
    * @param limit - Number of products to return
    */
-  async getTopSellingProducts(sellerId: string, period: string = 'week', limit: number = 5): Promise<TopSellingProduct[]> {
+  async getTopSellingProducts(
+    sellerId: string,
+    period: string = 'week',
+    limit: number = 5
+  ): Promise<TopSellingProduct[]> {
     try {
       const dateRange = this.getDateRange(period);
 
@@ -216,10 +217,7 @@ class SellerService {
 
         if (!error && orderItems && orderItems.length > 0) {
           // Aggregate by product
-          const productStats = new Map<
-            string,
-            { quantity: number; revenue: number; listingId: string }
-          >();
+          const productStats = new Map<string, { quantity: number; revenue: number; listingId: string }>();
 
           orderItems.forEach((item: any) => {
             const listingId = item.listing_id;
@@ -236,10 +234,7 @@ class SellerService {
           // Get product details
           const listingIds = Array.from(productStats.keys());
           if (listingIds.length > 0) {
-            const { data: listings } = await supabase
-              .from('listings')
-              .select('id, product_name')
-              .in('id', listingIds);
+            const { data: listings } = await supabase.from('listings').select('id, product_name').in('id', listingIds);
 
             const listingsMap = new Map((listings || []).map((l: any) => [l.id, l]));
 
@@ -320,16 +315,10 @@ class SellerService {
         .single();
 
       // Get review stats
-      const { data: reviews } = await supabase
-        .from('reviews')
-        .select('rating')
-        .eq('seller_id', sellerId);
+      const { data: reviews } = await supabase.from('reviews').select('rating').eq('seller_id', sellerId);
 
       const reviewCount = reviews?.length || 0;
-      const averageRating =
-        reviewCount > 0
-          ? reviews!.reduce((sum, r: any) => sum + r.rating, 0) / reviewCount
-          : 0;
+      const averageRating = reviewCount > 0 ? reviews!.reduce((sum, r: any) => sum + r.rating, 0) / reviewCount : 0;
 
       // Parse full name
       const fullName = (profile?.full_name || '').split(' ');
@@ -401,4 +390,3 @@ class SellerService {
 }
 
 export const sellerService = new SellerService();
-
