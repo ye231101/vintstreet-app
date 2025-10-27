@@ -4,15 +4,7 @@ import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReviewsScreen() {
@@ -68,6 +60,22 @@ export default function ReviewsScreen() {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
       });
     } catch (e) {
       return dateString;
@@ -241,17 +249,23 @@ export default function ReviewsScreen() {
             >
               {reviews.map((review) => (
                 <View key={review.id} className="mb-4">
-                  {/* Product Name */}
-                  <Text className="text-gray-900 font-inter-bold text-base mb-2">{review.productName}</Text>
-
                   {/* Reviewer and Date */}
                   <View className="flex-row items-center mb-2">
-                    <View className="w-5 h-5 rounded-full bg-gray-200 mr-2 justify-center items-center">
-                      <Feather name="user" color="#666" size={12} />
+                    {review.customerAvatar ? (
+                      <Image
+                        source={{ uri: review.customerAvatar }}
+                        className="w-12 h-12 rounded-full mr-2"
+                        style={{ backgroundColor: '#e5e7eb' }}
+                      />
+                    ) : (
+                      <View className="w-12 h-12 rounded-full bg-gray-200 mr-2 justify-center items-center">
+                        <Feather name="user" color="#666" size={24} />
+                      </View>
+                    )}
+                    <View className="flex-1">
+                      <Text className="text-gray-600 text-sm font-inter">{review.customerName}</Text>
+                      <Text className="text-gray-600 text-sm font-inter">{formatDateTime(review.dateCreated)}</Text>
                     </View>
-                    <Text className="text-gray-600 text-sm font-inter">
-                      {review.customerName} on {formatDate(review.dateCreated)}
-                    </Text>
                   </View>
 
                   {/* Star Rating */}
@@ -290,43 +304,43 @@ export default function ReviewsScreen() {
                           <Text className="text-white text-sm font-inter-medium ml-2">Reply to Review</Text>
                         </TouchableOpacity>
                       ) : (
-                      <View>
-                        <TextInput
-                          placeholder="Write your reply..."
-                          value={replyText[review.id] || ''}
-                          onChangeText={(text) => updateReplyText(review.id, text)}
-                          multiline
-                          numberOfLines={3}
-                          className="border border-gray-300 rounded-lg p-3 text-sm font-inter text-gray-900 mb-3"
-                          style={{ minHeight: 80, textAlignVertical: 'top' }}
-                        />
-                        <View className="flex-row gap-2">
-                          <TouchableOpacity
-                            onPress={() => handleReply(review.id)}
-                            disabled={!replyText[review.id]?.trim() || isSubmittingReply[review.id]}
-                            className={`flex-row items-center rounded-lg py-2 px-4 ${
-                              !replyText[review.id]?.trim() || isSubmittingReply[review.id]
-                                ? 'bg-gray-300'
-                                : 'bg-black'
-                            }`}
-                          >
-                            {isSubmittingReply[review.id] ? (
-                              <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                              <Feather name="send" size={16} color="#fff" />
-                            )}
-                            <Text className="text-white text-sm font-inter-medium ml-2">
-                              {isSubmittingReply[review.id] ? 'Posting...' : 'Post Reply'}
-                            </Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            onPress={() => toggleReplyBox(review.id)}
-                            className="border border-gray-300 rounded-lg py-2 px-4"
-                          >
-                            <Text className="text-gray-900 text-sm font-inter-medium">Cancel</Text>
-                          </TouchableOpacity>
+                        <View>
+                          <TextInput
+                            placeholder="Write your reply..."
+                            value={replyText[review.id] || ''}
+                            onChangeText={(text) => updateReplyText(review.id, text)}
+                            multiline
+                            numberOfLines={3}
+                            className="border border-gray-300 rounded-lg p-3 text-sm font-inter text-gray-900 mb-3"
+                            style={{ minHeight: 80, textAlignVertical: 'top' }}
+                          />
+                          <View className="flex-row gap-2">
+                            <TouchableOpacity
+                              onPress={() => handleReply(review.id)}
+                              disabled={!replyText[review.id]?.trim() || isSubmittingReply[review.id]}
+                              className={`flex-row items-center rounded-lg py-2 px-4 ${
+                                !replyText[review.id]?.trim() || isSubmittingReply[review.id]
+                                  ? 'bg-gray-300'
+                                  : 'bg-black'
+                              }`}
+                            >
+                              {isSubmittingReply[review.id] ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                              ) : (
+                                <Feather name="send" size={16} color="#fff" />
+                              )}
+                              <Text className="text-white text-sm font-inter-medium ml-2">
+                                {isSubmittingReply[review.id] ? 'Posting...' : 'Post Reply'}
+                              </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={() => toggleReplyBox(review.id)}
+                              className="border border-gray-300 rounded-lg py-2 px-4"
+                            >
+                              <Text className="text-gray-900 text-sm font-inter-medium">Cancel</Text>
+                            </TouchableOpacity>
+                          </View>
                         </View>
-                      </View>
                       )}
                     </View>
                   )}
