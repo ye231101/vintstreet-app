@@ -1,7 +1,7 @@
 import { supabase } from '@/api/config/supabase';
 import { listingsService, Product } from '@/api/services/listings.service';
 import { Review, reviewsService, ReviewStats } from '@/api/services/reviews.service';
-import { ContactSellerModal } from '@/components/contact-seller-modal';
+import { ContactModal } from '@/components/contact-modal';
 import { useAppSelector } from '@/store/hooks';
 import { showInfoToast, showWarningToast } from '@/utils/toast';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
@@ -592,12 +592,12 @@ export default function SellerProfileScreen() {
       </ScrollView>
 
       {/* Contact Seller Modal */}
-      <ContactSellerModal
-        isOpen={isContactModalOpen}
+      <ContactModal
+        visible={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
-        sellerId={sellerId}
-        sellerName={sellerProfile?.shop_name || sellerProfile?.full_name || 'the seller'}
-        userId={user?.id}
+        order={null}
+        product={null}
+        mode="buyer"
       />
     </SafeAreaView>
   );

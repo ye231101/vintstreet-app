@@ -1,30 +1,26 @@
+import { Order, ordersService } from '@/api/services/orders.service';
+import { OrderDetailsModal } from '@/components/order-details-modal';
+import { useAuth } from '@/hooks/use-auth';
+import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Order, ordersService } from '../../api/services/orders.service';
-import { useAuth } from '../../hooks/use-auth';
 
 export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('fulfilled');
+  const [activeTab, setActiveTab] = useState('processing');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
   const { user } = useAuth();
 
   const tabs = [
-    { key: 'fulfilled', label: 'Orders To Fulfilled' },
-    { key: 'all', label: 'All Orders' },
+    { key: 'processing', label: 'To Fulfil' },
+    { key: 'all', label: 'All' },
     { key: 'pending', label: 'Pending' },
     { key: 'shipped', label: 'Shipped' },
     { key: 'delivered', label: 'Delivered' },
@@ -74,38 +70,62 @@ export default function OrdersScreen() {
 
   const getFilteredOrders = () => {
     switch (activeTab) {
-      case 'fulfilled': // Fulfilled
-        return orders.filter((order) => order.status === 'pending' || order.status === 'processing');
-      case 'all': // All
+      case 'processing':
+        return orders.filter((order) => order.delivery_status === 'processing');
+      case 'all':
         return orders;
-      case 'pending': // Pending
-        return orders.filter((order) => order.status === 'pending');
-      case 'shipped': // Shipped
-        return orders.filter((order) => order.status === 'shipped');
-      case 'delivered': // Delivered (Completed)
-        return orders.filter((order) => order.status === 'completed');
-      case 'cancelled': // Cancelled
-        return orders.filter((order) => order.status === 'cancelled');
+      case 'pending':
+        return orders.filter((order) => order.delivery_status === 'pending');
+      case 'shipped':
+        return orders.filter((order) => order.delivery_status === 'shipped');
+      case 'delivered':
+        return orders.filter((order) => order.delivery_status === 'delivered' || order.delivery_status === 'completed');
+      case 'cancelled':
+        return orders.filter((order) => order.delivery_status === 'cancelled');
       default:
         return orders;
     }
   };
 
+  const getTabCount = (key: string) => {
+    switch (key) {
+      case 'processing':
+        return orders.filter((o) => o.delivery_status === 'processing').length;
+      case 'all':
+        return orders.length;
+      case 'pending':
+        return orders.filter((o) => o.delivery_status === 'pending').length;
+      case 'shipped':
+        return orders.filter((o) => o.delivery_status === 'shipped').length;
+      case 'delivered':
+        return orders.filter((o) => o.delivery_status === 'delivered' || o.delivery_status === 'completed').length;
+      case 'cancelled':
+        return orders.filter((o) => o.delivery_status === 'cancelled').length;
+      default:
+        return 0;
+    }
+  };
+
+  const handleViewDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  };
+
   const OrderCard = ({ order }: { order: Order }) => (
-    <View className="bg-white rounded-xl mb-4 shadow-sm">
+    <View className="bg-white rounded-xl shadow-sm">
       {/* Order header */}
-      <View className="p-4">
-        <View className="flex-row justify-between items-start">
-          <View className="flex-1">
-            <Text className="text-gray-900 font-inter-bold text-base mb-1">Order {order.id}</Text>
-            <Text className="text-gray-600 text-sm font-inter">{formatDate(order.createdAt)}</Text>
-          </View>
-          <View
-            className="rounded-full px-3 py-1.5"
-            style={{ backgroundColor: `#${order.statusColor.toString(16).padStart(6, '0')}` }}
-          >
-            <Text className="font-inter-bold text-xs text-white">{order.displayStatus}</Text>
-          </View>
+      <View className="flex-row justify-between items-start p-4">
+        <View className="flex-1">
+          <Text className="text-gray-900 font-inter-bold text-base mb-1">{order.order_number}</Text>
+          <Text className="text-gray-600 text-sm font-inter">{formatDate(order.order_date)}</Text>
+        </View>
+        <View
+          className="rounded-full px-3 py-1.5"
+          style={{ backgroundColor: `#${order.status_color.toString(16).padStart(6, '0')}` }}
+        >
+          <Text className="font-inter-bold text-xs text-white">
+            {order.delivery_status.charAt(0).toUpperCase() + order.delivery_status.slice(1)}
+          </Text>
         </View>
       </View>
 
@@ -113,80 +133,46 @@ export default function OrdersScreen() {
       <View className="h-px bg-gray-200" />
 
       {/* Order items */}
-      {order.items.map((item, index) => (
-        <View key={index}>
-          <View className="flex-row items-center px-4 py-2">
-            <View className="w-15 h-15 rounded-lg bg-gray-200 mr-4 overflow-hidden">
-              {item.imageUrl ? (
-                <Image source={{ uri: item.imageUrl }} className="w-15 h-15" resizeMode="cover" />
-              ) : (
-                <View className="w-15 h-15 bg-gray-200 justify-center items-center">
-                  <Feather name="image" color="#666" size={24} />
-                </View>
-              )}
-            </View>
+      {order.listings && (
+        <View className="flex-row items-center px-4 py-3">
+          <View className="w-20 h-20 rounded-lg bg-gray-200 mr-4 overflow-hidden">
+            <Image
+              source={{ uri: order.listings.product_image }}
+              contentFit="cover"
+              placeholder={{ blurhash }}
+              transition={1000}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </View>
 
-            <View className="flex-1">
-              <Text className="text-gray-900 font-inter-medium text-base mb-1">{item.name}</Text>
-              <Text className="text-gray-600 text-sm font-inter-semibold mb-1">Quantity: {item.quantity}</Text>
-              <Text className="text-gray-900 font-inter-bold text-base">
-                £{item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </Text>
-            </View>
+          <View className="flex-1">
+            <Text className="text-gray-900 font-inter-medium text-base mb-1" numberOfLines={2}>
+              {order.listings.product_name}
+            </Text>
+            <Text className="text-gray-600 text-sm font-inter mb-1">Qty: {order.quantity}</Text>
+            <Text className="text-gray-900 font-inter-bold text-base">
+              £
+              {order.order_amount?.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Text>
           </View>
         </View>
-      ))}
+      )}
 
       {/* Divider */}
       <View className="h-px bg-gray-200" />
 
       {/* Order actions */}
-      <View className="flex-row items-center justify-between p-4">
-        <Text className="text-gray-900 font-inter-bold text-base">
-          Total: £{order.totals.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </Text>
-        <View className="flex-row gap-2">
-          {order.status === 'pending' && (
-            <TouchableOpacity
-              onPress={async () => {
-                try {
-                  await ordersService.updateOrderStatus(order.id, 'processing');
-                  Alert.alert('Order Accepted', 'Order has been accepted and moved to processing');
-                  loadOrders(); // Refresh the orders list
-                } catch (error) {
-                  Alert.alert('Error', 'Failed to accept order. Please try again.');
-                }
-              }}
-              className="bg-green-500 rounded-md py-1.5 px-3 justify-center items-center"
-            >
-              <Text className="text-white text-xs font-inter-bold">Accept</Text>
-            </TouchableOpacity>
-          )}
-          {order.status === 'processing' && (
-            <TouchableOpacity
-              onPress={async () => {
-                try {
-                  await ordersService.updateOrderStatus(order.id, 'shipped');
-                  Alert.alert('Order Shipped', 'Order has been marked as shipped');
-                  loadOrders(); // Refresh the orders list
-                } catch (error) {
-                  Alert.alert('Error', 'Failed to mark order as shipped. Please try again.');
-                }
-              }}
-              className="bg-blue-500 rounded-md py-1.5 px-3 justify-center items-center"
-            >
-              <Text className="text-white text-xs font-inter-bold">Ship</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            onPress={() => {
-              Alert.alert('Order Details', 'This would show order details');
-            }}
-            className="py-2 px-4"
-          >
-            <Text className="text-blue-500 text-base font-inter">View Details</Text>
-          </TouchableOpacity>
-        </View>
+      <View className="p-4">
+        <TouchableOpacity
+          onPress={() => handleViewDetails(order)}
+          className="flex-1 bg-black rounded-lg py-3 flex-row items-center justify-center"
+        >
+          <Feather name="eye" size={16} color="#fff" />
+          <Text className="text-white text-sm font-inter-bold ml-2">View Details</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -205,21 +191,24 @@ export default function OrdersScreen() {
       <View className="flex-1 bg-gray-50">
         <View className="px-4 border-b border-gray-200">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {tabs.map((tab) => (
-              <TouchableOpacity
-                key={tab.key}
-                onPress={() => setActiveTab(tab.key)}
-                className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-blue-500' : 'border-transparent'}`}
-              >
-                <Text
-                  className={`text-base font-inter-semibold ${
-                    activeTab === tab.key ? 'text-blue-500' : 'text-gray-600'
-                  }`}
+            {tabs.map((tab) => {
+              const count = getTabCount(tab.key);
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  onPress={() => setActiveTab(tab.key)}
+                  className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-black' : 'border-transparent'}`}
                 >
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    className={`text-base font-inter-semibold ${
+                      activeTab === tab.key ? 'text-black' : 'text-gray-600'
+                    }`}
+                  >
+                    {tab.label} {count > 0 ? `(${count})` : ''}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </View>
 
@@ -241,19 +230,35 @@ export default function OrdersScreen() {
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOrders} tintColor="#007AFF" />}
             contentContainerStyle={{ flexGrow: 1 }}
-            className="p-4"
           >
-            {getFilteredOrders().map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))}
+            <View className="gap-4 p-4">
+              {getFilteredOrders().map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </View>
           </ScrollView>
         ) : (
           <View className="flex-1 justify-center items-center p-4">
             <Feather name="shopping-bag" color="#666" size={64} />
             <Text className="text-gray-900 text-lg font-inter-bold mt-4">No orders found</Text>
+            <Text className="text-gray-600 text-sm font-inter mt-2">
+              {activeTab === 'all'
+                ? 'Orders will appear here when buyers purchase from you'
+                : `No ${activeTab} orders at this time`}
+            </Text>
           </View>
         )}
       </View>
+
+      {/* Modals */}
+      {selectedOrder && (
+        <OrderDetailsModal
+          visible={showOrderDetails}
+          onClose={() => setShowOrderDetails(false)}
+          order={selectedOrder}
+          onOrderUpdated={loadOrders}
+        />
+      )}
     </SafeAreaView>
   );
 }
