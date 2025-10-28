@@ -1,7 +1,8 @@
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SellerSettings {
@@ -57,43 +58,7 @@ export default function PaymentSetupScreen() {
       // Simulate API call - replace with actual implementation
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Mock data - replace with actual data fetching
-      const mockSettings: SellerSettings = {
-        storeName: 'My Store',
-        email: 'store@example.com',
-        phone: '+1234567890',
-        address: {
-          fullAddress: '123 Main St, City, State 12345',
-        },
-        payment: {
-          paypal: {
-            email: 'paypal@example.com',
-          },
-          bank: {
-            acName: 'John Doe',
-            acType: 'Checking',
-            acNumber: '1234567890',
-            bankName: 'Example Bank',
-            bankAddr: '123 Bank St, City, State',
-            routingNumber: '123456789',
-            iban: 'GB29NWBK60161331926819',
-            swift: 'NWBKGB2L',
-          },
-        },
-      };
-
-      setSellerSettings(mockSettings);
-
-      // Populate form with existing data
-      setPaypalEmail(mockSettings.payment.paypal.email);
-      setAccountName(mockSettings.payment.bank.acName);
-      setAccountType(mockSettings.payment.bank.acType);
-      setAccountNumber(mockSettings.payment.bank.acNumber);
-      setBankName(mockSettings.payment.bank.bankName);
-      setBankAddress(mockSettings.payment.bank.bankAddr);
-      setRoutingNumber(mockSettings.payment.bank.routingNumber);
-      setIban(mockSettings.payment.bank.iban);
-      setSwift(mockSettings.payment.bank.swift);
+      setSellerSettings(sellerSettings);
     } catch (err) {
       setError('Error loading payment settings');
     } finally {
@@ -131,9 +96,9 @@ export default function PaymentSetupScreen() {
       };
 
       setSellerSettings(updatedSettings);
-      Alert.alert('Success', 'Payment settings updated successfully');
+      showSuccessToast('Payment settings updated successfully');
     } catch (err) {
-      Alert.alert('Error', 'Failed to update payment settings');
+      showErrorToast('Failed to update payment settings');
     } finally {
       setIsSaving(false);
     }
@@ -252,15 +217,17 @@ export default function PaymentSetupScreen() {
         <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Payment Setup</Text>
 
         {!isLoading && sellerSettings && (
-          <TouchableOpacity
-            onPress={savePaymentSettings}
-            disabled={isSaving}
-            className={`rounded-lg py-2 px-4 ${isSaving ? 'bg-gray-400' : 'bg-blue-500'}`}
-          >
+          <TouchableOpacity onPress={savePaymentSettings} disabled={isSaving} hitSlop={8}>
             {isSaving ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <View className="flex-row items-center">
+                <ActivityIndicator size="small" color="#fff" />
+                <Text className="ml-2 text-white text-base font-inter-bold">Saving...</Text>
+              </View>
             ) : (
-              <Text className="text-white text-base font-inter-bold">Save</Text>
+              <View className="flex-row items-center">
+                <Feather name="save" size={20} color="#fff" />
+                <Text className="ml-2 text-white text-base font-inter-bold">Save</Text>
+              </View>
             )}
           </TouchableOpacity>
         )}

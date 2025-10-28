@@ -49,3 +49,13 @@ export interface InfiniteQueryResult {
   nextPage: number | undefined;
   total?: number;
 }
+
+export interface ListingsFilters {
+  searchKeyword?: string;
+  activeCategory?: string;
+  activeSubcategory?: string;
+  activeSubSubcategory?: string;
+  activeSubSubSubcategory?: string;
+  selectedBrands?: Set<string>;
+  selectedColors?: Set<string>;
+}

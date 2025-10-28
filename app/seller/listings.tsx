@@ -195,7 +195,7 @@ export default function ListingsScreen() {
             <TouchableOpacity
               onPress={() => {
                 router.push({
-                  pathname: '/seller/sell',
+                  pathname: '/(tabs)/sell',
                   params: { productId: product.id },
                 } as any);
               }}
@@ -263,7 +263,7 @@ export default function ListingsScreen() {
 
             <TouchableOpacity
               onPress={() => {
-                router.push('/seller/sell');
+                router.push('/(tabs)/sell');
               }}
               className="bg-white rounded-lg py-4 px-5 mb-4 items-center border border-gray-300 shadow-sm"
             >
@@ -300,12 +300,12 @@ export default function ListingsScreen() {
                 key={tab.key}
                 onPress={() => setActiveTab(tab.key)}
                 className={`${
-                  activeTab === tab.key ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                  activeTab === tab.key ? 'bg-black border-black' : 'bg-white border-gray-300'
                 } flex-1 rounded-md py-3 px-2 border shadow-sm`}
               >
                 <Text
                   className={`${
-                    activeTab === tab.key ? 'text-white' : 'text-gray-600'
+                    activeTab === tab.key ? 'text-white' : 'text-black'
                   } text-xs font-inter-medium text-center`}
                 >
                   {tab.label}

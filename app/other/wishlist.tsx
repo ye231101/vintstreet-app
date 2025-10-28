@@ -116,14 +116,14 @@ export default function WishlistScreen() {
                   ) : (
                     <Feather name="shopping-cart" size={16} color="white" />
                   )}
-                  <Text className={`${isInCart ? 'text-black' : 'text-white'} text-sm font-inter-medium`}>
+                  <Text className={`${isInCart ? 'text-black' : 'text-white'} text-base font-inter-medium`}>
                     {addingToCartId === item.id ? 'Adding...' : isInCart ? 'Added to Cart' : 'Add'}
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => handleRemoveFromWishlist(item.id, item.product_name)}
-                  className="bg-gray-100 rounded-lg p-2"
+                  className="items-center justify-center bg-gray-100 border border-gray-200 rounded-lg p-2"
                 >
                   <Feather name="trash-2" size={16} color="#ef4444" />
                 </TouchableOpacity>

@@ -252,8 +252,8 @@ export default function AddressFormScreen() {
           <View className="flex-1 p-4 bg-gray-50">
             {/* Info Banner */}
             <View className="bg-blue-500/10 rounded-lg p-4 mb-6 flex-row items-start">
-              <Feather name="info" color="#007AFF" size={20} style={{ marginTop: 2, marginRight: 12 }} />
-              <Text className="flex-1 text-blue-700 text-sm font-inter-semibold">
+              <Feather name="info" color="#007AFF" size={18} />
+              <Text className="flex-1 text-blue-700 text-sm font-inter-semibold ml-3">
                 {isShipping
                   ? 'This address will be used for shipping your orders'
                   : 'This address will be used for billing and invoices'}
@@ -364,7 +364,7 @@ export default function AddressFormScreen() {
             <TouchableOpacity
               onPress={saveAddress}
               disabled={isSaving}
-              className={`rounded-lg py-4 px-6 items-center shadow-sm ${isSaving ? 'bg-gray-400' : 'bg-blue-500'}`}
+              className={`rounded-lg py-4 px-6 items-center shadow-sm ${isSaving ? 'bg-gray-400' : 'bg-black'}`}
             >
               {isSaving ? (
                 <View className="flex-row items-center">
@@ -372,9 +372,7 @@ export default function AddressFormScreen() {
                   <Text className="ml-2 text-white text-base font-inter-bold">Saving...</Text>
                 </View>
               ) : (
-                <Text className="text-white text-base font-inter-bold">
-                  {isEditing ? 'Update' : 'Save'} Address
-                </Text>
+                <Text className="text-white text-base font-inter-bold">{isEditing ? 'Update' : 'Save'} Address</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -383,4 +381,3 @@ export default function AddressFormScreen() {
     </SafeAreaView>
   );
 }
-

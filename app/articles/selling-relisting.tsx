@@ -22,7 +22,7 @@ export default function SellingRelistingScreen() {
     if (user?.user_type === 'buyer') {
       router.push('/seller/seller-setup');
     } else {
-      router.push('/seller/sell');
+      router.push('/(tabs)/sell');
     }
   };
 

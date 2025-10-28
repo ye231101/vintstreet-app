@@ -174,7 +174,7 @@ export default function HelpCenterScreen() {
 
       {/* Contact Support Button */}
       <View className="p-4 bg-gray-50 border-t border-gray-200">
-        <TouchableOpacity onPress={handleContactSupport} className="bg-blue-500 rounded-xl py-4 items-center">
+        <TouchableOpacity onPress={handleContactSupport} className="bg-black rounded-lg py-4 items-center">
           <Text className="text-white text-base font-inter-bold">Contact Support</Text>
         </TouchableOpacity>
       </View>

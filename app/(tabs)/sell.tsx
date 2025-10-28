@@ -987,7 +987,7 @@ export default function SellScreen() {
                           Uploading... {uploadProgress}%
                         </Text>
                         <View className="w-16 h-1 bg-gray-200 rounded-full">
-                          <View className="h-1 bg-blue-500 rounded-full" style={{ width: `${uploadProgress}%` }} />
+                          <View className="h-1 bg-black rounded-full" style={{ width: `${uploadProgress}%` }} />
                         </View>
                       </View>
                     )}
@@ -1280,7 +1280,7 @@ export default function SellScreen() {
               <View className="flex-row items-center">
                 <TouchableOpacity
                   className={`w-5 h-5 border-2 rounded ${
-                    enableOffers ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
+                    enableOffers ? 'bg-black border-black' : 'border-gray-300'
                   } justify-center items-center mr-3`}
                   onPress={() => setEnableOffers(!enableOffers)}
                 >
@@ -1384,7 +1384,7 @@ export default function SellScreen() {
                 <TouchableOpacity
                   onPress={() => setIsMarketplaceListing(!isMarketplaceListing)}
                   className={`w-14 h-8 rounded-full justify-center ${
-                    isMarketplaceListing ? 'bg-blue-500' : 'bg-gray-300'
+                    isMarketplaceListing ? 'bg-black' : 'bg-gray-300'
                   }`}
                 >
                   <View

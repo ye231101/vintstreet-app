@@ -369,17 +369,17 @@ export default function ProductDetailScreen() {
                   {isAddingToCart ? (
                     <View className="flex-row items-center gap-2">
                       <ActivityIndicator size="small" color="#fff" />
-                      <Text className="text-sm font-inter-semibold text-white">Adding...</Text>
+                      <Text className="text-base font-inter-semibold text-white">Adding...</Text>
                     </View>
                   ) : cartItem ? (
                     <View className="flex-row items-center gap-2">
                       <Feather name="check" size={16} color="#000" />
-                      <Text className="text-sm font-inter-semibold text-black">Added to Cart</Text>
+                      <Text className="text-base font-inter-semibold text-black">Added to Cart</Text>
                     </View>
                   ) : (
                     <View className="flex-row items-center gap-2">
                       <Feather name="shopping-cart" size={16} color="white" />
-                      <Text className="text-sm font-inter-semibold text-white">Add to Cart</Text>
+                      <Text className="text-base font-inter-semibold text-white">Add to Cart</Text>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -388,7 +388,7 @@ export default function ProductDetailScreen() {
                   onPress={() => setIsOfferOpen(true)}
                 >
                   <Feather name="message-circle" size={16} color="#000" className="mr-2" />
-                  <Text className="text-sm font-inter-semibold text-black">Make Offer</Text>
+                  <Text className="text-base font-inter-semibold text-black">Make Offer</Text>
                 </TouchableOpacity>
               </View>
             </View>

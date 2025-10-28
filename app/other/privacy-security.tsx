@@ -89,7 +89,7 @@ export default function PrivacySecurityScreen() {
         <Switch
           value={value}
           onValueChange={onValueChange}
-          trackColor={{ false: '#E5E7EB', true: '#007AFF' }}
+          trackColor={{ false: '#E5E7EB', true: '#000' }}
           thumbColor={value ? '#fff' : '#999'}
         />
       </View>

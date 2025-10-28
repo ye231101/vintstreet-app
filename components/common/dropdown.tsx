@@ -46,6 +46,7 @@ export const DropdownComponent: React.FC<DropdownProps> = ({
       height: 50,
       paddingVertical: 12,
       paddingHorizontal: icon ? 12 : 6,
+      backgroundColor: '#fff',
       borderColor: error ? '#F87171' : '#D1D5DB',
       borderWidth: 1,
       borderRadius: 8,

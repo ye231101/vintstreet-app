@@ -159,13 +159,13 @@ export default function CartScreen() {
                   key={option.id}
                   onPress={() => handleShippingSelection(sellerId, option.id)}
                   className={`flex-row items-center justify-between p-3 border rounded-lg ${
-                    selectedShipping[sellerId] === option.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
+                    selectedShipping[sellerId] === option.id ? 'border-black bg-black/10' : 'border-gray-200 bg-white'
                   }`}
                 >
                   <View className="flex-row items-center gap-3">
                     <View
                       className={`w-4 h-4 rounded-full border-2 ${
-                        selectedShipping[sellerId] === option.id ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                        selectedShipping[sellerId] === option.id ? 'border-black bg-black' : 'border-gray-300'
                       }`}
                     >
                       {selectedShipping[sellerId] === option.id && (

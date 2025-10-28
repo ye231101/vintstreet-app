@@ -103,10 +103,7 @@ export default function AccountScreen() {
                 <Feather name="chevron-right" size={16} color="#000" />
               </Pressable>
 
-              <Pressable
-                onPress={() => router.push('/seller/messages')}
-                className="flex-row items-center px-4 py-3"
-              >
+              <Pressable onPress={() => router.push('/seller/messages')} className="flex-row items-center px-4 py-3">
                 <Feather name="mail" size={24} color="#000" />
                 <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Messages</Text>
                 <Feather name="chevron-right" size={16} color="#000" />
@@ -198,6 +195,12 @@ export default function AccountScreen() {
             <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Contact Support</Text>
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
+
+          <Pressable onPress={() => router.push('/other/privacy-security')} className="flex-row items-center px-4 py-3">
+            <Feather name="shield" size={24} color="#000" />
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Privacy & Security</Text>
+            <Feather name="chevron-right" size={16} color="#000" />
+          </Pressable>
         </View>
 
         {/* Divider */}
@@ -205,20 +208,6 @@ export default function AccountScreen() {
 
         {/* Settings Section */}
         <View className="px-2 py-4">
-          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SETTINGS</Text>
-
-          <Pressable onPress={() => router.push('/other/app-settings')} className="flex-row items-center px-4 py-3">
-            <Feather name="settings" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">App Settings</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
-
-          <Pressable onPress={() => router.push('/other/privacy-security')} className="flex-row items-center px-4 py-3">
-            <Feather name="shield" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Privacy & Security</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
-
           <Pressable onPress={showLogoutConfirmation} className="flex-row items-center px-4 py-3">
             <Feather name="log-out" size={24} color="#ff4444" />
             <Text className="flex-1 ml-4 text-base font-inter-semibold text-red-500">Logout</Text>
