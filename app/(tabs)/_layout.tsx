@@ -36,6 +36,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="sell"
+        options={{
+          title: 'Sell',
+          tabBarIcon: ({ color }) => <Feather name="plus-circle" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="messages"
         options={{
           title: 'Messages',
