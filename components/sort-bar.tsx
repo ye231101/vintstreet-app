@@ -16,17 +16,16 @@ const SortBar: React.FC<FilterSortBarProps> = ({
   onFilterPress,
   onSortChange,
 }) => {
-  const [sortOpen, setSortOpen] = useState(false);
   const [sortValue, setSortValue] = useState(sortBy);
 
-  const [sortItems, setSortItems] = useState([
+  const SORT_OPTIONS = [
     { label: 'Most Relevant', value: 'Most Relevant' },
     { label: 'Price: Low to High', value: 'Price: Low to High' },
     { label: 'Price: High to Low', value: 'Price: High to Low' },
     { label: 'Newest First', value: 'Newest First' },
     { label: 'Oldest First', value: 'Oldest First' },
     { label: 'Most Popular', value: 'Most Popular' },
-  ]);
+  ];
 
   const handleSortChange = (value: string) => {
     setSortValue(value);
@@ -86,7 +85,7 @@ const SortBar: React.FC<FilterSortBarProps> = ({
             zIndexInverse={3000}
           /> */}
           <DropdownComponent
-            data={sortItems}
+            data={SORT_OPTIONS}
             value={sortValue}
             placeholder="Sort by"
             onChange={(item) => handleSortChange(item.value)}
