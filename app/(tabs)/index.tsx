@@ -27,13 +27,14 @@ export default function HomeScreen() {
     setPageInput(currentPage.toString());
   }, [currentPage]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (keyword?: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
+      const searchTerm = keyword !== undefined ? keyword : searchKeyword;
       const pageOffset = (currentPage - 1) * PRODUCTS_PER_PAGE;
-      const filters = searchKeyword.trim() ? { searchKeyword: searchKeyword.trim() } : {};
+      const filters = searchTerm.trim() ? { searchKeyword: searchTerm.trim() } : {};
       const result = await listingsService.getListingsInfinite(pageOffset, PRODUCTS_PER_PAGE, filters);
 
       setProducts(result.products);
@@ -58,9 +59,9 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = (keyword?: string) => {
     setCurrentPage(1);
-    fetchProducts();
+    fetchProducts(keyword);
   };
 
   const onRefresh = async () => {
