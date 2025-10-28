@@ -1,7 +1,8 @@
-import { categoriesService, listingsService } from '@/api/services';
+import { attributesService, categoriesService, listingsService } from '@/api/services';
 import { Product } from '@/api/services/listings.service';
 import { Category } from '@/api/types/category.types';
 import FilterSortBar from '@/components/filter-sort-bar';
+import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-modal';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
 import { Feather } from '@expo/vector-icons';
@@ -33,13 +34,62 @@ export default function DiscoveryScreen() {
 
   // Filter and sort state
   const [currentSortBy, setCurrentSortBy] = useState('Most Relevant');
-  const [currentPriceFilter, setCurrentPriceFilter] = useState('All Prices');
-  const [currentBrandFilter, setCurrentBrandFilter] = useState('All Brands');
-  const [availableBrands, setAvailableBrands] = useState<Array<{ label: string; value: string }>>([]);
+  const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>({
+    priceRanges: [],
+    brands: [],
+    sizes: [],
+  });
+  const [availableBrands, setAvailableBrands] = useState<FilterOption[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<FilterOption[]>([]);
+  const [availablePrices, setAvailablePrices] = useState<FilterOption[]>([
+    { label: 'Under £50', value: 'Under £50.00', count: 0 },
+    { label: '£50 - £100', value: '£50.00 - £100.00', count: 0 },
+    { label: '£100 - £200', value: '£100.00 - £200.00', count: 0 },
+    { label: 'Over £200', value: 'Over £200.00', count: 0 },
+  ]);
+  const [currentSizeAttributeId, setCurrentSizeAttributeId] = useState<string | undefined>();
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
-  // Load categories on component mount
+  // Load categories and brands on component mount
   useEffect(() => {
-    loadCategories();
+    const loadInitialData = async () => {
+      try {
+        await loadCategories();
+
+          // Load brands that have published products (across all categories initially)
+          try {
+            const brands = await listingsService.getAvailableBrandsForCategory();
+            setAvailableBrands(brands.map((b) => ({ label: b.name, value: b.id, count: b.count })));
+            
+            // Load price counts across all categories
+            const priceCounts = await listingsService.getPriceRangeCounts();
+            setAvailablePrices([
+              { label: 'Under £50', value: 'Under £50.00', count: priceCounts['Under £50.00'] },
+              { label: '£50 - £100', value: '£50.00 - £100.00', count: priceCounts['£50.00 - £100.00'] },
+              { label: '£100 - £200', value: '£100.00 - £200.00', count: priceCounts['£100.00 - £200.00'] },
+              { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
+            ]);
+          } catch (brandError) {
+            console.error('Error loading brands:', brandError);
+            // Set empty array as fallback
+            setAvailableBrands([]);
+          }
+
+        // Set default sizes (will be updated when category is selected)
+        setAvailableSizes([
+          { label: 'XS', value: 'XS', count: 0 },
+          { label: 'S', value: 'S', count: 0 },
+          { label: 'M', value: 'M', count: 0 },
+          { label: 'L', value: 'L', count: 0 },
+          { label: 'XL', value: 'XL', count: 0 },
+          { label: 'XXL', value: 'XXL', count: 0 },
+        ]);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      }
+    };
+
+    loadInitialData();
   }, []);
 
   // Handle category parameter from navigation
@@ -71,7 +121,7 @@ export default function DiscoveryScreen() {
     }
   };
 
-  const loadProductsForCategory = async (category: Category, sortBy?: string, priceFilterOverride?: string, brandFilterOverride?: string) => {
+  const loadProductsForCategory = async (category: Category, sortBy?: string, filters?: AppliedFilters) => {
     try {
       setIsLoadingProducts(true);
       setProductsError(null);
@@ -92,17 +142,123 @@ export default function DiscoveryScreen() {
         }
       }
 
-      // Use overrides if provided, otherwise use current state
-      const priceFilter = priceFilterOverride !== undefined ? priceFilterOverride : currentPriceFilter;
-      const brandFilter = brandFilterOverride !== undefined ? brandFilterOverride : currentBrandFilter;
-
-      // Load available brands for this category
+      // Load available brands for this specific category (only brands with products in this category)
       const brands = await listingsService.getAvailableBrandsForCategory(category.id);
-      setAvailableBrands(brands.map(b => ({ label: b.name, value: b.id })));
+      setAvailableBrands(brands.map((b) => ({ label: b.name, value: b.id, count: b.count })));
+
+      // Load price range counts for this category
+      const priceCounts = await listingsService.getPriceRangeCounts(category.id);
+      setAvailablePrices([
+        { label: 'Under £50', value: 'Under £50.00', count: priceCounts['Under £50.00'] },
+        { label: '£50 - £100', value: '£50.00 - £100.00', count: priceCounts['£50.00 - £100.00'] },
+        { label: '£100 - £200', value: '£100.00 - £200.00', count: priceCounts['£100.00 - £200.00'] },
+        { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
+      ]);
+
+      // Load available sizes from attributes
+      // Find the deepest category level to get attributes
+      let attributesData = [];
+      if (categoryPath.length > 0) {
+        const currentCategory = categoryPath[categoryPath.length - 1];
+        // Try to get subcategory_id from the current category
+        const subcategoryId = currentCategory.id;
+
+        try {
+          attributesData = await attributesService.getAttributes(subcategoryId);
+
+          // Find size attribute
+          const sizeAttribute = attributesData.find(
+            (attr) =>
+              attr.name.toLowerCase() === 'size' ||
+              attr.name.toLowerCase() === 'sizes' ||
+              attr.name.toLowerCase().includes('size')
+          );
+
+          if (sizeAttribute && sizeAttribute.attribute_options) {
+            const sizeAttributeId = sizeAttribute.id;
+            setCurrentSizeAttributeId(sizeAttributeId);
+
+            // Get actual size counts from database
+            const sizeCounts = await listingsService.getSizeCounts(category.id, sizeAttributeId);
+
+            setAvailableSizes(
+              sizeAttribute.attribute_options
+                .filter((opt) => opt.is_active)
+                .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+                .map((opt) => ({
+                  label: opt.value,
+                  value: opt.id,
+                  count: sizeCounts.get(opt.id) || 0,
+                }))
+            );
+          } else {
+            setCurrentSizeAttributeId(undefined);
+            // Fallback to common sizes if no size attribute found
+            setAvailableSizes([
+              { label: 'XS', value: 'XS', count: 0 },
+              { label: 'S', value: 'S', count: 0 },
+              { label: 'M', value: 'M', count: 0 },
+              { label: 'L', value: 'L', count: 0 },
+              { label: 'XL', value: 'XL', count: 0 },
+              { label: 'XXL', value: 'XXL', count: 0 },
+            ]);
+          }
+        } catch (error) {
+          console.error('Error loading attributes for sizes:', error);
+          setCurrentSizeAttributeId(undefined);
+          // Fallback to common sizes
+          setAvailableSizes([
+            { label: 'XS', value: 'XS', count: 0 },
+            { label: 'S', value: 'S', count: 0 },
+            { label: 'M', value: 'M', count: 0 },
+            { label: 'L', value: 'L', count: 0 },
+            { label: 'XL', value: 'XL', count: 0 },
+            { label: 'XXL', value: 'XXL', count: 0 },
+          ]);
+        }
+      }
+
+      // Use filters if provided, otherwise use current state
+      const currentFilters = filters || appliedFilters;
+
+      // For now, use first selected filter for API compatibility
+      // TODO: Update API to support multiple filters
+      const priceFilter = currentFilters.priceRanges.length > 0 ? currentFilters.priceRanges[0] : 'All Prices';
+      const brandFilter = currentFilters.brands.length > 0 ? currentFilters.brands[0] : 'All Brands';
 
       // Query by category UUID against known id columns with filters
       const apiProducts = await listingsService.getListingsByCategory(category.id, sortOrder, priceFilter, brandFilter);
-      setProducts(apiProducts);
+
+      // Client-side filtering for multiple selections until API supports it
+      let filteredProducts = apiProducts;
+
+      if (currentFilters.priceRanges.length > 0) {
+        filteredProducts = filteredProducts.filter((product) => {
+          return currentFilters.priceRanges.some((range) => {
+            const price = product.starting_price || 0;
+            if (range === 'Under £50.00') return price < 50;
+            if (range === '£50.00 - £100.00') return price >= 50 && price <= 100;
+            if (range === '£100.00 - £200.00') return price >= 100 && price <= 200;
+            if (range === 'Over £200.00') return price > 200;
+            return true;
+          });
+        });
+      }
+
+      if (currentFilters.brands.length > 0) {
+        filteredProducts = filteredProducts.filter((product) => currentFilters.brands.includes(product.brand_id || ''));
+      }
+
+      // Apply size filtering if size attribute is available
+      if (currentFilters.sizes.length > 0 && currentSizeAttributeId) {
+        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
+          currentFilters.sizes,
+          currentSizeAttributeId
+        );
+        filteredProducts = filteredProducts.filter((product) => productIdsWithSizes.includes(product.id));
+      }
+
+      setProducts(filteredProducts);
     } catch (err) {
       console.error('Error loading products for category:', err);
       setProductsError('Failed to load products for this category');
@@ -136,21 +292,27 @@ export default function DiscoveryScreen() {
       setShowSearchResults(false);
       setSearchText('');
       setSearchResults([]);
-      setCurrentBrandFilter('All Brands');
+      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
       setAvailableBrands([]);
+      setAvailableSizes([]);
+      setCurrentSizeAttributeId(undefined);
       return;
     }
 
     if (categoryPath.length > 1) {
       setCategoryPath((prev) => prev.slice(0, -1));
       setCurrentView('subcategories');
-      setCurrentBrandFilter('All Brands');
+      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
       setAvailableBrands([]);
+      setAvailableSizes([]);
+      setCurrentSizeAttributeId(undefined);
     } else if (categoryPath.length === 1) {
       setCategoryPath([]);
       setCurrentView('categories');
-      setCurrentBrandFilter('All Brands');
+      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
       setAvailableBrands([]);
+      setAvailableSizes([]);
+      setCurrentSizeAttributeId(undefined);
     }
   };
 
@@ -171,12 +333,65 @@ export default function DiscoveryScreen() {
       setIsSearching(true);
       setShowSearchResults(true);
 
-      // Load available brands for search results
+      // Load available brands across all categories for search (only brands with products)
       const brands = await listingsService.getAvailableBrandsForCategory();
-      setAvailableBrands(brands.map(b => ({ label: b.name, value: b.id })));
+      setAvailableBrands(brands.map((b) => ({ label: b.name, value: b.id, count: b.count })));
 
-      const results = await listingsService.searchListings(searchText.trim(), currentPriceFilter, currentBrandFilter);
-      setSearchResults(results);
+      // Load price counts for search results
+      const priceCounts = await listingsService.getPriceRangeCounts();
+      setAvailablePrices([
+        { label: 'Under £50', value: 'Under £50.00', count: priceCounts['Under £50.00'] },
+        { label: '£50 - £100', value: '£50.00 - £100.00', count: priceCounts['£50.00 - £100.00'] },
+        { label: '£100 - £200', value: '£100.00 - £200.00', count: priceCounts['£100.00 - £200.00'] },
+        { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
+      ]);
+
+      // For search, use common sizes as we don't have category context
+      setAvailableSizes([
+        { label: 'XS', value: 'XS', count: 0 },
+        { label: 'S', value: 'S', count: 0 },
+        { label: 'M', value: 'M', count: 0 },
+        { label: 'L', value: 'L', count: 0 },
+        { label: 'XL', value: 'XL', count: 0 },
+        { label: 'XXL', value: 'XXL', count: 0 },
+      ]);
+
+      // For now, use first selected filter for API compatibility
+      const priceFilter = appliedFilters.priceRanges.length > 0 ? appliedFilters.priceRanges[0] : 'All Prices';
+      const brandFilter = appliedFilters.brands.length > 0 ? appliedFilters.brands[0] : 'All Brands';
+
+      const results = await listingsService.searchListings(searchText.trim(), priceFilter, brandFilter);
+
+      // Client-side filtering for multiple selections
+      let filteredResults = results;
+
+      if (appliedFilters.priceRanges.length > 0) {
+        filteredResults = filteredResults.filter((product) => {
+          return appliedFilters.priceRanges.some((range) => {
+            const price = product.starting_price || 0;
+            if (range === 'Under £50.00') return price < 50;
+            if (range === '£50.00 - £100.00') return price >= 50 && price <= 100;
+            if (range === '£100.00 - £200.00') return price >= 100 && price <= 200;
+            if (range === 'Over £200.00') return price > 200;
+            return true;
+          });
+        });
+      }
+
+      if (appliedFilters.brands.length > 0) {
+        filteredResults = filteredResults.filter((product) => appliedFilters.brands.includes(product.brand_id || ''));
+      }
+
+      // Apply size filtering for search results if size attribute is available
+      if (appliedFilters.sizes.length > 0 && currentSizeAttributeId) {
+        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
+          appliedFilters.sizes,
+          currentSizeAttributeId
+        );
+        filteredResults = filteredResults.filter((product) => productIdsWithSizes.includes(product.id));
+      }
+
+      setSearchResults(filteredResults);
     } catch (error) {
       console.error('Error searching products:', error);
       Alert.alert('Search Error', 'Failed to search products. Please try again.');
@@ -191,50 +406,61 @@ export default function DiscoveryScreen() {
     if (text.trim() === '') {
       setShowSearchResults(false);
       setSearchResults([]);
-      setCurrentBrandFilter('All Brands');
+      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
       setAvailableBrands([]);
+      setAvailableSizes([]);
+      setCurrentSizeAttributeId(undefined);
     }
   };
 
-  const handlePriceFilterChange = async (priceFilter: string) => {
-    setCurrentPriceFilter(priceFilter);
+  const handleFiltersApply = async (filters: AppliedFilters) => {
+    setAppliedFilters(filters);
 
-    // Reload products with new price filter if we're in products view
+    // Reload products with new filters if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
-      await loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy, priceFilter, currentBrandFilter);
+      await loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy, filters);
     }
 
     // Reload search results if we're showing search results
     if (showSearchResults && searchText.trim()) {
       try {
         setIsSearching(true);
-        const results = await listingsService.searchListings(searchText.trim(), priceFilter, currentBrandFilter);
-        setSearchResults(results);
+
+        // For now, use first selected filter for API compatibility
+        const priceFilter = filters.priceRanges.length > 0 ? filters.priceRanges[0] : 'All Prices';
+        const brandFilter = filters.brands.length > 0 ? filters.brands[0] : 'All Brands';
+
+        const results = await listingsService.searchListings(searchText.trim(), priceFilter, brandFilter);
+
+        // Client-side filtering for multiple selections
+        let filteredResults = results;
+
+        if (filters.priceRanges.length > 0) {
+          filteredResults = filteredResults.filter((product) => {
+            return filters.priceRanges.some((range) => {
+              const price = product.starting_price || 0;
+              if (range === 'Under £50.00') return price < 50;
+              if (range === '£50.00 - £100.00') return price >= 50 && price <= 100;
+              if (range === '£100.00 - £200.00') return price >= 100 && price <= 200;
+              if (range === 'Over £200.00') return price > 200;
+              return true;
+            });
+          });
+        }
+
+        if (filters.brands.length > 0) {
+          filteredResults = filteredResults.filter((product) => filters.brands.includes(product.brand_id || ''));
+        }
+
+        // Apply size filtering for applied filters if size attribute is available
+        if (filters.sizes.length > 0 && currentSizeAttributeId) {
+          const productIdsWithSizes = await listingsService.getProductIdsBySizes(filters.sizes, currentSizeAttributeId);
+          filteredResults = filteredResults.filter((product) => productIdsWithSizes.includes(product.id));
+        }
+
+        setSearchResults(filteredResults);
       } catch (error) {
-        console.error('Error searching with price filter:', error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    }
-  };
-
-  const handleBrandFilterChange = async (brandFilter: string) => {
-    setCurrentBrandFilter(brandFilter);
-
-    // Reload products with new brand filter if we're in products view
-    if (currentView === 'products' && categoryPath.length > 0) {
-      await loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy, currentPriceFilter, brandFilter);
-    }
-
-    // Reload search results if we're showing search results
-    if (showSearchResults && searchText.trim()) {
-      try {
-        setIsSearching(true);
-        const results = await listingsService.searchListings(searchText.trim(), currentPriceFilter, brandFilter);
-        setSearchResults(results);
-      } catch (error) {
-        console.error('Error searching with brand filter:', error);
+        console.error('Error searching with filters:', error);
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -247,8 +473,12 @@ export default function DiscoveryScreen() {
 
     // Reload products with new sort if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
-      loadProductsForCategory(categoryPath[categoryPath.length - 1], sortOption);
+      loadProductsForCategory(categoryPath[categoryPath.length - 1], sortOption, appliedFilters);
     }
+  };
+
+  const getTotalFilterCount = () => {
+    return appliedFilters.priceRanges.length + appliedFilters.brands.length + appliedFilters.sizes.length;
   };
 
   const handleProductPress = (productId: string) => {
@@ -316,13 +546,10 @@ export default function DiscoveryScreen() {
       return (
         <View className="flex-1">
           <FilterSortBar
-            priceFilter={currentPriceFilter}
+            filterCount={getTotalFilterCount()}
             sortBy={currentSortBy}
-            brandFilter={currentBrandFilter}
-            brandOptions={availableBrands}
-            onPriceFilterChange={handlePriceFilterChange}
+            onFilterPress={() => setShowFilterModal(true)}
             onSortChange={handleSortChange}
-            onBrandFilterChange={handleBrandFilterChange}
           />
           {isSearching ? (
             <View className="flex-1 justify-center items-center p-2 bg-gray-50">
@@ -419,13 +646,10 @@ export default function DiscoveryScreen() {
         return (
           <View className="flex-1">
             <FilterSortBar
-              priceFilter={currentPriceFilter}
+              filterCount={getTotalFilterCount()}
               sortBy={currentSortBy}
-              brandFilter={currentBrandFilter}
-              brandOptions={availableBrands}
-              onPriceFilterChange={handlePriceFilterChange}
+              onFilterPress={() => setShowFilterModal(true)}
               onSortChange={handleSortChange}
-              onBrandFilterChange={handleBrandFilterChange}
             />
             {isLoadingProducts ? (
               <View className="flex-1 justify-center items-center p-2 bg-gray-50">
@@ -474,6 +698,17 @@ export default function DiscoveryScreen() {
 
   return (
     <SafeAreaView className="flex-1 mb-50 bg-black">
+      {/* Filter Modal */}
+      <FilterModal
+        visible={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApply={handleFiltersApply}
+        priceOptions={availablePrices}
+        brandOptions={availableBrands}
+        sizeOptions={availableSizes}
+        initialFilters={appliedFilters}
+      />
+
       {/* Search Bar */}
       <SearchBar
         value={searchText}

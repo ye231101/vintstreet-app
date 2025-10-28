@@ -868,10 +868,10 @@ class ListingsService {
   }
 
   /**
-   * Get available brands for a specific category
+   * Get available brands for a specific category with product counts
    * @param categoryId - The category ID to get brands for
    */
-  async getAvailableBrandsForCategory(categoryId?: string): Promise<Array<{ id: string; name: string }>> {
+  async getAvailableBrandsForCategory(categoryId?: string): Promise<Array<{ id: string; name: string; count: number }>> {
     try {
       let query = supabase
         .from('listings')
@@ -893,11 +893,19 @@ class ListingsService {
         return [];
       }
 
-      // Extract unique brands
-      const brandsMap = new Map<string, { id: string; name: string }>();
+      // Extract unique brands and count products per brand
+      const brandsMap = new Map<string, { id: string; name: string; count: number }>();
       (data || []).forEach((item: any) => {
         if (item.brands && item.brands.id && item.brands.name) {
-          brandsMap.set(item.brands.id, { id: item.brands.id, name: item.brands.name });
+          const brandId = item.brands.id;
+          if (brandsMap.has(brandId)) {
+            // Increment count for existing brand
+            const existing = brandsMap.get(brandId)!;
+            existing.count += 1;
+          } else {
+            // Add new brand with count of 1
+            brandsMap.set(brandId, { id: item.brands.id, name: item.brands.name, count: 1 });
+          }
         }
       });
 
@@ -905,6 +913,202 @@ class ListingsService {
       return Array.from(brandsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
       console.error('Error fetching available brands:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get product counts by price range for a specific category
+   * @param categoryId - The category ID to get price counts for
+   */
+  async getPriceRangeCounts(categoryId?: string): Promise<{
+    'Under £50.00': number;
+    '£50.00 - £100.00': number;
+    '£100.00 - £200.00': number;
+    'Over £200.00': number;
+  }> {
+    try {
+      let query = supabase
+        .from('listings')
+        .select('starting_price')
+        .eq('product_type', 'shop')
+        .eq('status', 'published');
+
+      // If category is provided, filter by it
+      if (categoryId) {
+        query = query.or(`category_id.eq.${categoryId},subcategory_id.eq.${categoryId},sub_subcategory_id.eq.${categoryId},sub_sub_subcategory_id.eq.${categoryId}`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching price range counts:', error);
+        return {
+          'Under £50.00': 0,
+          '£50.00 - £100.00': 0,
+          '£100.00 - £200.00': 0,
+          'Over £200.00': 0,
+        };
+      }
+
+      // Count products in each price range
+      const counts = {
+        'Under £50.00': 0,
+        '£50.00 - £100.00': 0,
+        '£100.00 - £200.00': 0,
+        'Over £200.00': 0,
+      };
+
+      (data || []).forEach((item: any) => {
+        const price = item.starting_price || 0;
+        if (price < 50) {
+          counts['Under £50.00'] += 1;
+        } else if (price >= 50 && price <= 100) {
+          counts['£50.00 - £100.00'] += 1;
+        } else if (price >= 100 && price <= 200) {
+          counts['£100.00 - £200.00'] += 1;
+        } else if (price > 200) {
+          counts['Over £200.00'] += 1;
+        }
+      });
+
+      return counts;
+    } catch (error) {
+      console.error('Error fetching price range counts:', error);
+      return {
+        'Under £50.00': 0,
+        '£50.00 - £100.00': 0,
+        '£100.00 - £200.00': 0,
+        'Over £200.00': 0,
+      };
+    }
+  }
+
+  /**
+   * Get product counts by size for a specific category
+   * @param categoryId - The category ID to get size counts for
+   * @param sizeAttributeId - The attribute ID for sizes
+   */
+  async getSizeCounts(categoryId?: string, sizeAttributeId?: string): Promise<Map<string, number>> {
+    try {
+      if (!sizeAttributeId) {
+        return new Map<string, number>();
+      }
+
+      // First, get all product IDs in this category
+      let productsQuery = supabase
+        .from('listings')
+        .select('id')
+        .eq('product_type', 'shop')
+        .eq('status', 'published');
+
+      if (categoryId) {
+        productsQuery = productsQuery.or(
+          `category_id.eq.${categoryId},subcategory_id.eq.${categoryId},sub_subcategory_id.eq.${categoryId},sub_sub_subcategory_id.eq.${categoryId}`
+        );
+      }
+
+      const { data: products, error: productsError } = await productsQuery;
+
+      if (productsError || !products || products.length === 0) {
+        return new Map<string, number>();
+      }
+
+      const productIds = products.map((p: any) => p.id);
+
+      // Query product_attribute_values for size attribute
+      const { data: attributeValues, error: attributeError } = await supabase
+        .from('product_attribute_values')
+        .select('value_text')
+        .eq('attribute_id', sizeAttributeId)
+        .in('product_id', productIds);
+
+      if (attributeError) {
+        console.error('Error fetching attribute values:', attributeError);
+        return new Map<string, number>();
+      }
+
+      // Count occurrences of each size
+      const sizeCounts = new Map<string, number>();
+
+      (attributeValues || []).forEach((item: any) => {
+        // Handle multi-select values (stored as JSON array in value_text)
+        if (item.value_text) {
+          try {
+            const parsed = JSON.parse(item.value_text);
+            if (Array.isArray(parsed)) {
+              // Multi-select: each value is a size option ID
+              parsed.forEach((optionId: string) => {
+                sizeCounts.set(optionId, (sizeCounts.get(optionId) || 0) + 1);
+              });
+            } else {
+              // Single value (option ID)
+              sizeCounts.set(item.value_text, (sizeCounts.get(item.value_text) || 0) + 1);
+            }
+          } catch {
+            // If not JSON, treat as single value (option ID)
+            sizeCounts.set(item.value_text, (sizeCounts.get(item.value_text) || 0) + 1);
+          }
+        }
+      });
+
+      return sizeCounts;
+    } catch (error) {
+      console.error('Error fetching size counts:', error);
+      return new Map<string, number>();
+    }
+  }
+
+  /**
+   * Get product IDs that have specific size values
+   * @param sizeOptionIds - Array of size option IDs to filter by
+   * @param sizeAttributeId - The attribute ID for sizes
+   */
+  async getProductIdsBySizes(sizeOptionIds: string[], sizeAttributeId: string): Promise<string[]> {
+    try {
+      if (!sizeOptionIds || sizeOptionIds.length === 0 || !sizeAttributeId) {
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .from('product_attribute_values')
+        .select('product_id, value_text')
+        .eq('attribute_id', sizeAttributeId);
+
+      if (error) {
+        console.error('Error fetching products by sizes:', error);
+        return [];
+      }
+
+      const productIds = new Set<string>();
+
+      (data || []).forEach((item: any) => {
+        if (item.value_text) {
+          try {
+            const parsed = JSON.parse(item.value_text);
+            if (Array.isArray(parsed)) {
+              // Multi-select: check if any selected size matches
+              if (parsed.some((v: string) => sizeOptionIds.includes(v))) {
+                productIds.add(item.product_id);
+              }
+            } else {
+              // Single value
+              if (sizeOptionIds.includes(item.value_text)) {
+                productIds.add(item.product_id);
+              }
+            }
+          } catch {
+            // If not JSON, treat as single value
+            if (sizeOptionIds.includes(item.value_text)) {
+              productIds.add(item.product_id);
+            }
+          }
+        }
+      });
+
+      return Array.from(productIds);
+    } catch (error) {
+      console.error('Error getting products by sizes:', error);
       return [];
     }
   }
