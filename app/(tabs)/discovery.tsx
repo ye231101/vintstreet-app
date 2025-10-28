@@ -34,6 +34,8 @@ export default function DiscoveryScreen() {
   // Filter and sort state
   const [currentSortBy, setCurrentSortBy] = useState('Most Relevant');
   const [currentPriceFilter, setCurrentPriceFilter] = useState('All Prices');
+  const [currentBrandFilter, setCurrentBrandFilter] = useState('All Brands');
+  const [availableBrands, setAvailableBrands] = useState<Array<{ label: string; value: string }>>([]);
 
   // Load categories on component mount
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function DiscoveryScreen() {
     }
   };
 
-  const loadProductsForCategory = async (category: Category, sortBy?: string, priceFilterOverride?: string) => {
+  const loadProductsForCategory = async (category: Category, sortBy?: string, priceFilterOverride?: string, brandFilterOverride?: string) => {
     try {
       setIsLoadingProducts(true);
       setProductsError(null);
@@ -90,11 +92,16 @@ export default function DiscoveryScreen() {
         }
       }
 
-      // Use override if provided, otherwise use current state
+      // Use overrides if provided, otherwise use current state
       const priceFilter = priceFilterOverride !== undefined ? priceFilterOverride : currentPriceFilter;
+      const brandFilter = brandFilterOverride !== undefined ? brandFilterOverride : currentBrandFilter;
 
-      // Query by category UUID against known id columns with price filter
-      const apiProducts = await listingsService.getListingsByCategory(category.id, sortOrder, priceFilter);
+      // Load available brands for this category
+      const brands = await listingsService.getAvailableBrandsForCategory(category.id);
+      setAvailableBrands(brands.map(b => ({ label: b.name, value: b.id })));
+
+      // Query by category UUID against known id columns with filters
+      const apiProducts = await listingsService.getListingsByCategory(category.id, sortOrder, priceFilter, brandFilter);
       setProducts(apiProducts);
     } catch (err) {
       console.error('Error loading products for category:', err);
@@ -129,15 +136,21 @@ export default function DiscoveryScreen() {
       setShowSearchResults(false);
       setSearchText('');
       setSearchResults([]);
+      setCurrentBrandFilter('All Brands');
+      setAvailableBrands([]);
       return;
     }
 
     if (categoryPath.length > 1) {
       setCategoryPath((prev) => prev.slice(0, -1));
       setCurrentView('subcategories');
+      setCurrentBrandFilter('All Brands');
+      setAvailableBrands([]);
     } else if (categoryPath.length === 1) {
       setCategoryPath([]);
       setCurrentView('categories');
+      setCurrentBrandFilter('All Brands');
+      setAvailableBrands([]);
     }
   };
 
@@ -158,7 +171,11 @@ export default function DiscoveryScreen() {
       setIsSearching(true);
       setShowSearchResults(true);
 
-      const results = await listingsService.searchListings(searchText.trim(), currentPriceFilter);
+      // Load available brands for search results
+      const brands = await listingsService.getAvailableBrandsForCategory();
+      setAvailableBrands(brands.map(b => ({ label: b.name, value: b.id })));
+
+      const results = await listingsService.searchListings(searchText.trim(), currentPriceFilter, currentBrandFilter);
       setSearchResults(results);
     } catch (error) {
       console.error('Error searching products:', error);
@@ -174,6 +191,8 @@ export default function DiscoveryScreen() {
     if (text.trim() === '') {
       setShowSearchResults(false);
       setSearchResults([]);
+      setCurrentBrandFilter('All Brands');
+      setAvailableBrands([]);
     }
   };
 
@@ -182,17 +201,40 @@ export default function DiscoveryScreen() {
 
     // Reload products with new price filter if we're in products view
     if (currentView === 'products' && categoryPath.length > 0) {
-      await loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy, priceFilter);
+      await loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy, priceFilter, currentBrandFilter);
     }
 
     // Reload search results if we're showing search results
     if (showSearchResults && searchText.trim()) {
       try {
         setIsSearching(true);
-        const results = await listingsService.searchListings(searchText.trim(), priceFilter);
+        const results = await listingsService.searchListings(searchText.trim(), priceFilter, currentBrandFilter);
         setSearchResults(results);
       } catch (error) {
         console.error('Error searching with price filter:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
+
+  const handleBrandFilterChange = async (brandFilter: string) => {
+    setCurrentBrandFilter(brandFilter);
+
+    // Reload products with new brand filter if we're in products view
+    if (currentView === 'products' && categoryPath.length > 0) {
+      await loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy, currentPriceFilter, brandFilter);
+    }
+
+    // Reload search results if we're showing search results
+    if (showSearchResults && searchText.trim()) {
+      try {
+        setIsSearching(true);
+        const results = await listingsService.searchListings(searchText.trim(), currentPriceFilter, brandFilter);
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Error searching with brand filter:', error);
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -276,8 +318,11 @@ export default function DiscoveryScreen() {
           <FilterSortBar
             priceFilter={currentPriceFilter}
             sortBy={currentSortBy}
+            brandFilter={currentBrandFilter}
+            brandOptions={availableBrands}
             onPriceFilterChange={handlePriceFilterChange}
             onSortChange={handleSortChange}
+            onBrandFilterChange={handleBrandFilterChange}
           />
           {isSearching ? (
             <View className="flex-1 justify-center items-center p-2 bg-gray-50">
@@ -376,8 +421,11 @@ export default function DiscoveryScreen() {
             <FilterSortBar
               priceFilter={currentPriceFilter}
               sortBy={currentSortBy}
+              brandFilter={currentBrandFilter}
+              brandOptions={availableBrands}
               onPriceFilterChange={handlePriceFilterChange}
               onSortChange={handleSortChange}
+              onBrandFilterChange={handleBrandFilterChange}
             />
             {isLoadingProducts ? (
               <View className="flex-1 justify-center items-center p-2 bg-gray-50">
