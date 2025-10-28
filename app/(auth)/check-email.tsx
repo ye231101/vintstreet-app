@@ -124,7 +124,7 @@ export default function CheckEmailScreen() {
           <View className="gap-4 w-full max-w-lg">
             {/* Logo */}
             <View className="items-center">
-              <Image source={require('@/assets/images/splash-icon.png')} resizeMode="contain" className="w-40 h-40" />
+              <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
               <Text className="mt-4 text-2xl font-inter-bold text-center">Verify Your Email</Text>
               <Text className="mt-2 text-base font-inter-semibold text-gray-500 text-center">
                 We've sent a confirmation link to
