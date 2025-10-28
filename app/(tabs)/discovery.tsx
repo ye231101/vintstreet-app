@@ -1,6 +1,4 @@
-import { attributesService, categoriesService, listingsService } from '@/api/services';
-import { Product } from '@/api/services/listings.service';
-import { Category } from '@/api/types/category.types';
+import { attributesService, categoriesService, Category, listingsService, Product } from '@/api';
 import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-modal';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';

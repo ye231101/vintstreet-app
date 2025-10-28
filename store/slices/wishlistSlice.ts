@@ -1,5 +1,4 @@
-import { Product } from '@/api/services/listings.service';
-import { wishlistService } from '@/api/services/wishlist.service';
+import { Product, wishlistService } from '@/api';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 

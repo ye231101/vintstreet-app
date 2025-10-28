@@ -1,48 +1,5 @@
 import { supabase } from '../config/supabase';
-
-export interface ReviewReply {
-  id: string;
-  review_id: string;
-  seller_id: string;
-  reply_text: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Review {
-  id: string;
-  buyer_id: string;
-  customerName: string;
-  customerAvatar?: string;
-  rating: number;
-  comment: string;
-  productName: string;
-  productImage?: string;
-  dateCreated: string;
-  isVerified: boolean;
-  replies?: ReviewReply[];
-}
-
-export interface ApiReview {
-  id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  buyer_id: string;
-  buyer_profile?: {
-    user_id: string;
-    full_name?: string;
-    username?: string;
-    avatar_url?: string | null;
-  };
-  review_replies?: ReviewReply[];
-}
-
-export interface ReviewStats {
-  averageRating: number;
-  totalReviews: number;
-  totalSales: number;
-}
+import { Review, ReviewReply, ReviewResponse, ReviewStats } from '../types';
 
 class ReviewsService {
   /**
@@ -103,7 +60,7 @@ class ReviewsService {
       }));
 
       // Transform API data to match the UI interface
-      return this.transformReviewsData((reviewsWithProfiles as unknown as ApiReview[]) || []);
+      return this.transformReviewsData((reviewsWithProfiles as unknown as ReviewResponse[]) || []);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       throw error;
@@ -206,7 +163,7 @@ class ReviewsService {
         review_replies: repliesMap.get(review.id) || [],
       }));
 
-      return this.transformReviewsData((reviewsWithProfiles as unknown as ApiReview[]) || []);
+      return this.transformReviewsData((reviewsWithProfiles as unknown as ReviewResponse[]) || []);
     } catch (error) {
       console.error('Error fetching sorted reviews:', error);
       throw error;
@@ -217,7 +174,7 @@ class ReviewsService {
    * Transform API data to match UI interface
    * @param apiReviews - Raw reviews data from API
    */
-  private transformReviewsData(apiReviews: ApiReview[]): Review[] {
+  private transformReviewsData(apiReviews: ReviewResponse[]): Review[] {
     return apiReviews.map((apiReview) => {
       const profile = apiReview.buyer_profile;
       // Prioritize username, then full_name, then fallback to customer ID

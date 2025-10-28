@@ -1,4 +1,4 @@
-import { Offer, offersService } from '@/api/services/offers.service';
+import { Offer, offersService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';

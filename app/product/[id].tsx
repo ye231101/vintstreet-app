@@ -1,5 +1,5 @@
+import { listingsService, Product } from '@/api';
 import { supabase } from '@/api/config/supabase';
-import { listingsService, Product } from '@/api/services/listings.service';
 import { ContactModal } from '@/components/contact-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';

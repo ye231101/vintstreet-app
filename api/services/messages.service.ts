@@ -1,33 +1,5 @@
 import { supabase } from '../config/supabase';
-
-export interface Conversation {
-  id: string;
-  subject: string;
-  other_user_id: string;
-  other_user_name: string;
-  last_message: string;
-  last_message_time: string;
-  unread_count: number;
-  messages: ApiMessage[];
-}
-
-export interface ApiMessage {
-  id: string;
-  sender_id: string;
-  recipient_id: string;
-  subject: string;
-  message: string;
-  order_id?: string;
-  listing_id?: string;
-  parent_message_id?: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  is_flagged?: boolean;
-  reported_by?: string;
-  reported_at?: string;
-  report_reason?: string;
-}
+import { Conversation, Message } from '../types';
 
 class MessagesService {
   /**
@@ -50,7 +22,7 @@ class MessagesService {
       // Group messages by thread (same subject and participants)
       const threadMap = new Map<string, Conversation>();
 
-      for (const msg of (data as unknown as ApiMessage[]) || []) {
+      for (const msg of (data as unknown as Message[]) || []) {
         const otherUserId = msg.sender_id === userId ? msg.recipient_id : msg.sender_id;
         const threadKey = `${msg.subject}-${otherUserId}`;
 
@@ -125,7 +97,7 @@ class MessagesService {
       // Group messages by thread (same subject and sender)
       const threadMap = new Map<string, Conversation>();
 
-      for (const msg of (data as unknown as ApiMessage[]) || []) {
+      for (const msg of (data as unknown as Message[]) || []) {
         const senderId = msg.sender_id;
         const threadKey = `${msg.subject}-${senderId}`;
 
@@ -184,7 +156,7 @@ class MessagesService {
    * @param conversationId - The conversation ID
    * @param userId - The current user ID
    */
-  async getMessages(conversationId: string, userId: string): Promise<ApiMessage[]> {
+  async getMessages(conversationId: string, userId: string): Promise<Message[]> {
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -197,7 +169,7 @@ class MessagesService {
         throw new Error(`Failed to fetch messages: ${error.message}`);
       }
 
-      return (data as unknown as ApiMessage[]) || [];
+      return (data as unknown as Message[]) || [];
     } catch (error) {
       console.error('Error fetching messages:', error);
       throw error;

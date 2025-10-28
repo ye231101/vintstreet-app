@@ -24,7 +24,7 @@ interface DropdownProps {
   error?: string;
 }
 
-const DropdownComponent: React.FC<DropdownProps> = ({
+export const DropdownComponent: React.FC<DropdownProps> = ({
   data,
   value,
   required = false,
@@ -96,5 +96,3 @@ const DropdownComponent: React.FC<DropdownProps> = ({
     </View>
   );
 };
-
-export default DropdownComponent;

@@ -1,38 +1,5 @@
 import { supabase } from '../config/supabase';
-
-export interface Stream {
-  id: string;
-  title: string;
-  description: string;
-  seller_id: string;
-  status: 'scheduled' | 'live' | 'ended' | 'cancelled';
-  viewer_count?: number;
-  start_time: string;
-  end_time?: string;
-  category: string;
-  thumbnail?: string;
-  duration?: number;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface CreateStreamData {
-  title: string;
-  description: string;
-  start_time: string;
-  category: string;
-  thumbnail?: string;
-}
-
-export interface UpdateStreamData {
-  title?: string;
-  description?: string;
-  start_time?: string;
-  category?: string;
-  thumbnail?: string;
-  status?: Stream['status'];
-  end_time?: string;
-}
+import { CreateStreamData, Stream, UpdateStreamData } from '../types';
 
 class StreamsService {
   /**
@@ -59,11 +26,7 @@ class StreamsService {
    */
   async getStream(streamId: string): Promise<Stream | null> {
     try {
-      const { data, error } = await supabase
-        .from('streams')
-        .select('*')
-        .eq('id', streamId)
-        .single();
+      const { data, error } = await supabase.from('streams').select('*').eq('id', streamId).single();
 
       if (error) throw error;
       return data as unknown as unknown as Stream | null;
@@ -213,10 +176,7 @@ class StreamsService {
    */
   async deleteStream(streamId: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('streams')
-        .delete()
-        .eq('id', streamId);
+      const { error } = await supabase.from('streams').delete().eq('id', streamId);
 
       if (error) throw error;
     } catch (error) {
@@ -241,7 +201,7 @@ class StreamsService {
       const { error: updateError } = await supabase
         .from('streams')
         .update({
-          viewer_count: ((stream as unknown as Stream)?.viewer_count as number || 0) + 1,
+          viewer_count: (((stream as unknown as Stream)?.viewer_count as number) || 0) + 1,
         })
         .eq('id', streamId);
 
@@ -268,7 +228,7 @@ class StreamsService {
       const { error: updateError } = await supabase
         .from('streams')
         .update({
-          viewer_count: Math.max(((stream as unknown as Stream)?.viewer_count as number || 0) - 1, 0),
+          viewer_count: Math.max((((stream as unknown as Stream)?.viewer_count as number) || 0) - 1, 0),
         })
         .eq('id', streamId);
 
@@ -300,4 +260,3 @@ class StreamsService {
 }
 
 export const streamsService = new StreamsService();
-

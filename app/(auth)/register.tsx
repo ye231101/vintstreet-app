@@ -1,5 +1,4 @@
-import DropdownComponent from '@/components/common/dropdown';
-import InputComponent from '@/components/common/input';
+import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -60,26 +59,6 @@ export default function RegisterScreen() {
     return undefined;
   };
 
-  const validateEmailUniqueness = async (email: string): Promise<string | undefined> => {
-    if (!email) return 'Email is required';
-
-    try {
-      // Import authService dynamically to avoid circular dependencies
-      const { authService } = await import('@/api/services/auth.service');
-      const emailExists = await authService.checkEmailExists(email);
-
-      if (emailExists) {
-        return 'An account with this email already exists.';
-      }
-
-      return undefined;
-    } catch (error) {
-      // If there's an error checking email uniqueness, don't block the form
-      // The server-side validation will catch it
-      return undefined;
-    }
-  };
-
   const validatePassword = (password: string): string | undefined => {
     if (!password) return 'Password is required';
     if (password.length < 6) return 'Password must be at least 6 characters';
@@ -107,14 +86,6 @@ export default function RegisterScreen() {
     newErrors.password = validatePassword(formData.password);
     newErrors.confirmPassword = validateConfirmPassword(formData.confirmPassword);
 
-    // Check email uniqueness if email is valid
-    // if (!newErrors.email && formData.email) {
-    //   const emailUniquenessError = await validateEmailUniqueness(formData.email);
-    //   if (emailUniquenessError) {
-    //     newErrors.email = emailUniquenessError;
-    //   }
-    // }
-
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== undefined);
   };
@@ -129,13 +100,12 @@ export default function RegisterScreen() {
         formData.password
       );
 
-      // If registration requires email verification, navigate to check-email screen
       if (result?.requiresVerification) {
         router.replace({
           pathname: '/(auth)/check-email',
           params: {
             email: formData.email,
-            password: formData.password, // Pass password so we can auto-login after confirmation
+            password: formData.password,
           },
         });
       } else if (error) {
@@ -146,7 +116,6 @@ export default function RegisterScreen() {
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -154,7 +123,6 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
       <View className="flex-row items-center p-6">
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Feather name="arrow-left" size={24} color="black" />
@@ -244,7 +212,7 @@ export default function RegisterScreen() {
               disabled={loading}
               className={`items-center justify-center h-14 rounded-lg ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="font-inter-semibold text-white text-base">
+              <Text className="text-base font-inter-semibold text-white">
                 {loading ? <ActivityIndicator size="small" color="white" /> : 'Create Account'}
               </Text>
             </Pressable>
@@ -252,7 +220,7 @@ export default function RegisterScreen() {
             <View className="flex-row justify-center items-center">
               <Text className="font-inter">Already have an account? </Text>
               <Pressable onPress={() => router.back()}>
-                <Text className="font-inter-semibold text-gray-800 font-medium">Login</Text>
+                <Text className="font-inter-bold text-gray-800">Login</Text>
               </Pressable>
             </View>
           </View>

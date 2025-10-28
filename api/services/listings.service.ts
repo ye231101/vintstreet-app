@@ -1,56 +1,5 @@
 import { supabase } from '../config/supabase';
-
-export interface Product {
-  id: string;
-  product_name: string;
-  starting_price: number;
-  discounted_price: number | null;
-  product_image: string | null;
-  product_images: string[];
-  product_description: string | null;
-  seller_id: string;
-  category_id: string | null;
-  subcategory_id: string | null;
-  sub_subcategory_id: string | null;
-  sub_sub_subcategory_id: string | null;
-  brand_id: string | null;
-  stock_quantity: number | null;
-  status: 'draft' | 'published' | 'private';
-  created_at: string;
-  product_categories: {
-    id: string;
-    name: string;
-  } | null;
-  product_subcategories?: {
-    id: string;
-    name: string;
-  } | null;
-  product_sub_subcategories?: {
-    id: string;
-    name: string;
-  } | null;
-  product_sub_sub_subcategories?: {
-    id: string;
-    name: string;
-  } | null;
-  brands?: {
-    id: string;
-    name: string;
-  } | null;
-  seller_info_view: {
-    shop_name: string;
-    display_name_format?: string;
-    full_name: string;
-    username: string;
-    avatar_url: string | null;
-  } | null;
-}
-
-export interface InfiniteQueryResult {
-  products: Product[];
-  nextPage: number | undefined;
-  total?: number;
-}
+import { InfiniteQueryResult, Product } from '../types';
 
 export interface ListingsFilters {
   searchKeyword?: string;
@@ -72,7 +21,7 @@ class ListingsService {
   async getListingsInfinite(
     pageParam: number = 0,
     pageSize: number = 20,
-    filters: ListingsFilters = {},
+    filters: ListingsFilters = {}
   ): Promise<InfiniteQueryResult> {
     try {
       // Build the count query with the same filters
@@ -84,7 +33,9 @@ class ListingsService {
 
       // Apply search filter to count query
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
-        countQuery = countQuery.or(`product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`);
+        countQuery = countQuery.or(
+          `product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`
+        );
       }
 
       // Apply server-side filters to count query
@@ -136,7 +87,9 @@ class ListingsService {
 
       // Apply search filter
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
-        query = query.or(`product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`);
+        query = query.or(
+          `product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`
+        );
       }
 
       // Apply server-side filters
@@ -241,7 +194,12 @@ class ListingsService {
    * Get listings filtered by category using either slug or id columns.
    * This method tries multiple possible foreign key columns and skips missing-column errors.
    */
-  async getListingsByCategory(categoryId: string, sort?: string, priceFilter?: string, brandFilter?: string): Promise<Product[]> {
+  async getListingsByCategory(
+    categoryId: string,
+    sort?: string,
+    priceFilter?: string,
+    brandFilter?: string
+  ): Promise<Product[]> {
     const tryQuery = async (column: string, value: string | number) => {
       try {
         let query = (supabase as any)
@@ -871,7 +829,9 @@ class ListingsService {
    * Get available brands for a specific category with product counts
    * @param categoryId - The category ID to get brands for
    */
-  async getAvailableBrandsForCategory(categoryId?: string): Promise<Array<{ id: string; name: string; count: number }>> {
+  async getAvailableBrandsForCategory(
+    categoryId?: string
+  ): Promise<Array<{ id: string; name: string; count: number }>> {
     try {
       let query = supabase
         .from('listings')
@@ -883,7 +843,9 @@ class ListingsService {
       // If category is provided, filter by it
       if (categoryId) {
         // Try to match against all category level columns
-        query = query.or(`category_id.eq.${categoryId},subcategory_id.eq.${categoryId},sub_subcategory_id.eq.${categoryId},sub_sub_subcategory_id.eq.${categoryId}`);
+        query = query.or(
+          `category_id.eq.${categoryId},subcategory_id.eq.${categoryId},sub_subcategory_id.eq.${categoryId},sub_sub_subcategory_id.eq.${categoryId}`
+        );
       }
 
       const { data, error } = await query;
@@ -936,7 +898,9 @@ class ListingsService {
 
       // If category is provided, filter by it
       if (categoryId) {
-        query = query.or(`category_id.eq.${categoryId},subcategory_id.eq.${categoryId},sub_subcategory_id.eq.${categoryId},sub_sub_subcategory_id.eq.${categoryId}`);
+        query = query.or(
+          `category_id.eq.${categoryId},subcategory_id.eq.${categoryId},sub_subcategory_id.eq.${categoryId},sub_sub_subcategory_id.eq.${categoryId}`
+        );
       }
 
       const { data, error } = await query;
@@ -996,11 +960,7 @@ class ListingsService {
       }
 
       // First, get all product IDs in this category
-      let productsQuery = supabase
-        .from('listings')
-        .select('id')
-        .eq('product_type', 'shop')
-        .eq('status', 'published');
+      let productsQuery = supabase.from('listings').select('id').eq('product_type', 'shop').eq('status', 'published');
 
       if (categoryId) {
         productsQuery = productsQuery.or(

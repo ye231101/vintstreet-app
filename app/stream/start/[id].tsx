@@ -1,4 +1,4 @@
-import { Stream, streamsService } from '@/api/services/streams.service';
+import { Stream, streamsService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';

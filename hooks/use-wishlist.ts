@@ -1,4 +1,4 @@
-import { Product } from '@/api/services/listings.service';
+import { Product } from '@/api';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   addToWishlistAsync,

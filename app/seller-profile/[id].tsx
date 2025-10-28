@@ -1,6 +1,5 @@
+import { listingsService, Product, Review, reviewsService, ReviewStats, Stream } from '@/api';
 import { supabase } from '@/api/config/supabase';
-import { listingsService, Product } from '@/api/services/listings.service';
-import { Review, reviewsService, ReviewStats } from '@/api/services/reviews.service';
 import { ContactModal } from '@/components/contact-modal';
 import { useAppSelector } from '@/store/hooks';
 import { showInfoToast, showWarningToast } from '@/utils/toast';
@@ -20,17 +19,6 @@ interface SellerProfile {
   location?: string;
   joined_date?: string;
   display_name_format?: string;
-}
-
-interface Stream {
-  id: string;
-  title: string;
-  description?: string;
-  status: 'live' | 'scheduled' | 'ended';
-  start_time: string;
-  scheduled_start_time?: string;
-  thumbnail_url?: string;
-  category?: string;
 }
 
 export default function SellerProfileScreen() {
@@ -86,7 +74,7 @@ export default function SellerProfileScreen() {
         .select('*')
         .eq('seller_id', sellerId)
         .eq('status', 'scheduled')
-        .order('scheduled_start_time', { ascending: true });
+        .order('start_time', { ascending: true });
 
       if (!streamsError && streams) {
         setUpcomingShows(streams as unknown as Stream[]);
@@ -431,9 +419,9 @@ export default function SellerProfileScreen() {
                     className="bg-white p-4 rounded-lg border border-gray-200 mb-3"
                     onPress={() => router.push(`/stream/${show.id}` as any)}
                   >
-                    {show.thumbnail_url && (
+                    {show.thumbnail && (
                       <Image
-                        source={{ uri: show.thumbnail_url }}
+                        source={{ uri: show.thumbnail }}
                         className="w-full h-40 rounded-lg mb-3"
                         resizeMode="cover"
                       />
@@ -447,7 +435,7 @@ export default function SellerProfileScreen() {
                     <View className="flex-row items-center">
                       <Feather name="calendar" size={14} color="#666" />
                       <Text className="text-xs font-inter-semibold text-gray-500 ml-1">
-                        {new Date(show.scheduled_start_time || show.start_time).toLocaleDateString('en-US', {
+                        {new Date(show.start_time).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric',

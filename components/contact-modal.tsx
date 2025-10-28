@@ -1,6 +1,5 @@
-import { messagesService } from '@/api';
-import { Product } from '@/api/services/listings.service';
-import { Order } from '@/api/services/orders.service';
+import { messagesService, Order, Product } from '@/api';
+import { DropdownComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -17,7 +16,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DropdownComponent from './common/dropdown';
 
 interface ContactModalProps {
   visible: boolean;

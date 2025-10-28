@@ -1,4 +1,4 @@
-import { sellerService } from '@/api/services';
+import { DashboardReports, sellerService, SellerSettings } from '@/api';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather, FontAwesome } from '@expo/vector-icons';
@@ -7,37 +7,11 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-interface ReportsData {
-  summary: {
-    totalSales: number;
-    formattedTotalSales: string;
-    totalOrders: number;
-    pageviews: number;
-    sellerBalance: number;
-    formattedSellerBalance: string;
-    processingOrders: number;
-    completedOrders: number;
-    onHoldOrders: number;
-    pendingOrders: number;
-    cancelledOrders: number;
-    refundedOrders: number;
-  };
-}
-
-interface SellerSettings {
-  storeName: string;
-  fullName: string;
-  rating: {
-    rating: number;
-    count: number;
-  };
-}
-
 export default function DashboardScreen() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [reportsData, setReportsData] = useState<ReportsData | null>(null);
+  const [reportsData, setReportsData] = useState<DashboardReports | null>(null);
   const [sellerSettings, setSellerSettings] = useState<SellerSettings | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState('week');
   const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);

@@ -1,4 +1,4 @@
-import { Order, ordersService } from '@/api/services/orders.service';
+import { Order, ordersService } from '@/api';
 import { ContactModal } from '@/components/contact-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';

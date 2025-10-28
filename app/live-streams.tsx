@@ -1,4 +1,4 @@
-import { Stream, streamsService } from '@/api/services/streams.service';
+import { Stream, streamsService } from '@/api';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';

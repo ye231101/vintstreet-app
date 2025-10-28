@@ -1,6 +1,5 @@
-import { storageService } from '@/api/services/storage.service';
-import { CreateStreamData, streamsService } from '@/api/services/streams.service';
-import DropdownComponent from '@/components/common/dropdown';
+import { CreateStreamData, storageService, streamsService } from '@/api';
+import { DropdownComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';

@@ -1,5 +1,4 @@
-import { CartItem } from '@/api/services/cart.service';
-import { ShippingOption, shippingService } from '@/api/services/shipping.service';
+import { CartItem, ShippingOption, shippingService } from '@/api';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';

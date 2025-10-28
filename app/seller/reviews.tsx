@@ -1,4 +1,4 @@
-import { Review, reviewsService } from '@/api/services/reviews.service';
+import { Review, reviewsService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';

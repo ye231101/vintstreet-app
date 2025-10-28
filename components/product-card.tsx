@@ -1,4 +1,4 @@
-import { Product } from '@/api/services/listings.service';
+import { Product } from '@/api';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash } from '@/utils';

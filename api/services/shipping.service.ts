@@ -1,35 +1,5 @@
 import { supabase } from '../config/supabase';
-
-export interface ShippingAddress {
-  return_city: string;
-  return_postal_code: string;
-  return_country: string;
-}
-
-export interface ShippingProvider {
-  id: string;
-  name: string;
-  description: string;
-  is_active: boolean;
-  display_order: number;
-}
-
-export interface ShippingOption {
-  id: string;
-  seller_id: string;
-  provider_id: string;
-  name: string;
-  price: number;
-  estimated_days_min: number;
-  estimated_days_max: number;
-  is_active: boolean;
-}
-
-export interface SellerShippingOptions {
-  provider_id: string;
-  estimated_days_min: number;
-  estimated_days_max: number;
-}
+import { SellerShippingOptions, ShippingAddress, ShippingOption, ShippingProvider } from '../types';
 
 class ShippingService {
   /**
@@ -120,16 +90,13 @@ class ShippingService {
   ): Promise<void> {
     try {
       // First, delete all existing shipping options for this seller
-      const { error: deleteError } = await supabase
-        .from('shipping_options')
-        .delete()
-        .eq('seller_id', userId);
+      const { error: deleteError } = await supabase.from('shipping_options').delete().eq('seller_id', userId);
 
       if (deleteError) throw deleteError;
 
       // Then insert new options for each selected provider
-      const optionsToInsert = providerIds.map(providerId => {
-        const provider = providers.find(p => p.id === providerId);
+      const optionsToInsert = providerIds.map((providerId) => {
+        const provider = providers.find((p) => p.id === providerId);
         return {
           seller_id: userId,
           provider_id: providerId,
@@ -141,9 +108,7 @@ class ShippingService {
         };
       });
 
-      const { error: insertError } = await supabase
-        .from('shipping_options')
-        .insert(optionsToInsert);
+      const { error: insertError } = await supabase.from('shipping_options').insert(optionsToInsert);
 
       if (insertError) throw insertError;
     } catch (error) {
@@ -159,13 +124,15 @@ class ShippingService {
     try {
       const { data, error } = await supabase
         .from('shipping_options')
-        .select(`
+        .select(
+          `
           *,
           shipping_providers (
             name,
             description
           )
-        `)
+        `
+        )
         .eq('seller_id', sellerId)
         .eq('is_active', true);
 

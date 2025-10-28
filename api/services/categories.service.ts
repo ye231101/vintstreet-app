@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '../config/supabase';
-import { Category } from '../types/category.types';
+import { Category } from '../types';
 
 class CategoriesService {
   /**

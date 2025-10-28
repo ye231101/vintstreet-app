@@ -1,5 +1,4 @@
-import { Product } from '@/api/services/listings.service';
-import { offersService } from '@/api/services/offers.service';
+import { offersService, Product } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';

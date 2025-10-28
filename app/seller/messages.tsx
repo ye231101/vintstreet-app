@@ -1,5 +1,4 @@
-import { messagesService } from '@/api';
-import { Conversation } from '@/api/services/messages.service';
+import { Conversation, messagesService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';

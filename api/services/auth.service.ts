@@ -1,27 +1,13 @@
-import { EmailOtpType } from '@supabase/supabase-js';
 import { supabase } from '../config/supabase';
 import {
   AuthResponse,
+  AuthUser,
   PasswordResetResponse,
-  ResendOTPResponse,
+  ResendEmailResponse,
   SignInData,
   SignUpData,
-  VerifyOTPData,
-  VerifyOTPResponse,
   mapSupabaseUserToAuthUser,
-} from '../types/auth.types';
-
-// Profile data from database
-interface ProfileData {
-  user_id: string;
-  username?: string;
-  full_name?: string;
-  bio?: string;
-  avatar_url?: string;
-  user_type?: string;
-  preferred_currency?: string;
-  is_blocked?: string;
-}
+} from '../types';
 
 /**
  * Auth Service
@@ -36,16 +22,6 @@ class AuthService {
   async signUp(data: SignUpData): Promise<AuthResponse> {
     try {
       const { email, password, username, full_name, ...additionalData } = data;
-
-      // Check if email already exists before attempting signup
-      // const emailExists = await this.checkEmailExists(email);
-      // if (emailExists) {
-      //   return {
-      //     user: null,
-      //     session: null,
-      //     error: 'An account with this email already exists. Please use a different email or try logging in.',
-      //   };
-      // }
 
       const { data: authData, error } = await supabase.auth.signUp({
         email,
@@ -150,11 +126,11 @@ class AuthService {
       const user = profileData
         ? {
             ...authUser,
-            username: (profileData as unknown as ProfileData).username || authUser.username,
-            full_name: (profileData as unknown as ProfileData).full_name || authUser.full_name,
-            bio: (profileData as unknown as ProfileData).bio || authUser.bio,
-            avatar_url: (profileData as unknown as ProfileData).avatar_url || authUser.avatar_url,
-            user_type: (profileData as unknown as ProfileData).user_type || authUser.user_type,
+            username: (profileData as unknown as AuthUser).username || authUser.username,
+            full_name: (profileData as unknown as AuthUser).full_name || authUser.full_name,
+            bio: (profileData as unknown as AuthUser).bio || authUser.bio,
+            avatar_url: (profileData as unknown as AuthUser).avatar_url || authUser.avatar_url,
+            user_type: (profileData as unknown as AuthUser).user_type || authUser.user_type,
           }
         : authUser;
 
@@ -299,11 +275,11 @@ class AuthService {
         return {
           user: {
             ...authUser,
-            username: (profileData as unknown as ProfileData).username || authUser.username,
-            full_name: (profileData as unknown as ProfileData).full_name || authUser.full_name,
-            bio: (profileData as unknown as ProfileData).bio || authUser.bio,
-            avatar_url: (profileData as unknown as ProfileData).avatar_url || authUser.avatar_url,
-            user_type: (profileData as unknown as ProfileData).user_type || authUser.user_type,
+            username: (profileData as unknown as AuthUser).username || authUser.username,
+            full_name: (profileData as unknown as AuthUser).full_name || authUser.full_name,
+            bio: (profileData as unknown as AuthUser).bio || authUser.bio,
+            avatar_url: (profileData as unknown as AuthUser).avatar_url || authUser.avatar_url,
+            user_type: (profileData as unknown as AuthUser).user_type || authUser.user_type,
           },
           error: null,
         };
@@ -323,52 +299,12 @@ class AuthService {
   }
 
   /**
-   * Verify OTP code sent to email
-   * @param data - OTP verification data (email, token, type)
-   * @returns VerifyOTPResponse
-   */
-  async verifyOTP(data: VerifyOTPData): Promise<VerifyOTPResponse> {
-    try {
-      const { email, token, type } = data;
-
-      const { data: authData, error } = await supabase.auth.verifyOtp({
-        email,
-        token,
-        type: type as EmailOtpType,
-      });
-
-      if (error) {
-        return {
-          error: error.message,
-          success: false,
-          session: null,
-          user: null,
-        };
-      }
-
-      return {
-        error: null,
-        success: true,
-        session: authData.session,
-        user: mapSupabaseUserToAuthUser(authData.user),
-      };
-    } catch (error) {
-      return {
-        error: error instanceof Error ? error.message : 'OTP verification failed',
-        success: false,
-        session: null,
-        user: null,
-      };
-    }
-  }
-
-  /**
    * Resend OTP code to email
    * @param email - User email address
    * @param type - Type of OTP (signup, email, etc.)
-   * @returns ResendOTPResponse
+   * @returns ResendEmailResponse
    */
-  async resendOTP(email: string, type: 'signup' | 'email_change' = 'signup'): Promise<ResendOTPResponse> {
+  async resendEmail(email: string, type: 'signup' | 'email_change' = 'signup'): Promise<ResendEmailResponse> {
     try {
       const { error } = await supabase.auth.resend({
         type: type as 'signup' | 'email_change',
@@ -391,27 +327,6 @@ class AuthService {
         error: error instanceof Error ? error.message : 'Failed to resend OTP',
         success: false,
       };
-    }
-  }
-
-  /**
-   * Check if an email already exists in the system
-   * @param email - Email to check
-   * @returns Boolean indicating if email exists
-   */
-  async checkEmailExists(email: string): Promise<boolean> {
-    try {
-      // Try to reset password for the email - if it succeeds, the email exists
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'dummy://redirect', // This won't be used, just to satisfy the API
-      });
-
-      // If no error, the email exists (even if password reset fails for other reasons)
-      // If error contains "not found" or similar, email doesn't exist
-      return !error || !error.message.toLowerCase().includes('not found');
-    } catch (error) {
-      // If there's an error, assume email doesn't exist
-      return false;
     }
   }
 
