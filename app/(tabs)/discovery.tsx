@@ -1,10 +1,10 @@
 import { attributesService, categoriesService, listingsService } from '@/api/services';
 import { Product } from '@/api/services/listings.service';
 import { Category } from '@/api/types/category.types';
-import FilterSortBar from '@/components/filter-sort-bar';
 import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-modal';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
+import SortBar from '@/components/sort-bar';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -545,7 +545,7 @@ export default function DiscoveryScreen() {
     if (showSearchResults) {
       return (
         <View className="flex-1">
-          <FilterSortBar
+          <SortBar
             filterCount={getTotalFilterCount()}
             sortBy={currentSortBy}
             onFilterPress={() => setShowFilterModal(true)}
@@ -645,7 +645,7 @@ export default function DiscoveryScreen() {
       case 'products':
         return (
           <View className="flex-1">
-            <FilterSortBar
+            <SortBar
               filterCount={getTotalFilterCount()}
               sortBy={currentSortBy}
               onFilterPress={() => setShowFilterModal(true)}

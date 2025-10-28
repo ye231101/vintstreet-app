@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Pressable, Text } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { Feather } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import DropdownComponent from './common/dropdown';
 
 export interface FilterSortBarProps {
   filterCount?: number;
@@ -10,7 +10,7 @@ export interface FilterSortBarProps {
   onSortChange?: (value: string) => void;
 }
 
-const FilterSortBar: React.FC<FilterSortBarProps> = ({
+const SortBar: React.FC<FilterSortBarProps> = ({
   filterCount = 0,
   sortBy = 'Most Relevant',
   onFilterPress,
@@ -50,7 +50,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
 
         {/* Sort Dropdown */}
         <View className="flex-1">
-          <DropDownPicker
+          {/* <DropDownPicker
             open={sortOpen}
             items={sortItems}
             value={sortValue}
@@ -84,6 +84,19 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
             }}
             zIndex={2000}
             zIndexInverse={3000}
+          /> */}
+          <DropdownComponent
+            data={sortItems}
+            value={sortValue}
+            placeholder="Sort by"
+            onChange={(item) => handleSortChange(item.value)}
+            style={{
+              backgroundColor: '#fff',
+              borderColor: '#d1d5db',
+              borderRadius: 8,
+              height: 40,
+            }}
+
           />
         </View>
       </View>
@@ -91,4 +104,4 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
   );
 };
 
-export default FilterSortBar;
+export default SortBar;
