@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 
 export interface FilterOption {
   label: string;
@@ -173,9 +173,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 onPress={() => setSelectedCategory('price')}
                 className={`p-4 border-b border-gray-200 ${selectedCategory === 'price' ? 'bg-white' : 'bg-gray-100'}`}
               >
-                <View className="items-center">
+                <View className="flex-row items-center">
                   {selectedCategory === 'price' && (
-                    <Feather name="check" size={20} color="#000" style={{ marginBottom: 4 }} />
+                    <Feather name="check" size={20} color="#000" style={{ marginRight: 4 }} />
                   )}
                   <Text
                     className={`text-sm font-inter-semibold ${
@@ -191,9 +191,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 onPress={() => setSelectedCategory('brand')}
                 className={`p-4 border-b border-gray-200 ${selectedCategory === 'brand' ? 'bg-white' : 'bg-gray-100'}`}
               >
-                <View className="items-center">
+                <View className="flex-row items-center">
                   {selectedCategory === 'brand' && (
-                    <Feather name="check" size={20} color="#000" style={{ marginBottom: 4 }} />
+                    <Feather name="check" size={20} color="#000" style={{ marginRight: 4 }} />
                   )}
                   <Text
                     className={`text-sm font-inter-semibold ${
@@ -209,9 +209,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 onPress={() => setSelectedCategory('size')}
                 className={`p-4 ${selectedCategory === 'size' ? 'bg-white' : 'bg-gray-100'}`}
               >
-                <View className="items-center">
+                <View className="flex-row items-center">
                   {selectedCategory === 'size' && (
-                    <Feather name="check" size={20} color="#000" style={{ marginBottom: 4 }} />
+                    <Feather name="check" size={20} color="#000" style={{ marginRight: 4 }} />
                   )}
                   <Text
                     className={`text-sm font-inter-semibold ${

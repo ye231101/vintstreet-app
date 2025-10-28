@@ -773,34 +773,6 @@ export default function SellScreen() {
     }
   };
 
-  // Track if there are unsaved changes
-  const checkForUnsavedChanges = () => {
-    const hasChanges = Boolean(
-      title ||
-        description ||
-        price ||
-        salePrice ||
-        brand ||
-        category ||
-        purchaseNote ||
-        stockQuantity ||
-        productImages.length > 0 ||
-        Object.keys(dynamicAttributes).length > 0 ||
-        selectedBrandId ||
-        selectedCategoryId
-    );
-    return hasChanges;
-  };
-
-  // Handle navigation away with unsaved changes
-  const handleNavigationAway = () => {
-    if (checkForUnsavedChanges()) {
-      setShowUnsavedChangesModal(true);
-      return false; // Prevent navigation
-    }
-    return true; // Allow navigation
-  };
-
   // Handle save as draft from modal
   const handleSaveAsDraftAndLeave = async () => {
     setShowUnsavedChangesModal(false);
@@ -846,7 +818,7 @@ export default function SellScreen() {
     <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
       <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-        <TouchableOpacity onPress={handleNavigationAway} hitSlop={8}>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
