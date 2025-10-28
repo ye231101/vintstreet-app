@@ -166,6 +166,7 @@ export default function RootLayout() {
               <Stack.Screen name="cart" options={{ headerShown: false }} />
               <Stack.Screen name="checkout" options={{ headerShown: false }} />
               <Stack.Screen name="stream" options={{ headerShown: false }} />
+              <Stack.Screen name="articles" options={{ headerShown: false }} />
             </Stack>
           </AuthWrapper>
           <StatusBar style="auto" />

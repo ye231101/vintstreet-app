@@ -1,5 +1,6 @@
 import { attributesService, brandsService, listingsService, storageService } from '@/api';
 import { CategoryAttributesCard } from '@/components/category-attributes-card';
+import { useAuth } from '@/hooks/use-auth';
 import { AuthUtils } from '@/utils/auth-utils';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -25,6 +26,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SellScreen() {
   const { productId } = useLocalSearchParams<{ productId?: string }>();
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -78,6 +80,12 @@ export default function SellScreen() {
     { key: 'single', label: 'Single Item' },
     { key: 'multi', label: 'Multi Item (with quantity)' },
   ];
+
+  useEffect(() => {
+    if (user?.user_type !== 'seller' && user?.user_type !== 'both') {
+      router.replace('/(tabs)');
+    }
+  }, [user]);
 
   // Load categories and brands on component mount
   useEffect(() => {
@@ -835,7 +843,7 @@ export default function SellScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-50 bg-black">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
       <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
         <TouchableOpacity onPress={handleNavigationAway} hitSlop={8}>
