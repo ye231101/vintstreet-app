@@ -81,12 +81,6 @@ export default function SellScreen() {
     { key: 'multi', label: 'Multi Item (with quantity)' },
   ];
 
-  useEffect(() => {
-    if (user?.user_type !== 'seller' && user?.user_type !== 'both') {
-      router.replace('/(tabs)');
-    }
-  }, [user]);
-
   // Load categories and brands on component mount
   useEffect(() => {
     const loadData = async () => {
@@ -814,8 +808,94 @@ export default function SellScreen() {
     setShowUnsavedChangesModal(false);
   };
 
+  // Check if user is a buyer and show seller setup message
+  if (user?.user_type === 'buyer') {
+    return (
+      <SafeAreaView className="flex-1 mb-50 bg-black">
+        {/* Header */}
+        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+            <Feather name="arrow-left" size={24} color="#fff" />
+          </TouchableOpacity>
+
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Become a Seller</Text>
+
+          <Feather name="shopping-bag" size={28} color="#fff" />
+        </View>
+
+        {/* Seller Setup Message */}
+        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+          <View className="items-center p-6 rounded-2xl bg-white shadow-lg w-full">
+            {/* Icon */}
+            <View className="items-center justify-center w-20 h-20 mb-6 rounded-full bg-blue-100">
+              <Feather name="user-plus" size={40} color="#3B82F6" />
+            </View>
+
+            {/* Title */}
+            <Text className="mb-4 text-2xl font-inter-bold text-black text-center">Become a Seller</Text>
+
+            {/* Description */}
+            <Text className="mb-6 text-sm font-inter-semibold text-gray-600 text-center leading-6">
+              You're currently set up as a buyer. To start selling products on Vint Street, you'll need to set up your
+              seller account first.
+            </Text>
+
+            {/* Benefits List */}
+            <View className="w-full mb-8">
+              <Text className="mb-3 text-base font-inter-bold text-black text-center">Why become a seller?</Text>
+
+              <View className="gap-1 mb-4">
+                <View className="flex-row items-center">
+                  <Feather name="check-circle" size={16} color="#10B981" />
+                  <Text className="ml-3 text-sm font-inter-semibold text-gray-700">List unlimited products</Text>
+                </View>
+
+                <View className="flex-row items-center">
+                  <Feather name="check-circle" size={16} color="#10B981" />
+                  <Text className="ml-3 text-sm font-inter-semibold text-gray-700">Reach thousands of buyers</Text>
+                </View>
+
+                <View className="flex-row items-center">
+                  <Feather name="check-circle" size={16} color="#10B981" />
+                  <Text className="ml-3 text-sm font-inter-semibold text-gray-700">Manage your own shop</Text>
+                </View>
+
+                <View className="flex-row items-center">
+                  <Feather name="check-circle" size={16} color="#10B981" />
+                  <Text className="ml-3 text-sm font-inter-semibold text-gray-700">Track sales and analytics</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Action Buttons */}
+            <View className="w-full gap-2 mb-4">
+              <TouchableOpacity
+                className="w-full py-4 bg-black rounded-lg"
+                onPress={() => {
+                  // Navigate to seller setup/profile page
+                  router.push('/seller/seller-setup');
+                }}
+              >
+                <Text className="text-base font-inter-bold text-white text-center">Set Up Seller Account</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity className="w-full py-3 bg-gray-200 rounded-lg" onPress={() => router.back()}>
+                <Text className="text-base font-inter-semibold text-gray-700 text-center">Maybe Later</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Help Text */}
+            <Text className="mt-6 text-xs font-inter-semibold text-gray-500 text-center">
+              Need help? Contact our support team for assistance with seller setup.
+            </Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 mb-50 bg-black">
       {/* Header */}
       <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>

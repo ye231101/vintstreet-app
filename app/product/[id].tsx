@@ -492,7 +492,7 @@ export default function ProductDetailScreen() {
                         <Image
                           source={
                             product.seller_info_view?.avatar_url ||
-                            `https://ui-avatars.com/api/?name=${product.seller_info_view?.full_name}&length=1`
+                            `https://ui-avatars.com/api/?name=${product.seller_info_view?.shop_name}&length=1`
                           }
                           contentFit="cover"
                           placeholder={blurhash}
