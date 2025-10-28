@@ -29,6 +29,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
         {value && value.length > 0 && (
           <Pressable onPress={() => {
             onChangeText?.('');
+            onSearch?.('');
           }}>
             <Feather name="x" size={20} color="white" />
           </Pressable>
