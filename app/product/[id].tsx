@@ -580,7 +580,7 @@ export default function ProductDetailScreen() {
 
           {/* Related Products Section */}
           {relatedProductsLoading ? (
-            <View className="flex-row items-center justify-center py-8">
+            <View className="flex-1 items-center justify-center py-8">
               <ActivityIndicator size="large" color="#000" />
               <Text className="ml-3 text-base font-inter text-gray-600">Loading related products...</Text>
             </View>
