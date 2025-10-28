@@ -1,4 +1,4 @@
-import { StorageService } from '@/api/services/storage.service';
+import { storageService } from '@/api/services/storage.service';
 import { useAuth } from '@/hooks/use-auth';
 import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';
 import { showToast } from '@/utils/toast';
@@ -134,7 +134,7 @@ export default function EditProfileScreen() {
 
       // Upload new avatar if one was selected
       if (newAvatarUri && user?.id) {
-        const uploadResult = await StorageService.uploadAvatar(newAvatarUri, user.id);
+        const uploadResult = await storageService.uploadAvatar(newAvatarUri, user.id);
 
         if (uploadResult.success && uploadResult.url) {
           finalAvatarUrl = uploadResult.url;

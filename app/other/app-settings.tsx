@@ -1,4 +1,4 @@
-import { DropdownComponent, DropdownItem } from '@/components/dropdown';
+import DropdownComponent from '@/components/common/dropdown';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function AppSettingsScreen() {
   const [selectedCurrency, setSelectedCurrency] = useState<string>('GBP');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const CURRENCY_OPTIONS: DropdownItem[] = [
+  const CURRENCY_OPTIONS = [
     { label: 'GBP', value: 'GBP' },
     { label: 'USD', value: 'USD' },
     { label: 'EUR', value: 'EUR' },
@@ -52,7 +52,7 @@ export default function AppSettingsScreen() {
               data={CURRENCY_OPTIONS}
               value={selectedCurrency}
               placeholder="Select a currency"
-              onChange={(item: DropdownItem) => setSelectedCurrency(item.value)}
+              onChange={(item) => setSelectedCurrency(item.value)}
             />
           </View>
 

@@ -7,9 +7,9 @@ export interface UploadResult {
   errors?: string[];
 }
 
-export class StorageService {
-  private static readonly BUCKET_NAME = 'product-images';
-  private static readonly AVATAR_BUCKET_NAME = 'avatars';
+class StorageService {
+  readonly BUCKET_NAME = 'product-images';
+  readonly AVATAR_BUCKET_NAME = 'avatars';
 
   /**
    * Upload avatar image to Supabase storage
@@ -17,7 +17,7 @@ export class StorageService {
    * @param userId - User ID for organizing files
    * @returns Promise with upload result
    */
-  static async uploadAvatar(
+  async uploadAvatar(
     imageUri: string,
     userId: string
   ): Promise<{ success: boolean; url?: string; error?: string }> {
@@ -90,7 +90,7 @@ export class StorageService {
    * @param userId - User ID for organizing files
    * @returns Promise with upload result
    */
-  static async uploadImage(
+  async uploadImage(
     imageUri: string,
     userId: string
   ): Promise<{ success: boolean; url?: string; error?: string }> {
@@ -161,7 +161,7 @@ export class StorageService {
    * @param userId - User ID for organizing files
    * @returns Promise with upload results
    */
-  static async uploadMultipleImages(imageUris: string[], userId: string): Promise<UploadResult> {
+  async uploadMultipleImages(imageUris: string[], userId: string): Promise<UploadResult> {
     const results: string[] = [];
     const errors: string[] = [];
 
@@ -186,7 +186,7 @@ export class StorageService {
    * @param imageUrl - Public URL of the image to delete
    * @returns Promise with deletion result
    */
-  static async deleteImage(imageUrl: string): Promise<{ success: boolean; error?: string }> {
+  async deleteImage(imageUrl: string): Promise<{ success: boolean; error?: string }> {
     try {
       // Extract file path from URL
       const urlParts = imageUrl.split('/');
@@ -216,7 +216,7 @@ export class StorageService {
    * @param imageUrls - Array of public URLs to delete
    * @returns Promise with deletion results
    */
-  static async deleteMultipleImages(imageUrls: string[]): Promise<{ success: boolean; errors?: string[] }> {
+  async deleteMultipleImages(imageUrls: string[]): Promise<{ success: boolean; errors?: string[] }> {
     const errors: string[] = [];
 
     for (const imageUrl of imageUrls) {
@@ -232,3 +232,5 @@ export class StorageService {
     };
   }
 }
+
+export const storageService = new StorageService();

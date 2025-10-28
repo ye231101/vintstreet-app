@@ -1,11 +1,14 @@
+import { attributesService, brandsService, listingsService, storageService } from '@/api';
+import { CategoryAttributesCard } from '@/components/category-attributes-card';
 import { AuthUtils } from '@/utils/auth-utils';
-import { showSuccessToast, showErrorToast, showWarningToast } from '@/utils/toast';
+import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -15,15 +18,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import DraggableGrid from 'react-native-draggable-grid';
-import { attributesService } from '../../api/services/attributes.service';
-import { brandsService } from '../../api/services/brands.service';
-import { listingsService } from '../../api/services/listings.service';
-import { StorageService } from '../../api/services/storage.service';
-import { CategoryAttributesCard } from '../../components/category-attributes-card';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SellScreen() {
   const { productId } = useLocalSearchParams<{ productId?: string }>();
@@ -66,7 +63,9 @@ export default function SellScreen() {
   >('category');
   const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, any>>({});
   const [attributes, setAttributes] = useState<any[]>([]);
-  const [productImages, setProductImages] = useState<Array<{ key: string; uri: string; uploadedUrl?: string; isPrimary: boolean }>>([]);
+  const [productImages, setProductImages] = useState<
+    Array<{ key: string; uri: string; uploadedUrl?: string; isPrimary: boolean }>
+  >([]);
   const [showImagePickerModal, setShowImagePickerModal] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -121,12 +120,13 @@ export default function SellScreen() {
         setIsMarketplaceListing(product.status === 'published');
 
         // Set images
-        const existingImages = product.product_images && product.product_images.length > 0 
-          ? product.product_images 
-          : product.product_image 
-          ? [product.product_image] 
-          : [];
-        
+        const existingImages =
+          product.product_images && product.product_images.length > 0
+            ? product.product_images
+            : product.product_image
+            ? [product.product_image]
+            : [];
+
         if (existingImages.length > 0) {
           const imageData = existingImages.map((url: string, index: number) => ({
             key: `image_${Date.now()}_${index}`,
@@ -377,7 +377,7 @@ export default function SellScreen() {
           uri: asset.uri,
           isPrimary: productImages.length === 0 && index === 0, // First image is primary if no images exist
         }));
-        
+
         setProductImages((prev) => [...prev, ...newImageData]);
         setShowImagePickerModal(false);
 
@@ -453,14 +453,12 @@ export default function SellScreen() {
 
       for (let i = 0; i < imageData.length; i++) {
         try {
-          const result = await StorageService.uploadImage(imageData[i].uri, user.id);
+          const result = await storageService.uploadImage(imageData[i].uri, user.id);
 
           if (result.success && result.url) {
             // Update the uploaded URL for this image
             setProductImages((prev) =>
-              prev.map((img) =>
-                img.key === imageData[i].key ? { ...img, uploadedUrl: result.url } : img
-              )
+              prev.map((img) => (img.key === imageData[i].key ? { ...img, uploadedUrl: result.url } : img))
             );
             successCount++;
           } else {
@@ -517,7 +515,7 @@ export default function SellScreen() {
     // If there's a corresponding uploaded URL, delete from storage
     if (imageToRemove.uploadedUrl) {
       try {
-        await StorageService.deleteImage(imageToRemove.uploadedUrl);
+        await storageService.deleteImage(imageToRemove.uploadedUrl);
       } catch (error) {
         console.error('Error deleting image from storage:', error);
         // Don't show error to user as the image is already removed from UI
@@ -855,8 +853,8 @@ export default function SellScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         className="flex-1"
       >
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
+        <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1 }}
           scrollEnabled={scrollEnabled}
           directionalLockEnabled={false}
@@ -941,7 +939,7 @@ export default function SellScreen() {
                     </Text>
                   </View>
 
-                  <View 
+                  <View
                     style={{
                       width: '100%',
                       minHeight: Math.ceil(productImages.length / 3) * ((Dimensions.get('window').width - 48) / 3 + 8),
@@ -955,179 +953,181 @@ export default function SellScreen() {
                       data={productImages}
                       itemHeight={(Dimensions.get('window').width - 48) / 3}
                       delayLongPress={150}
-                      renderItem={(item) => {
-                      const isUploaded = !!item.uploadedUrl;
-                      const isUploading = isUploadingImages && !isUploaded;
+                      renderItem={(item: any) => {
+                        const isUploaded = !!item.uploadedUrl;
+                        const isUploading = isUploadingImages && !isUploaded;
 
-                      const imageSize = (Dimensions.get('window').width - 48) / 3 - 8;
-                      
-                      return (
-                        <View
-                          style={{
-                            width: imageSize,
-                            height: imageSize,
-                            margin: 4,
-                          }}
-                        >
+                        const imageSize = (Dimensions.get('window').width - 48) / 3 - 8;
+
+                        return (
                           <View
                             style={{
-                              width: '100%',
-                              height: '100%',
-                              borderWidth: item.isPrimary ? 3 : 1,
-                              borderColor: item.isPrimary ? '#FFD700' : '#ccc',
-                              borderRadius: 10,
-                              overflow: 'hidden',
-                              backgroundColor: '#f0f0f0',
+                              width: imageSize,
+                              height: imageSize,
+                              margin: 4,
                             }}
                           >
-                            <Image
-                              source={{ uri: item.uploadedUrl || item.uri }}
-                              style={{ 
-                                width: '100%', 
-                                height: '100%',
-                                opacity: isUploading ? 0.7 : 1 
-                              }}
-                              resizeMode="cover"
-                              onError={(error) => {
-                                console.log('Image load error:', error.nativeEvent.error);
-                                console.log('Image URI:', item.uri);
-                              }}
-                              onLoad={() => {
-                                console.log('Image loaded successfully:', item.key);
-                              }}
-                            />
-
-                            {/* Primary Badge */}
-                            {item.isPrimary && (
-                              <View
-                                style={{
-                                  position: 'absolute',
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  backgroundColor: 'rgba(0,0,0,0.7)',
-                                  padding: 3,
-                                }}
-                              >
-                                <Text style={{ color: 'white', fontSize: 10, textAlign: 'center', fontWeight: 'bold' }}>
-                                  ⭐ COVER
-                                </Text>
-                              </View>
-                            )}
-
-                            {/* Upload Status Indicator */}
-                            {isUploaded ? (
-                              <View
-                                style={{
-                                  position: 'absolute',
-                                  top: 5,
-                                  left: 5,
-                                  backgroundColor: '#10B981',
-                                  borderRadius: 12,
-                                  width: 24,
-                                  height: 24,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                <Feather name="check" size={14} color="#fff" />
-                              </View>
-                            ) : isUploading ? (
-                              <View
-                                style={{
-                                  position: 'absolute',
-                                  top: 5,
-                                  left: 5,
-                                  backgroundColor: '#3B82F6',
-                                  borderRadius: 12,
-                                  width: 24,
-                                  height: 24,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                <Feather name="upload" size={14} color="#fff" />
-                              </View>
-                            ) : (
-                              <View
-                                style={{
-                                  position: 'absolute',
-                                  top: 5,
-                                  left: 5,
-                                  backgroundColor: '#EAB308',
-                                  borderRadius: 12,
-                                  width: 24,
-                                  height: 24,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                <Feather name="clock" size={14} color="#fff" />
-                              </View>
-                            )}
-
-                            {/* Remove Button */}
-                            <TouchableOpacity
+                            <View
                               style={{
-                                position: 'absolute',
-                                top: 5,
-                                right: 5,
-                                backgroundColor: '#EF4444',
-                                borderRadius: 12,
-                                width: 24,
-                                height: 24,
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                width: '100%',
+                                height: '100%',
+                                borderWidth: item.isPrimary ? 3 : 1,
+                                borderColor: item.isPrimary ? '#FFD700' : '#ccc',
+                                borderRadius: 10,
+                                overflow: 'hidden',
+                                backgroundColor: '#f0f0f0',
                               }}
-                              onPress={(e) => {
-                                e.stopPropagation();
-                                removeImage(item.key);
-                              }}
-                              disabled={isUploading}
                             >
-                              <Feather name="x" size={14} color="#fff" />
-                            </TouchableOpacity>
-
-                            {/* Upload Progress Overlay */}
-                            {isUploading && (
-                              <View
+                              <Image
+                                source={{ uri: item.uploadedUrl || item.uri }}
                                 style={{
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  right: 0,
-                                  bottom: 0,
-                                  backgroundColor: 'rgba(0,0,0,0.2)',
-                                  borderRadius: 10,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
+                                  width: '100%',
+                                  height: '100%',
+                                  opacity: isUploading ? 0.7 : 1,
                                 }}
-                              >
+                                resizeMode="cover"
+                                onError={(error) => {
+                                  console.log('Image load error:', error.nativeEvent.error);
+                                  console.log('Image URI:', item.uri);
+                                }}
+                                onLoad={() => {
+                                  console.log('Image loaded successfully:', item.key);
+                                }}
+                              />
+
+                              {/* Primary Badge */}
+                              {item.isPrimary && (
                                 <View
                                   style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    padding: 3,
+                                  }}
+                                >
+                                  <Text
+                                    style={{ color: 'white', fontSize: 10, textAlign: 'center', fontWeight: 'bold' }}
+                                  >
+                                    ⭐ COVER
+                                  </Text>
+                                </View>
+                              )}
+
+                              {/* Upload Status Indicator */}
+                              {isUploaded ? (
+                                <View
+                                  style={{
+                                    position: 'absolute',
+                                    top: 5,
+                                    left: 5,
+                                    backgroundColor: '#10B981',
+                                    borderRadius: 12,
                                     width: 24,
                                     height: 24,
-                                    borderWidth: 2,
-                                    borderColor: 'white',
-                                    borderTopColor: 'transparent',
-                                    borderRadius: 12,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                   }}
-                              />
+                                >
+                                  <Feather name="check" size={14} color="#fff" />
+                                </View>
+                              ) : isUploading ? (
+                                <View
+                                  style={{
+                                    position: 'absolute',
+                                    top: 5,
+                                    left: 5,
+                                    backgroundColor: '#3B82F6',
+                                    borderRadius: 12,
+                                    width: 24,
+                                    height: 24,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <Feather name="upload" size={14} color="#fff" />
+                                </View>
+                              ) : (
+                                <View
+                                  style={{
+                                    position: 'absolute',
+                                    top: 5,
+                                    left: 5,
+                                    backgroundColor: '#EAB308',
+                                    borderRadius: 12,
+                                    width: 24,
+                                    height: 24,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <Feather name="clock" size={14} color="#fff" />
+                                </View>
+                              )}
+
+                              {/* Remove Button */}
+                              <TouchableOpacity
+                                style={{
+                                  position: 'absolute',
+                                  top: 5,
+                                  right: 5,
+                                  backgroundColor: '#EF4444',
+                                  borderRadius: 12,
+                                  width: 24,
+                                  height: 24,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                                onPress={(e) => {
+                                  e.stopPropagation();
+                                  removeImage(item.key);
+                                }}
+                                disabled={isUploading}
+                              >
+                                <Feather name="x" size={14} color="#fff" />
+                              </TouchableOpacity>
+
+                              {/* Upload Progress Overlay */}
+                              {isUploading && (
+                                <View
+                                  style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    backgroundColor: 'rgba(0,0,0,0.2)',
+                                    borderRadius: 10,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <View
+                                    style={{
+                                      width: 24,
+                                      height: 24,
+                                      borderWidth: 2,
+                                      borderColor: 'white',
+                                      borderTopColor: 'transparent',
+                                      borderRadius: 12,
+                                    }}
+                                  />
+                                </View>
+                              )}
                             </View>
-                          )}
-                        </View>
-                      </View>
-                      );
-                    }}
-                    onDragRelease={(data) => {
-                      // After reordering, automatically set the first image as primary/cover
-                      const reorderedImages = data.map((img, index) => ({
-                        ...img,
-                        isPrimary: index === 0,
-                      }));
-                      setProductImages(reorderedImages);
-                      setScrollEnabled(true);
-                    }}
+                          </View>
+                        );
+                      }}
+                      onDragRelease={(data: any) => {
+                        // After reordering, automatically set the first image as primary/cover
+                        const reorderedImages = data.map((img: any, index: number) => ({
+                          ...img,
+                          isPrimary: index === 0,
+                        }));
+                        setProductImages(reorderedImages);
+                        setScrollEnabled(true);
+                      }}
                     />
                   </View>
                 </View>

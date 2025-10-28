@@ -1,14 +1,12 @@
+import { messagesService } from '@/api';
+import { Conversation } from '@/api/services/messages.service';
 import SearchBar from '@/components/search-bar';
+import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Conversation, messagesService } from '../../api/services/messages.service';
-import { useAuth } from '../../hooks/use-auth';
-// import { format } from 'date-fns';
-
-// Interfaces are now imported from the messages service
 
 export default function MessagesScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);

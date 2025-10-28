@@ -1,5 +1,7 @@
+import { messagesService } from '@/api';
 import { Product } from '@/api/services/listings.service';
 import { Order } from '@/api/services/orders.service';
+import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -15,9 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { messagesService } from '../api/services/messages.service';
-import { useAuth } from '../hooks/use-auth';
-import { DropdownComponent, DropdownItem } from './dropdown';
+import DropdownComponent from './common/dropdown';
 
 interface ContactModalProps {
   visible: boolean;
@@ -33,7 +33,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
 
-  const SUBJECT_OPTIONS: DropdownItem[] = [
+  const SUBJECT_OPTIONS = [
     { label: 'Product Inquiry', value: 'Product Inquiry' },
     { label: 'Shipping Question', value: 'Shipping Question' },
     { label: 'Payment Issue', value: 'Payment Issue' },
@@ -145,7 +145,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
                     data={SUBJECT_OPTIONS}
                     value={subject}
                     placeholder="Select a subject"
-                    onChange={(item: DropdownItem) => setSubject(item.value)}
+                    onChange={(item) => setSubject(item.value)}
                   />
                 </View>
 

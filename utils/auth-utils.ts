@@ -1,5 +1,5 @@
-import { supabase } from '../api/config/supabase';
-import { getStorageValue } from '../utils/storage';
+import { supabase } from '@/api/config/supabase';
+import { getStorageValue, removeStorageValue } from '@/utils/storage';
 
 /**
  * Authentication utility functions
@@ -115,7 +115,6 @@ export class AuthUtils {
       await supabase.auth.signOut();
       
       // Clear stored data
-      const { removeStorageValue } = await import('../utils/storage');
       await removeStorageValue('TOKEN');
       await removeStorageValue('USER_DATA');
       

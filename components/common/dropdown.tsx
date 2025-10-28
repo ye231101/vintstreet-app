@@ -1,4 +1,5 @@
 import { Feather } from '@expo/vector-icons';
+import React from 'react';
 import { StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
@@ -23,7 +24,7 @@ interface DropdownProps {
   error?: string;
 }
 
-export const DropdownComponent: React.FC<DropdownProps> = ({
+const DropdownComponent: React.FC<DropdownProps> = ({
   data,
   value,
   required = false,
@@ -72,7 +73,7 @@ export const DropdownComponent: React.FC<DropdownProps> = ({
         data={data}
         renderLeftIcon={() => (
           <Text className="mr-3">
-            <Feather name={icon as any} size={24} color="black" />
+            {icon ? <Feather name={icon as any} size={24} color="black" /> : null}
           </Text>
         )}
         labelField="label"
@@ -95,3 +96,5 @@ export const DropdownComponent: React.FC<DropdownProps> = ({
     </View>
   );
 };
+
+export default DropdownComponent;
