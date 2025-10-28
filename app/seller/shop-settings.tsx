@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config/supabase';
+import { authService, sellerService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -59,47 +59,32 @@ export default function ShopSettingsScreen() {
       if (!user?.id) return;
 
       // Load user profile for full name
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
+      const { data: profile } = await authService.getUser();
       if (profile) {
-        setUserFullName((profile as any).full_name || '');
+        setUserFullName(profile.full_name || '');
       }
 
       // Load seller profile data
-      const { data: sellerProfile, error: sellerError } = await supabase
-        .from('seller_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (sellerError && sellerError.code !== 'PGRST116') {
-        console.error('Error loading seller profile:', sellerError);
-        return;
-      }
+      const sellerProfile = await sellerService.getSellerProfile(user.id);
 
       if (sellerProfile) {
-        const profile = sellerProfile as any;
-        setShopName(profile.shop_name || '');
-        setBusinessName(profile.business_name || '');
-        setShopTagline(profile.shop_tagline || '');
-        setShopDescription(profile.shop_description || '');
-        setDisplayNamePreference(profile.display_name_format || 'shop_name');
-        setTaxId(profile.tax_id || '');
-        setBusinessLicense(profile.business_license || '');
-        setContactEmail(profile.contact_email || '');
-        setContactPhone(profile.contact_phone || '');
-        setReturnAddressLine1(profile.return_address_line1 || '');
-        setReturnAddressLine2(profile.return_address_line2 || '');
-        setReturnCity(profile.return_city || '');
-        setReturnState(profile.return_state || '');
-        setReturnPostalCode(profile.return_postal_code || '');
-        setReturnCountry(profile.return_country || 'US');
-        setShippingPolicy(profile.shipping_policy || '');
-        setReturnPolicy(profile.return_policy || '');
+        setShopName(sellerProfile.shop_name || '');
+        setBusinessName(sellerProfile.business_name || '');
+        setShopTagline(sellerProfile.shop_tagline || '');
+        setShopDescription(sellerProfile.shop_description || '');
+        setDisplayNamePreference(sellerProfile.display_name_format || 'shop_name');
+        setTaxId(sellerProfile.tax_id || '');
+        setBusinessLicense(sellerProfile.business_license || '');
+        setContactEmail(sellerProfile.contact_email || '');
+        setContactPhone(sellerProfile.contact_phone || '');
+        setReturnAddressLine1(sellerProfile.return_address_line1 || '');
+        setReturnAddressLine2(sellerProfile.return_address_line2 || '');
+        setReturnCity(sellerProfile.return_city || '');
+        setReturnState(sellerProfile.return_state || '');
+        setReturnPostalCode(sellerProfile.return_postal_code || '');
+        setReturnCountry(sellerProfile.return_country || 'US');
+        setShippingPolicy(sellerProfile.shipping_policy || '');
+        setReturnPolicy(sellerProfile.return_policy || '');
       }
     } catch (error) {
       console.error('Error loading shop settings:', error);
@@ -138,52 +123,29 @@ export default function ShopSettingsScreen() {
         return;
       }
 
-      // Check if seller profile exists
-      const { data: existing } = await supabase
-        .from('seller_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
       const profileData = {
-        business_name: businessName.trim() || null,
+        business_name: businessName.trim() || undefined,
         shop_name: shopName.trim(),
-        shop_tagline: shopTagline.trim() || null,
-        shop_description: shopDescription.trim() || null,
+        shop_tagline: shopTagline.trim() || undefined,
+        shop_description: shopDescription.trim() || undefined,
         display_name_format: displayNamePreference,
-        contact_email: contactEmail.trim() || null,
-        contact_phone: contactPhone.trim() || null,
-        return_address_line1: returnAddressLine1.trim() || null,
-        return_address_line2: returnAddressLine2.trim() || null,
-        return_city: returnCity.trim() || null,
-        return_state: returnState.trim() || null,
-        return_postal_code: returnPostalCode.trim() || null,
+        contact_email: contactEmail.trim() || undefined,
+        contact_phone: contactPhone.trim() || undefined,
+        return_address_line1: returnAddressLine1.trim() || undefined,
+        return_address_line2: returnAddressLine2.trim() || undefined,
+        return_city: returnCity.trim() || undefined,
+        return_state: returnState.trim() || undefined,
+        return_postal_code: returnPostalCode.trim() || undefined,
         return_country: returnCountry,
-        shipping_policy: shippingPolicy.trim() || null,
-        return_policy: returnPolicy.trim() || null,
-        tax_id: taxId.trim() || null,
-        business_license: businessLicense.trim() || null,
+        shipping_policy: shippingPolicy.trim() || undefined,
+        return_policy: returnPolicy.trim() || undefined,
+        tax_id: taxId.trim() || undefined,
+        business_license: businessLicense.trim() || undefined,
         updated_at: new Date().toISOString(),
       };
 
-      if (existing) {
-        // Update existing seller profile
-        const { error } = await supabase.from('seller_profiles').update(profileData).eq('user_id', user.id);
-
-        if (error) {
-          throw new Error(`Failed to update seller profile: ${error.message}`);
-        }
-      } else {
-        // Insert new seller profile
-        const { error } = await supabase.from('seller_profiles').insert({
-          user_id: user.id,
-          ...profileData,
-        });
-
-        if (error) {
-          throw new Error(`Failed to create seller profile: ${error.message}`);
-        }
-      }
+      // Save seller profile using the service
+      await sellerService.saveSellerProfile(user.id, profileData);
 
       showToast('Shop settings saved successfully!', 'success');
       router.replace('/account');

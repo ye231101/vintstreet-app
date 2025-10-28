@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config/supabase';
+import { authService } from '@/api';
 import { getStorageValue, removeStorageValue } from '@/utils/storage';
 
 /**
@@ -16,8 +16,8 @@ export class AuthUtils {
     while (retryCount <= maxRetries) {
       try {
         // First try to get user directly
-        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-        
+        const { data: currentUser, error: userError } = await authService.getUser();
+
         if (currentUser && !userError) {
           return { user: currentUser };
         }
@@ -25,26 +25,26 @@ export class AuthUtils {
         // If no user or error, try to refresh session
         if (retryCount < maxRetries) {
           console.log(`Session refresh attempt ${retryCount + 1}/${maxRetries}`);
-          
+
           // Check if we have a valid session first
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          
+          const { session, error: sessionError } = await authService.getSession();
+
           if (session && !sessionError) {
             // We have a session, try to refresh it
-            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-            
-            if (refreshData.session && !refreshError) {
+            const { session: refreshData, error: refreshError } = await authService.refreshSession();
+
+            if (refreshData && !refreshError) {
               // Try to get user again after refresh
-              const { data: { user: refreshedUser }, error: refreshedUserError } = await supabase.auth.getUser();
+              const { data: refreshedUser, error: refreshedUserError } = await authService.getUser();
               if (refreshedUser && !refreshedUserError) {
                 return { user: refreshedUser };
               }
             } else {
-              console.log('Session refresh failed:', refreshError?.message);
+              console.log('Session refresh failed:', refreshError);
             }
           } else {
-            console.log('No valid session found:', sessionError?.message);
-            
+            console.log('No valid session found:', sessionError);
+
             // Try to restore from stored data as last resort
             if (retryCount === 0) {
               try {
@@ -52,9 +52,9 @@ export class AuthUtils {
                 if (storedUserData) {
                   const user = JSON.parse(storedUserData);
                   console.log('Found stored user data, attempting to restore session');
-                  
+
                   // Try to get user one more time after finding stored data
-                  const { data: { user: restoredUser }, error: restoredError } = await supabase.auth.getUser();
+                  const { data: restoredUser, error: restoredError } = await authService.getUser();
                   if (restoredUser && !restoredError) {
                     return { user: restoredUser };
                   }
@@ -65,7 +65,7 @@ export class AuthUtils {
             }
           }
         }
-        
+
         retryCount++;
       } catch (error) {
         console.error(`Auth check attempt ${retryCount + 1} failed:`, error);
@@ -82,7 +82,7 @@ export class AuthUtils {
    */
   static async isSessionValid(): Promise<boolean> {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const { session, error } = await authService.getSession();
       return !error && !!session;
     } catch (error) {
       return false;
@@ -95,12 +95,12 @@ export class AuthUtils {
    */
   static async refreshSession(): Promise<{ success: boolean; error?: string }> {
     try {
-      const { data, error } = await supabase.auth.refreshSession();
-      return { success: !error && !!data.session, error: error?.message };
+      const { session, error } = await authService.refreshSession();
+      return { success: !error && !!session, error: error || undefined };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to refresh session' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to refresh session',
       };
     }
   }
@@ -112,12 +112,12 @@ export class AuthUtils {
   static async forceReAuthentication(): Promise<void> {
     try {
       // Clear all stored authentication data
-      await supabase.auth.signOut();
-      
+      await authService.signOut();
+
       // Clear stored data
       await removeStorageValue('TOKEN');
       await removeStorageValue('USER_DATA');
-      
+
       console.log('Authentication data cleared, user should be redirected to login');
     } catch (error) {
       console.error('Error during force re-authentication:', error);
@@ -130,8 +130,8 @@ export class AuthUtils {
    */
   static async needsReAuthentication(): Promise<boolean> {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      const { session, error } = await authService.getSession();
+
       if (error || !session) {
         return true;
       }

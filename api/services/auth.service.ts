@@ -331,6 +331,61 @@ class AuthService {
   }
 
   /**
+   * Get current user profile
+   * @returns User profile data
+   */
+  async getUser(): Promise<{ data: AuthUser | null; error: string | null }> {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        return {
+          data: null,
+          error: 'User not authenticated',
+        };
+      }
+
+      // Get profile data
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError) {
+        return {
+          data: null,
+          error: profileError.message,
+        };
+      }
+
+      const authUser: AuthUser = {
+        id: user.id,
+        email: user.email || '',
+        username: (profile as any).username,
+        full_name: (profile as any).full_name,
+        avatar_url: (profile as any).avatar_url,
+        user_type: (profile as any).user_type,
+        bio: (profile as any).bio,
+        preferred_currency: (profile as any).preferred_currency,
+        is_blocked: (profile as any).is_blocked,
+      };
+
+      return {
+        data: authUser,
+        error: null,
+      };
+    } catch (error) {
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : 'Failed to get user',
+      };
+    }
+  }
+
+  /**
    * Update user profile
    * @param data - Profile data to update
    * @returns Response with success status
@@ -341,6 +396,7 @@ class AuthService {
     bio?: string;
     avatar_url?: string;
     user_type?: string;
+    shop_name?: string;
   }): Promise<{ error: string | null; success: boolean }> {
     try {
       // Get current user ID
@@ -364,6 +420,7 @@ class AuthService {
           bio: data.bio,
           avatar_url: data.avatar_url,
           user_type: data.user_type,
+          shop_name: data.shop_name,
         })
         .eq('user_id', user.id);
 
@@ -383,6 +440,74 @@ class AuthService {
         error: error instanceof Error ? error.message : 'Profile update failed',
         success: false,
       };
+    }
+  }
+
+  /**
+   * Follow a user
+   * @param followerId - The user ID of the follower
+   * @param followedUserId - The user ID of the user being followed
+   */
+  async followUser(followerId: string, followedUserId: string): Promise<void> {
+    try {
+      const { error } = await supabase.from('user_follows').insert({
+        follower_id: followerId,
+        followed_user_id: followedUserId,
+      });
+
+      if (error) {
+        throw new Error(`Failed to follow user: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error following user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Unfollow a user
+   * @param followerId - The user ID of the follower
+   * @param followedUserId - The user ID of the user being unfollowed
+   */
+  async unfollowUser(followerId: string, followedUserId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('user_follows')
+        .delete()
+        .eq('follower_id', followerId)
+        .eq('followed_user_id', followedUserId);
+
+      if (error) {
+        throw new Error(`Failed to unfollow user: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if a user is following another user
+   * @param followerId - The user ID of the follower
+   * @param followedUserId - The user ID of the user being checked
+   */
+  async isFollowing(followerId: string, followedUserId: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from('user_follows')
+        .select('id')
+        .eq('follower_id', followerId)
+        .eq('followed_user_id', followedUserId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      return !!data;
+    } catch (error) {
+      console.error('Error checking follow status:', error);
+      throw error;
     }
   }
 

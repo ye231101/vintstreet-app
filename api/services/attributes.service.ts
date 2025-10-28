@@ -131,6 +131,25 @@ class AttributesService {
       }
     }
   }
+
+  /**
+   * Get product attribute values for a specific product
+   * @param productId - The product ID
+   */
+  async getProductAttributeValues(productId: string): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('product_attribute_values')
+        .select(`*, attributes (id, name, data_type)`)
+        .eq('product_id', productId);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error loading product attributes:', error);
+      throw new Error('Failed to fetch product attributes');
+    }
+  }
 }
 
 export const attributesService = new AttributesService();

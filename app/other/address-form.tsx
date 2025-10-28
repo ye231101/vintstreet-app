@@ -1,3 +1,6 @@
+import { AddressData, buyerService } from '@/api';
+import { useAuth } from '@/hooks/use-auth';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -12,10 +15,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { useAuth } from '@/hooks/use-auth';
-import { supabase } from '@/api/config/supabase';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 // InputField component moved outside to prevent re-creation on each render
 const InputField = ({
@@ -94,39 +93,36 @@ export default function AddressFormScreen() {
 
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('buyer_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      const profile = await buyerService.getBuyerProfile(user.id);
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      if (data) {
-        const profile = data as any;
+      if (profile) {
         // Load existing address data if available
         if (isShipping) {
-          setFirstName(profile.shipping_first_name || '');
-          setLastName(profile.shipping_last_name || '');
-          setAddressLine1(profile.shipping_address_line1 || '');
-          setAddressLine2(profile.shipping_address_line2 || '');
-          setCity(profile.shipping_city || '');
-          setState(profile.shipping_state || '');
-          setPostalCode(profile.shipping_postal_code || '');
-          setCountry(profile.shipping_country || 'US');
-          setPhone(profile.shipping_phone || '');
+          const address = buyerService.getShippingAddress(profile);
+          if (address) {
+            setFirstName(address.firstName);
+            setLastName(address.lastName);
+            setAddressLine1(address.addressLine1);
+            setAddressLine2(address.addressLine2 || '');
+            setCity(address.city);
+            setState(address.state || '');
+            setPostalCode(address.postalCode);
+            setCountry(address.country);
+            setPhone(address.phone || '');
+          }
         } else {
-          setFirstName(profile.billing_first_name || '');
-          setLastName(profile.billing_last_name || '');
-          setAddressLine1(profile.billing_address_line1 || '');
-          setAddressLine2(profile.billing_address_line2 || '');
-          setCity(profile.billing_city || '');
-          setState(profile.billing_state || '');
-          setPostalCode(profile.billing_postal_code || '');
-          setCountry(profile.billing_country || 'US');
-          setPhone(profile.billing_phone || '');
+          const address = buyerService.getBillingAddress(profile);
+          if (address) {
+            setFirstName(address.firstName);
+            setLastName(address.lastName);
+            setAddressLine1(address.addressLine1);
+            setAddressLine2(address.addressLine2 || '');
+            setCity(address.city);
+            setState(address.state || '');
+            setPostalCode(address.postalCode);
+            setCountry(address.country);
+            setPhone(address.phone || '');
+          }
         }
       }
     } catch (error) {
@@ -180,61 +176,22 @@ export default function AddressFormScreen() {
     setIsSaving(true);
 
     try {
-      // Check if profile exists
-      const { data: existingProfile, error: fetchError } = await supabase
-        .from('buyer_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-
-      let updateData: any = {};
+      const addressData: AddressData = {
+        firstName,
+        lastName,
+        addressLine1,
+        addressLine2: addressLine2 || undefined,
+        city,
+        state: state || undefined,
+        postalCode,
+        country,
+        phone: phone || undefined,
+      };
 
       if (isShipping) {
-        updateData = {
-          shipping_first_name: firstName,
-          shipping_last_name: lastName,
-          shipping_address_line1: addressLine1,
-          shipping_address_line2: addressLine2 || null,
-          shipping_city: city,
-          shipping_state: state || null,
-          shipping_postal_code: postalCode,
-          shipping_country: country,
-          shipping_phone: phone || null,
-        };
+        await buyerService.saveShippingAddress(user.id, addressData);
       } else {
-        updateData = {
-          billing_first_name: firstName,
-          billing_last_name: lastName,
-          billing_address_line1: addressLine1,
-          billing_address_line2: addressLine2 || null,
-          billing_city: city,
-          billing_state: state || null,
-          billing_postal_code: postalCode,
-          billing_country: country,
-          billing_phone: phone || null,
-        };
-      }
-
-      if (existingProfile) {
-        // Update existing profile
-        const { error: updateError } = await supabase
-          .from('buyer_profiles')
-          .update(updateData)
-          .eq('user_id', user.id);
-
-        if (updateError) throw updateError;
-      } else {
-        // Create new profile
-        const { error: insertError } = await supabase.from('buyer_profiles').insert({
-          user_id: user.id,
-          ...updateData,
-        });
-
-        if (insertError) throw insertError;
+        await buyerService.saveBillingAddress(user.id, addressData);
       }
 
       showSuccessToast(`${isShipping ? 'Shipping' : 'Billing'} address saved successfully`);

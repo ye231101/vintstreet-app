@@ -1,12 +1,23 @@
-import { listingsService, Product, Review, reviewsService, ReviewStats, Stream } from '@/api';
-import { supabase } from '@/api/config/supabase';
+import {
+  authService,
+  listingsService,
+  Product,
+  Review,
+  reviewsService,
+  ReviewStats,
+  sellerService,
+  Stream,
+  streamsService,
+} from '@/api';
 import { ContactModal } from '@/components/contact-modal';
 import { useAppSelector } from '@/store/hooks';
+import { blurhash } from '@/utils';
 import { showInfoToast, showWarningToast } from '@/utils/toast';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SellerProfile {
@@ -54,31 +65,30 @@ export default function SellerProfileScreen() {
     try {
       setIsLoading(true);
 
-      // Load seller profile
-      const { data: seller, error: sellerError } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .eq('user_id', sellerId)
-        .single();
+      // Load complete seller profile with user data
+      const { sellerProfile: sellerProfileData, userProfile } = await sellerService.getCompleteSellerProfile(sellerId);
 
-      if (sellerError) throw sellerError;
-      setSellerProfile(seller as unknown as SellerProfile);
+      const sellerProfile: SellerProfile = {
+        user_id: sellerId,
+        shop_name: sellerProfileData?.shop_name || '',
+        full_name: userProfile?.full_name || '',
+        username: userProfile?.username || '',
+        avatar_url: userProfile?.avatar_url || null,
+        bio: userProfile?.bio || '',
+        location: '', // This field doesn't exist in current schema
+        joined_date: userProfile?.created_at || '',
+        display_name_format: sellerProfileData?.display_name_format || 'shop_name',
+      };
+      setSellerProfile(sellerProfile);
 
       // Load seller products
       const products = await listingsService.getSellerListings(sellerId);
       setSellerProducts(products.filter((p) => p.status === 'published'));
 
       // Load upcoming shows
-      const { data: streams, error: streamsError } = await supabase
-        .from('streams')
-        .select('*')
-        .eq('seller_id', sellerId)
-        .eq('status', 'scheduled')
-        .order('start_time', { ascending: true });
-
-      if (!streamsError && streams) {
-        setUpcomingShows(streams as unknown as Stream[]);
-      }
+      const streams = await streamsService.getSellerStreams(sellerId);
+      const upcomingStreams = streams.filter((stream) => stream.status === 'scheduled');
+      setUpcomingShows(upcomingStreams);
 
       // Load reviews and stats
       const reviewsData = await reviewsService.getReviews(sellerId);
@@ -98,14 +108,8 @@ export default function SellerProfileScreen() {
 
       // Check if following (if user is logged in)
       if (user?.id) {
-        const { data: followData } = await supabase
-          .from('user_follows')
-          .select('id')
-          .eq('follower_id', user.id)
-          .eq('followed_user_id', sellerId)
-          .maybeSingle();
-
-        setIsFollowing(!!followData);
+        const following = await authService.isFollowing(user.id, sellerId);
+        setIsFollowing(following);
       }
     } catch (error) {
       console.error('Error loading seller data:', error);
@@ -124,21 +128,10 @@ export default function SellerProfileScreen() {
 
     try {
       if (action === 'follow') {
-        const { error } = await supabase.from('user_follows').insert({
-          follower_id: user.id,
-          followed_user_id: sellerId,
-        });
-
-        if (error) throw error;
+        await authService.followUser(user.id, sellerId);
         setIsFollowing(true);
       } else {
-        const { error } = await supabase
-          .from('user_follows')
-          .delete()
-          .eq('follower_id', user.id)
-          .eq('followed_user_id', sellerId);
-
-        if (error) throw error;
+        await authService.unfollowUser(user.id, sellerId);
         setIsFollowing(false);
       }
     } catch (error) {
@@ -161,12 +154,7 @@ export default function SellerProfileScreen() {
     try {
       setIsSubmittingReview(true);
 
-      await supabase.from('reviews').insert({
-        seller_id: sellerId,
-        buyer_id: user.id,
-        rating: newReviewRating,
-        comment: newReviewComment,
-      });
+      await reviewsService.createReview(sellerId, user.id, newReviewRating, newReviewComment);
 
       // Reload reviews
       const reviewsData = await reviewsService.getReviews(sellerId);
@@ -212,16 +200,13 @@ export default function SellerProfileScreen() {
   const renderProductItem = ({ item }: { item: Product }) => (
     <Pressable className="w-1/2 p-2" onPress={() => router.push(`/product/${item.id}` as any)}>
       <View className="bg-white rounded-lg overflow-hidden border border-gray-200">
-        {item.product_image ? (
-          <Image
-            source={{ uri: item.product_image }}
-            className="w-full"
-            style={{ aspectRatio: 1 }}
-            resizeMode="cover"
-          />
-        ) : (
-          <View className="w-full bg-gray-100" style={{ aspectRatio: 1 }} />
-        )}
+        <Image
+          source={item.product_image}
+          contentFit="cover"
+          placeholder={blurhash}
+          transition={1000}
+          style={{ width: '100%', aspectRatio: 1 }}
+        />
         <View className="p-2">
           <Text className="text-sm font-inter-semibold text-gray-800" numberOfLines={2}>
             {item.product_name}
@@ -283,17 +268,19 @@ export default function SellerProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-black">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="flex-1 bg-gray-50">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="bg-gray-50">
         {/* Header Section */}
         <View className="bg-white px-4 py-6 border-b border-gray-200">
           <View className="flex-row items-start">
             {/* Avatar */}
-            <View className="w-20 h-20 rounded-full bg-gray-200 items-center justify-center mr-4">
-              {sellerProfile.avatar_url ? (
-                <Image source={{ uri: sellerProfile.avatar_url }} className="w-20 h-20 rounded-full" />
-              ) : (
-                <Text className="text-2xl font-inter-bold text-gray-700">{displayName.charAt(0).toUpperCase()}</Text>
-              )}
+            <View className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 items-center justify-center mr-4">
+              <Image
+                source={sellerProfile.avatar_url}
+                contentFit="cover"
+                placeholder={blurhash}
+                transition={1000}
+                style={{ width: '100%', height: '100%' }}
+              />
             </View>
 
             {/* Info */}
@@ -302,7 +289,9 @@ export default function SellerProfileScreen() {
               {sellerProfile.username && (
                 <Text className="text-sm font-inter-semibold text-gray-500 mt-1">@{sellerProfile.username}</Text>
               )}
-              {sellerProfile.bio && <Text className="text-sm font-inter-semibold text-gray-700 mt-2">{sellerProfile.bio}</Text>}
+              {sellerProfile.bio && (
+                <Text className="text-sm font-inter-semibold text-gray-700 mt-2">{sellerProfile.bio}</Text>
+              )}
 
               {/* Stats */}
               <View className="flex-row items-center mt-3">
@@ -419,13 +408,15 @@ export default function SellerProfileScreen() {
                     className="bg-white p-4 rounded-lg border border-gray-200 mb-3"
                     onPress={() => router.push(`/stream/${show.id}` as any)}
                   >
-                    {show.thumbnail && (
+                    <View className="w-full h-40 rounded-lg overflow-hidden mb-3">
                       <Image
-                        source={{ uri: show.thumbnail }}
-                        className="w-full h-40 rounded-lg mb-3"
-                        resizeMode="cover"
+                        source={show.thumbnail}
+                        contentFit="cover"
+                        placeholder={blurhash}
+                        transition={1000}
+                        style={{ width: '100%', height: '100%' }}
                       />
-                    )}
+                    </View>
                     <Text className="text-base font-inter-semibold text-gray-900 mb-1">{show.title}</Text>
                     {show.description && (
                       <Text className="text-sm font-inter-semibold text-gray-600 mb-2" numberOfLines={2}>

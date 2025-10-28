@@ -1108,6 +1108,60 @@ class ListingsService {
       };
     });
   }
+
+  /**
+   * Get related products from the same category
+   * @param categoryId - The category ID to find related products for
+   * @param excludeId - The product ID to exclude from results
+   * @param limit - Maximum number of related products to return
+   */
+  async getRelatedProducts(categoryId: string, excludeId: string, limit: number = 4): Promise<Product[]> {
+    try {
+      // Fetch related products from the same category
+      const { data, error } = await supabase
+        .from('listings')
+        .select(
+          `
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_images,
+          seller_id,
+          category_id,
+          product_categories(id, name)
+        `
+        )
+        .eq('product_type', 'shop')
+        .eq('status', 'published')
+        .eq('category_id', categoryId)
+        .neq('id', excludeId)
+        .limit(limit);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      // Fetch seller info for all related products
+      const sellerIds = [...new Set(data.map((p: any) => p.seller_id))];
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
+      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+
+      const productsWithSellers = data.map((p: any) => ({
+        ...p,
+        seller_info_view: sellersMap.get(p.seller_id) || null,
+      })) as Product[];
+
+      return productsWithSellers;
+    } catch (error) {
+      console.error('Error fetching related products:', error);
+      throw new Error('Failed to fetch related products');
+    }
+  }
 }
 
 export const listingsService = new ListingsService();

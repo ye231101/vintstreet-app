@@ -197,6 +197,52 @@ class ReviewsService {
   }
 
   /**
+   * Create a new review
+   * @param sellerId - The seller's user ID
+   * @param buyerId - The buyer's user ID
+   * @param rating - The rating (1-5)
+   * @param comment - The review comment
+   * @param orderId - Optional order ID associated with the review
+   */
+  async createReview(sellerId: string, buyerId: string, rating: number, comment: string, orderId?: string): Promise<Review> {
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert({
+          seller_id: sellerId,
+          buyer_id: buyerId,
+          rating: rating,
+          comment: comment.trim(),
+          ...(orderId && { order_id: orderId }),
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to create review: ${error.message}`);
+      }
+
+      // Get buyer profile for the review
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, username, avatar_url')
+        .eq('user_id', buyerId)
+        .single();
+
+      const reviewData = {
+        ...(data as any),
+        buyer_profile: profile || null,
+        review_replies: [],
+      };
+
+      return this.transformReviewsData([reviewData as unknown as ReviewResponse])[0];
+    } catch (error) {
+      console.error('Error creating review:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Post a reply to a review
    * @param reviewId - The review ID to reply to
    * @param sellerId - The seller's user ID

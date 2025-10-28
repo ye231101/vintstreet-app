@@ -1,8 +1,10 @@
 import { useAuth } from '@/hooks/use-auth';
+import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AccountScreen() {
@@ -26,12 +28,10 @@ export default function AccountScreen() {
           {/* Profile Avatar */}
           <View className="items-center justify-center w-24 h-24 mr-4 overflow-hidden rounded-full bg-gray-200">
             <Image
-              source={{
-                uri: user?.avatar_url
-                  ? user.avatar_url
-                  : `https://ui-avatars.com/api/?name=${user?.full_name}&length=1`,
-              }}
-              resizeMode="cover"
+              source={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.full_name}&length=1`}
+              contentFit="cover"
+              placeholder={blurhash}
+              transition={1000}
               style={{ width: '100%', height: '100%' }}
             />
           </View>

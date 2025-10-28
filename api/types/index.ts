@@ -1,6 +1,7 @@
 export * from './attributes.types';
 export * from './auth.types';
 export * from './brands.types';
+export * from './buyer.types';
 export * from './cart.types';
 export * from './categories.types';
 export * from './database.types';

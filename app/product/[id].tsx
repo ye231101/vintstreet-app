@@ -1,19 +1,19 @@
-import { listingsService, Product } from '@/api';
-import { supabase } from '@/api/config/supabase';
+import { attributesService, listingsService, Product } from '@/api';
 import { ContactModal } from '@/components/contact-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { useAppSelector } from '@/store/hooks';
 import { selectCartItemByProductId } from '@/store/selectors/cartSelectors';
+import { blurhash } from '@/utils';
 import { showInfoToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -88,13 +88,8 @@ export default function ProductDetailScreen() {
 
       try {
         setAttributesLoading(true);
-        const { data, error } = await supabase
-          .from('product_attribute_values')
-          .select(`*, attributes (id, name, data_type)`)
-          .eq('product_id', id);
-
-        if (error) throw error;
-        setProductAttributes(data || []);
+        const attributes = await attributesService.getProductAttributeValues(id);
+        setProductAttributes(attributes);
       } catch (error) {
         console.error('Error loading product attributes:', error);
         setProductAttributes([]);
@@ -114,46 +109,8 @@ export default function ProductDetailScreen() {
       try {
         setRelatedProductsLoading(true);
 
-        // Fetch related products from the same category
-        const { data, error } = await supabase
-          .from('listings')
-          .select(
-            `
-            id,
-            product_name,
-            starting_price,
-            discounted_price,
-            product_image,
-            product_images,
-            seller_id,
-            category_id,
-            product_categories(id, name)
-          `
-          )
-          .eq('product_type', 'shop')
-          .eq('status', 'published')
-          .eq('category_id', product.category_id)
-          .neq('id', id)
-          .limit(4);
-
-        if (error) throw error;
-
-        if (data && data.length > 0) {
-          // Fetch seller info for all related products
-          const sellerIds = [...new Set(data.map((p: any) => p.seller_id))];
-          const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
-
-          const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
-
-          const productsWithSellers = data.map((p: any) => ({
-            ...p,
-            seller_info_view: sellersMap.get(p.seller_id) || null,
-          }));
-
-          setRelatedProducts(productsWithSellers);
-        } else {
-          setRelatedProducts([]);
-        }
+        const relatedProducts = await listingsService.getRelatedProducts(product.category_id, id, 4);
+        setRelatedProducts(relatedProducts);
       } catch (error) {
         console.error('Error loading related products:', error);
         setRelatedProducts([]);
@@ -279,10 +236,11 @@ export default function ProductDetailScreen() {
                 {product.product_images.map((imageUrl: string, index: number) => (
                   <View key={index} style={{ width: SCREEN_WIDTH }}>
                     <Image
-                      source={{ uri: imageUrl }}
-                      className="w-full"
-                      style={{ aspectRatio: 1 }}
-                      resizeMode="contain"
+                      source={imageUrl}
+                      contentFit="cover"
+                      placeholder={blurhash}
+                      transition={1000}
+                      style={{ width: '100%', aspectRatio: 1 }}
                     />
                   </View>
                 ))}
@@ -530,19 +488,17 @@ export default function ProductDetailScreen() {
                   {/* Seller Profile Section */}
                   <View className="bg-white p-4 mb-4">
                     <View className="flex-row items-center mb-3">
-                      <View className="w-10 h-10 rounded-full bg-gray-200 items-center justify-center mr-3">
-                        {product.seller_info_view?.avatar_url ? (
-                          <Image
-                            source={{ uri: product.seller_info_view.avatar_url }}
-                            className="w-10 h-10 rounded-full"
-                          />
-                        ) : (
-                          <Text className="text-sm font-inter-semibold text-gray-700">
-                            {product.seller_info_view?.shop_name?.charAt(0) ||
-                              product.seller_info_view?.full_name?.charAt(0) ||
-                              'S'}
-                          </Text>
-                        )}
+                      <View className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 items-center justify-center mr-3">
+                        <Image
+                          source={
+                            product.seller_info_view?.avatar_url ||
+                            `https://ui-avatars.com/api/?name=${product.seller_info_view?.full_name}&length=1`
+                          }
+                          contentFit="cover"
+                          placeholder={blurhash}
+                          transition={1000}
+                          style={{ width: '100%', height: '100%' }}
+                        />
                       </View>
                       <View className="flex-1">
                         <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={1}>
@@ -597,20 +553,14 @@ export default function ProductDetailScreen() {
                       className="w-44 bg-white rounded-lg overflow-hidden mx-2 border border-gray-200"
                     >
                       {/* Product Image */}
-                      <View className="w-full h-44 bg-gray-100 relative">
-                        {relatedProduct.product_image || relatedProduct.product_images?.[0] ? (
-                          <Image
-                            source={{
-                              uri: relatedProduct.product_image || relatedProduct.product_images?.[0],
-                            }}
-                            className="w-full h-full"
-                            resizeMode="cover"
-                          />
-                        ) : (
-                          <View className="w-full h-full items-center justify-center">
-                            <Feather name="image" size={32} color="#ccc" />
-                          </View>
-                        )}
+                      <View className="w-full h-44 overflow-hidden relative">
+                        <Image
+                          source={relatedProduct.product_image || relatedProduct.product_images?.[0]}
+                          contentFit="cover"
+                          placeholder={blurhash}
+                          transition={1000}
+                          style={{ width: '100%', height: '100%' }}
+                        />
 
                         {/* Wishlist Heart Icon */}
                         <Pressable

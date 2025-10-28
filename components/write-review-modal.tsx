@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config/supabase';
+import { reviewsService } from '@/api';
 import { showInfoToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -41,15 +41,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('reviews').insert({
-        seller_id: sellerId,
-        buyer_id: userId,
-        rating: rating,
-        comment: comment.trim(),
-        order_id: orderId,
-      });
-
-      if (error) throw error;
+      await reviewsService.createReview(sellerId, userId, rating, comment.trim(), orderId);
 
       handleClose();
       onSuccess?.();
@@ -138,7 +130,9 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
                 onChangeText={setComment}
                 maxLength={500}
               />
-              <Text className="text-xs font-inter-semibold text-gray-500 text-right mt-1">{comment.length}/500 characters</Text>
+              <Text className="text-xs font-inter-semibold text-gray-500 text-right mt-1">
+                {comment.length}/500 characters
+              </Text>
             </View>
 
             {/* Actions */}

@@ -6,6 +6,7 @@
 export { attributesService } from './attributes.service';
 export { authService } from './auth.service';
 export { brandsService } from './brands.service';
+export { buyerService } from './buyer.service';
 export { cartService } from './cart.service';
 export { categoriesService } from './categories.service';
 export { listingsService } from './listings.service';

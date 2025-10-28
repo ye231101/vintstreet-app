@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config/supabase';
+import { authService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -92,29 +92,14 @@ export default function SellerSetupScreen() {
       // Update user type to seller or both
       const newUserType = user.user_type === 'buyer' ? 'both' : 'seller';
 
-      // Update user_type in profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          user_type: newUserType,
-        })
-        .eq('user_id', user.id);
+      // Update profile using auth service
+      const { error: profileError, success } = await authService.updateProfile({
+        user_type: newUserType,
+        shop_name: shopName.trim(),
+      });
 
-      if (profileError) {
-        throw new Error(`Failed to update profile: ${profileError.message}`);
-      }
-
-      // Try to update shop_name if the column exists
-      try {
-        await supabase
-          .from('profiles')
-          .update({
-            shop_name: shopName.trim(),
-          })
-          .eq('user_id', user.id);
-      } catch (err) {
-        // Shop name column might not exist, continue anyway
-        console.log('Could not update shop_name:', err);
+      if (!success || profileError) {
+        throw new Error(`Failed to update profile: ${profileError || 'Unknown error'}`);
       }
 
       // Store seller preferences in user metadata (optional)

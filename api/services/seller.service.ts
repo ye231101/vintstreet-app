@@ -1,5 +1,5 @@
 import { supabase } from '../config/supabase';
-import { DashboardReports, SellerSettings } from '../types';
+import { DashboardReports, SellerProfile, SellerSettings } from '../types';
 
 class SellerService {
   /**
@@ -161,6 +161,113 @@ class SellerService {
       start: start.toISOString(),
       end,
     };
+  }
+
+  /**
+   * Get seller profile by user ID
+   * @param userId - The user ID
+   */
+  async getSellerProfile(userId: string): Promise<SellerProfile | null> {
+    try {
+      const { data, error } = await supabase.from('seller_profiles').select('*').eq('user_id', userId).single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      return data as unknown as SellerProfile | null;
+    } catch (error) {
+      console.error('Error fetching seller profile:', error);
+      throw new Error('Failed to fetch seller profile');
+    }
+  }
+
+  /**
+   * Create or update seller profile
+   * @param userId - The user ID
+   * @param profileData - The profile data to save
+   */
+  async saveSellerProfile(userId: string, profileData: Partial<SellerProfile>): Promise<SellerProfile> {
+    try {
+      // Check if profile exists
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('seller_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      if (existingProfile) {
+        // Update existing profile
+        const { data, error: updateError } = await supabase
+          .from('seller_profiles')
+          .update(profileData)
+          .eq('user_id', userId)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        return data as unknown as SellerProfile;
+      } else {
+        // Create new profile
+        const { data, error: insertError } = await supabase
+          .from('seller_profiles')
+          .insert({
+            user_id: userId,
+            ...profileData,
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        return data as unknown as SellerProfile;
+      }
+    } catch (error) {
+      console.error('Error saving seller profile:', error);
+      throw new Error('Failed to save seller profile');
+    }
+  }
+
+  /**
+   * Get complete seller profile with user profile data
+   * @param userId - The user ID
+   */
+  async getCompleteSellerProfile(userId: string): Promise<{
+    sellerProfile: SellerProfile | null;
+    userProfile: {
+      full_name: string | null;
+      username: string | null;
+      avatar_url: string | null;
+      bio: string | null;
+      created_at: string | null;
+    } | null;
+  }> {
+    try {
+      // Get seller profile
+      const sellerProfile = await this.getSellerProfile(userId);
+
+      // Get user profile data
+      const { data: userProfile, error: userError } = await supabase
+        .from('profiles')
+        .select('full_name, username, avatar_url, bio, created_at')
+        .eq('user_id', userId)
+        .single();
+
+      if (userError && userError.code !== 'PGRST116') {
+        console.error('Error fetching user profile:', userError);
+      }
+
+      return {
+        sellerProfile,
+        userProfile: userProfile ? (userProfile as any) : null,
+      };
+    } catch (error) {
+      console.error('Error fetching complete seller profile:', error);
+      throw new Error('Failed to fetch complete seller profile');
+    }
   }
 
   /**

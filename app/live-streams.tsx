@@ -1,16 +1,10 @@
 import { Stream, streamsService } from '@/api';
+import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LiveStreamsScreen() {
@@ -127,11 +121,14 @@ export default function LiveStreamsScreen() {
                 {/* Stream Thumbnail */}
                 <View className="relative">
                   <Image
-                    source={{
-                      uri: stream.thumbnail || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=450&fit=crop',
-                    }}
-                    className="w-full h-48"
-                    resizeMode="cover"
+                    source={
+                      stream.thumbnail ||
+                      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=450&fit=crop'
+                    }
+                    contentFit="cover"
+                    placeholder={blurhash}
+                    transition={1000}
+                    style={{ width: '100%', aspectRatio: 16 / 9 }}
                   />
                   {/* Live Badge */}
                   <View className="absolute top-3 left-3 bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
@@ -165,4 +162,3 @@ export default function LiveStreamsScreen() {
     </SafeAreaView>
   );
 }
-
