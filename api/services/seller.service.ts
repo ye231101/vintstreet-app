@@ -38,15 +38,7 @@ export interface TopSellingProduct {
 
 export interface SellerSettings {
   storeName: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: {
-    fullAddress: string;
-  };
-  gravatar: string;
-  trusted: boolean;
+  fullName: string;
   rating: {
     rating: number;
     count: number;
@@ -320,22 +312,10 @@ class SellerService {
       const reviewCount = reviews?.length || 0;
       const averageRating = reviewCount > 0 ? reviews!.reduce((sum, r: any) => sum + r.rating, 0) / reviewCount : 0;
 
-      // Parse full name
-      const fullName = ((profile as any)?.full_name || '').split(' ');
-      const firstName = fullName[0] || '';
-      const lastName = fullName.slice(1).join(' ') || '';
-
+      const fullName = (profile as any)?.full_name || '';
       return {
-        storeName: (sellerInfo as any)?.store_name || 'My Store',
-        firstName,
-        lastName,
-        email: (profile as any)?.email || '',
-        phone: (profile as any)?.phone || '',
-        address: {
-          fullAddress: (sellerInfo as any)?.address || '',
-        },
-        gravatar: (profile as any)?.avatar_url || '',
-        trusted: (sellerInfo as any)?.is_verified || false,
+        storeName: (sellerInfo as any)?.shop_name || 'My Store',
+        fullName,
         rating: {
           rating: Math.round(averageRating * 10) / 10,
           count: reviewCount,
