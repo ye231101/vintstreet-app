@@ -196,7 +196,7 @@ export default function ListingsScreen() {
             <TouchableOpacity
               onPress={() => {
                 router.push({
-                  pathname: '/(tabs)/sell',
+                  pathname: '/seller/sell',
                   params: { productId: product.id },
                 } as any);
               }}
@@ -264,7 +264,7 @@ export default function ListingsScreen() {
 
             <TouchableOpacity
               onPress={() => {
-                router.push('/(tabs)/sell');
+                router.push('/seller/sell');
               }}
               className="bg-white rounded-lg py-4 px-5 mb-4 items-center border border-gray-300 shadow-sm"
             >
