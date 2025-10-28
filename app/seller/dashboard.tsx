@@ -1,7 +1,7 @@
 import { sellerService } from '@/api/services';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -26,15 +26,7 @@ interface ReportsData {
 
 interface SellerSettings {
   storeName: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: {
-    fullAddress: string;
-  };
-  gravatar: string;
-  trusted: boolean;
+  fullName: string;
   rating: {
     rating: number;
     count: number;
@@ -146,33 +138,52 @@ export default function DashboardScreen() {
     );
   };
 
+  const renderStars = (rating: number, size: number = 16) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      let starName: 'star' | 'star-half-o' | 'star-o';
+
+      if (rating >= i) {
+        // Full star
+        starName = 'star';
+      } else if (Math.ceil(rating) >= i) {
+        // Half star
+        starName = 'star-half-o';
+      } else {
+        // Empty star
+        starName = 'star-o';
+      }
+
+      stars.push(
+        <FontAwesome key={i} name={starName} size={size} color="#FFD700" style={{ marginRight: i < 5 ? 2 : 0 }} />
+      );
+    }
+    return stars;
+  };
+
   const StoreProfileCard = () => {
     if (!sellerSettings) return null;
 
     return (
       <View className="bg-white rounded-xl p-4 shadow-sm">
+        {/* Store Header */}
         <View className="flex-row items-center mb-4">
-          <View className="w-12 h-12 rounded-full bg-gray-200 justify-center items-center mr-4">
-            <Feather name="shopping-bag" color="#333" size={25} />
+          <View className="w-16 h-16 rounded-full bg-blue-100 justify-center items-center mr-4">
+            <Feather name="shopping-bag" color="#007AFF" size={28} />
           </View>
 
           <View className="flex-1">
-            <Text className="text-gray-900 text-lg font-inter-bold mb-1">{sellerSettings.storeName}</Text>
-            <Text className="text-gray-600 text-sm font-inter">
-              {sellerSettings.firstName} {sellerSettings.lastName}
-            </Text>
+            <Text className="text-gray-900 text-xl font-inter-bold mb-1">{sellerSettings.storeName}</Text>
+            {sellerSettings.rating.count > 0 && (
+              <View className="flex-row items-center">
+                {renderStars(sellerSettings.rating.rating, 14)}
+                <Text className="text-gray-900 text-sm font-inter ml-1">
+                  {sellerSettings.rating.rating} ({sellerSettings.rating.count} reviews)
+                </Text>
+              </View>
+            )}
           </View>
         </View>
-
-        {sellerSettings.rating.count > 0 && (
-          <View className="flex-row items-center">
-            <Feather name="star" color="#666" size={16} />
-            <Text className="text-gray-600 text-xs font-inter-semibold ml-2">Rating</Text>
-            <Text className="text-gray-900 text-sm ml-2">
-              {sellerSettings.rating.rating} ({sellerSettings.rating.count} reviews)
-            </Text>
-          </View>
-        )}
       </View>
     );
   };
@@ -221,7 +232,9 @@ export default function DashboardScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Seller Dashboard</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
+            {sellerSettings?.storeName || 'Seller Dashboard'}
+          </Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4 bg-gray-50">
@@ -240,7 +253,9 @@ export default function DashboardScreen() {
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Seller Dashboard</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
+            {sellerSettings?.storeName || 'Seller Dashboard'}
+          </Text>
         </View>
 
         <View className="flex-1 justify-center items-center p-4 bg-gray-50">
@@ -385,8 +400,11 @@ export default function DashboardScreen() {
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
                 <Text className="text-gray-900 text-lg font-inter-bold">Store Profile</Text>
-                <TouchableOpacity onPress={() => router.push('/other/app-settings')}>
-                  <Text className="text-blue-600 text-base font-inter">Edit</Text>
+                <TouchableOpacity onPress={() => router.push('/seller/shop-settings')}>
+                  <View className="flex-row items-center">
+                    <Feather name="edit-2" color="#007AFF" size={16} />
+                    <Text className="text-blue-600 text-base font-inter ml-1">Edit</Text>
+                  </View>
                 </TouchableOpacity>
               </View>
               <StoreProfileCard />
