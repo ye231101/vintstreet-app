@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Pressable, Text } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { Feather } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import DropdownComponent from './common/dropdown';
 
 export interface FilterSortBarProps {
   filterCount?: number;
@@ -10,23 +10,22 @@ export interface FilterSortBarProps {
   onSortChange?: (value: string) => void;
 }
 
-const FilterSortBar: React.FC<FilterSortBarProps> = ({
+const SortBar: React.FC<FilterSortBarProps> = ({
   filterCount = 0,
   sortBy = 'Most Relevant',
   onFilterPress,
   onSortChange,
 }) => {
-  const [sortOpen, setSortOpen] = useState(false);
   const [sortValue, setSortValue] = useState(sortBy);
 
-  const [sortItems, setSortItems] = useState([
+  const SORT_OPTIONS = [
     { label: 'Most Relevant', value: 'Most Relevant' },
     { label: 'Price: Low to High', value: 'Price: Low to High' },
     { label: 'Price: High to Low', value: 'Price: High to Low' },
     { label: 'Newest First', value: 'Newest First' },
     { label: 'Oldest First', value: 'Oldest First' },
     { label: 'Most Popular', value: 'Most Popular' },
-  ]);
+  ];
 
   const handleSortChange = (value: string) => {
     setSortValue(value);
@@ -50,40 +49,17 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
 
         {/* Sort Dropdown */}
         <View className="flex-1">
-          <DropDownPicker
-            open={sortOpen}
-            items={sortItems}
+          <DropdownComponent
+            data={SORT_OPTIONS}
             value={sortValue}
-            listMode="SCROLLVIEW"
-            setOpen={setSortOpen}
-            setItems={setSortItems}
-            setValue={(callback) => {
-              const newValue = typeof callback === 'function' ? callback(sortValue) : callback;
-              handleSortChange(newValue);
-            }}
             placeholder="Sort by"
+            onChange={(item) => handleSortChange(item.value)}
             style={{
               backgroundColor: '#fff',
               borderColor: '#d1d5db',
               borderRadius: 8,
-              minHeight: 40,
+              height: 40,
             }}
-            textStyle={{
-              fontSize: 14,
-              fontFamily: 'Inter',
-            }}
-            dropDownContainerStyle={{
-              borderColor: '#e5e7eb',
-              borderRadius: 8,
-              maxHeight: 300,
-            }}
-            scrollViewProps={{
-              nestedScrollEnabled: true,
-              scrollEnabled: true,
-              showsVerticalScrollIndicator: true,
-            }}
-            zIndex={2000}
-            zIndexInverse={3000}
           />
         </View>
       </View>
@@ -91,4 +67,4 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
   );
 };
 
-export default FilterSortBar;
+export default SortBar;
