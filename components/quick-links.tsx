@@ -1,65 +1,64 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Dimensions, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-type NavigationType = 'internal' | 'helpCenter';
+enum NavigationType {
+  Internal = 'internal',
+  HelpCenter = 'helpCenter',
+  External = 'external',
+}
 
 interface QuickLink {
-  id: number;
   title: string;
-  subtitle: string;
-  image: any;
-  link?: string;
-  navigationType?: NavigationType;
-  routeName?: string;
+  description: string;
+  imageUrl: any;
+  link: string;
+  navigationType: NavigationType;
+  routeName: string;
 }
 
 const quickLinks: QuickLink[] = [
   {
-    id: 1,
     title: 'Meet Vint Street',
-    subtitle: 'What, who, where, why, and how',
-    image: require('@/assets/images/homepage_slider/1.jpg'),
+    description: 'What, who, where, why, and how',
+    imageUrl: require('@/assets/images/homepage_slider/1.jpg'),
     link: 'https://vintstreet.com/about',
-    navigationType: 'internal',
+    navigationType: NavigationType.Internal,
     routeName: '/articles/meet-vint-street',
   },
   {
-    id: 2,
     title: 'Buying, Selling & Re-Listing',
-    subtitle: 'Learn how it all works',
-    image: require('@/assets/images/homepage_slider/2.jpg'),
+    description: 'Learn how it all works',
+    imageUrl: require('@/assets/images/homepage_slider/2.jpg'),
     link: 'https://vintstreet.com/sell',
-    navigationType: 'internal',
+    navigationType: NavigationType.Internal,
     routeName: '/articles/selling-relisting',
   },
   {
-    id: 4,
     title: 'Get Informed',
-    subtitle: 'See the best fits. Add yours.',
-    image: require('@/assets/images/homepage_slider/4.jpg'),
+    description: 'See the best fits. Add yours.',
+    imageUrl: require('@/assets/images/homepage_slider/4.jpg'),
     link: 'https://vintstreet.com/inspiration',
-    navigationType: 'internal',
+    navigationType: NavigationType.Internal,
     routeName: '/articles/get-informed',
   },
   {
-    id: 5,
     title: 'Our Community',
-    subtitle: 'Join the discussion',
-    image: require('@/assets/images/homepage_slider/5.jpg'),
+    description: 'Join the discussion',
+    imageUrl: require('@/assets/images/homepage_slider/5.jpg'),
     link: 'https://vintstreet.com/community',
-    navigationType: 'internal',
+    navigationType: NavigationType.Internal,
     routeName: '/articles/our-community',
   },
   {
-    id: 6,
     title: 'Help Centre',
-    subtitle: 'Problem? Solved!',
-    image: require('@/assets/images/homepage_slider/6.jpg'),
+    description: 'Problem? Solved!',
+    imageUrl: require('@/assets/images/homepage_slider/6.jpg'),
     link: 'https://vintstreet.com/help',
-    navigationType: 'helpCenter',
+    navigationType: NavigationType.HelpCenter,
     routeName: '/account/help-center',
   },
 ];
@@ -84,13 +83,28 @@ export default function QuickLinks() {
 
   const handleTap = (item: QuickLink) => {
     switch (item.navigationType) {
-      case 'internal': {
+      case NavigationType.Internal: {
+        // Pass the item data as parameters to the article screen
+        router.push({
+          pathname: item.routeName as any,
+          params: {
+            title: item.title,
+            description: item.description,
+            link: item.link,
+          },
+        });
         break;
       }
-      case 'helpCenter': {
+      case NavigationType.HelpCenter: {
+        router.push('/other/help-center' as any);
+        break;
+      }
+      case NavigationType.External: {
+        launchUrl(item.link);
         break;
       }
       default: {
+        launchUrl(item.link);
         break;
       }
     }
@@ -114,10 +128,10 @@ export default function QuickLinks() {
           scrollEventThrottle={16}
           className="absolute inset-0"
         >
-          {quickLinks.map((item) => (
-            <View key={item.id} style={{ width: screenWidth - 16 }}>
+          {quickLinks.map((item, index) => (
+            <View key={index} style={{ width: screenWidth - 16 }}>
               <Pressable onPress={() => handleTap(item)} className="w-full relative" style={{ aspectRatio: 16 / 7 }}>
-                <Image source={item.image} resizeMode="cover" className="w-full h-full" />
+                <Image source={item.imageUrl} resizeMode="cover" className="w-full h-full" />
                 <LinearGradient
                   colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.7)']}
                   start={{ x: 0, y: 0 }}
@@ -126,7 +140,7 @@ export default function QuickLinks() {
                 />
                 <View className="absolute left-4 right-4 bottom-6">
                   <Text className="text-2xl font-inter-bold text-white mb-3">{item.title}</Text>
-                  <Text className="text-base font-inter-semibold text-white opacity-95">{item.subtitle}</Text>
+                  <Text className="text-base font-inter-semibold text-white opacity-95">{item.description}</Text>
                 </View>
               </Pressable>
             </View>

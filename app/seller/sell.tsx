@@ -843,7 +843,7 @@ export default function SellScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-50 bg-black">
+    <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
       <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
         <TouchableOpacity onPress={handleNavigationAway} hitSlop={8}>
