@@ -24,24 +24,6 @@ interface ReportsData {
   };
 }
 
-interface RecentOrder {
-  id: string;
-  number: string;
-  status: string;
-  total: number;
-  formattedTotal: string;
-  dateCreated: string;
-}
-
-interface TopSellingProduct {
-  id: string;
-  title: string;
-  soldQty: number;
-  formattedSoldQty: string;
-  revenue?: number;
-  formattedRevenue?: string;
-}
-
 interface SellerSettings {
   storeName: string;
   firstName: string;
@@ -64,9 +46,7 @@ export default function DashboardScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reportsData, setReportsData] = useState<ReportsData | null>(null);
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [sellerSettings, setSellerSettings] = useState<SellerSettings | null>(null);
-  const [topSellingProducts, setTopSellingProducts] = useState<TopSellingProduct[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState('week');
   const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
 
@@ -95,17 +75,13 @@ export default function DashboardScreen() {
 
     try {
       // Fetch all dashboard data in parallel
-      const [reports, orders, settings, topProducts] = await Promise.all([
+      const [reports, settings] = await Promise.all([
         sellerService.getDashboardReports(user.id, selectedPeriod),
-        sellerService.getRecentOrders(user.id, 5),
         sellerService.getSellerSettings(user.id),
-        sellerService.getTopSellingProducts(user.id, selectedPeriod, 5),
       ]);
 
       setReportsData(reports);
-      setRecentOrders(orders);
       setSellerSettings(settings);
-      setTopSellingProducts(topProducts);
     } catch (err: any) {
       console.error('Error loading dashboard data:', err);
       setError(err?.message || 'Error loading dashboard data');
@@ -169,27 +145,6 @@ export default function DashboardScreen() {
       </View>
     );
   };
-
-  const RecentOrdersList = () => (
-    <View className="bg-white rounded-xl shadow-sm">
-      {recentOrders.map((order, index) => (
-        <View key={order.id}>
-          <View className="flex-row items-center p-4">
-            <View className="flex-1">
-              <Text className="text-gray-900 text-base font-inter-bold mb-1">{order.number}</Text>
-              <Text className="text-gray-600 text-sm font-inter">
-                {order.status} • {order.formattedTotal}
-              </Text>
-            </View>
-            <TouchableOpacity className="bg-blue-600 rounded-lg py-2 px-4">
-              <Text className="text-white text-sm font-inter-bold">View</Text>
-            </TouchableOpacity>
-          </View>
-          {index < recentOrders.length - 1 && <View className="h-px bg-gray-200 ml-4" />}
-        </View>
-      ))}
-    </View>
-  );
 
   const StoreProfileCard = () => {
     if (!sellerSettings) return null;
@@ -437,17 +392,6 @@ export default function DashboardScreen() {
               <StoreProfileCard />
             </View>
           )}
-
-          {/* Recent Orders
-          <View className="mb-6">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 text-lg font-inter-bold">Recent Orders</Text>
-              <TouchableOpacity onPress={() => router.push('/seller/orders')}>
-                <Text className="text-blue-600 text-base font-inter">View All</Text>
-              </TouchableOpacity>
-            </View>
-            <RecentOrdersList />
-          </View> */}
 
           {/* Financial Summary */}
           {reportsData?.summary && <FinancialSummary />}
