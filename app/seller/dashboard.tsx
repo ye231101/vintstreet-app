@@ -1,3 +1,4 @@
+import { sellerService } from '@/api/services';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
@@ -5,7 +6,6 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { sellerService } from '@/api/services';
 
 interface ReportsData {
   summary: {
@@ -118,14 +118,6 @@ export default function DashboardScreen() {
     if (period !== selectedPeriod) {
       setSelectedPeriod(period);
     }
-  };
-
-  const navigateToProduct = (productId: string) => {
-    router.push(`/product/${productId}` as any);
-  };
-
-  const navigateToEditProduct = (productId: string) => {
-    // router.push(`/sell/edit/${productId}`);
   };
 
   const StatsCard = ({ title, value, isPositive = true }: { title: string; value: string; isPositive?: boolean }) => (
