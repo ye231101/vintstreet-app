@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { DropdownComponent, DropdownItem } from './dropdown';
+import DropdownComponent from './common/dropdown';
 
 interface ShippingSettingsModalProps {
   isOpen: boolean;
@@ -167,7 +167,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
     onClose();
   };
 
-  const COUNTRY_OPTIONS: DropdownItem[] = [
+  const COUNTRY_OPTIONS = [
     { label: 'United Kingdom', value: 'GB' },
     { label: 'United States', value: 'US' },
     { label: 'Canada', value: 'CA' },
@@ -261,9 +261,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                     data={COUNTRY_OPTIONS}
                     value={countryValue}
                     placeholder="Select a country"
-                    onChange={(item: DropdownItem) =>
-                      setAddressData((prev) => ({ ...prev, return_country: item.value as string }))
-                    }
+                    onChange={(item) => setAddressData((prev) => ({ ...prev, return_country: item.value }))}
                   />
                 </View>
 

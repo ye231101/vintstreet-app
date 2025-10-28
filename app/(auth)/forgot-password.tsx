@@ -1,4 +1,4 @@
-import { InputComponent } from '@/components/input';
+import InputComponent from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';

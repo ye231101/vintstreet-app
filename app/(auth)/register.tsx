@@ -1,5 +1,5 @@
-import { DropdownComponent, DropdownItem } from '@/components/dropdown';
-import { InputComponent } from '@/components/input';
+import DropdownComponent from '@/components/common/dropdown';
+import InputComponent from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -40,7 +40,7 @@ export default function RegisterScreen() {
   const [obscurePassword, setObscurePassword] = useState(true);
   const [obscureConfirmPassword, setObscureConfirmPassword] = useState(true);
 
-  const accountTypeOptions = [
+  const ACCOUNT_TYPE_OPTIONS = [
     { label: 'Buyer - I want to shop', value: 'buyer' },
     { label: 'Seller - I want to sell', value: 'seller' },
     { label: 'Both - Buy and sell', value: 'both' },
@@ -209,11 +209,11 @@ export default function RegisterScreen() {
             />
 
             <DropdownComponent
-              data={accountTypeOptions}
+              data={ACCOUNT_TYPE_OPTIONS}
               value={formData.accountType}
               icon="users"
               placeholder="Choose your account type"
-              onChange={(item: DropdownItem) => updateFormData('accountType', item.value)}
+              onChange={(item) => updateFormData('accountType', item.value)}
               error={errors.accountType}
             />
 

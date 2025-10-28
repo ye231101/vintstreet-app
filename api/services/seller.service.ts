@@ -321,7 +321,7 @@ class SellerService {
       const averageRating = reviewCount > 0 ? reviews!.reduce((sum, r: any) => sum + r.rating, 0) / reviewCount : 0;
 
       // Parse full name
-      const fullName = (profile?.full_name || '').split(' ');
+      const fullName = ((profile as any)?.full_name || '').split(' ');
       const firstName = fullName[0] || '';
       const lastName = fullName.slice(1).join(' ') || '';
 
@@ -329,12 +329,12 @@ class SellerService {
         storeName: (sellerInfo as any)?.store_name || 'My Store',
         firstName,
         lastName,
-        email: profile?.email || '',
-        phone: profile?.phone || '',
+        email: (profile as any)?.email || '',
+        phone: (profile as any)?.phone || '',
         address: {
           fullAddress: (sellerInfo as any)?.address || '',
         },
-        gravatar: profile?.avatar_url || '',
+        gravatar: (profile as any)?.avatar_url || '',
         trusted: (sellerInfo as any)?.is_verified || false,
         rating: {
           rating: Math.round(averageRating * 10) / 10,

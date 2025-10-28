@@ -19,7 +19,7 @@ interface InputProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export const InputComponent: React.FC<InputProps> = ({
+const InputComponent: React.FC<InputProps> = ({
   label,
   value,
   required = false,
@@ -58,9 +58,11 @@ export const InputComponent: React.FC<InputProps> = ({
         </Text>
       )}
       <View style={[styles.input, style]}>
-        <Text className="mr-2">
-          <Feather name={icon as any} size={24} color="black" />
-        </Text>
+        {icon && (
+          <Text className="mr-2">
+            <Feather name={icon as any} size={24} color="black" />
+          </Text>
+        )}
         <TextInput
           value={value}
           onChangeText={onChangeText}
@@ -85,3 +87,5 @@ export const InputComponent: React.FC<InputProps> = ({
     </View>
   );
 };
+
+export default InputComponent;

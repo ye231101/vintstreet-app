@@ -1,6 +1,6 @@
 import { Order, ordersService } from '@/api/services/orders.service';
+import DropdownComponent from '@/components/common/dropdown';
 import { ContactModal } from '@/components/contact-modal';
-import { DropdownComponent, DropdownItem } from '@/components/dropdown';
 import { blurhash } from '@/utils';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -20,7 +20,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
   const [trackingNumber, setTrackingNumber] = useState(order.tracking_number || '');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isSavingTracking, setIsSavingTracking] = useState(false);
-  const STATUS_OPTIONS: DropdownItem[] = [
+  const STATUS_OPTIONS = [
     {
       label: 'Pending',
       value: 'pending',
@@ -191,7 +191,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
                   data={STATUS_OPTIONS}
                   value={selectedStatus}
                   placeholder="Select a status"
-                  onChange={(item: DropdownItem) => handleStatusChange(item.value)}
+                  onChange={(item) => handleStatusChange(item.value)}
                   disabled={isUpdating}
                 />
               </View>

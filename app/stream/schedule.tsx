@@ -1,6 +1,6 @@
-import { StorageService } from '@/api/services/storage.service';
+import { storageService } from '@/api/services/storage.service';
 import { CreateStreamData, streamsService } from '@/api/services/streams.service';
-import { DropdownComponent, DropdownItem } from '@/components/dropdown';
+import DropdownComponent from '@/components/common/dropdown';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -23,7 +23,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const STREAM_CATEGORY_OPTIONS: DropdownItem[] = [
+const STREAM_CATEGORY_OPTIONS = [
   { label: 'Fashion', value: 'Fashion' },
   { label: 'Electronics', value: 'Electronics' },
   { label: 'Collectibles', value: 'Collectibles' },
@@ -292,7 +292,7 @@ export default function ScheduleStreamScreen() {
         });
       }, 200);
 
-      const result = await StorageService.uploadImage(imageUri, user.id);
+      const result = await storageService.uploadImage(imageUri, user.id);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -408,7 +408,7 @@ export default function ScheduleStreamScreen() {
                   data={STREAM_CATEGORY_OPTIONS}
                   value={category}
                   placeholder="Select a category for your stream"
-                  onChange={(item: DropdownItem) => setCategory(item.value)}
+                  onChange={(item) => setCategory(item.value)}
                 />
               </View>
 
@@ -553,7 +553,7 @@ export default function ScheduleStreamScreen() {
                   data={TIMEZONE_OPTIONS}
                   value={timezone}
                   placeholder="Select timezone"
-                  onChange={(item: DropdownItem) => setTimezone(item.value)}
+                  onChange={(item) => setTimezone(item.value)}
                 />
               </View>
 
@@ -564,7 +564,7 @@ export default function ScheduleStreamScreen() {
                   data={DURATION_OPTIONS}
                   value={duration}
                   placeholder="Select duration"
-                  onChange={(item: DropdownItem) => setDuration(item.value)}
+                  onChange={(item) => setDuration(item.value)}
                 />
               </View>
             </View>

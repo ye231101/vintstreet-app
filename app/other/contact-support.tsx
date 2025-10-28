@@ -1,4 +1,4 @@
-import { DropdownComponent, DropdownItem } from '@/components/dropdown';
+import DropdownComponent from '@/components/common/dropdown';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -9,7 +9,7 @@ export default function ContactSupportScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const CATEGORY_OPTIONS: DropdownItem[] = [
+  const CATEGORY_OPTIONS = [
     { label: 'Order Issue', value: 'Order Issue' },
     { label: 'Payment Problem', value: 'Payment Problem' },
     { label: 'Account Access', value: 'Account Access' },
@@ -188,7 +188,7 @@ Thank you,
               data={CATEGORY_OPTIONS}
               value={selectedCategory}
               placeholder="Select a category"
-              onChange={(item: DropdownItem) => setSelectedCategory(item.value)}
+              onChange={(item) => setSelectedCategory(item.value)}
             />
           </View>
 
