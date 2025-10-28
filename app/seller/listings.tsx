@@ -1,3 +1,7 @@
+import { listingsService } from '@/api';
+import { Product } from '@/api/services/listings.service';
+import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
+import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
 import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -6,9 +10,6 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { listingsService, Product } from '../../api/services/listings.service';
-import { ShippingSettingsModal } from '../../components/shipping-settings-modal';
-import { useAuth } from '../../hooks/use-auth';
 
 export default function ListingsScreen() {
   const [isLoading, setIsLoading] = useState(true);

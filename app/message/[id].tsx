@@ -1,3 +1,5 @@
+import { messagesService } from '@/api';
+import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -13,8 +15,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { messagesService } from '../../api/services/messages.service';
-import { useAuth } from '../../hooks/use-auth';
 
 interface Message {
   id: string;

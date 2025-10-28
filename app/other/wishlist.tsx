@@ -1,13 +1,13 @@
+import { Product } from '@/api/services/listings.service';
+import { useCart } from '@/hooks/use-cart';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Product } from '../../api/services/listings.service';
-import { useCart } from '../../hooks/use-cart';
-import { useWishlist } from '../../hooks/use-wishlist';
-import { blurhash } from '../../utils';
 
 export default function WishlistScreen() {
   const { items: wishlist, removeItem, isLoading, refresh } = useWishlist();
