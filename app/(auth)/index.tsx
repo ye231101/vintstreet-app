@@ -1,4 +1,4 @@
-import InputComponent from '@/components/common/input';
+import { InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';

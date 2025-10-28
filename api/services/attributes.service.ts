@@ -1,19 +1,5 @@
 import { supabase } from '../config/supabase';
-
-export interface AttributeOption {
-  id: string;
-  value: string;
-  is_active: boolean;
-  display_order?: number;
-}
-
-export interface Attribute {
-  id: string;
-  name: string;
-  data_type: 'string' | 'number' | 'boolean' | 'date' | 'multi-select';
-  is_required: boolean;
-  attribute_options?: AttributeOption[];
-}
+import { Attribute } from '../types';
 
 class AttributesService {
   /**
@@ -143,6 +129,25 @@ class AttributesService {
         console.error('Error saving attributes:', error);
         throw error;
       }
+    }
+  }
+
+  /**
+   * Get product attribute values for a specific product
+   * @param productId - The product ID
+   */
+  async getProductAttributeValues(productId: string): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('product_attribute_values')
+        .select(`*, attributes (id, name, data_type)`)
+        .eq('product_id', productId);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error loading product attributes:', error);
+      throw new Error('Failed to fetch product attributes');
     }
   }
 }

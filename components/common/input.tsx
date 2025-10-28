@@ -19,7 +19,7 @@ interface InputProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const InputComponent: React.FC<InputProps> = ({
+export const InputComponent: React.FC<InputProps> = ({
   label,
   value,
   required = false,
@@ -51,7 +51,7 @@ const InputComponent: React.FC<InputProps> = ({
   });
 
   return (
-    <View className="flex-1 gap-2">
+    <View className="gap-2">
       {label && (
         <Text className="text-sm font-inter-semibold text-gray-700">
           {label} {required && <Text className="text-red-500">*</Text>}
@@ -87,5 +87,3 @@ const InputComponent: React.FC<InputProps> = ({
     </View>
   );
 };
-
-export default InputComponent;

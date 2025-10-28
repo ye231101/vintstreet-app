@@ -1,21 +1,7 @@
+import { Attribute, AttributeOption } from '@/api';
 import Feather from '@expo/vector-icons/Feather';
 import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-interface AttributeOption {
-  id: string;
-  value: string;
-  is_active: boolean;
-  display_order?: number;
-}
-
-interface Attribute {
-  id: string;
-  name: string;
-  data_type: 'string' | 'number' | 'boolean' | 'date' | 'multi-select';
-  is_required: boolean;
-  attribute_options?: AttributeOption[];
-}
 
 interface DynamicAttributesFormProps {
   attributes: Attribute[];

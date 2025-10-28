@@ -1,4 +1,4 @@
-import DropdownComponent from '@/components/common/dropdown';
+import { DropdownComponent } from '@/components/common';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';

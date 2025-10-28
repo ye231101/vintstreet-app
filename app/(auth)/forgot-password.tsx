@@ -1,4 +1,4 @@
-import InputComponent from '@/components/common/input';
+import { InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -69,7 +69,7 @@ export default function ForgotPasswordScreen() {
               </Text>
 
               <Pressable onPress={() => router.back()} className="items-center justify-center h-14 rounded-lg bg-black">
-                <Text className="font-inter-semibold text-white text-base">Return to Login</Text>
+                <Text className="text-base font-inter-semibold text-white">Return to Login</Text>
               </Pressable>
             </View>
           </View>
@@ -80,7 +80,6 @@ export default function ForgotPasswordScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
       <View className="flex-row items-center p-6">
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Feather name="arrow-left" size={24} color="black" />
@@ -113,7 +112,7 @@ export default function ForgotPasswordScreen() {
               value={email}
               icon="mail"
               placeholder="Enter your email"
-              onChangeText={(text) => setEmail(text)}
+              onChangeText={(text) => handleEmailChange(text)}
               keyboardType="email-address"
               error={emailError}
               returnKeyType="done"
@@ -125,7 +124,7 @@ export default function ForgotPasswordScreen() {
               disabled={loading}
               className={`items-center justify-center h-14 rounded-lg ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="font-inter-semibold text-white text-base">
+              <Text className="text-base font-inter-semibold text-white">
                 {loading ? <ActivityIndicator size="small" color="white" /> : 'Reset Password'}
               </Text>
             </Pressable>

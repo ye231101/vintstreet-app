@@ -5,5 +5,5 @@
 
 export { supabase } from './config/supabase';
 export * from './services';
-export * from './types/auth.types';
+export * from './types';
 

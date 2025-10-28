@@ -1,7 +1,7 @@
+import { DropdownComponent } from '@/components/common';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import DropdownComponent from './common/dropdown';
 
 export interface FilterSortBarProps {
   filterCount?: number;

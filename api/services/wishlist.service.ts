@@ -1,13 +1,5 @@
 import { supabase } from '../config/supabase';
-import { Product } from './listings.service';
-
-export interface WishlistItem {
-  id: string;
-  listing_id: string;
-  user_id: string;
-  created_at: string;
-  listings: Product;
-}
+import { Product, WishlistItem } from '../types';
 
 class WishlistService {
   /**
@@ -30,7 +22,8 @@ class WishlistService {
       const listingIds = wishlist.map((item: any) => item.listing_id);
       const { data: listings, error: listingsError } = await supabase
         .from('listings')
-        .select(`
+        .select(
+          `
           id,
           product_name,
           starting_price,
@@ -47,17 +40,15 @@ class WishlistService {
           status,
           created_at,
           product_categories(id, name)
-        `)
+        `
+        )
         .in('id', listingIds);
 
       if (listingsError) throw listingsError;
 
       // Fetch seller profiles
       const sellerIds = [...new Set((listings || []).map((item: any) => item.seller_id))];
-      const { data: sellers } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .in('user_id', sellerIds);
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
       const sellersMap = new Map(sellers?.map((s: any) => [s.user_id, s]) || []);
       const listingsMap = new Map((listings || []).map((l: any) => [l.id, l]));
@@ -104,9 +95,7 @@ class WishlistService {
         return; // Already in wishlist
       }
 
-      const { error } = await supabase
-        .from('wishlist')
-        .insert([{ user_id: userId, listing_id: listingId }]);
+      const { error } = await supabase.from('wishlist').insert([{ user_id: userId, listing_id: listingId }]);
 
       if (error) throw error;
     } catch (error) {
@@ -137,11 +126,7 @@ class WishlistService {
    */
   async removeFromWishlistByListingId(userId: string, listingId: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('wishlist')
-        .delete()
-        .eq('user_id', userId)
-        .eq('listing_id', listingId);
+      const { error } = await supabase.from('wishlist').delete().eq('user_id', userId).eq('listing_id', listingId);
 
       if (error) throw error;
     } catch (error) {
@@ -193,4 +178,3 @@ class WishlistService {
 }
 
 export const wishlistService = new WishlistService();
-

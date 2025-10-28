@@ -92,7 +92,7 @@ export default function CheckEmailScreen() {
     setResendLoading(true);
 
     try {
-      const { success, error } = await authService.resendOTP(email, 'signup');
+      const { success, error } = await authService.resendEmail(email, 'signup');
 
       if (error || !success) {
         Alert.alert('Error', error || 'Failed to resend confirmation email');
@@ -107,7 +107,6 @@ export default function CheckEmailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
       <View className="flex-row items-center p-6">
         <Pressable onPress={() => router.replace('/(auth)')} hitSlop={8}>
           <Feather name="arrow-left" size={24} color="black" />
@@ -122,7 +121,6 @@ export default function CheckEmailScreen() {
       >
         <View className="flex-1 items-center justify-center p-6">
           <View className="gap-4 w-full max-w-lg">
-            {/* Logo */}
             <View className="items-center">
               <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
               <Text className="mt-4 text-2xl font-inter-bold text-center">Verify Your Email</Text>
@@ -195,7 +193,7 @@ export default function CheckEmailScreen() {
               disabled={resendLoading}
               className={`items-center justify-center h-14 rounded-lg ${resendLoading ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="font-inter-semibold text-white text-base">
+              <Text className="text-base font-inter-semibold text-white">
                 {resendLoading ? 'Sending...' : 'Resend Confirmation Email'}
               </Text>
             </Pressable>

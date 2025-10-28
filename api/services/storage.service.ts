@@ -1,11 +1,6 @@
 import { decode } from 'base64-arraybuffer';
 import { supabase } from '../config/supabase';
-
-export interface UploadResult {
-  success: boolean;
-  urls?: string[];
-  errors?: string[];
-}
+import { UploadResult } from '../types';
 
 class StorageService {
   readonly BUCKET_NAME = 'product-images';
@@ -17,10 +12,7 @@ class StorageService {
    * @param userId - User ID for organizing files
    * @returns Promise with upload result
    */
-  async uploadAvatar(
-    imageUri: string,
-    userId: string
-  ): Promise<{ success: boolean; url?: string; error?: string }> {
+  async uploadAvatar(imageUri: string, userId: string): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
       // Convert image to base64
       const response = await fetch(imageUri);
@@ -90,10 +82,7 @@ class StorageService {
    * @param userId - User ID for organizing files
    * @returns Promise with upload result
    */
-  async uploadImage(
-    imageUri: string,
-    userId: string
-  ): Promise<{ success: boolean; url?: string; error?: string }> {
+  async uploadImage(imageUri: string, userId: string): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
       // Convert image to base64
       const response = await fetch(imageUri);

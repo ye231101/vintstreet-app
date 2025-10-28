@@ -1,4 +1,4 @@
-import { listingsService, Product } from '@/api/services/listings.service';
+import { listingsService, Product } from '@/api';
 import Brand from '@/components/brand';
 import ProductCard from '@/components/product-card';
 import QuickLinks from '@/components/quick-links';

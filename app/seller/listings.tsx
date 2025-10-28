@@ -1,5 +1,4 @@
-import { listingsService } from '@/api';
-import { Product } from '@/api/services/listings.service';
+import { listingsService, Product } from '@/api';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';

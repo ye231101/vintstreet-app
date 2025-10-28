@@ -1,13 +1,5 @@
 import { supabase } from '../config/supabase';
-import { Product } from './listings.service';
-
-export interface CartItem {
-  id: string;
-  user_id: string;
-  listing_id: string;
-  created_at: string;
-  product?: Product;
-}
+import { CartItem } from '../types';
 
 /**
  * Cart Service

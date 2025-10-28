@@ -36,20 +36,7 @@ export interface PasswordResetResponse {
   success: boolean;
 }
 
-export interface VerifyOTPData {
-  email: string;
-  token: string;
-  type: 'email' | 'sms' | 'signup';
-}
-
-export interface VerifyOTPResponse {
-  error: string | null;
-  success: boolean;
-  session: Session | null;
-  user: AuthUser | null;
-}
-
-export interface ResendOTPResponse {
+export interface ResendEmailResponse {
   error: string | null;
   success: boolean;
 }

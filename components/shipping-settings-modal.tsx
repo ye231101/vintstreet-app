@@ -1,4 +1,5 @@
-import { ShippingAddress, ShippingProvider, shippingService } from '@/api/services/shipping.service';
+import { ShippingAddress, ShippingProvider, shippingService } from '@/api';
+import { DropdownComponent } from '@/components/common';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
@@ -13,7 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DropdownComponent from './common/dropdown';
 
 interface ShippingSettingsModalProps {
   isOpen: boolean;

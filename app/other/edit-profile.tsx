@@ -1,4 +1,4 @@
-import { storageService } from '@/api/services/storage.service';
+import { storageService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';
 import { showToast } from '@/utils/toast';
