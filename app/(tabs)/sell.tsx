@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
   Image,
@@ -1103,16 +1104,7 @@ export default function SellScreen() {
                                     justifyContent: 'center',
                                   }}
                                 >
-                                  <View
-                                    style={{
-                                      width: 24,
-                                      height: 24,
-                                      borderWidth: 2,
-                                      borderColor: 'white',
-                                      borderTopColor: 'transparent',
-                                      borderRadius: 12,
-                                    }}
-                                  />
+                                  <ActivityIndicator size="small" color="#fff" />
                                 </View>
                               )}
                             </View>
