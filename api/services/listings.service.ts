@@ -1,15 +1,5 @@
 import { supabase } from '../config/supabase';
-import { InfiniteQueryResult, Product } from '../types';
-
-export interface ListingsFilters {
-  searchKeyword?: string;
-  activeCategory?: string;
-  activeSubcategory?: string;
-  activeSubSubcategory?: string;
-  activeSubSubSubcategory?: string;
-  selectedBrands?: Set<string>;
-  selectedColors?: Set<string>;
-}
+import { InfiniteQueryResult, ListingsFilters, Product } from '../types';
 
 class ListingsService {
   /**
