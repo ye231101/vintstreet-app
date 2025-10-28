@@ -212,16 +212,16 @@ Thank you,
           {/* Quick Email Button */}
           <TouchableOpacity
             onPress={handleQuickEmail}
-            className="border border-blue-500 rounded-xl py-4 items-center mb-4"
+            className="border border-black rounded-xl py-4 items-center mb-4"
           >
-            <Text className="text-blue-500 text-base font-inter-bold">Send Quick Email</Text>
+            <Text className="text-black text-base font-inter-bold">Send Quick Email</Text>
           </TouchableOpacity>
 
           {/* Submit Button */}
           <TouchableOpacity
             onPress={handleSubmitRequest}
             disabled={isSubmitting}
-            className={`rounded-xl py-4 items-center mb-6 ${isSubmitting ? 'bg-gray-400' : 'bg-blue-500'}`}
+            className={`rounded-xl py-4 items-center mb-6 ${isSubmitting ? 'bg-gray-400' : 'bg-black'}`}
           >
             {isSubmitting ? (
               <Text className="text-white text-base font-inter-bold">Submitting...</Text>
@@ -233,7 +233,7 @@ Thank you,
           {/* Contact Info Card */}
           <View className="bg-white rounded-xl p-4 shadow-sm">
             <View className="flex-row items-center mb-3">
-              <Feather name="info" size={20} color="#007AFF" />
+              <Feather name="info" size={20} color="#000" />
               <Text className="text-gray-900 text-base font-inter-bold ml-2">Other Ways to Contact Us</Text>
             </View>
 

@@ -67,13 +67,6 @@ export default function OtherLayout() {
         }}
       />
       <Stack.Screen
-        name="app-settings"
-        options={{
-          title: 'App Settings',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
         name="privacy-security"
         options={{
           title: 'Privacy & Security',

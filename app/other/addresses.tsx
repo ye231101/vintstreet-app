@@ -9,12 +9,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Address {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
   state?: string;
-  postcode: string;
+  postalCode: string;
   country: string;
   phone?: string;
   type: 'shipping' | 'billing';
@@ -51,12 +52,13 @@ export default function AddressesScreen() {
         if (shippingAddress) {
           setShippingAddress({
             id: 'shipping',
-            name: `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim(),
+            firstName: shippingAddress.firstName,
+            lastName: shippingAddress.lastName,
             addressLine1: shippingAddress.addressLine1,
             addressLine2: shippingAddress.addressLine2,
             city: shippingAddress.city,
             state: shippingAddress.state,
-            postcode: shippingAddress.postalCode,
+            postalCode: shippingAddress.postalCode,
             country: shippingAddress.country,
             phone: shippingAddress.phone,
             type: 'shipping',
@@ -70,12 +72,13 @@ export default function AddressesScreen() {
         if (billingAddress) {
           setBillingAddress({
             id: 'billing',
-            name: `${billingAddress.firstName} ${billingAddress.lastName}`.trim(),
+            firstName: billingAddress.firstName,
+            lastName: billingAddress.lastName,
             addressLine1: billingAddress.addressLine1,
             addressLine2: billingAddress.addressLine2,
             city: billingAddress.city,
             state: billingAddress.state,
-            postcode: billingAddress.postalCode,
+            postalCode: billingAddress.postalCode,
             country: billingAddress.country,
             phone: billingAddress.phone,
             type: 'billing',
@@ -174,10 +177,11 @@ export default function AddressesScreen() {
       {/* Address Content */}
       {address ? (
         <AddressCard
-          name={address.name}
+          firstName={address.firstName}
+          lastName={address.lastName}
           address={`${address.addressLine1}${address.addressLine2 ? `, ${address.addressLine2}` : ''}, ${
             address.city
-          }, ${address.state ? `${address.state}, ` : ''}${address.postcode}, ${address.country}`}
+          }, ${address.state ? `${address.state}, ` : ''}${address.postalCode}, ${address.country}`}
           phone={address.phone || ''}
           onEdit={onEdit}
           onDelete={onDelete}
@@ -190,7 +194,7 @@ export default function AddressesScreen() {
             <Text className="text-gray-500 text-sm font-inter-semibold text-center mb-4">
               Add your {addressType} address to continue
             </Text>
-            <TouchableOpacity onPress={onAdd} className="bg-blue-500 rounded-lg py-3 px-6 w-full items-center">
+            <TouchableOpacity onPress={onAdd} className="bg-black rounded-lg py-3 px-6 w-full items-center">
               <Text className="text-white text-base font-inter-bold">Add {addressType} Address</Text>
             </TouchableOpacity>
           </View>
@@ -200,20 +204,24 @@ export default function AddressesScreen() {
   );
 
   const AddressCard = ({
-    name,
+    firstName,
+    lastName,
     address,
     phone,
     onEdit,
     onDelete,
   }: {
-    name: string;
+    firstName: string;
+    lastName: string;
     address: string;
     phone: string;
     onEdit: () => void;
     onDelete: () => void;
   }) => (
     <View className="bg-gray-50 rounded-lg p-4 border border-blue-500/30">
-      <Text className="text-gray-900 text-sm font-inter-semibold mb-1">{name}</Text>
+      <Text className="text-gray-900 text-sm font-inter-semibold mb-1">
+        {firstName} {lastName}
+      </Text>
       <Text className="text-gray-600 text-sm font-inter-semibold mb-1">{address}</Text>
       {phone && <Text className="text-gray-600 text-sm font-inter-semibold mb-4">{phone}</Text>}
       <View className="flex-row justify-end">
