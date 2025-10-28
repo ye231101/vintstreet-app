@@ -383,6 +383,7 @@ export default function CheckoutScreen() {
                     onChangeText={(text) => updateShippingAddress('postcode', text)}
                     placeholder="Postal Code"
                     autoCapitalize="none"
+                    required
                   />
                 </View>
               </View>
