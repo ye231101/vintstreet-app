@@ -42,7 +42,6 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-draggable-grid": "^2.2.2",
-    "react-native-dropdown-picker": "^5.4.6",
     "react-native-element-dropdown": "^2.12.2",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-reanimated": "~4.1.1",

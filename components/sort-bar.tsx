@@ -49,41 +49,6 @@ const SortBar: React.FC<FilterSortBarProps> = ({
 
         {/* Sort Dropdown */}
         <View className="flex-1">
-          {/* <DropDownPicker
-            open={sortOpen}
-            items={sortItems}
-            value={sortValue}
-            listMode="SCROLLVIEW"
-            setOpen={setSortOpen}
-            setItems={setSortItems}
-            setValue={(callback) => {
-              const newValue = typeof callback === 'function' ? callback(sortValue) : callback;
-              handleSortChange(newValue);
-            }}
-            placeholder="Sort by"
-            style={{
-              backgroundColor: '#fff',
-              borderColor: '#d1d5db',
-              borderRadius: 8,
-              minHeight: 40,
-            }}
-            textStyle={{
-              fontSize: 14,
-              fontFamily: 'Inter',
-            }}
-            dropDownContainerStyle={{
-              borderColor: '#e5e7eb',
-              borderRadius: 8,
-              maxHeight: 300,
-            }}
-            scrollViewProps={{
-              nestedScrollEnabled: true,
-              scrollEnabled: true,
-              showsVerticalScrollIndicator: true,
-            }}
-            zIndex={2000}
-            zIndexInverse={3000}
-          /> */}
           <DropdownComponent
             data={SORT_OPTIONS}
             value={sortValue}
@@ -95,7 +60,6 @@ const SortBar: React.FC<FilterSortBarProps> = ({
               borderRadius: 8,
               height: 40,
             }}
-
           />
         </View>
       </View>
