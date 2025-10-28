@@ -809,7 +809,7 @@ export default function SellScreen() {
   };
 
   // Check if user is a buyer and show seller setup message
-  if (user?.user_type !== 'buyer') {
+  if (user?.user_type === 'buyer') {
     return (
       <SafeAreaView className="flex-1 mb-50 bg-black">
         {/* Header */}
