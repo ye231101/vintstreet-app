@@ -241,7 +241,7 @@ class ListingsService {
    * Get listings filtered by category using either slug or id columns.
    * This method tries multiple possible foreign key columns and skips missing-column errors.
    */
-  async getListingsByCategory(categoryId: string, sort?: string, priceFilter?: string): Promise<Product[]> {
+  async getListingsByCategory(categoryId: string, sort?: string, priceFilter?: string, brandFilter?: string): Promise<Product[]> {
     const tryQuery = async (column: string, value: string | number) => {
       try {
         let query = (supabase as any)
@@ -262,6 +262,11 @@ class ListingsService {
               query = query.lte('starting_price', priceRange.max);
             }
           }
+        }
+
+        // Apply brand filter if provided
+        if (brandFilter && brandFilter !== 'All Brands') {
+          query = query.eq('brand_id', brandFilter);
         }
 
         const { data, error } = await query;
@@ -507,8 +512,9 @@ class ListingsService {
    * Search listings by product name and description
    * @param searchTerm - The search term to look for
    * @param priceFilter - Optional price filter
+   * @param brandFilter - Optional brand filter
    */
-  async searchListings(searchTerm: string, priceFilter?: string): Promise<Product[]> {
+  async searchListings(searchTerm: string, priceFilter?: string, brandFilter?: string): Promise<Product[]> {
     try {
       let query = supabase
         .from('listings')
@@ -548,6 +554,11 @@ class ListingsService {
             query = query.lte('starting_price', priceRange.max);
           }
         }
+      }
+
+      // Apply brand filter if provided
+      if (brandFilter && brandFilter !== 'All Brands') {
+        query = query.eq('brand_id', brandFilter);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -853,6 +864,48 @@ class ListingsService {
         return { min: 200 };
       default:
         return null;
+    }
+  }
+
+  /**
+   * Get available brands for a specific category
+   * @param categoryId - The category ID to get brands for
+   */
+  async getAvailableBrandsForCategory(categoryId?: string): Promise<Array<{ id: string; name: string }>> {
+    try {
+      let query = supabase
+        .from('listings')
+        .select('brand_id, brands(id, name)')
+        .eq('product_type', 'shop')
+        .eq('status', 'published')
+        .not('brand_id', 'is', null);
+
+      // If category is provided, filter by it
+      if (categoryId) {
+        // Try to match against all category level columns
+        query = query.or(`category_id.eq.${categoryId},subcategory_id.eq.${categoryId},sub_subcategory_id.eq.${categoryId},sub_sub_subcategory_id.eq.${categoryId}`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching available brands:', error);
+        return [];
+      }
+
+      // Extract unique brands
+      const brandsMap = new Map<string, { id: string; name: string }>();
+      (data || []).forEach((item: any) => {
+        if (item.brands && item.brands.id && item.brands.name) {
+          brandsMap.set(item.brands.id, { id: item.brands.id, name: item.brands.name });
+        }
+      });
+
+      // Return sorted by name
+      return Array.from(brandsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    } catch (error) {
+      console.error('Error fetching available brands:', error);
+      return [];
     }
   }
 

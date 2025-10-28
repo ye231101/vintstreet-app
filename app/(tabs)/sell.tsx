@@ -1,5 +1,5 @@
 import { AuthUtils } from '@/utils/auth-utils';
-import { showSuccessToast } from '@/utils/toast';
+import { showSuccessToast, showErrorToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -15,8 +15,10 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DraggableGrid from 'react-native-draggable-grid';
 import { attributesService } from '../../api/services/attributes.service';
 import { brandsService } from '../../api/services/brands.service';
 import { listingsService } from '../../api/services/listings.service';
@@ -64,13 +66,13 @@ export default function SellScreen() {
   >('category');
   const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, any>>({});
   const [attributes, setAttributes] = useState<any[]>([]);
-  const [productImages, setProductImages] = useState<string[]>([]);
-  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
+  const [productImages, setProductImages] = useState<Array<{ key: string; uri: string; uploadedUrl?: string; isPrimary: boolean }>>([]);
   const [showImagePickerModal, setShowImagePickerModal] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [stockQuantity, setStockQuantity] = useState('');
   const [isMarketplaceListing, setIsMarketplaceListing] = useState(true);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const itemTypeOptions = [
     { key: 'single', label: 'Single Item' },
@@ -104,7 +106,7 @@ export default function SellScreen() {
         const product = await listingsService.getListingById(productId);
 
         if (!product) {
-          Alert.alert('Error', 'Product not found');
+          showErrorToast('Product not found');
           return;
         }
 
@@ -119,10 +121,20 @@ export default function SellScreen() {
         setIsMarketplaceListing(product.status === 'published');
 
         // Set images
-        if (product.product_images && product.product_images.length > 0) {
-          setUploadedImageUrls(product.product_images);
-        } else if (product.product_image) {
-          setUploadedImageUrls([product.product_image]);
+        const existingImages = product.product_images && product.product_images.length > 0 
+          ? product.product_images 
+          : product.product_image 
+          ? [product.product_image] 
+          : [];
+        
+        if (existingImages.length > 0) {
+          const imageData = existingImages.map((url: string, index: number) => ({
+            key: `image_${Date.now()}_${index}`,
+            uri: url,
+            uploadedUrl: url,
+            isPrimary: index === 0, // First image is primary by default
+          }));
+          setProductImages(imageData);
         }
 
         // Set brand
@@ -165,7 +177,7 @@ export default function SellScreen() {
         }
       } catch (error) {
         console.error('Error loading product data:', error);
-        Alert.alert('Error', 'Failed to load product data');
+        showErrorToast('Failed to load product data');
       }
     };
 
@@ -295,27 +307,36 @@ export default function SellScreen() {
         });
 
         if (validImages.length === 0) {
-          Alert.alert('No Valid Images', 'No valid images were selected. Please try again.');
+          showWarningToast('No valid images were selected. Please try again.');
           return;
         }
-
-        const newImages = validImages.map((asset) => asset.uri);
 
         // Check if adding these images would exceed the limit
-        if (productImages.length + newImages.length > 10) {
-          Alert.alert('Too Many Images', 'You can upload a maximum of 10 images per product.');
+        if (productImages.length + validImages.length > 10) {
+          showWarningToast('You can upload a maximum of 10 images per product.');
           return;
         }
 
-        setProductImages((prev) => [...prev, ...newImages]);
+        const newImageData = validImages.map((asset, index) => ({
+          key: `image_${Date.now()}_${productImages.length + index}`,
+          uri: asset.uri,
+          isPrimary: productImages.length === 0 && index === 0, // First image is primary if no images exist
+        }));
+
+        console.log('Adding new images:', newImageData);
+        setProductImages((prev) => {
+          const updated = [...prev, ...newImageData];
+          console.log('Total images now:', updated.length);
+          return updated;
+        });
         setShowImagePickerModal(false);
 
         // Upload images to Supabase storage
-        await uploadImagesToStorage(newImages);
+        await uploadImagesToStorage(newImageData);
       }
     } catch (error) {
       console.error('Error picking images:', error);
-      Alert.alert('Error', 'Failed to pick images from gallery. Please try again.');
+      showErrorToast('Failed to pick images from gallery. Please try again.');
     }
   };
 
@@ -338,7 +359,7 @@ export default function SellScreen() {
 
       // Check if we're at the image limit
       if (productImages.length >= 10) {
-        Alert.alert('Image Limit Reached', 'You can upload a maximum of 10 images per product.');
+        showWarningToast('Image limit reached. Maximum 10 images per product.');
         return;
       }
 
@@ -351,22 +372,27 @@ export default function SellScreen() {
       });
 
       if (!result.canceled && result.assets) {
-        const newImages = result.assets.map((asset) => asset.uri);
-        setProductImages((prev) => [...prev, ...newImages]);
+        const newImageData = result.assets.map((asset, index) => ({
+          key: `image_${Date.now()}_${productImages.length + index}`,
+          uri: asset.uri,
+          isPrimary: productImages.length === 0 && index === 0, // First image is primary if no images exist
+        }));
+        
+        setProductImages((prev) => [...prev, ...newImageData]);
         setShowImagePickerModal(false);
 
         // Upload images to Supabase storage
-        await uploadImagesToStorage(newImages);
+        await uploadImagesToStorage(newImageData);
       }
     } catch (error) {
       console.error('Error taking photo:', error);
-      Alert.alert('Error', 'Failed to take photo. Please try again.');
+      showErrorToast('Failed to take photo. Please try again.');
     }
   };
 
   // Upload images to Supabase storage
-  const uploadImagesToStorage = async (imageUris: string[]) => {
-    if (imageUris.length === 0) return;
+  const uploadImagesToStorage = async (imageData: Array<{ key: string; uri: string; isPrimary: boolean }>) => {
+    if (imageData.length === 0) return;
 
     // Check if user needs re-authentication before starting upload
     const needsReAuth = await AuthUtils.needsReAuthentication();
@@ -405,7 +431,7 @@ export default function SellScreen() {
               text: 'Try Again',
               onPress: () => {
                 // Retry the upload process
-                uploadImagesToStorage(imageUris);
+                uploadImagesToStorage(imageData);
               },
             },
             {
@@ -422,21 +448,27 @@ export default function SellScreen() {
       }
 
       // Upload images one by one with progress tracking
-      const uploadedUrls: string[] = [];
       const errors: string[] = [];
+      let successCount = 0;
 
-      for (let i = 0; i < imageUris.length; i++) {
+      for (let i = 0; i < imageData.length; i++) {
         try {
-          const result = await StorageService.uploadImage(imageUris[i], user.id);
+          const result = await StorageService.uploadImage(imageData[i].uri, user.id);
 
           if (result.success && result.url) {
-            uploadedUrls.push(result.url);
+            // Update the uploaded URL for this image
+            setProductImages((prev) =>
+              prev.map((img) =>
+                img.key === imageData[i].key ? { ...img, uploadedUrl: result.url } : img
+              )
+            );
+            successCount++;
           } else {
             errors.push(`Image ${i + 1}: ${result.error || 'Upload failed'}`);
           }
 
           // Update progress
-          const progress = Math.round(((i + 1) / imageUris.length) * 100);
+          const progress = Math.round(((i + 1) / imageData.length) * 100);
           setUploadProgress(progress);
         } catch (error) {
           console.error(`Error uploading image ${i + 1}:`, error);
@@ -444,52 +476,64 @@ export default function SellScreen() {
         }
       }
 
-      // Update state with successful uploads
-      if (uploadedUrls.length > 0) {
-        setUploadedImageUrls((prev) => [...prev, ...uploadedUrls]);
-      }
-
       // Show results
-      if (uploadedUrls.length === imageUris.length) {
+      if (successCount === imageData.length) {
         // All images uploaded successfully
-        Alert.alert('Success', `${uploadedUrls.length} image(s) uploaded successfully!`);
-      } else if (uploadedUrls.length > 0) {
+        showSuccessToast(`${successCount} image(s) uploaded successfully!`);
+      } else if (successCount > 0) {
         // Some images uploaded successfully
-        Alert.alert(
-          'Partial Success',
-          `${uploadedUrls.length} of ${imageUris.length} images uploaded successfully. ${errors.length} failed.`
-        );
+        showWarningToast(`${successCount} of ${imageData.length} images uploaded. ${errors.length} failed.`);
       } else {
         // No images uploaded
-        const errorMessage = errors.length > 0 ? errors.join('\n') : 'All uploads failed';
-        Alert.alert('Upload Failed', errorMessage);
+        showErrorToast('All uploads failed. Please try again.');
       }
     } catch (error) {
       console.error('Upload error:', error);
-      Alert.alert('Upload Error', 'Failed to upload images. Please check your internet connection and try again.');
+      showErrorToast('Failed to upload images. Please check your internet connection.');
     } finally {
       setIsUploadingImages(false);
       setUploadProgress(0);
     }
   };
 
-  const removeImage = async (index: number) => {
-    const imageToRemove = productImages[index];
-    const urlToRemove = uploadedImageUrls[index];
+  const removeImage = async (key: string) => {
+    const imageToRemove = productImages.find((img) => img.key === key);
+
+    if (!imageToRemove) return;
 
     // Remove from local state
-    setProductImages((prev) => prev.filter((_, i) => i !== index));
+    setProductImages((prev) => {
+      const filtered = prev.filter((img) => img.key !== key);
+      // If the removed image was primary, make the first remaining image primary
+      if (imageToRemove.isPrimary && filtered.length > 0) {
+        return filtered.map((img, index) => ({
+          ...img,
+          isPrimary: index === 0,
+        }));
+      }
+      return filtered;
+    });
 
     // If there's a corresponding uploaded URL, delete from storage
-    if (urlToRemove) {
+    if (imageToRemove.uploadedUrl) {
       try {
-        await StorageService.deleteImage(urlToRemove);
-        setUploadedImageUrls((prev) => prev.filter((_, i) => i !== index));
+        await StorageService.deleteImage(imageToRemove.uploadedUrl);
       } catch (error) {
         console.error('Error deleting image from storage:', error);
         // Don't show error to user as the image is already removed from UI
       }
     }
+  };
+
+  const setPrimaryImage = (key: string) => {
+    // Only mark the tapped image as primary visually, without moving it
+    // The actual cover image will be determined by position (first image) when saving
+    setProductImages((prev) =>
+      prev.map((img) => ({
+        ...img,
+        isPrimary: img.key === key,
+      }))
+    );
   };
 
   const handleSaveDraft = async () => {
@@ -522,6 +566,14 @@ export default function SellScreen() {
         return;
       }
 
+      // Get uploaded URLs in order, with primary image first
+      const primaryImage = productImages.find((img) => img.isPrimary);
+      const otherImages = productImages.filter((img) => !img.isPrimary);
+      const orderedImages = primaryImage ? [primaryImage, ...otherImages] : productImages;
+      const uploadedUrls = orderedImages
+        .map((img) => img.uploadedUrl)
+        .filter((url): url is string => url !== undefined);
+
       // Create product data
       const productData = {
         seller_id: user.id,
@@ -529,8 +581,8 @@ export default function SellScreen() {
         product_description: description || null,
         starting_price: price ? parseFloat(price) : 0,
         discounted_price: salePrice ? parseFloat(salePrice) : null,
-        product_image: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
-        product_images: uploadedImageUrls,
+        product_image: uploadedUrls.length > 0 ? uploadedUrls[0] : null,
+        product_images: uploadedUrls,
         offers_enabled: enableOffers,
         product_type: 'shop',
         stream_id: 'shop',
@@ -571,7 +623,6 @@ export default function SellScreen() {
       setStockQuantity('');
       setPurchaseNote('');
       setProductImages([]);
-      setUploadedImageUrls([]);
       setDynamicAttributes({});
       setAttributes([]);
       setSelectedCategoryId('');
@@ -586,7 +637,7 @@ export default function SellScreen() {
       setIsMarketplaceListing(true);
     } catch (error) {
       console.error('Error saving draft:', error);
-      Alert.alert('Error', 'Failed to save draft. Please try again.');
+      showErrorToast('Failed to save draft. Please try again.');
     } finally {
       setIsSavingDraft(false);
     }
@@ -596,12 +647,12 @@ export default function SellScreen() {
     if (isPublishing) return;
 
     if (!title || !price || !category) {
-      Alert.alert('Required Fields', 'Please complete all required fields (*) to publish this product.');
+      showWarningToast('Please complete all required fields (*) to publish this product.');
       return;
     }
 
     if (itemType === 'multi' && !stockQuantity) {
-      Alert.alert('Stock Quantity Required', 'Please enter the stock quantity for this product.');
+      showWarningToast('Please enter the stock quantity for this product.');
       return;
     }
 
@@ -632,6 +683,14 @@ export default function SellScreen() {
         return;
       }
 
+      // Get uploaded URLs in order, with primary image first
+      const primaryImage = productImages.find((img) => img.isPrimary);
+      const otherImages = productImages.filter((img) => !img.isPrimary);
+      const orderedImages = primaryImage ? [primaryImage, ...otherImages] : productImages;
+      const uploadedUrls = orderedImages
+        .map((img) => img.uploadedUrl)
+        .filter((url): url is string => url !== undefined);
+
       // Create product data
       const productData = {
         seller_id: user.id,
@@ -639,8 +698,8 @@ export default function SellScreen() {
         product_description: description || null,
         starting_price: parseFloat(price),
         discounted_price: salePrice ? parseFloat(salePrice) : null,
-        product_image: uploadedImageUrls.length > 0 ? uploadedImageUrls[0] : null,
-        product_images: uploadedImageUrls,
+        product_image: uploadedUrls.length > 0 ? uploadedUrls[0] : null,
+        product_images: uploadedUrls,
         offers_enabled: enableOffers,
         product_type: 'shop',
         stream_id: 'shop',
@@ -661,13 +720,13 @@ export default function SellScreen() {
         const message = isMarketplaceListing
           ? 'Product updated and published to marketplace successfully!'
           : 'Product updated and saved to your shop successfully!';
-        Alert.alert('Success', message);
+        showSuccessToast(message);
       } else {
         product = await listingsService.createProduct(productData);
         const message = isMarketplaceListing
           ? 'Product published to marketplace successfully!'
           : 'Product saved to your shop successfully!';
-        Alert.alert('Success', message);
+        showSuccessToast(message);
       }
 
       // Save dynamic attributes if any
@@ -687,7 +746,6 @@ export default function SellScreen() {
       setStockQuantity('');
       setPurchaseNote('');
       setProductImages([]);
-      setUploadedImageUrls([]);
       setDynamicAttributes({});
       setAttributes([]);
       setSelectedCategoryId('');
@@ -702,7 +760,7 @@ export default function SellScreen() {
       setIsMarketplaceListing(true);
     } catch (error) {
       console.error('Error publishing product:', error);
-      Alert.alert('Error', 'Failed to publish product. Please try again.');
+      showErrorToast('Failed to publish product. Please try again.');
     } finally {
       setIsPublishing(false);
     }
@@ -757,7 +815,6 @@ export default function SellScreen() {
     setStockQuantity('');
     setPurchaseNote('');
     setProductImages([]);
-    setUploadedImageUrls([]);
     setDynamicAttributes({});
     setAttributes([]);
     setSelectedCategoryId('');
@@ -798,7 +855,13 @@ export default function SellScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         className="flex-1"
       >
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <ScrollView 
+          showsVerticalScrollIndicator={false} 
+          contentContainerStyle={{ flexGrow: 1 }}
+          scrollEnabled={scrollEnabled}
+          directionalLockEnabled={false}
+          nestedScrollEnabled={false}
+        >
           <View className="flex-1 gap-4 p-4 bg-gray-50">
             {/* Product Images Section */}
             <View className="p-4 rounded-lg bg-white">
@@ -871,53 +934,201 @@ export default function SellScreen() {
                     )}
                   </View>
 
-                  <View className="flex-row flex-wrap gap-6 mt-2">
-                    {productImages.map((imageUri, index) => {
-                      const isUploaded = uploadedImageUrls[index];
+                  {/* Info about drag and primary image */}
+                  <View className="p-2 mb-3 rounded-lg bg-blue-50">
+                    <Text className="text-xs font-inter-semibold text-blue-800">
+                      💡 Long press and drag images to reorder. The first image will be your cover photo.
+                    </Text>
+                  </View>
+
+                  <View 
+                    style={{
+                      width: '100%',
+                      minHeight: Math.ceil(productImages.length / 3) * ((Dimensions.get('window').width - 48) / 3 + 8),
+                    }}
+                    onTouchStart={() => setScrollEnabled(false)}
+                    onTouchEnd={() => setTimeout(() => setScrollEnabled(true), 200)}
+                    onTouchCancel={() => setTimeout(() => setScrollEnabled(true), 200)}
+                  >
+                    <DraggableGrid
+                      numColumns={3}
+                      data={productImages}
+                      itemHeight={(Dimensions.get('window').width - 48) / 3}
+                      delayLongPress={150}
+                      renderItem={(item) => {
+                      const isUploaded = !!item.uploadedUrl;
                       const isUploading = isUploadingImages && !isUploaded;
 
+                      const imageSize = (Dimensions.get('window').width - 48) / 3 - 8;
+                      
                       return (
-                        <TouchableOpacity key={index} className="relative">
-                          <Image
-                            source={{ uri: imageUri }}
-                            className="w-20 h-20 rounded-lg"
-                            resizeMode="cover"
-                            style={{ opacity: isUploading ? 0.7 : 1 }}
-                          />
-
-                          {/* Upload Status Indicator */}
-                          {isUploaded ? (
-                            <View className="absolute -top-2 -left-2 bg-green-500 rounded-full w-6 h-6 items-center justify-center">
-                              <Feather name="check" size={14} color="#fff" />
-                            </View>
-                          ) : isUploading ? (
-                            <View className="absolute -top-2 -left-2 bg-blue-500 rounded-full w-6 h-6 items-center justify-center">
-                              <Feather name="upload" size={14} color="#fff" />
-                            </View>
-                          ) : (
-                            <View className="absolute -top-2 -left-2 bg-yellow-500 rounded-full w-6 h-6 items-center justify-center">
-                              <Feather name="clock" size={14} color="#fff" />
-                            </View>
-                          )}
-
-                          {/* Remove Button */}
-                          <TouchableOpacity
-                            className="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
-                            onPress={() => removeImage(index)}
-                            disabled={isUploading}
+                        <View
+                          style={{
+                            width: imageSize,
+                            height: imageSize,
+                            margin: 4,
+                          }}
+                        >
+                          <View
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              borderWidth: item.isPrimary ? 3 : 1,
+                              borderColor: item.isPrimary ? '#FFD700' : '#ccc',
+                              borderRadius: 10,
+                              overflow: 'hidden',
+                              backgroundColor: '#f0f0f0',
+                            }}
                           >
-                            <Feather name="x" size={14} color="#fff" />
-                          </TouchableOpacity>
+                            <Image
+                              source={{ uri: item.uploadedUrl || item.uri }}
+                              style={{ 
+                                width: '100%', 
+                                height: '100%',
+                                opacity: isUploading ? 0.7 : 1 
+                              }}
+                              resizeMode="cover"
+                              onError={(error) => {
+                                console.log('Image load error:', error.nativeEvent.error);
+                                console.log('Image URI:', item.uri);
+                              }}
+                              onLoad={() => {
+                                console.log('Image loaded successfully:', item.key);
+                              }}
+                            />
 
-                          {/* Upload Progress Overlay */}
-                          {isUploading && (
-                            <View className="absolute inset-0 bg-black/20 rounded-lg items-center justify-center">
-                              <View className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            {/* Primary Badge */}
+                            {item.isPrimary && (
+                              <View
+                                style={{
+                                  position: 'absolute',
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  backgroundColor: 'rgba(0,0,0,0.7)',
+                                  padding: 3,
+                                }}
+                              >
+                                <Text style={{ color: 'white', fontSize: 10, textAlign: 'center', fontWeight: 'bold' }}>
+                                  ⭐ COVER
+                                </Text>
+                              </View>
+                            )}
+
+                            {/* Upload Status Indicator */}
+                            {isUploaded ? (
+                              <View
+                                style={{
+                                  position: 'absolute',
+                                  top: 5,
+                                  left: 5,
+                                  backgroundColor: '#10B981',
+                                  borderRadius: 12,
+                                  width: 24,
+                                  height: 24,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Feather name="check" size={14} color="#fff" />
+                              </View>
+                            ) : isUploading ? (
+                              <View
+                                style={{
+                                  position: 'absolute',
+                                  top: 5,
+                                  left: 5,
+                                  backgroundColor: '#3B82F6',
+                                  borderRadius: 12,
+                                  width: 24,
+                                  height: 24,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Feather name="upload" size={14} color="#fff" />
+                              </View>
+                            ) : (
+                              <View
+                                style={{
+                                  position: 'absolute',
+                                  top: 5,
+                                  left: 5,
+                                  backgroundColor: '#EAB308',
+                                  borderRadius: 12,
+                                  width: 24,
+                                  height: 24,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Feather name="clock" size={14} color="#fff" />
+                              </View>
+                            )}
+
+                            {/* Remove Button */}
+                            <TouchableOpacity
+                              style={{
+                                position: 'absolute',
+                                top: 5,
+                                right: 5,
+                                backgroundColor: '#EF4444',
+                                borderRadius: 12,
+                                width: 24,
+                                height: 24,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                              onPress={(e) => {
+                                e.stopPropagation();
+                                removeImage(item.key);
+                              }}
+                              disabled={isUploading}
+                            >
+                              <Feather name="x" size={14} color="#fff" />
+                            </TouchableOpacity>
+
+                            {/* Upload Progress Overlay */}
+                            {isUploading && (
+                              <View
+                                style={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  backgroundColor: 'rgba(0,0,0,0.2)',
+                                  borderRadius: 10,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <View
+                                  style={{
+                                    width: 24,
+                                    height: 24,
+                                    borderWidth: 2,
+                                    borderColor: 'white',
+                                    borderTopColor: 'transparent',
+                                    borderRadius: 12,
+                                  }}
+                              />
                             </View>
                           )}
-                        </TouchableOpacity>
+                        </View>
+                      </View>
                       );
-                    })}
+                    }}
+                    onDragRelease={(data) => {
+                      // After reordering, automatically set the first image as primary/cover
+                      const reorderedImages = data.map((img, index) => ({
+                        ...img,
+                        isPrimary: index === 0,
+                      }));
+                      setProductImages(reorderedImages);
+                      setScrollEnabled(true);
+                    }}
+                    />
                   </View>
                 </View>
               )}
