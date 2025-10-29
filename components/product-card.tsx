@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { toggleItem, isInWishlist } = useWishlist();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  const isWishlisted = isInWishlist(product.id);
+  const isWishlisted = isInWishlist(product.id) || false;
   const isInCart = cart.items.some((cartItem) => cartItem.product?.id === product.id);
 
   const handleAddToCart = async () => {

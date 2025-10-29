@@ -28,6 +28,8 @@ import { handleAuthStateChange, initializeAuth } from '@/store/slices/authSlice'
 import { removeStorageValue, setStorageValue } from '@/utils/storage';
 import { setToastRef } from '@/utils/toast';
 
+SplashScreen.preventAutoHideAsync();
+
 // Toast initializer component - must be inside ToastProvider
 function ToastInit() {
   const toast = useToast();
@@ -36,12 +38,6 @@ function ToastInit() {
   }, [toast]);
   return null;
 }
-
-SplashScreen.preventAutoHideAsync();
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
 
 // Auth handler component that manages authentication logic
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -126,6 +122,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
   const [fontsLoaded, fontError] = useFonts({
     'inter-thin': Inter_100Thin,
     'inter-extralight': Inter_200ExtraLight,
@@ -138,21 +135,22 @@ export default function RootLayout() {
     'inter-black': Inter_900Black,
   });
 
-  // Debug font loading
+  // If fonts failed to load, at least hide splash
   useEffect(() => {
     if (fontError) {
-      console.warn('Font loading error:', fontError);
+      console.warn('❌ Font loading error:', fontError);
+      SplashScreen.hideAsync();
     }
-    if (fontsLoaded) {
-      console.log('Fonts loaded successfully');
-    }
-  }, [fontsLoaded, fontError]);
+  }, [fontError]);
 
+  // Hide splash *only* when fonts are ready
   useEffect(() => {
-    const hideSplash = async () => {
-      await SplashScreen.hideAsync();
-    };
-    hideSplash();
+    if (fontsLoaded) {
+      (async () => {
+        await SplashScreen.hideAsync();
+        console.log('✅ Fonts loaded and splash hidden');
+      })();
+    }
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {

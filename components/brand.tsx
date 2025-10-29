@@ -14,32 +14,32 @@ const brands = [
   {
     id: 1,
     name: "Levi's",
-    image: 'https://1000logos.net/wp-content/uploads/2017/03/Levis-Logo.png',
+    image: require('../assets/images/brand/Levis-Logo.png'),
   },
   {
     id: 2,
     name: 'Adidas',
-    image: 'https://1000logos.net/wp-content/uploads/2016/10/Adidas-Logo.png',
+    image: require('../assets/images/brand/Adidas-Logo.png'),
   },
   {
     id: 3,
     name: 'H&M',
-    image: 'https://1000logos.net/wp-content/uploads/2017/02/HM-Logo.png',
+    image: require('../assets/images/brand/HM-Logo.png'),
   },
   {
     id: 4,
     name: 'Nike',
-    image: 'https://1000logos.net/wp-content/uploads/2021/11/Nike-Logo.png',
+    image: require('../assets/images/brand/Nike-Logo.png'),
   },
   {
     id: 5,
     name: 'Zara',
-    image: 'https://1000logos.net/wp-content/uploads/2022/08/Zara-logо.png',
+    image: require('../assets/images/brand/Zara-Logo.png'),
   },
   {
     id: 6,
     name: 'Gucci',
-    image: 'https://1000logos.net/wp-content/uploads/2017/01/Gucci-Logo.png',
+    image: require('../assets/images/brand/Gucci-Logo.png'),
   },
 ];
 
