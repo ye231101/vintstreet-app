@@ -99,7 +99,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
           dispatch(initializeAuth());
         }
       }
-      
+
       appState.current = nextAppState;
     };
 
@@ -126,17 +126,27 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [fontsLoaded] = useFonts({
-    "inter-thin": Inter_100Thin,
-    "inter-extralight": Inter_200ExtraLight,
-    "inter-light": Inter_300Light,
-    "inter-regular": Inter_400Regular,
-    "inter-medium": Inter_500Medium,
-    "inter-semibold": Inter_600SemiBold,
-    "inter-bold": Inter_700Bold,
-    "inter-extrabold": Inter_800ExtraBold,
-    "inter-black": Inter_900Black,
+  const [fontsLoaded, fontError] = useFonts({
+    'inter-thin': Inter_100Thin,
+    'inter-extralight': Inter_200ExtraLight,
+    'inter-light': Inter_300Light,
+    'inter-regular': Inter_400Regular,
+    'inter-medium': Inter_500Medium,
+    'inter-semibold': Inter_600SemiBold,
+    'inter-bold': Inter_700Bold,
+    'inter-extrabold': Inter_800ExtraBold,
+    'inter-black': Inter_900Black,
   });
+
+  // Debug font loading
+  useEffect(() => {
+    if (fontError) {
+      console.warn('Font loading error:', fontError);
+    }
+    if (fontsLoaded) {
+      console.log('Fonts loaded successfully');
+    }
+  }, [fontsLoaded, fontError]);
 
   useEffect(() => {
     const hideSplash = async () => {
@@ -146,6 +156,7 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
+    // Show a loading screen or return null while fonts are loading
     return null;
   }
 

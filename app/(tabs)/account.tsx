@@ -69,7 +69,7 @@ export default function AccountScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-base font-inter-bold text-blue-600">Set up Seller Account</Text>
-                <Text className="text-xs font-inter-regular text-gray-600">Start selling your vintage items</Text>
+                <Text className="text-xs font-inter text-gray-600">Start selling your vintage items</Text>
               </View>
               <Feather name="chevron-right" size={20} color="#3B82F6" />
             </Pressable>

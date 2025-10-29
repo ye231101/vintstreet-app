@@ -106,7 +106,7 @@ export default function MessagesScreen() {
           <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-2">
             <Feather name="search" size={20} color="#666" />
             <TextInput
-              className="flex-1 ml-2 bg-transparent text-base font-inter-regular text-black"
+              className="flex-1 ml-2 bg-transparent text-base font-inter text-black"
               placeholder="Search messages..."
               placeholderTextColor="#999"
               value={searchText}
@@ -185,7 +185,7 @@ export default function MessagesScreen() {
                     <Text className="text-base font-inter-bold text-black" numberOfLines={1}>
                       {conversation.other_user_name || 'Unknown User'}
                     </Text>
-                    <Text className="text-xs font-inter-regular text-gray-500" numberOfLines={1}>
+                    <Text className="text-xs font-inter text-gray-500" numberOfLines={1}>
                       {conversation.last_message || 'No messages yet'}
                     </Text>
                   </View>
@@ -196,7 +196,7 @@ export default function MessagesScreen() {
                   <Text className="text-sm font-inter-semibold text-gray-700" numberOfLines={1}>
                     {conversation.subject || 'No subject'}
                   </Text>
-                  <Text className="text-xs font-inter-regular text-gray-500">
+                  <Text className="text-xs font-inter text-gray-500">
                     {formatTime(conversation.last_message_time)}
                   </Text>
                 </View>

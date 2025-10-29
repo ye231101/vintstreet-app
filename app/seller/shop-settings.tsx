@@ -5,15 +5,15 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -222,7 +222,7 @@ export default function ShopSettingsScreen() {
                   onChangeText={setShopName}
                   placeholder="Shop name"
                   placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
                 />
               </View>
 
@@ -233,7 +233,7 @@ export default function ShopSettingsScreen() {
                   onChangeText={setBusinessName}
                   placeholder="Business name"
                   placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
                 />
               </View>
             </View>
@@ -247,7 +247,7 @@ export default function ShopSettingsScreen() {
                 placeholder="A catchy one-liner for your shop"
                 placeholderTextColor="#9CA3AF"
                 maxLength={100}
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
               <Text className="mt-1 text-xs font-inter-semibold text-gray-500 text-right">
                 {shopTagline.length}/100 characters
@@ -266,7 +266,7 @@ export default function ShopSettingsScreen() {
                 numberOfLines={5}
                 maxLength={1000}
                 textAlignVertical="top"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
                 style={{ height: 100 }}
               />
               <Text className="mt-1 text-xs font-inter-semibold text-gray-500 text-right">
@@ -294,7 +294,7 @@ export default function ShopSettingsScreen() {
                 </View>
                 <View className="flex-1 ml-3">
                   <Text className="text-base font-inter-semibold text-black">{getShopNamePreview()}</Text>
-                  <Text className="text-xs font-inter-regular text-gray-500">
+                  <Text className="text-xs font-inter text-gray-500">
                     Show shop name on product and seller pages
                   </Text>
                 </View>
@@ -313,7 +313,7 @@ export default function ShopSettingsScreen() {
                 </View>
                 <View className="flex-1 ml-3">
                   <Text className="text-base font-inter-semibold text-black">{getPersonalNamePreview()}</Text>
-                  <Text className="text-xs font-inter-regular text-gray-500">Show first name and surname initial</Text>
+                  <Text className="text-xs font-inter text-gray-500">Show first name and surname initial</Text>
                 </View>
               </Pressable>
             </View>
@@ -326,7 +326,7 @@ export default function ShopSettingsScreen() {
                 onChangeText={setTaxId}
                 placeholder="Tax identification number"
                 placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
 
@@ -337,7 +337,7 @@ export default function ShopSettingsScreen() {
                 onChangeText={setBusinessLicense}
                 placeholder="Business license number"
                 placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
           </View>
@@ -358,7 +358,7 @@ export default function ShopSettingsScreen() {
                 placeholderTextColor="#9CA3AF"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
 
@@ -370,7 +370,7 @@ export default function ShopSettingsScreen() {
                 placeholder="+1 (555) 123-4567"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="phone-pad"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
           </View>
@@ -389,7 +389,7 @@ export default function ShopSettingsScreen() {
                 onChangeText={setReturnAddressLine1}
                 placeholder="Street address"
                 placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
 
@@ -400,7 +400,7 @@ export default function ShopSettingsScreen() {
                 onChangeText={setReturnAddressLine2}
                 placeholder="Apartment, suite, etc."
                 placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
 
@@ -412,7 +412,7 @@ export default function ShopSettingsScreen() {
                   onChangeText={setReturnCity}
                   placeholder="City"
                   placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
                 />
               </View>
 
@@ -423,7 +423,7 @@ export default function ShopSettingsScreen() {
                   onChangeText={setReturnState}
                   placeholder="State"
                   placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
                 />
               </View>
 
@@ -435,7 +435,7 @@ export default function ShopSettingsScreen() {
                   placeholder="ZIP code"
                   placeholderTextColor="#9CA3AF"
                   keyboardType="number-pad"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
                 />
               </View>
             </View>
@@ -458,7 +458,7 @@ export default function ShopSettingsScreen() {
                 multiline
                 numberOfLines={5}
                 textAlignVertical="top"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
                 style={{ height: 100 }}
               />
             </View>
@@ -473,7 +473,7 @@ export default function ShopSettingsScreen() {
                 multiline
                 numberOfLines={5}
                 textAlignVertical="top"
-                className="px-4 py-3 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-lg"
+                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
           </View>
