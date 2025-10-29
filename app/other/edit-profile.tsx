@@ -7,18 +7,18 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -241,7 +241,7 @@ export default function EditProfileScreen() {
                     <Feather name="camera" size={16} color="#000" />
                     <Text className="ml-2 text-sm font-inter-semibold text-black">Change Photo</Text>
                   </TouchableOpacity>
-                  <Text className="mt-3 text-xs font-inter-regular text-gray-500">
+                  <Text className="mt-3 text-xs font-inter text-gray-500">
                     JPG, GIF or PNG. Max size of 2MB
                   </Text>
                 </View>
@@ -260,7 +260,7 @@ export default function EditProfileScreen() {
                   onChangeText={setUsername}
                   placeholder="Enter username"
                   placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-gray-50 border border-gray-200 rounded-lg"
                 />
               </View>
 
@@ -272,7 +272,7 @@ export default function EditProfileScreen() {
                   onChangeText={setFullName}
                   placeholder="Enter full name"
                   placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-gray-50 border border-gray-200 rounded-lg"
                 />
               </View>
 
@@ -284,9 +284,9 @@ export default function EditProfileScreen() {
                   editable={false}
                   placeholder="Email"
                   placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter-regular text-gray-500 bg-gray-100 border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-gray-500 bg-gray-100 border border-gray-200 rounded-lg"
                 />
-                <Text className="mt-1 text-xs font-inter-regular text-gray-500">
+                <Text className="mt-1 text-xs font-inter text-gray-500">
                   Email cannot be changed. Contact support if you need to update your email.
                 </Text>
               </View>
@@ -302,7 +302,7 @@ export default function EditProfileScreen() {
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="px-4 py-3 text-base font-inter-regular text-black bg-gray-50 border border-gray-200 rounded-lg"
+                  className="px-4 py-3 text-base font-inter text-black bg-gray-50 border border-gray-200 rounded-lg"
                   style={{ minHeight: 100 }}
                 />
               </View>
@@ -350,7 +350,7 @@ export default function EditProfileScreen() {
               </View>
               <View className="flex-1 ml-4">
                 <Text className="text-base font-inter-semibold text-black">Take Photo</Text>
-                <Text className="text-sm font-inter-regular text-gray-600">Use your camera to take a new photo</Text>
+                <Text className="text-sm font-inter text-gray-600">Use your camera to take a new photo</Text>
               </View>
               <Feather name="chevron-right" size={20} color="#9CA3AF" />
             </Pressable>
@@ -365,7 +365,7 @@ export default function EditProfileScreen() {
               </View>
               <View className="flex-1 ml-4">
                 <Text className="text-base font-inter-semibold text-black">Choose from Library</Text>
-                <Text className="text-sm font-inter-regular text-gray-600">Select a photo from your gallery</Text>
+                <Text className="text-sm font-inter text-gray-600">Select a photo from your gallery</Text>
               </View>
               <Feather name="chevron-right" size={20} color="#9CA3AF" />
             </Pressable>

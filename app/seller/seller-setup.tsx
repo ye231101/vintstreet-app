@@ -5,14 +5,14 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -165,7 +165,7 @@ export default function SellerSetupScreen() {
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">
           What type of things would you like to sell?
         </Text>
-        <Text className="text-sm font-inter-regular text-gray-600 text-center">Select all that apply</Text>
+        <Text className="text-sm font-inter text-gray-600 text-center">Select all that apply</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
@@ -207,7 +207,7 @@ export default function SellerSetupScreen() {
     <View className="flex-1 p-4">
       <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">How would you like to sell?</Text>
-        <Text className="text-sm font-inter-regular text-gray-600 text-center">You can choose one or both</Text>
+        <Text className="text-sm font-inter text-gray-600 text-center">You can choose one or both</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="flex-1">
@@ -228,7 +228,7 @@ export default function SellerSetupScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-inter-bold text-black mb-1">Upload listings</Text>
-                <Text className="text-sm font-inter-regular text-gray-600">
+                <Text className="text-sm font-inter text-gray-600">
                   Create product listings to sell anytime
                 </Text>
               </View>
@@ -249,7 +249,7 @@ export default function SellerSetupScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-inter-bold text-black mb-1">Livestream</Text>
-                <Text className="text-sm font-inter-regular text-gray-600">
+                <Text className="text-sm font-inter text-gray-600">
                   Sell live and engage with buyers in real-time
                 </Text>
               </View>
@@ -274,7 +274,7 @@ export default function SellerSetupScreen() {
     <View className="flex-1 p-4">
       <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">Your shop name</Text>
-        <Text className="text-sm font-inter-regular text-gray-600 text-center">
+        <Text className="text-sm font-inter text-gray-600 text-center">
           Choose a memorable name for your shop
         </Text>
       </View>
@@ -288,7 +288,7 @@ export default function SellerSetupScreen() {
             placeholder="Enter your shop name"
             placeholderTextColor="#9CA3AF"
             maxLength={50}
-            className="px-5 py-4 text-base font-inter-regular text-black bg-white border border-gray-200 rounded-xl"
+            className="px-5 py-4 text-base font-inter text-black bg-white border border-gray-200 rounded-xl"
           />
           <Text className="mt-2 text-xs font-inter-semibold text-gray-500 text-right">
             {shopName.length}/50 characters
