@@ -5,6 +5,7 @@ import {
   logoutUser,
   registerUser,
   resetPassword,
+  updatePassword as updatePasswordAction,
   updateProfile as updateProfileAction,
 } from '@/store/slices/authSlice';
 
@@ -46,6 +47,11 @@ export const useAuth = () => {
     return result;
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    const result = await dispatch(updatePasswordAction({ currentPassword, newPassword }));
+    return result;
+  };
+
   const logout = async () => {
     if (loading) return;
     dispatch(logoutUser());
@@ -65,6 +71,7 @@ export const useAuth = () => {
     register,
     resetPassword: resetPasswordAction,
     updateProfile,
+    changePassword,
     logout,
     clearError: clearAuthError,
   };

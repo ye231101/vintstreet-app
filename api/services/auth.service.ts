@@ -512,6 +512,63 @@ class AuthService {
   }
 
   /**
+   * Update user password
+   * @param currentPassword - Current password for verification
+   * @param newPassword - New password to set
+   * @returns Response with success status
+   */
+  async updatePassword(currentPassword: string, newPassword: string): Promise<{ error: string | null; success: boolean }> {
+    try {
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user || !user.email) {
+        return {
+          error: 'User not authenticated',
+          success: false,
+        };
+      }
+
+      // Verify current password by attempting to sign in
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+
+      if (verifyError) {
+        return {
+          error: 'Current password is incorrect',
+          success: false,
+        };
+      }
+
+      // Update password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        return {
+          error: updateError.message,
+          success: false,
+        };
+      }
+
+      return {
+        error: null,
+        success: true,
+      };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Password update failed',
+        success: false,
+      };
+    }
+  }
+
+  /**
    * Listen to auth state changes
    * @param callback - Callback function to handle auth state changes
    * @returns Subscription object
