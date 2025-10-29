@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { toggleItem, isInWishlist } = useWishlist();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  const isWishlisted = isInWishlist(product.id) || false;
+  const isWishlisted = isInWishlist(product.id);
   const isInCart = cart.items.some((cartItem) => cartItem.product?.id === product.id);
 
   const handleAddToCart = async () => {
@@ -63,7 +63,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             name={isWishlisted ? 'heart' : 'heart-o'}
             size={18}
             color={isWishlisted ? '#ef4444' : 'black'}
-            fill={isWishlisted ? '#ef4444' : 'transparent'}
           />
         </Pressable>
       </View>
