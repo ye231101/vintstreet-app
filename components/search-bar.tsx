@@ -60,20 +60,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       try {
         setIsLoadingSuggestions(true);
-        const apiSuggestions = await listingsService.getSearchSuggestions(searchTerm.trim(), 8);
+        const apiSuggestions = await listingsService.getSearchSuggestions(searchTerm.trim(), 20);
 
         // Also get recent searches that match
         const recentSearches = await getRecentSearches();
         const matchingRecent = recentSearches
           .filter((search) => search.toLowerCase().includes(searchTerm.toLowerCase()))
-          .slice(0, 3)
+          .slice(0, 5)
           .map((search) => ({
             type: 'recent' as const,
             value: search,
           }));
 
         // Combine recent and API suggestions, prioritizing recent
-        const combinedSuggestions = [...matchingRecent, ...apiSuggestions].slice(0, 10);
+        const combinedSuggestions = [...matchingRecent, ...apiSuggestions].slice(0, 20);
         setSuggestions(combinedSuggestions);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
@@ -213,21 +213,18 @@ const SearchBar: React.FC<SearchBarProps> = ({
           </Pressable>
         </View>
 
-        {/* Backdrop to block interactions - positioned behind suggestions */}
+        {/* Light grey backdrop overlay - non-interactive, just visual */}
         {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
-          <Pressable
+          <View
+            pointerEvents="none"
             style={{
               position: 'absolute',
               top: 70,
               left: 0,
               right: 0,
               bottom: -5000,
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              zIndex: 999,
-            }}
-            onPress={() => {
-              setShowSuggestions(false);
-              Keyboard.dismiss();
+              backgroundColor: 'rgba(128, 128, 128, 0.2)',
+              zIndex: 998,
             }}
           />
         )}
@@ -235,19 +232,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
         {/* Suggestions Dropdown - Absolutely Positioned */}
         {showSuggestions && suggestions.length > 0 && (
           <View
-            className="bg-white mx-4 rounded-lg overflow-hidden"
+            className="bg-white mx-4 rounded-lg"
             style={{
               position: 'absolute',
               top: 70,
               left: 0,
               right: 0,
-              maxHeight: 300,
+              maxHeight: 400,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.15,
               shadowRadius: 8,
               elevation: 5,
               zIndex: 1000,
+              overflow: 'hidden',
             }}
           >
             <FlatList
@@ -255,9 +253,32 @@ const SearchBar: React.FC<SearchBarProps> = ({
               keyExtractor={(item, index) => `${item.type}-${item.value}-${index}`}
               renderItem={renderSuggestion}
               keyboardShouldPersistTaps="handled"
-              nestedScrollEnabled
+              nestedScrollEnabled={true}
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={true}
+              style={{ maxHeight: 400 }}
+              contentContainerStyle={{ flexGrow: 1 }}
             />
           </View>
+        )}
+
+        {/* Interactive backdrop below suggestions to close on tap */}
+        {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
+          <Pressable
+            style={{
+              position: 'absolute',
+              top: 470,
+              left: 0,
+              right: 0,
+              bottom: -5000,
+              backgroundColor: 'transparent',
+              zIndex: 999,
+            }}
+            onPress={() => {
+              setShowSuggestions(false);
+              Keyboard.dismiss();
+            }}
+          />
         )}
 
         {/* Loading indicator - Absolutely Positioned */}
