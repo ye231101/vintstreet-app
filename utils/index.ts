@@ -18,3 +18,8 @@ export const validateEmail = (email: string) => {
  * @returns string - blurhash
  */
 export const blurhash = 'LHF7~qC=^7WB6cof86t71R*I96IM';
+
+/**
+ * Export storage utilities
+ */
+export { getRecentSearches, addRecentSearch, clearRecentSearches, removeRecentSearch } from './storage';

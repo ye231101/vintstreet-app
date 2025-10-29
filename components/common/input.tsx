@@ -15,6 +15,8 @@ interface InputProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send';
   onSubmitEditing?: () => void;
+  textContentType?: 'none' | 'username' | 'password' | 'emailAddress' | 'name' | 'telephoneNumber' | 'streetAddressLine1' | 'streetAddressLine2' | 'postalCode' | 'location' | 'countryName';
+  autoComplete?: 'off' | 'username' | 'password' | 'email' | 'name' | 'tel' | 'street-address' | 'postal-code' | 'cc-number' | 'cc-csc' | 'cc-exp' | 'cc-exp-month' | 'cc-exp-year';
   error?: string;
   style?: StyleProp<ViewStyle>;
 }
@@ -33,6 +35,8 @@ export const InputComponent: React.FC<InputProps> = ({
   autoCapitalize = 'none',
   returnKeyType = 'done',
   onSubmitEditing,
+  textContentType,
+  autoComplete,
   error,
   style,
 }: InputProps) => {
@@ -76,6 +80,8 @@ export const InputComponent: React.FC<InputProps> = ({
           style={{ height: 50 }}
           returnKeyType={returnKeyType}
           onSubmitEditing={onSubmitEditing}
+          textContentType={textContentType}
+          autoComplete={autoComplete}
         />
         {showPasswordToggle && (
           <Pressable onPress={onTogglePassword} hitSlop={8}>

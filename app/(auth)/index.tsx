@@ -44,6 +44,8 @@ export default function IndexScreen() {
               onChangeText={(text) => setEmail(text)}
               keyboardType="email-address"
               returnKeyType="next"
+              textContentType="emailAddress"
+              autoComplete="email"
             />
 
             <InputComponent
@@ -56,6 +58,8 @@ export default function IndexScreen() {
               onTogglePassword={() => setSecure((s) => !s)}
               returnKeyType="done"
               onSubmitEditing={onSubmit}
+              textContentType="password"
+              autoComplete="password"
             />
 
             <View className="items-end">

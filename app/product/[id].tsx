@@ -445,7 +445,22 @@ export default function ProductDetailScreen() {
                         {productAttributes.map((attribute: any, index: number) => {
                           // Extract the correct value based on data type
                           const getValue = () => {
-                            if (attribute.value_text !== null) return attribute.value_text;
+                            if (attribute.value_text !== null) {
+                              // Try to parse JSON arrays/objects for better display
+                              try {
+                                const parsed = JSON.parse(attribute.value_text);
+                                if (Array.isArray(parsed)) {
+                                  return parsed.join(', ');
+                                }
+                                if (typeof parsed === 'object') {
+                                  return JSON.stringify(parsed);
+                                }
+                                return attribute.value_text;
+                              } catch {
+                                // Not JSON, return as-is
+                                return attribute.value_text;
+                              }
+                            }
                             if (attribute.value_number !== null) return attribute.value_number.toString();
                             if (attribute.value_boolean !== null) return attribute.value_boolean ? 'Yes' : 'No';
                             if (attribute.value_date !== null) {
