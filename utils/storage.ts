@@ -67,3 +67,71 @@ export const getStorageJSON = async (key: string) => {
   }
   return null;
 };
+
+/**
+ * Recent Search History Management
+ */
+const RECENT_SEARCHES_KEY = 'recent_searches';
+const MAX_RECENT_SEARCHES = 10;
+
+/**
+ * Get recent searches from storage
+ * @returns Array of recent search terms
+ */
+export const getRecentSearches = async (): Promise<string[]> => {
+  try {
+    const searches = await getStorageJSON(RECENT_SEARCHES_KEY);
+    return Array.isArray(searches) ? searches : [];
+  } catch (error) {
+    console.error('Error getting recent searches:', error);
+    return [];
+  }
+};
+
+/**
+ * Add a search term to recent searches
+ * @param searchTerm - The search term to add
+ */
+export const addRecentSearch = async (searchTerm: string): Promise<void> => {
+  try {
+    if (!searchTerm || searchTerm.trim().length === 0) return;
+
+    const trimmedTerm = searchTerm.trim();
+    const searches = await getRecentSearches();
+
+    // Remove the term if it already exists (to move it to the front)
+    const filteredSearches = searches.filter((s) => s.toLowerCase() !== trimmedTerm.toLowerCase());
+
+    // Add the new term to the front
+    const updatedSearches = [trimmedTerm, ...filteredSearches].slice(0, MAX_RECENT_SEARCHES);
+
+    await setStorageJSON(RECENT_SEARCHES_KEY, updatedSearches);
+  } catch (error) {
+    console.error('Error adding recent search:', error);
+  }
+};
+
+/**
+ * Clear all recent searches
+ */
+export const clearRecentSearches = async (): Promise<void> => {
+  try {
+    await removeStorageValue(RECENT_SEARCHES_KEY);
+  } catch (error) {
+    console.error('Error clearing recent searches:', error);
+  }
+};
+
+/**
+ * Remove a specific search term from recent searches
+ * @param searchTerm - The search term to remove
+ */
+export const removeRecentSearch = async (searchTerm: string): Promise<void> => {
+  try {
+    const searches = await getRecentSearches();
+    const filteredSearches = searches.filter((s) => s.toLowerCase() !== searchTerm.toLowerCase());
+    await setStorageJSON(RECENT_SEARCHES_KEY, filteredSearches);
+  } catch (error) {
+    console.error('Error removing recent search:', error);
+  }
+};

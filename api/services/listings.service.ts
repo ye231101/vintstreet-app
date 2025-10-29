@@ -23,8 +23,9 @@ class ListingsService {
 
       // Apply search filter to count query
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
+        const searchPattern = `%${filters.searchKeyword.trim()}%`;
         countQuery = countQuery.or(
-          `product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`
+          `product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`
         );
       }
 
@@ -77,8 +78,9 @@ class ListingsService {
 
       // Apply search filter
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
+        const searchPattern = `%${filters.searchKeyword.trim()}%`;
         query = query.or(
-          `product_name.ilike.%${filters.searchKeyword}%,product_description.ilike.%${filters.searchKeyword}%`
+          `product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`
         );
       }
 
@@ -489,7 +491,7 @@ class ListingsService {
         )
         .eq('product_type', 'shop')
         .eq('status', 'published')
-        .or(`product_name.ilike.%${searchTerm}%,product_description.ilike.%${searchTerm}%`);
+        .or(`product_name.ilike."%${searchTerm}%",product_description.ilike."%${searchTerm}%"`);
 
       // Apply price filter if provided
       if (priceFilter && priceFilter !== 'All Prices') {
@@ -1097,6 +1099,81 @@ class ListingsService {
         seller_info_view: apiListing.seller_info_view,
       };
     });
+  }
+
+  /**
+   * Get search suggestions based on partial search term
+   * @param searchTerm - The partial search term to get suggestions for
+   * @param limit - Maximum number of suggestions to return (default: 10)
+   */
+  async getSearchSuggestions(
+    searchTerm: string,
+    limit: number = 10
+  ): Promise<Array<{ type: 'product' | 'brand'; value: string; id?: string }>> {
+    try {
+      if (!searchTerm || searchTerm.trim().length < 2) {
+        return [];
+      }
+
+      const suggestions: Array<{ type: 'product' | 'brand'; value: string; id?: string }> = [];
+
+      // Get product name suggestions
+      const { data: products, error: productsError } = await supabase
+        .from('listings')
+        .select('id, product_name')
+        .eq('product_type', 'shop')
+        .eq('status', 'published')
+        .ilike('product_name', `%${searchTerm.trim()}%`)
+        .limit(limit);
+
+      if (!productsError && products) {
+        // Get unique product names
+        const uniqueNames = new Set<string>();
+        products.forEach((p: any) => {
+          if (p.product_name && !uniqueNames.has(p.product_name.toLowerCase())) {
+            uniqueNames.add(p.product_name.toLowerCase());
+            suggestions.push({
+              type: 'product',
+              value: p.product_name,
+              id: p.id,
+            });
+          }
+        });
+      }
+
+      // Get brand name suggestions
+      const { data: brands, error: brandsError } = await supabase
+        .from('brands')
+        .select('id, name')
+        .eq('is_active', true)
+        .ilike('name', `%${searchTerm.trim()}%`)
+        .limit(Math.floor(limit / 2));
+
+      if (!brandsError && brands) {
+        brands.forEach((b: any) => {
+          suggestions.push({
+            type: 'brand',
+            value: b.name,
+            id: b.id,
+          });
+        });
+      }
+
+      // Sort suggestions by relevance (starts with search term first)
+      const searchLower = searchTerm.trim().toLowerCase();
+      suggestions.sort((a, b) => {
+        const aStarts = a.value.toLowerCase().startsWith(searchLower);
+        const bStarts = b.value.toLowerCase().startsWith(searchLower);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.value.localeCompare(b.value);
+      });
+
+      return suggestions.slice(0, limit);
+    } catch (error) {
+      console.error('Error fetching search suggestions:', error);
+      return [];
+    }
   }
 
   /**
