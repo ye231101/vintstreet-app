@@ -17,6 +17,7 @@ export interface ShippingOption {
   seller_id: string;
   provider_id: string;
   name: string;
+  description: string;
   price: number;
   estimated_days_min: number;
   estimated_days_max: number;

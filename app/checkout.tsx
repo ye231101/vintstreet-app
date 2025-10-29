@@ -1,4 +1,4 @@
-import { Product } from '@/api';
+import { Product, ShippingOption, shippingService } from '@/api';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
@@ -34,12 +34,6 @@ interface ShippingInformationErrors {
   postcode?: string;
   country?: string;
   phone?: string;
-}
-
-interface ShippingMethod {
-  carrier: string;
-  deliveryTime: string;
-  cost: string;
 }
 
 interface InputFieldProps {
@@ -90,10 +84,11 @@ const InputField = ({
 );
 
 export default function CheckoutScreen() {
-  const { productId } = useLocalSearchParams();
+  const { productId, sellerId, productIds } = useLocalSearchParams();
 
   const { cart, isLoading } = useCart();
-  const [checkoutItem, setCheckoutItem] = useState<CheckoutItem>();
+  const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
+  const [sellerInfo, setSellerInfo] = useState<any>(null);
 
   // Step completion tracking
   const [stepCompleted, setStepCompleted] = useState([false, false]);
@@ -112,12 +107,9 @@ export default function CheckoutScreen() {
   });
   const [shippingInformationErrors, setShippingInformationErrors] = useState<ShippingInformationErrors>({});
 
-  const [selectedShippingMethod, setSelectedShippingMethod] = useState('DPD');
-  const [shippingMethods] = useState<ShippingMethod[]>([
-    { carrier: 'DPD', deliveryTime: '1-10 business days', cost: 'Free' },
-    { carrier: 'Yodel', deliveryTime: '1-10 business days', cost: 'Free' },
-    { carrier: 'Evri', deliveryTime: '1-10 business days', cost: 'Free' },
-  ]);
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>('');
+  const [shippingMethods, setShippingMethods] = useState<ShippingOption[]>([]);
+  const [shippingLoading, setShippingLoading] = useState(false);
 
   const [countries] = useState([
     { code: 'GB', name: 'United Kingdom' },
@@ -154,20 +146,69 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     loadCheckoutData();
-  }, [productId]);
+  }, [productId, sellerId, productIds]);
+
+  useEffect(() => {
+    if (sellerId) {
+      fetchShippingOptions();
+    }
+  }, [sellerId]);
 
   useEffect(() => {
     updateStepCompletion();
-  }, [shippingInformation, selectedShippingMethod]);
+  }, [shippingInformation, selectedShippingMethod, shippingMethods]);
 
   const loadCheckoutData = () => {
-    const cartItem = cart.items.filter((item) => productId === item.product?.id);
+    if (sellerId && productIds) {
+      // Seller-based checkout with multiple products
+      const productIdArray = (productIds as string).split(',');
+      const cartItems = cart.items.filter(
+        (item) => productIdArray.includes(item.product?.id || '') && item.product?.seller_id === sellerId
+      );
 
-    const item: CheckoutItem = {
-      product: cartItem[0]?.product,
-    };
+      const items: CheckoutItem[] = cartItems.map((item) => ({
+        product: item.product,
+      }));
 
-    setCheckoutItem(item);
+      setCheckoutItems(items);
+
+      // Set seller info from the first item
+      if (items.length > 0 && items[0].product?.seller_info_view) {
+        setSellerInfo(items[0].product.seller_info_view);
+      }
+    } else if (productId) {
+      // Single product checkout (legacy support)
+      const cartItem = cart.items.filter((item) => productId === item.product?.id);
+
+      const item: CheckoutItem = {
+        product: cartItem[0]?.product,
+      };
+
+      setCheckoutItems([item]);
+      if (item.product?.seller_info_view) {
+        setSellerInfo(item.product.seller_info_view);
+      }
+    }
+  };
+
+  const fetchShippingOptions = async () => {
+    if (!sellerId || Array.isArray(sellerId)) return;
+
+    setShippingLoading(true);
+    try {
+      const options = await shippingService.getSellerShippingOptionsForBuyer(sellerId);
+      setShippingMethods(options);
+
+      // Auto-select the first option if available
+      if (options.length > 0) {
+        setSelectedShippingMethod(options[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching shipping options:', error);
+      setShippingMethods([]);
+    } finally {
+      setShippingLoading(false);
+    }
   };
 
   // Update functions that clear errors when typing
@@ -190,7 +231,7 @@ export default function CheckoutScreen() {
       shippingInformation.city.trim() !== '' &&
       shippingInformation.country.trim() !== '';
 
-    const shippingMethodComplete = selectedShippingMethod.trim() !== '';
+    const shippingMethodComplete = selectedShippingMethod.trim() !== '' && shippingMethods.length > 0;
 
     setStepCompleted([shippingComplete, shippingMethodComplete]);
   };
@@ -229,7 +270,9 @@ export default function CheckoutScreen() {
           </TouchableOpacity>
 
           <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
-            {checkoutItem?.product?.product_name}
+            {sellerId && checkoutItems.length > 1
+              ? `Checkout with ${sellerInfo?.shop_name || 'Seller'} (${checkoutItems.length} items)`
+              : checkoutItems[0]?.product?.product_name || 'Checkout'}
           </Text>
         </View>
 
@@ -250,7 +293,9 @@ export default function CheckoutScreen() {
         </TouchableOpacity>
 
         <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
-          {checkoutItem?.product?.product_name}
+          {sellerId && checkoutItems.length > 1
+            ? `Checkout with ${sellerInfo?.shop_name || 'Seller'} (${checkoutItems.length} items)`
+            : checkoutItems[0]?.product?.product_name || 'Checkout'}
         </Text>
       </View>
 
@@ -263,42 +308,75 @@ export default function CheckoutScreen() {
           {/* Order Summary */}
           <View className="bg-white rounded-xl">
             {/* Header */}
-            <View className="flex-row items-center p-4 rounded-t-xl bg-white border-b border-gray-200">
+            <View className="flex-row items-center gap-2 p-4 rounded-t-xl bg-white border-b border-gray-200">
               <Feather name="shopping-bag" color="#666" size={20} />
-              <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Order Summary</Text>
+              <Text className="text-base font-inter-bold text-gray-800">Order Summary</Text>
+              <Text className="text-sm text-gray-600">
+                ({checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''})
+              </Text>
             </View>
 
-            <View className="flex-row items-center gap-3 p-4">
-              <Image
-                source={checkoutItem?.product?.product_image}
-                contentFit="cover"
-                placeholder={{ blurhash }}
-                transition={1000}
-                style={{ width: 80, height: 80, borderRadius: 8 }}
-              />
+            {/* Products List */}
+            <View>
+              {checkoutItems.map((item, index) => (
+                <View
+                  key={item.product?.id || index}
+                  className="flex-row items-center gap-3 p-4 border-b border-gray-100"
+                >
+                  <Image
+                    source={item.product?.product_image}
+                    contentFit="cover"
+                    placeholder={{ blurhash }}
+                    transition={1000}
+                    style={{ width: 60, height: 60, borderRadius: 8 }}
+                  />
 
-              <View className="flex-1 gap-2">
-                <Text className="mb-1 text-sm font-inter-bold text-gray-800">
-                  {checkoutItem?.product?.product_name}
-                </Text>
-                <View className="self-start items-center justify-center px-4 py-1 rounded-full bg-gray-200">
-                  <Text className="text-xs font-inter-semibold text-gray-600">
-                    {checkoutItem?.product?.product_categories?.name}
+                  <View className="flex-1 gap-1">
+                    <Text className="text-sm font-inter-bold text-gray-800" numberOfLines={2}>
+                      {item.product?.product_name}
+                    </Text>
+                    <View className="self-start items-center justify-center px-3 py-1 rounded-full bg-gray-200">
+                      <Text className="text-xs font-inter-semibold text-gray-600">
+                        {item.product?.product_categories?.name}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Text className="text-sm font-inter-bold text-gray-800">
+                    £
+                    {item.product?.discounted_price !== null
+                      ? item.product?.discounted_price.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      : item.product?.starting_price.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                   </Text>
                 </View>
-              </View>
+              ))}
+            </View>
 
+            {/* Total */}
+            <View className="flex-row items-center justify-between p-4 bg-gray-50">
               <Text className="text-base font-inter-bold text-gray-800">
+                Subtotal ({checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''})
+              </Text>
+              <Text className="text-lg font-inter-bold text-gray-800">
                 £
-                {checkoutItem?.product?.discounted_price !== null
-                  ? checkoutItem?.product?.discounted_price.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  : checkoutItem?.product?.starting_price.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                {checkoutItems
+                  .reduce((total, item) => {
+                    const price =
+                      item.product?.discounted_price !== null
+                        ? item.product?.discounted_price || 0
+                        : item.product?.starting_price || 0;
+                    return total + price;
+                  }, 0)
+                  .toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
               </Text>
             </View>
           </View>
@@ -427,50 +505,54 @@ export default function CheckoutScreen() {
 
             {/* Section Content */}
             <View className="p-4">
-              <Text className="mb-4 text-sm font-inter-semibold text-gray-600">Shipping for 1 item(s)</Text>
+              <Text className="mb-4 text-sm font-inter-semibold text-gray-600">
+                Shipping for {checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''}
+              </Text>
 
-              {shippingMethods.map((method, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => setSelectedShippingMethod(method.carrier)}
-                  className={`flex-row items-center mb-3 p-4 rounded-lg border ${
-                    selectedShippingMethod === method.carrier
-                      ? 'bg-blue-50 border-blue-600'
-                      : 'bg-white border-gray-200'
-                  }`}
-                >
-                  <View
-                    className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
-                      selectedShippingMethod === method.carrier ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
-                    }`}
-                  >
-                    {selectedShippingMethod === method.carrier && <View className="w-2 h-2 rounded-full bg-white" />}
-                  </View>
-                  <View className="flex-1">
-                    <Text
-                      className={`text-base font-inter-bold ${
-                        selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-800'
+              {shippingLoading ? (
+                <View className="flex-row items-center justify-center py-4">
+                  <ActivityIndicator size="small" color="#000" />
+                  <Text className="ml-2 text-sm text-gray-600">Loading shipping options...</Text>
+                </View>
+              ) : shippingMethods.length > 0 ? (
+                <View className="gap-2">
+                  {shippingMethods.map((option) => (
+                    <TouchableOpacity
+                      key={option.id}
+                      onPress={() => setSelectedShippingMethod(option.id)}
+                      className={`flex-row items-center justify-between p-3 border rounded-lg ${
+                        selectedShippingMethod === option.id ? 'border-black bg-black/10' : 'border-gray-200 bg-white'
                       }`}
                     >
-                      {method.carrier}
-                    </Text>
-                    <Text
-                      className={`text-sm font-inter-semibold ${
-                        selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
-                      }`}
-                    >
-                      {method.deliveryTime}
-                    </Text>
-                  </View>
-                  <Text
-                    className={`text-sm font-inter-bold ${
-                      selectedShippingMethod === method.carrier ? 'text-blue-600' : 'text-gray-600'
-                    }`}
-                  >
-                    {method.cost}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                      <View className="flex-row items-center gap-3">
+                        <View
+                          className={`w-4 h-4 rounded-full border-2 ${
+                            selectedShippingMethod === option.id ? 'border-black bg-black' : 'border-gray-300'
+                          }`}
+                        >
+                          {selectedShippingMethod === option.id && (
+                            <View className="w-2 h-2 rounded-full bg-white m-0.5" />
+                          )}
+                        </View>
+                        <View>
+                          <Text className="text-sm font-inter-semibold text-gray-800">{option.name}</Text>
+                          {option.estimated_days_min && option.estimated_days_max && (
+                            <Text className="text-xs text-gray-600">
+                              Estimated delivery: {option.estimated_days_min}-{option.estimated_days_max} days
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+                      <Text className="text-sm font-inter-bold text-gray-800">£{option.price.toFixed(2)}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <View className="p-4 border border-yellow-500/50 bg-yellow-500/10 rounded-lg">
+                  <Text className="text-sm font-inter-semibold text-yellow-700">No shipping options available</Text>
+                  <Text className="text-xs text-gray-600 mt-1">The seller has not configured shipping options yet</Text>
+                </View>
+              )}
             </View>
           </View>
 

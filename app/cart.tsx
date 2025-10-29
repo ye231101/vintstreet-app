@@ -37,10 +37,6 @@ export default function CartScreen() {
     removeItem(itemId);
   };
 
-  const handleCartItemCheckout = (productId: string) => {
-    router.push(`/checkout?productId=${productId}`);
-  };
-
   // Fetch shipping options for all sellers in cart
   useEffect(() => {
     const fetchShippingOptions = async () => {
@@ -89,56 +85,107 @@ export default function CartScreen() {
     }));
   };
 
-  const CartItemSection = ({ cartItem, onRemove }: { cartItem: CartItem; onRemove: (productId: string) => void }) => {
-    if (!cartItem.product) return null;
+  // Group cart items by seller
+  const groupCartItemsBySeller = () => {
+    if (!cart || cart.items.length === 0) return {};
 
-    const product = cartItem.product;
-    const sellerId = product.seller_id;
+    return cart.items.reduce((groups, item) => {
+      if (!item.product?.seller_id) return groups;
+
+      const sellerId = item.product.seller_id;
+      if (!groups[sellerId]) {
+        groups[sellerId] = {
+          sellerInfo: item.product.seller_info_view,
+          items: [],
+        };
+      }
+      groups[sellerId].items.push(item);
+      return groups;
+    }, {} as Record<string, { sellerInfo: any; items: CartItem[] }>);
+  };
+
+  const sellerGroups = groupCartItemsBySeller();
+
+  const SellerGroupSection = ({
+    sellerId,
+    sellerData,
+    onRemove,
+  }: {
+    sellerId: string;
+    sellerData: { sellerInfo: any; items: CartItem[] };
+    onRemove: (productId: string) => void;
+  }) => {
     const sellerShippingOptions = shippingOptions[sellerId] || [];
     const hasShippingOptions = sellerShippingOptions.length > 0;
+    const sellerName = sellerData.sellerInfo?.shop_name || 'Unknown Seller';
+
+    // Calculate total for this seller
+    const totalAmount = sellerData.items.reduce((sum, item) => {
+      if (!item.product) return sum;
+      const price =
+        item.product.discounted_price !== null ? item.product.discounted_price : item.product.starting_price;
+      return sum + price;
+    }, 0);
+
+    const handleSellerCheckout = () => {
+      // Get all product IDs for this seller
+      const productIds = sellerData.items.map((item) => item.product?.id).filter(Boolean);
+      router.push(`/checkout?sellerId=${sellerId}&productIds=${productIds.join(',')}`);
+    };
 
     return (
-      <View key={product.id} className="rounded-xl overflow-hidden bg-white border border-gray-400">
+      <View key={sellerId} className="rounded-xl overflow-hidden bg-white border border-gray-400">
+        {/* Seller Header */}
         <View className="flex-row items-center gap-3 p-4 bg-gray-200">
-          <Feather name="shopping-cart" color="#000" size={20} />
-          <Text className="text-base font-inter-bold text-gray-800">Sold by {product.seller_info_view?.shop_name}</Text>
+          <Feather name="shopping-bag" color="#000" size={20} />
+          <Text className="text-base font-inter-bold text-gray-800">Sold by {sellerName}</Text>
+          <Text className="text-sm text-gray-600">
+            ({sellerData.items.length} item{sellerData.items.length !== 1 ? 's' : ''})
+          </Text>
         </View>
 
-        <View className="flex-row items-center gap-3 p-4 border-t border-gray-200">
-          <View className="w-24 h-24 rounded-lg bg-gray-100 overflow-hidden">
-            <Image
-              source={product.product_image}
-              contentFit="cover"
-              placeholder={{ blurhash }}
-              transition={1000}
-              style={{ width: '100%', height: '100%' }}
-            />
-          </View>
+        {/* Products for this seller */}
+        {sellerData.items.map((cartItem) => {
+          if (!cartItem.product) return null;
+          const product = cartItem.product;
 
-          <View className="flex-1 gap-2">
-            <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={2}>
-              {product.product_name}
-            </Text>
-            <Text className="text-sm text-gray-600">Qty: 1</Text>
-            <View className="flex-row items-center justify-between gap-2">
-              <Text className="text-lg font-inter-bold text-gray-800">
-                £
-                {product.discounted_price !== null
-                  ? product.discounted_price.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  : product.starting_price.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-              </Text>
+          return (
+            <View key={product.id} className="flex-row items-center gap-3 p-4 border-t border-gray-200">
+              <View className="w-20 h-20 rounded-lg bg-gray-100 overflow-hidden">
+                <Image
+                  source={product.product_image}
+                  contentFit="cover"
+                  placeholder={{ blurhash }}
+                  transition={1000}
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </View>
+
+              <View className="flex-1 gap-1">
+                <Text className="text-sm font-inter-semibold text-gray-800" numberOfLines={2}>
+                  {product.product_name}
+                </Text>
+                <Text className="text-xs text-gray-600">Qty: 1</Text>
+                <Text className="text-sm font-inter-bold text-gray-800">
+                  £
+                  {product.discounted_price !== null
+                    ? product.discounted_price.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : product.starting_price.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                </Text>
+              </View>
+
               <TouchableOpacity onPress={() => onRemove(product.id)}>
-                <Feather name="trash-2" color="#ff4444" size={20} />
+                <Feather name="trash-2" color="#ff4444" size={18} />
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          );
+        })}
 
         {/* Shipping Options Section */}
         <View className="p-4 border-t border-gray-200">
@@ -197,17 +244,29 @@ export default function CartScreen() {
           )}
         </View>
 
-        <View className="p-4 border-t border-gray-200">
+        {/* Seller Total and Checkout */}
+        <View className="p-4 border-t border-gray-200 bg-gray-50">
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-base font-inter-bold text-gray-800">
+              Subtotal ({sellerData.items.length} item{sellerData.items.length !== 1 ? 's' : ''})
+            </Text>
+            <Text className="text-lg font-inter-bold text-gray-800">
+              £
+              {totalAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Text>
+          </View>
+
           <TouchableOpacity
-            onPress={() => handleCartItemCheckout(product.id)}
+            onPress={handleSellerCheckout}
             disabled={!hasShippingOptions}
             className={`items-center justify-center px-6 py-3 rounded-lg ${
               !hasShippingOptions ? 'bg-gray-400' : 'bg-black'
             }`}
           >
-            <Text className="text-center text-base font-inter-bold text-white">
-              Checkout with {product.product_name}
-            </Text>
+            <Text className="text-center text-base font-inter-bold text-white">Checkout with {sellerName}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -269,7 +328,9 @@ export default function CartScreen() {
         <View className="flex-1 justify-center items-center p-4 bg-gray-50">
           <Feather name="shopping-bag" color="#999" size={64} />
           <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-900">Your cart is empty</Text>
-          <Text className="mb-4 text-sm font-inter-semibold text-center text-gray-600">Add some items to get started!</Text>
+          <Text className="mb-4 text-sm font-inter-semibold text-center text-gray-600">
+            Add some items to get started!
+          </Text>
           <TouchableOpacity onPress={() => router.push('/(tabs)')} className="bg-black rounded-lg py-3 px-6">
             <Text className="text-base font-inter-bold text-white">Continue Shopping</Text>
           </TouchableOpacity>
@@ -306,10 +367,11 @@ export default function CartScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <View className="flex-1 gap-4 p-4 bg-gray-50">
-          {cart.items.map((item) => (
-            <CartItemSection
-              key={item.product?.id || item.id}
-              cartItem={item}
+          {Object.entries(sellerGroups).map(([sellerId, sellerData]) => (
+            <SellerGroupSection
+              key={sellerId}
+              sellerId={sellerId}
+              sellerData={sellerData}
               onRemove={(productId) => handleRemoveItem(productId)}
             />
           ))}
