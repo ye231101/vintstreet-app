@@ -1,8 +1,7 @@
-import { Product, ShippingOption, shippingService } from '@/api';
+import { BuyerProfile, buyerService, Product, ShippingOption, shippingService } from '@/api';
+import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
-import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
-import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -87,8 +86,11 @@ export default function CheckoutScreen() {
   const { productId, sellerId, productIds } = useLocalSearchParams();
 
   const { cart, isLoading } = useCart();
+  const { user } = useAuth();
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([]);
   const [sellerInfo, setSellerInfo] = useState<any>(null);
+  const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   // Step completion tracking
   const [stepCompleted, setStepCompleted] = useState([false, false]);
@@ -155,6 +157,12 @@ export default function CheckoutScreen() {
   }, [sellerId]);
 
   useEffect(() => {
+    if (user?.id) {
+      fetchBuyerProfile();
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
     updateStepCompletion();
   }, [shippingInformation, selectedShippingMethod, shippingMethods]);
 
@@ -198,7 +206,7 @@ export default function CheckoutScreen() {
     try {
       const options = await shippingService.getSellerShippingOptionsForBuyer(sellerId);
       setShippingMethods(options);
-
+      
       // Auto-select the first option if available
       if (options.length > 0) {
         setSelectedShippingMethod(options[0].id);
@@ -208,6 +216,38 @@ export default function CheckoutScreen() {
       setShippingMethods([]);
     } finally {
       setShippingLoading(false);
+    }
+  };
+
+  const fetchBuyerProfile = async () => {
+    if (!user?.id) return;
+
+    setProfileLoading(true);
+    try {
+      const profile = await buyerService.getBuyerProfile(user.id);
+      setBuyerProfile(profile);
+      
+      // Pre-fill shipping information if available
+      if (profile) {
+        const shippingAddress = buyerService.getShippingAddress(profile);
+        if (shippingAddress) {
+          setShippingInformation({
+            firstName: shippingAddress.firstName,
+            lastName: shippingAddress.lastName,
+            address1: shippingAddress.addressLine1,
+            address2: shippingAddress.addressLine2 || '',
+            city: shippingAddress.city,
+            state: shippingAddress.state || '',
+            postcode: shippingAddress.postalCode,
+            country: shippingAddress.country,
+            phone: shippingAddress.phone || '',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching buyer profile:', error);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -305,92 +345,19 @@ export default function CheckoutScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <View className="gap-4 p-4 bg-gray-50">
-          {/* Order Summary */}
-          <View className="bg-white rounded-xl">
-            {/* Header */}
-            <View className="flex-row items-center gap-2 p-4 rounded-t-xl bg-white border-b border-gray-200">
-              <Feather name="shopping-bag" color="#666" size={20} />
-              <Text className="text-base font-inter-bold text-gray-800">Order Summary</Text>
-              <Text className="text-sm text-gray-600">
-                ({checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''})
-              </Text>
-            </View>
-
-            {/* Products List */}
-            <View>
-              {checkoutItems.map((item, index) => (
-                <View
-                  key={item.product?.id || index}
-                  className="flex-row items-center gap-3 p-4 border-b border-gray-100"
-                >
-                  <Image
-                    source={item.product?.product_image}
-                    contentFit="cover"
-                    placeholder={{ blurhash }}
-                    transition={1000}
-                    style={{ width: 60, height: 60, borderRadius: 8 }}
-                  />
-
-                  <View className="flex-1 gap-1">
-                    <Text className="text-sm font-inter-bold text-gray-800" numberOfLines={2}>
-                      {item.product?.product_name}
-                    </Text>
-                    <View className="self-start items-center justify-center px-3 py-1 rounded-full bg-gray-200">
-                      <Text className="text-xs font-inter-semibold text-gray-600">
-                        {item.product?.product_categories?.name}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <Text className="text-sm font-inter-bold text-gray-800">
-                    £
-                    {item.product?.discounted_price !== null
-                      ? item.product?.discounted_price.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                      : item.product?.starting_price.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                  </Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Total */}
-            <View className="flex-row items-center justify-between p-4 bg-gray-50">
-              <Text className="text-base font-inter-bold text-gray-800">
-                Subtotal ({checkoutItems.length} item{checkoutItems.length !== 1 ? 's' : ''})
-              </Text>
-              <Text className="text-lg font-inter-bold text-gray-800">
-                £
-                {checkoutItems
-                  .reduce((total, item) => {
-                    const price =
-                      item.product?.discounted_price !== null
-                        ? item.product?.discounted_price || 0
-                        : item.product?.starting_price || 0;
-                    return total + price;
-                  }, 0)
-                  .toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-              </Text>
-            </View>
-          </View>
-
           {/* Shipping Information */}
           <View className="bg-white rounded-xl">
             {/* Section Header */}
             <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
               <Feather name="box" color="#666" size={20} />
               <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Information</Text>
+              {profileLoading && (
+                <ActivityIndicator size="small" color="#666" />
+              )}
             </View>
 
             {/* Section Content */}
-            <View className="p-4">
+            <View className="p-4">              
               <View className="flex-row items-center gap-2">
                 <View className="flex-1">
                   <InputField
@@ -571,6 +538,94 @@ export default function CheckoutScreen() {
                 You'll be redirected to Stripe's secure checkout to complete your payment. Your card details are never
                 stored on our servers.
               </Text>
+            </View>
+          </View>
+
+          {/* Order Summary */}
+          <View className="bg-white rounded-xl">
+            {/* Header */}
+            <View className="p-4 rounded-t-xl bg-white border-b border-gray-200">
+              <Text className="text-lg font-inter-bold text-gray-800">Order Summary</Text>
+            </View>
+
+            {/* Products List */}
+            <View className="p-4">
+              {checkoutItems.map((item, index) => (
+                <View key={item.product?.id || index} className="flex-row items-center justify-between py-2">
+                  <Text className="text-sm font-inter-semibold text-gray-800 flex-1">
+                    {item.product?.product_name} x1
+                  </Text>
+                  <Text className="text-sm font-inter-semibold text-gray-800">
+                    £
+                    {item.product?.discounted_price !== null
+                      ? item.product?.discounted_price.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      : item.product?.starting_price.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Separator */}
+            <View className="h-px bg-gray-200 mx-4" />
+
+            {/* Subtotal and Shipping */}
+            <View className="p-4">
+              <View className="flex-row items-center justify-between py-1">
+                <Text className="text-sm font-inter-semibold text-gray-800">Subtotal</Text>
+                <Text className="text-sm font-inter-semibold text-gray-800">
+                  £
+                  {checkoutItems
+                    .reduce((total, item) => {
+                      const price =
+                        item.product?.discounted_price !== null
+                          ? item.product?.discounted_price || 0
+                          : item.product?.starting_price || 0;
+                      return total + price;
+                    }, 0)
+                    .toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                </Text>
+              </View>
+
+              <View className="flex-row items-center justify-between py-1">
+                <Text className="text-sm font-inter-semibold text-gray-800">Shipping</Text>
+                <Text className="text-sm font-inter-semibold text-gray-800">
+                  £{shippingMethods.find((option) => option.id === selectedShippingMethod)?.price.toFixed(2) || '0.00'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Separator */}
+            <View className="h-px bg-gray-200 mx-4" />
+
+            {/* Total */}
+            <View className="p-4">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-base font-inter-bold text-gray-800">Total</Text>
+                <Text className="text-base font-inter-bold text-gray-800">
+                  £
+                  {(
+                    checkoutItems.reduce((total, item) => {
+                      const price =
+                        item.product?.discounted_price !== null
+                          ? item.product?.discounted_price || 0
+                          : item.product?.starting_price || 0;
+                      return total + price;
+                    }, 0) + (shippingMethods.find((option) => option.id === selectedShippingMethod)?.price || 0)
+                  ).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
