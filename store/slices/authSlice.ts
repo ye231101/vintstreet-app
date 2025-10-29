@@ -167,6 +167,27 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+export const updatePassword = createAsyncThunk(
+  'auth/updatePassword',
+  async (data: { currentPassword: string; newPassword: string }) => {
+    if (data.currentPassword.trim().length === 0) {
+      throw new Error('Current password is required');
+    }
+
+    if (data.newPassword.trim().length < 6) {
+      throw new Error('New password must be at least 6 characters');
+    }
+
+    const { error, success } = await authService.updatePassword(data.currentPassword, data.newPassword);
+
+    if (error || !success) {
+      throw new Error(error || 'Failed to update password');
+    }
+
+    return { success: true };
+  }
+);
+
 export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   try {
     // Sign out from Supabase
@@ -302,6 +323,19 @@ const authSlice = createSlice({
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Profile update failed';
+      })
+      // Update password
+      .addCase(updatePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updatePassword.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Password update failed';
       })
       // Logout
       .addCase(logoutUser.pending, (state) => {
