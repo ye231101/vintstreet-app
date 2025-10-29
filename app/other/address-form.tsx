@@ -13,8 +13,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import axios from 'axios';
+
+// Mapbox Access Token - Replace with your actual token
+const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VuaW9yZGV2MTIyMCIsImEiOiJjbWhiN3BiN2wxcDIwMmxzNnpiamN1N2RhIn0.TkD3d296tutjaKt9z4_njA';
 
 // InputField component moved outside to prevent re-creation on each render
 const InputField = ({
@@ -60,6 +65,124 @@ const InputField = ({
   </View>
 );
 
+// Address Autocomplete Field with Mapbox
+const AddressAutocompleteField = ({
+  label,
+  value,
+  onChangeText,
+  onSelectAddress,
+  placeholder,
+  required = false,
+  editable = true,
+}: {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  onSelectAddress: (place: any) => void;
+  placeholder: string;
+  required?: boolean;
+  editable?: boolean;
+}) => {
+  const [results, setResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const fetchPlaces = async (text: string) => {
+    onChangeText(text);
+    
+    if (text.length < 3) {
+      setResults([]);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const res = await axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          text
+        )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&autocomplete=true&limit=10&types=address,place,postcode`
+      );
+      
+      // Sort results to prioritize address types first
+      const sortedResults = res.data.features.sort((a: any, b: any) => {
+        const typeOrder: any = { 'address': 0, 'place': 1, 'postcode': 2, 'region': 3 };
+        const aType = a.place_type?.[0] || 'other';
+        const bType = b.place_type?.[0] || 'other';
+        return (typeOrder[aType] ?? 999) - (typeOrder[bType] ?? 999);
+      });
+      
+      setResults(sortedResults.slice(0, 5));
+    } catch (error) {
+      console.error('Error fetching places:', error);
+      setResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectPlace = (place: any) => {
+    onSelectAddress(place);
+    setResults([]);
+  };
+
+  return (
+    <View className="mb-4">
+      <Text className="text-gray-900 text-sm font-inter-semibold mb-2">
+        {label}
+        {required && <Text className="text-red-500"> *</Text>}
+      </Text>
+      <View>
+        <TextInput
+          value={value}
+          onChangeText={fetchPlaces}
+          placeholder={placeholder}
+          placeholderTextColor="#9CA3AF"
+          autoCapitalize="words"
+          className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 text-base font-inter"
+          editable={editable}
+        />
+        {isSearching && (
+          <View className="absolute right-3 top-3">
+            <ActivityIndicator size="small" color="#9CA3AF" />
+          </View>
+        )}
+      </View>
+
+      {results.length > 0 && (
+        <View className="mt-2 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
+          <ScrollView 
+            style={{ maxHeight: 200 }}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+          >
+            {results.map((item) => {
+              const placeType = item.place_type?.[0] || '';
+              const icon = placeType === 'address' ? '📍' : placeType === 'place' ? '🏙️' : '📮';
+              
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => handleSelectPlace(item)}
+                  className="px-4 py-3 border-b border-gray-200"
+                >
+                  <View className="flex-row items-start">
+                    <Text className="mr-2">{icon}</Text>
+                    <View className="flex-1">
+                      <Text className="text-gray-900 text-sm font-inter">{item.place_name}</Text>
+                      <Text className="text-gray-500 text-xs font-inter mt-1 capitalize">
+                        {placeType || 'location'}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
+    </View>
+  );
+};
+
 export default function AddressFormScreen() {
   const { type, edit, id } = useLocalSearchParams();
   const { user } = useAuth();
@@ -74,7 +197,7 @@ export default function AddressFormScreen() {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [country, setCountry] = useState('US');
+  const [country, setCountry] = useState('');
   const [phone, setPhone] = useState('');
 
   const isShipping = type === 'shipping';
@@ -136,6 +259,136 @@ export default function AddressFormScreen() {
     // This function would load a specific address if editing
     // For now, we'll use the loadExistingProfile
     loadExistingProfile();
+  };
+
+  const handleAddressSelect = (place: any) => {
+    const context = place.context || [];
+    const placeType = place.place_type?.[0] || '';
+
+    const placeNameParts = place.place_name.split(',').map((p: string) => p.trim());
+
+    let addressLine1Value = '';
+    
+    if (placeType === 'address' && placeNameParts.length > 0) {
+      // For address type, ALWAYS use the first part (complete street address)
+      addressLine1Value = placeNameParts[0];
+    } else if (placeType === 'postcode' || placeType === 'place') {
+      addressLine1Value = '';
+    } else if (place.address && place.text) {
+      addressLine1Value = `${place.address} ${place.text}`;
+    } else if (place.text && placeType === 'address') {
+      addressLine1Value = place.text;
+    }
+
+    // Parse context for city, state, postal code, and country
+    let cityValue = '';
+    let stateValue = '';
+    let postalCodeValue = '';
+    let countryValue = '';
+
+    // Special handling for postcode type - the text field IS the postal code
+    if (placeType === 'postcode') {
+      postalCodeValue = place.text || placeNameParts[0];
+    }
+
+    // Try to get postal code from properties
+    if (place.properties?.postcode && !postalCodeValue) {
+      postalCodeValue = place.properties.postcode;
+    }
+
+    // Parse the context array for all other info
+    context.forEach((item: any) => {
+      if (item.id.includes('place')) {
+        cityValue = item.text;
+      } else if (item.id.includes('locality') && !cityValue) {
+        // Some results use locality instead of place
+        cityValue = item.text;
+      } else if (item.id.includes('region')) {
+        // Extract state/region code or full name
+        if (item.short_code) {
+          const parts = item.short_code.split('-');
+          stateValue = parts.length > 1 ? parts[1] : parts[0];
+        } else {
+          stateValue = item.text;
+        }
+      } else if (item.id.includes('postcode') && !postalCodeValue) {
+        // Only set if we don't already have it
+        postalCodeValue = item.text;
+      } else if (item.id.includes('country')) {
+        // Extract country code (e.g., "US", "AU", "CL", "UK")
+        countryValue = item.short_code || item.text;
+      }
+    });
+
+    // Fallback: Extract city from place_name if not found in context
+    if (!cityValue) {
+      if (placeType === 'postcode' && placeNameParts.length > 1) {
+        // For postcode: "5480000, Puerto Montt, Los Lagos, Chile"
+        cityValue = placeNameParts[1];
+      } else if (placeType === 'place') {
+        // For place: "Puerto Montt, Los Lagos, Chile"
+        cityValue = placeNameParts[0];
+      } else if (placeNameParts.length > 1) {
+        // Generic: second part is usually the city
+        cityValue = placeNameParts[1];
+      }
+    }
+
+    // Fallback: Extract state/region from place_name if not found in context
+    if (!stateValue) {
+      let statePart = '';
+      
+      if (placeType === 'postcode' && placeNameParts.length > 2) {
+        // For postcode: third part is state/region
+        statePart = placeNameParts[2];
+      } else if (placeType === 'place' && placeNameParts.length > 1) {
+        // For place: second part is state/region
+        statePart = placeNameParts[1];
+      } else if (placeNameParts.length > 2) {
+        // Generic: third part
+        statePart = placeNameParts[2];
+      }
+      
+      if (statePart) {
+        // Try to extract state code (2-3 uppercase letters)
+        const stateMatch = statePart.match(/\b[A-Z]{2,3}\b/);
+        if (stateMatch) {
+          stateValue = stateMatch[0];
+        } else {
+          // Use full text, remove any postal codes
+          stateValue = statePart.replace(/\d+/g, '').trim();
+        }
+      }
+    }
+
+    // Fallback: Extract postal code from place_name if still not found
+    if (!postalCodeValue) {
+      const postalCodePattern = /\b\d{4,7}(-\d{4})?\b/;
+      for (const part of placeNameParts) {
+        const postalMatch = part.match(postalCodePattern);
+        if (postalMatch) {
+          postalCodeValue = postalMatch[0];
+          break;
+        }
+      }
+    }
+
+    // Fallback: Extract country from place_name if not found in context
+    if (!countryValue) {
+      // Country is usually the last part
+      const lastPart = placeNameParts[placeNameParts.length - 1];
+      // Check if it looks like a country (not a number, not empty)
+      if (lastPart && !/^\d+$/.test(lastPart) && lastPart.length > 1) {
+        countryValue = lastPart;
+      }
+    }
+
+    // Update all fields
+    setAddressLine1(addressLine1Value);
+    setCity(cityValue);
+    setState(stateValue);
+    setPostalCode(postalCodeValue);
+    setCountry(countryValue);
   };
 
   const validateForm = () => {
@@ -301,11 +554,12 @@ export default function AddressFormScreen() {
             <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
               <Text className="text-gray-900 text-lg font-inter-bold mb-4">Address Details</Text>
 
-              <InputField
+              <AddressAutocompleteField
                 label="Address Line 1"
                 value={addressLine1}
                 onChangeText={setAddressLine1}
-                placeholder="123 Main Street"
+                onSelectAddress={handleAddressSelect}
+                placeholder="Start typing your address..."
                 required
                 editable={!isSaving}
               />
