@@ -51,36 +51,39 @@ const SearchBar: React.FC<SearchBarProps> = ({
   }, []);
 
   // Fetch suggestions from API
-  const fetchSuggestions = useCallback(async (searchTerm: string) => {
-    if (!searchTerm || searchTerm.trim().length < 2) {
-      await loadRecentSearches();
-      return;
-    }
+  const fetchSuggestions = useCallback(
+    async (searchTerm: string) => {
+      if (!searchTerm || searchTerm.trim().length < 2) {
+        await loadRecentSearches();
+        return;
+      }
 
-    try {
-      setIsLoadingSuggestions(true);
-      const apiSuggestions = await listingsService.getSearchSuggestions(searchTerm.trim(), 8);
+      try {
+        setIsLoadingSuggestions(true);
+        const apiSuggestions = await listingsService.getSearchSuggestions(searchTerm.trim(), 8);
 
-      // Also get recent searches that match
-      const recentSearches = await getRecentSearches();
-      const matchingRecent = recentSearches
-        .filter((search) => search.toLowerCase().includes(searchTerm.toLowerCase()))
-        .slice(0, 3)
-        .map((search) => ({
-          type: 'recent' as const,
-          value: search,
-        }));
+        // Also get recent searches that match
+        const recentSearches = await getRecentSearches();
+        const matchingRecent = recentSearches
+          .filter((search) => search.toLowerCase().includes(searchTerm.toLowerCase()))
+          .slice(0, 3)
+          .map((search) => ({
+            type: 'recent' as const,
+            value: search,
+          }));
 
-      // Combine recent and API suggestions, prioritizing recent
-      const combinedSuggestions = [...matchingRecent, ...apiSuggestions].slice(0, 10);
-      setSuggestions(combinedSuggestions);
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
-      setSuggestions([]);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
-  }, [loadRecentSearches]);
+        // Combine recent and API suggestions, prioritizing recent
+        const combinedSuggestions = [...matchingRecent, ...apiSuggestions].slice(0, 10);
+        setSuggestions(combinedSuggestions);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    },
+    [loadRecentSearches]
+  );
 
   // Debounced search suggestions
   useEffect(() => {

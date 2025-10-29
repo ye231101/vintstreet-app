@@ -79,9 +79,7 @@ class ListingsService {
       // Apply search filter
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
         const searchPattern = `%${filters.searchKeyword.trim()}%`;
-        query = query.or(
-          `product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`
-        );
+        query = query.or(`product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`);
       }
 
       // Apply server-side filters
