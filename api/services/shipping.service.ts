@@ -10,8 +10,7 @@ class ShippingService {
       const { data, error } = await supabase
         .from('shipping_providers')
         .select('*')
-        .eq('is_active', true)
-        .order('display_order');
+        .eq('is_active', true);
 
       if (error) throw error;
       return (data as unknown as ShippingProvider[]) || [];
