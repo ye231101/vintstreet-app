@@ -31,7 +31,7 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const { addItem, cart } = useCart();
-  const { toggleItem: toggleWishlist, isInWishlist } = useWishlist();
+  const { toggleItem, isInWishlist } = useWishlist();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
@@ -158,6 +158,10 @@ export default function ProductDetailScreen() {
     setCurrentImageIndex(index);
   };
 
+  const handleToggleWishlist = () => {
+    toggleItem(product as Product);
+  };
+
   const formattedDate = (() => {
     try {
       if (!product?.created_at) return '';
@@ -260,11 +264,32 @@ export default function ProductDetailScreen() {
                 </View>
               )}
             </View>
+          ) : product.product_image ? (
+            <View style={{ width: SCREEN_WIDTH }}>
+              <Image
+                source={product.product_image}
+                contentFit="cover"
+                placeholder={blurhash}
+                transition={1000}
+                style={{ width: '100%', aspectRatio: 1 }}
+              />
+            </View>
           ) : (
             <View className="w-full h-60 bg-gray-100 items-center justify-center">
               <Text className="text-sm font-inter-semibold text-gray-500">No image</Text>
             </View>
           )}
+
+          <Pressable
+            onPress={handleToggleWishlist}
+            className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm"
+          >
+            <FontAwesome
+              name={isInWishlist(product.id) ? 'heart' : 'heart-o'}
+              size={18}
+              color={isInWishlist(product.id) ? '#ef4444' : 'black'}
+            />
+          </Pressable>
 
           {/* Title */}
           <View className="px-4">
@@ -275,45 +300,28 @@ export default function ProductDetailScreen() {
               product.product_subcategories?.name ||
               product.product_sub_subcategories?.name ||
               product.product_sub_sub_subcategories?.name) && (
-              <View className="flex-row items-center flex-wrap mb-2 ml-1">
+              <View className="flex-row items-center flex-wrap gap-2 mb-2 ml-1">
                 {product.product_categories?.name && (
-                  <>
-                    <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
-                      <Text className="text-xs font-inter-semibold text-gray-800">
-                        {product.product_categories.name}
-                      </Text>
-                    </View>
-                    {product.product_subcategories?.name && (
-                      <Text className="text-xs font-inter-semibold text-gray-400 mr-2 mb-2">›</Text>
-                    )}
-                  </>
+                  <View className="bg-gray-200 px-3 py-1 rounded-full">
+                    <Text className="text-xs font-inter-semibold text-gray-800">{product.product_categories.name}</Text>
+                  </View>
                 )}
                 {product.product_subcategories?.name && (
-                  <>
-                    <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
-                      <Text className="text-xs font-inter-semibold text-gray-800">
-                        {product.product_subcategories.name}
-                      </Text>
-                    </View>
-                    {product.product_sub_subcategories?.name && (
-                      <Text className="text-xs font-inter-semibold text-gray-400 mr-2 mb-2">›</Text>
-                    )}
-                  </>
+                  <View className="bg-gray-200 px-3 py-1 rounded-full">
+                    <Text className="text-xs font-inter-semibold text-gray-800">
+                      {product.product_subcategories.name}
+                    </Text>
+                  </View>
                 )}
                 {product.product_sub_subcategories?.name && (
-                  <>
-                    <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
-                      <Text className="text-xs font-inter-semibold text-gray-800">
-                        {product.product_sub_subcategories.name}
-                      </Text>
-                    </View>
-                    {product.product_sub_sub_subcategories?.name && (
-                      <Text className="text-xs font-inter-semibold text-gray-400 mr-2 mb-2">›</Text>
-                    )}
-                  </>
+                  <View className="bg-gray-200 px-3 py-1 rounded-full">
+                    <Text className="text-xs font-inter-semibold text-gray-800">
+                      {product.product_sub_subcategories.name}
+                    </Text>
+                  </View>
                 )}
                 {product.product_sub_sub_subcategories?.name && (
-                  <View className="bg-gray-200 px-3 py-1 rounded-full mr-2 mb-2">
+                  <View className="bg-gray-200 px-3 py-1 rounded-full">
                     <Text className="text-xs font-inter-semibold text-gray-800">
                       {product.product_sub_sub_subcategories.name}
                     </Text>
@@ -581,22 +589,14 @@ export default function ProductDetailScreen() {
                         <Pressable
                           onPress={(e) => {
                             e.stopPropagation();
-                            toggleWishlist(relatedProduct);
+                            toggleItem(relatedProduct as Product);
                           }}
-                          className="absolute top-2 right-2 bg-white p-1.5 rounded-full"
-                          style={{
-                            elevation: 2,
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                          }}
+                          className="absolute top-2 right-2 bg-white p-1.5 rounded-full shadow-sm"
                         >
                           <FontAwesome
                             name={isInWishlist(relatedProduct.id) ? 'heart' : 'heart-o'}
                             size={18}
                             color={isInWishlist(relatedProduct.id) ? '#ef4444' : 'black'}
-                            fill={isInWishlist(relatedProduct.id) ? '#ef4444' : 'transparent'}
                           />
                         </Pressable>
                       </View>
