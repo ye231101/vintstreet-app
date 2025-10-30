@@ -280,17 +280,17 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView className="flex-1 bg-black">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center p-4 gap-4 bg-black border-b border-gray-700">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Orders</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-white">Orders</Text>
 
         <TouchableOpacity
           onPress={exportToExcel}
           disabled={isExporting}
-          className={`${isExporting ? 'bg-gray-500' : 'bg-green-600'} px-4 py-2 rounded-lg flex-row items-center ml-3`}
+          className="flex-row items-center"
           hitSlop={8}
         >
           {isExporting ? (

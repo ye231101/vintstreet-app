@@ -18,6 +18,13 @@ export default function SellerLayout() {
         }}
       />
       <Stack.Screen
+        name="finances"
+        options={{
+          title: 'Finances',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="dashboard"
         options={{
           title: 'Seller Dashboard',

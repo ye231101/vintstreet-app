@@ -3,6 +3,80 @@ import { supabase } from '../config/supabase';
 
 class StripeService {
   /**
+   * Get Stripe Connect account record for seller
+   */
+  async getConnectedAccount(sellerId: string) {
+    const { data, error } = await supabase
+      .from('stripe_connected_accounts')
+      .select('*')
+      .eq('seller_id', sellerId)
+      .maybeSingle();
+    // If no rows, return null instead of throwing to avoid PGRST116
+    if (error) {
+      // Gracefully handle the common "no rows" error
+      if ((error as any)?.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+    return (data as any) ?? null;
+  }
+
+  /**
+   * Create a Stripe Connect onboarding link (Edge Function)
+   */
+  async createConnectAccount() {
+    const { data, error } = await supabase.functions.invoke('create-connect-account', {
+      body: { platform: 'mobile' },
+    });
+    if (error) throw error;
+    return data as { url?: string };
+  }
+
+  /**
+   * Get seller balance via Edge Function
+   */
+  async getSellerBalance() {
+    const { data, error } = await supabase.functions.invoke('get-seller-balance');
+    if (error) throw error;
+    return data as any;
+  }
+
+  /**
+   * Create payout via Edge Function
+   */
+  async createPayout(params: { amount: number; currency: string }) {
+    const { error } = await supabase.functions.invoke('create-payout', { body: params });
+    if (error) throw error;
+    return { success: true } as const;
+  }
+
+  /**
+   * List Stripe transactions for seller
+   */
+  async getTransactions(sellerId: string) {
+    const { data, error } = await supabase
+      .from('stripe_transactions')
+      .select('*')
+      .eq('seller_id', sellerId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []) as any[];
+  }
+
+  /**
+   * List Stripe payouts for seller
+   */
+  async getPayouts(sellerId: string) {
+    const { data, error } = await supabase
+      .from('stripe_payouts')
+      .select('*')
+      .eq('seller_id', sellerId)
+      .order('requested_at', { ascending: false });
+    if (error) throw error;
+    return (data || []) as any[];
+  }
+  /**
    * Create Stripe checkout session using Supabase Edge Function
    * @param orderData - Order data including orders and shipping cost
    */
