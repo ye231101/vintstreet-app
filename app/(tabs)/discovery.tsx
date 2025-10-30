@@ -54,24 +54,24 @@ export default function DiscoveryScreen() {
       try {
         await loadCategories();
 
-          // Load brands that have published products (across all categories initially)
-          try {
-            const brands = await listingsService.getAvailableBrandsForCategory();
-            setAvailableBrands(brands.map((b) => ({ label: b.name, value: b.id, count: b.count })));
-            
-            // Load price counts across all categories
-            const priceCounts = await listingsService.getPriceRangeCounts();
-            setAvailablePrices([
-              { label: 'Under £50', value: 'Under £50.00', count: priceCounts['Under £50.00'] },
-              { label: '£50 - £100', value: '£50.00 - £100.00', count: priceCounts['£50.00 - £100.00'] },
-              { label: '£100 - £200', value: '£100.00 - £200.00', count: priceCounts['£100.00 - £200.00'] },
-              { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
-            ]);
-          } catch (brandError) {
-            console.error('Error loading brands:', brandError);
-            // Set empty array as fallback
-            setAvailableBrands([]);
-          }
+        // Load brands that have published products (across all categories initially)
+        try {
+          const brands = await listingsService.getAvailableBrandsForCategory();
+          setAvailableBrands(brands.map((b) => ({ label: b.name, value: b.id, count: b.count })));
+
+          // Load price counts across all categories
+          const priceCounts = await listingsService.getPriceRangeCounts();
+          setAvailablePrices([
+            { label: 'Under £50', value: 'Under £50.00', count: priceCounts['Under £50.00'] },
+            { label: '£50 - £100', value: '£50.00 - £100.00', count: priceCounts['£50.00 - £100.00'] },
+            { label: '£100 - £200', value: '£100.00 - £200.00', count: priceCounts['£100.00 - £200.00'] },
+            { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
+          ]);
+        } catch (brandError) {
+          console.error('Error loading brands:', brandError);
+          // Set empty array as fallback
+          setAvailableBrands([]);
+        }
 
         // Set default sizes (will be updated when category is selected)
         setAvailableSizes([
@@ -101,6 +101,8 @@ export default function DiscoveryScreen() {
       );
       if (foundCategory) {
         handleCategoryPress(foundCategory);
+      } else {
+        handleAllCategoriesPress();
       }
     }
   }, [category, categories]);
@@ -263,6 +265,11 @@ export default function DiscoveryScreen() {
     } finally {
       setIsLoadingProducts(false);
     }
+  };
+
+  const handleAllCategoriesPress = () => {
+    setCategoryPath([]);
+    setCurrentView('categories');
   };
 
   const handleCategoryPress = (category: Category) => {
@@ -504,12 +511,7 @@ export default function DiscoveryScreen() {
       <View className="bg-gray-50">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row items-center px-5 py-3">
-            <Pressable
-              onPress={() => {
-                setCategoryPath([]);
-                setCurrentView('categories');
-              }}
-            >
+            <Pressable onPress={handleAllCategoriesPress}>
               <Text className="text-base font-inter-bold text-black">All Categories</Text>
             </Pressable>
             {categoryPath.map((category, index) => (
