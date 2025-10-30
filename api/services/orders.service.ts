@@ -199,6 +199,48 @@ class OrdersService {
   }
 
   /**
+   * Create a new order from checkout
+   * @param orderData - Order creation data
+   */
+  async createOrder(orderData: {
+    listing_id: string;
+    buyer_id: string;
+    seller_id: string;
+    stream_id: string;
+    order_amount: number;
+    quantity: number;
+    status: string;
+    delivery_status: string;
+  }): Promise<Order> {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .insert({
+          listing_id: orderData.listing_id,
+          buyer_id: orderData.buyer_id,
+          seller_id: orderData.seller_id,
+          stream_id: orderData.stream_id,
+          order_amount: orderData.order_amount,
+          quantity: orderData.quantity,
+          status: orderData.status,
+          delivery_status: orderData.delivery_status,
+          order_date: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to create order: ${error.message}`);
+      }
+
+      return data as unknown as Order;
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Transform API data to match UI interface
    * @param orders - Raw orders data from API
    */
@@ -238,7 +280,6 @@ class OrdersService {
    */
   private getStatusConfig(delivery_status: string): { delivery_status: string; color: number } {
     const statusMap: Record<string, { delivery_status: string; color: number }> = {
-      pending: { delivery_status: 'Pending', color: 0xffcc00 },
       processing: { delivery_status: 'Processing', color: 0x007aff },
       shipped: { delivery_status: 'Shipped', color: 0x34c759 },
       delivered: { delivery_status: 'Delivered', color: 0x34c759 },

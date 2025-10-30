@@ -228,7 +228,14 @@ export default function CartScreen() {
                       )}
                     </View>
                   </View>
-                  <Text className="text-sm font-inter-bold text-gray-800">£{option.price.toFixed(2)}</Text>
+                  <Text className="text-sm font-inter-bold text-gray-800">
+                    {option.price === 0
+                      ? 'Free'
+                      : `£${option.price.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}`}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>

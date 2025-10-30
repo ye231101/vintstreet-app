@@ -55,6 +55,13 @@
             "node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"
           ]
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.vintstreet.app",
+          "enableGooglePay": true
+        }
       ]
     ],
     "experiments": {

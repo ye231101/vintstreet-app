@@ -18,5 +18,6 @@ export { sellerService } from './seller.service';
 export { shippingService } from './shipping.service';
 export { storageService } from './storage.service';
 export { streamsService } from './streams.service';
+export { stripeService } from './stripe.service';
 export { wishlistService } from './wishlist.service';
 

@@ -5,11 +5,11 @@ export interface Order {
   buyer_id?: string;
   seller_id?: string;
   stream_id?: string;
-  order_amount: number;
-  quantity: number;
-  status?: string;
-  delivery_status: string;
-  status_color: number;
+  order_amount?: number;
+  quantity?: number;
+  status: string;
+  delivery_status: 'processing' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
+  status_color?: number;
   order_date: string;
   tracking_number?: string;
   amount_gbp?: string;

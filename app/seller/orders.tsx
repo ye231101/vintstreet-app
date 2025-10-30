@@ -29,7 +29,6 @@ export default function OrdersScreen() {
   const tabs = [
     { key: 'processing', label: 'To Fulfil' },
     { key: 'all', label: 'All' },
-    { key: 'pending', label: 'Pending' },
     { key: 'shipped', label: 'Shipped' },
     { key: 'delivered', label: 'Delivered' },
     { key: 'cancelled', label: 'Cancelled' },
@@ -233,8 +232,6 @@ export default function OrdersScreen() {
         return orders.filter((order) => order.delivery_status === 'processing');
       case 'all':
         return orders;
-      case 'pending':
-        return orders.filter((order) => order.delivery_status === 'pending');
       case 'shipped':
         return orders.filter((order) => order.delivery_status === 'shipped');
       case 'delivered':
@@ -252,8 +249,6 @@ export default function OrdersScreen() {
         return orders.filter((o) => o.delivery_status === 'processing').length;
       case 'all':
         return orders.length;
-      case 'pending':
-        return orders.filter((o) => o.delivery_status === 'pending').length;
       case 'shipped':
         return orders.filter((o) => o.delivery_status === 'shipped').length;
       case 'delivered':
@@ -383,7 +378,7 @@ export default function OrdersScreen() {
         </View>
         <View
           className="rounded-full px-3 py-1.5"
-          style={{ backgroundColor: `#${order.status_color.toString(16).padStart(6, '0')}` }}
+          style={{ backgroundColor: `#${order.status_color?.toString(16).padStart(6, '0')}` }}
         >
           <Text className="font-inter-bold text-xs text-white">
             {order.delivery_status.charAt(0).toUpperCase() + order.delivery_status.slice(1)}
