@@ -21,12 +21,17 @@ export default function HomeScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageInput, setPageInput] = useState('1');
-  const [isSearchSuggestionsVisible, setIsSearchSuggestionsVisible] = useState(false);
 
   useEffect(() => {
     fetchProducts();
     setPageInput(currentPage.toString());
   }, [currentPage]);
+
+  useEffect(() => {
+    if (searchKeyword === '') {
+      fetchProducts();
+    }
+  }, [searchKeyword]);
 
   const fetchProducts = async (keyword?: string) => {
     try {
@@ -110,18 +115,12 @@ export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1 mb-50 bg-black">
       {/* Search Bar */}
-      <SearchBar
-        value={searchKeyword}
-        onChangeText={(text) => setSearchKeyword(text)}
-        onSearch={handleSearch}
-        onSuggestionsVisibilityChange={setIsSearchSuggestionsVisible}
-      />
+      <SearchBar value={searchKeyword} onChangeText={(text) => setSearchKeyword(text)} onSearch={handleSearch} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ flexGrow: 1 }}
-        scrollEnabled={!isSearchSuggestionsVisible}
       >
         <View className="flex-1 gap-6 py-4 bg-gray-50">
           {/* Quick Links Section */}
