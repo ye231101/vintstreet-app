@@ -14,17 +14,15 @@ export interface FilterModalProps {
   onApply: (filters: AppliedFilters) => void;
   priceOptions?: FilterOption[];
   brandOptions?: FilterOption[];
-  sizeOptions?: FilterOption[];
   initialFilters?: AppliedFilters;
 }
 
 export interface AppliedFilters {
   priceRanges: string[];
   brands: string[];
-  sizes: string[];
 }
 
-type FilterCategory = 'price' | 'brand' | 'size';
+type FilterCategory = 'price' | 'brand';
 
 const FilterModal: React.FC<FilterModalProps> = ({
   visible,
@@ -37,19 +35,16 @@ const FilterModal: React.FC<FilterModalProps> = ({
     { label: 'Over £200', value: 'Over £200.00', count: 0 },
   ],
   brandOptions = [],
-  sizeOptions = [],
   initialFilters,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('price');
   const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
   useEffect(() => {
     if (initialFilters) {
       setSelectedPrices(initialFilters.priceRanges);
       setSelectedBrands(initialFilters.brands);
-      setSelectedSizes(initialFilters.sizes);
     }
   }, [initialFilters]);
 
@@ -61,27 +56,21 @@ const FilterModal: React.FC<FilterModalProps> = ({
     setSelectedBrands((prev) => (prev.includes(value) ? prev.filter((b) => b !== value) : [...prev, value]));
   };
 
-  const toggleSize = (value: string) => {
-    setSelectedSizes((prev) => (prev.includes(value) ? prev.filter((s) => s !== value) : [...prev, value]));
-  };
-
   const handleClearAll = () => {
     setSelectedPrices([]);
     setSelectedBrands([]);
-    setSelectedSizes([]);
   };
 
   const handleApply = () => {
     onApply({
       priceRanges: selectedPrices,
       brands: selectedBrands,
-      sizes: selectedSizes,
     });
     onClose();
   };
 
   const getTotalFiltersCount = () => {
-    return selectedPrices.length + selectedBrands.length + selectedSizes.length;
+    return selectedPrices.length + selectedBrands.length;
   };
 
   const renderFilterOptions = () => {
@@ -99,11 +88,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
         options = brandOptions;
         selectedValues = selectedBrands;
         toggleFunction = toggleBrand;
-        break;
-      case 'size':
-        options = sizeOptions;
-        selectedValues = selectedSizes;
-        toggleFunction = toggleSize;
         break;
     }
 
@@ -201,24 +185,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
                     }`}
                   >
                     Brand
-                  </Text>
-                </View>
-              </Pressable>
-
-              <Pressable
-                onPress={() => setSelectedCategory('size')}
-                className={`p-4 ${selectedCategory === 'size' ? 'bg-white' : 'bg-gray-100'}`}
-              >
-                <View className="flex-row items-center">
-                  {selectedCategory === 'size' && (
-                    <Feather name="check" size={20} color="#000" style={{ marginRight: 4 }} />
-                  )}
-                  <Text
-                    className={`text-sm font-inter-semibold ${
-                      selectedCategory === 'size' ? 'text-black' : 'text-gray-600'
-                    }`}
-                  >
-                    Size
                   </Text>
                 </View>
               </Pressable>

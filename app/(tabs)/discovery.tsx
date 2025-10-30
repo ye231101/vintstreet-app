@@ -1,4 +1,4 @@
-import { attributesService, categoriesService, Category, listingsService, Product } from '@/api';
+import { categoriesService, Category, listingsService, Product } from '@/api';
 import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-modal';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
@@ -6,7 +6,7 @@ import SortBar from '@/components/sort-bar';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DiscoveryScreen() {
@@ -36,18 +36,24 @@ export default function DiscoveryScreen() {
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>({
     priceRanges: [],
     brands: [],
-    sizes: [],
   });
   const [availableBrands, setAvailableBrands] = useState<FilterOption[]>([]);
-  const [availableSizes, setAvailableSizes] = useState<FilterOption[]>([]);
   const [availablePrices, setAvailablePrices] = useState<FilterOption[]>([
     { label: 'Under £50', value: 'Under £50.00', count: 0 },
     { label: '£50 - £100', value: '£50.00 - £100.00', count: 0 },
     { label: '£100 - £200', value: '£100.00 - £200.00', count: 0 },
     { label: 'Over £200', value: 'Over £200.00', count: 0 },
   ]);
-  const [currentSizeAttributeId, setCurrentSizeAttributeId] = useState<string | undefined>();
   const [showFilterModal, setShowFilterModal] = useState(false);
+
+  // Pagination state
+  const PRODUCTS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageInput, setPageInput] = useState('1');
+
+  // Cache for category results to support client-side pagination
+  const [allCategoryProducts, setAllCategoryProducts] = useState<Product[]>([]);
 
   // Load categories and brands on component mount
   useEffect(() => {
@@ -73,16 +79,6 @@ export default function DiscoveryScreen() {
           // Set empty array as fallback
           setAvailableBrands([]);
         }
-
-        // Set default sizes (will be updated when category is selected)
-        setAvailableSizes([
-          { label: 'XS', value: 'XS', count: 0 },
-          { label: 'S', value: 'S', count: 0 },
-          { label: 'M', value: 'M', count: 0 },
-          { label: 'L', value: 'L', count: 0 },
-          { label: 'XL', value: 'XL', count: 0 },
-          { label: 'XXL', value: 'XXL', count: 0 },
-        ]);
       } catch (error) {
         console.error('Error loading initial data:', error);
       }
@@ -90,6 +86,20 @@ export default function DiscoveryScreen() {
 
     loadInitialData();
   }, []);
+
+  // When page changes, reload the visible data for the current context
+  useEffect(() => {
+    setPageInput(currentPage.toString());
+    if (showSearchResults && searchText.trim()) {
+      loadSearchPage();
+    } else if (selectedBrand) {
+      loadProductsForBrand(selectedBrand.id, selectedBrand.name, currentSortBy, appliedFilters, currentPage);
+    } else if (currentView === 'products' && categoryPath.length > 0) {
+      // Slice from cached category products
+      paginateCategoryProducts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
 
   // Handle category parameter whenever this screen is focused (runs on each visit)
   useFocusEffect(
@@ -166,69 +176,6 @@ export default function DiscoveryScreen() {
         { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
       ]);
 
-      // Load available sizes from attributes
-      // Find the deepest category level to get attributes
-      let attributesData = [];
-      if (categoryPath.length > 0) {
-        const currentCategory = categoryPath[categoryPath.length - 1];
-        // Try to get subcategory_id from the current category
-        const subcategoryId = currentCategory.id;
-
-        try {
-          attributesData = await attributesService.getAttributes(subcategoryId);
-
-          // Find size attribute
-          const sizeAttribute = attributesData.find(
-            (attr) =>
-              attr.name.toLowerCase() === 'size' ||
-              attr.name.toLowerCase() === 'sizes' ||
-              attr.name.toLowerCase().includes('size')
-          );
-
-          if (sizeAttribute && sizeAttribute.attribute_options) {
-            const sizeAttributeId = sizeAttribute.id;
-            setCurrentSizeAttributeId(sizeAttributeId);
-
-            // Get actual size counts from database
-            const sizeCounts = await listingsService.getSizeCounts(category.id, sizeAttributeId);
-
-            setAvailableSizes(
-              sizeAttribute.attribute_options
-                .filter((opt) => opt.is_active)
-                .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
-                .map((opt) => ({
-                  label: opt.value,
-                  value: opt.id,
-                  count: sizeCounts.get(opt.id) || 0,
-                }))
-            );
-          } else {
-            setCurrentSizeAttributeId(undefined);
-            // Fallback to common sizes if no size attribute found
-            setAvailableSizes([
-              { label: 'XS', value: 'XS', count: 0 },
-              { label: 'S', value: 'S', count: 0 },
-              { label: 'M', value: 'M', count: 0 },
-              { label: 'L', value: 'L', count: 0 },
-              { label: 'XL', value: 'XL', count: 0 },
-              { label: 'XXL', value: 'XXL', count: 0 },
-            ]);
-          }
-        } catch (error) {
-          console.error('Error loading attributes for sizes:', error);
-          setCurrentSizeAttributeId(undefined);
-          // Fallback to common sizes
-          setAvailableSizes([
-            { label: 'XS', value: 'XS', count: 0 },
-            { label: 'S', value: 'S', count: 0 },
-            { label: 'M', value: 'M', count: 0 },
-            { label: 'L', value: 'L', count: 0 },
-            { label: 'XL', value: 'XL', count: 0 },
-            { label: 'XXL', value: 'XXL', count: 0 },
-          ]);
-        }
-      }
-
       // Use filters if provided, otherwise use current state
       const currentFilters = filters || appliedFilters;
 
@@ -260,16 +207,12 @@ export default function DiscoveryScreen() {
         filteredProducts = filteredProducts.filter((product) => currentFilters.brands.includes(product.brand_id || ''));
       }
 
-      // Apply size filtering if size attribute is available
-      if (currentFilters.sizes.length > 0 && currentSizeAttributeId) {
-        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
-          currentFilters.sizes,
-          currentSizeAttributeId
-        );
-        filteredProducts = filteredProducts.filter((product) => productIdsWithSizes.includes(product.id));
-      }
-
-      setProducts(filteredProducts);
+      // Cache full list and paginate client-side
+      setAllCategoryProducts(filteredProducts);
+      const total = filteredProducts.length;
+      setTotalPages(Math.max(1, Math.ceil(total / PRODUCTS_PER_PAGE)));
+      setCurrentPage(1);
+      setProducts(filteredProducts.slice(0, PRODUCTS_PER_PAGE));
     } catch (err) {
       console.error('Error loading products for category:', err);
       setProductsError('Failed to load products for this category');
@@ -282,7 +225,8 @@ export default function DiscoveryScreen() {
     brandId: string,
     brandName: string,
     sortBy?: string,
-    filters?: AppliedFilters
+    filters?: AppliedFilters,
+    page?: number
   ) => {
     try {
       setIsLoadingProducts(true);
@@ -317,17 +261,6 @@ export default function DiscoveryScreen() {
         { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
       ]);
 
-      // For brand filtering, use common sizes
-      setAvailableSizes([
-        { label: 'XS', value: 'XS', count: 0 },
-        { label: 'S', value: 'S', count: 0 },
-        { label: 'M', value: 'M', count: 0 },
-        { label: 'L', value: 'L', count: 0 },
-        { label: 'XL', value: 'XL', count: 0 },
-        { label: 'XXL', value: 'XXL', count: 0 },
-      ]);
-      setCurrentSizeAttributeId(undefined);
-
       // Use filters if provided, otherwise use current state
       const currentFilters = filters || appliedFilters;
 
@@ -335,7 +268,11 @@ export default function DiscoveryScreen() {
       const priceFilter = currentFilters.priceRanges.length > 0 ? currentFilters.priceRanges[0] : 'All Prices';
 
       // Get products by brand using getListingsInfinite with brand filter
-      const result = await listingsService.getListingsInfinite(0, 1000, { selectedBrands: new Set([brandId]) });
+      const pageNumber = page ?? 1;
+      const pageOffset = (pageNumber - 1) * PRODUCTS_PER_PAGE;
+      const result = await listingsService.getListingsInfinite(pageOffset, PRODUCTS_PER_PAGE, {
+        selectedBrands: new Set([brandId]),
+      });
       let apiProducts = result.products;
 
       // Apply sorting
@@ -368,16 +305,12 @@ export default function DiscoveryScreen() {
       // Filter by the selected brand
       filteredProducts = filteredProducts.filter((product) => product.brand_id === brandId);
 
-      // Apply size filtering if available
-      if (currentFilters.sizes.length > 0 && currentSizeAttributeId) {
-        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
-          currentFilters.sizes,
-          currentSizeAttributeId
-        );
-        filteredProducts = filteredProducts.filter((product) => productIdsWithSizes.includes(product.id));
-      }
-
       setProducts(filteredProducts);
+      if (result.total !== undefined) {
+        setTotalPages(Math.max(1, Math.ceil(result.total / PRODUCTS_PER_PAGE)));
+      } else {
+        setTotalPages(filteredProducts.length < PRODUCTS_PER_PAGE ? pageNumber : pageNumber + 1);
+      }
     } catch (err) {
       console.error('Error loading products for brand:', err);
       setProductsError('Failed to load products for this brand');
@@ -386,9 +319,61 @@ export default function DiscoveryScreen() {
     }
   };
 
+  const paginateCategoryProducts = () => {
+    const total = allCategoryProducts.length;
+    setTotalPages(Math.max(1, Math.ceil(total / PRODUCTS_PER_PAGE)));
+    const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    const end = start + PRODUCTS_PER_PAGE;
+    setProducts(allCategoryProducts.slice(start, end));
+  };
+
+  const loadSearchPage = async (page?: number) => {
+    try {
+      setIsSearching(true);
+      const pageNumber = page ?? currentPage;
+      const pageOffset = (pageNumber - 1) * PRODUCTS_PER_PAGE;
+
+      // Server-side search and brand filter; price will be client-side
+      const filtersPayload: any = { searchKeyword: searchText.trim() };
+      if (appliedFilters.brands.length > 0) {
+        filtersPayload.selectedBrands = new Set(appliedFilters.brands);
+      }
+
+      const result = await listingsService.getListingsInfinite(pageOffset, PRODUCTS_PER_PAGE, filtersPayload);
+      let pageProducts = result.products;
+
+      // Client-side price filtering for multiple selections
+      if (appliedFilters.priceRanges.length > 0) {
+        pageProducts = pageProducts.filter((product) => {
+          return appliedFilters.priceRanges.some((range) => {
+            const price = product.starting_price || 0;
+            if (range === 'Under £50.00') return price < 50;
+            if (range === '£50.00 - £100.00') return price >= 50 && price <= 100;
+            if (range === '£100.00 - £200.00') return price >= 100 && price <= 200;
+            if (range === 'Over £200.00') return price > 200;
+            return true;
+          });
+        });
+      }
+
+      setSearchResults(pageProducts);
+      if (result.total !== undefined) {
+        setTotalPages(Math.max(1, Math.ceil(result.total / PRODUCTS_PER_PAGE)));
+      }
+    } catch (error) {
+      console.error('Error searching products:', error);
+      Alert.alert('Search Error', 'Failed to search products. Please try again.');
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const handleAllCategoriesPress = () => {
     setCategoryPath([]);
     setCurrentView('categories');
+    setCurrentPage(1);
+    setTotalPages(1);
   };
 
   const handleCategoryPress = (category: Category) => {
@@ -397,6 +382,7 @@ export default function DiscoveryScreen() {
       setCurrentView('subcategories');
     } else {
       setCurrentView('products');
+      setCurrentPage(1);
       loadProductsForCategory(category, currentSortBy);
     }
   };
@@ -407,6 +393,7 @@ export default function DiscoveryScreen() {
       setCurrentView('subcategories');
     } else {
       setCurrentView('products');
+      setCurrentPage(1);
       loadProductsForCategory(subcategory, currentSortBy);
     }
   };
@@ -416,10 +403,8 @@ export default function DiscoveryScreen() {
       setShowSearchResults(false);
       setSearchText('');
       setSearchResults([]);
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
       return;
     }
 
@@ -427,33 +412,30 @@ export default function DiscoveryScreen() {
       setSelectedBrand(null);
       setCategoryPath([]);
       setCurrentView('categories');
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
+      setCurrentPage(1);
+      setTotalPages(1);
       return;
     }
 
     if (categoryPath.length > 1) {
       setCategoryPath((prev) => prev.slice(0, -1));
       setCurrentView('subcategories');
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
     } else if (categoryPath.length === 1) {
       setCategoryPath([]);
       setCurrentView('categories');
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
     }
   };
 
   const handleViewAllProducts = () => {
     setCurrentView('products');
     if (categoryPath.length > 0) {
+      setCurrentPage(1);
       loadProductsForCategory(categoryPath[categoryPath.length - 1], currentSortBy);
     }
   };
@@ -481,52 +463,13 @@ export default function DiscoveryScreen() {
         { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
       ]);
 
-      // For search, use common sizes as we don't have category context
-      setAvailableSizes([
-        { label: 'XS', value: 'XS', count: 0 },
-        { label: 'S', value: 'S', count: 0 },
-        { label: 'M', value: 'M', count: 0 },
-        { label: 'L', value: 'L', count: 0 },
-        { label: 'XL', value: 'XL', count: 0 },
-        { label: 'XXL', value: 'XXL', count: 0 },
-      ]);
-
       // For now, use first selected filter for API compatibility
       const priceFilter = appliedFilters.priceRanges.length > 0 ? appliedFilters.priceRanges[0] : 'All Prices';
       const brandFilter = appliedFilters.brands.length > 0 ? appliedFilters.brands[0] : 'All Brands';
 
-      const results = await listingsService.searchListings(searchText.trim(), priceFilter, brandFilter);
-
-      // Client-side filtering for multiple selections
-      let filteredResults = results;
-
-      if (appliedFilters.priceRanges.length > 0) {
-        filteredResults = filteredResults.filter((product) => {
-          return appliedFilters.priceRanges.some((range) => {
-            const price = product.starting_price || 0;
-            if (range === 'Under £50.00') return price < 50;
-            if (range === '£50.00 - £100.00') return price >= 50 && price <= 100;
-            if (range === '£100.00 - £200.00') return price >= 100 && price <= 200;
-            if (range === 'Over £200.00') return price > 200;
-            return true;
-          });
-        });
-      }
-
-      if (appliedFilters.brands.length > 0) {
-        filteredResults = filteredResults.filter((product) => appliedFilters.brands.includes(product.brand_id || ''));
-      }
-
-      // Apply size filtering for search results if size attribute is available
-      if (appliedFilters.sizes.length > 0 && currentSizeAttributeId) {
-        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
-          appliedFilters.sizes,
-          currentSizeAttributeId
-        );
-        filteredResults = filteredResults.filter((product) => productIdsWithSizes.includes(product.id));
-      }
-
-      setSearchResults(filteredResults);
+      // Reset pagination and load first page via infinite query
+      setCurrentPage(1);
+      await loadSearchPage(1);
     } catch (error) {
       console.error('Error searching products:', error);
       Alert.alert('Search Error', 'Failed to search products. Please try again.');
@@ -541,19 +484,22 @@ export default function DiscoveryScreen() {
     if (text.trim() === '') {
       setShowSearchResults(false);
       setSearchResults([]);
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
+      setCurrentPage(1);
+      setTotalPages(1);
     }
   };
 
   const handleFiltersApply = async (filters: AppliedFilters) => {
     setAppliedFilters(filters);
 
+    // Reset to first page on filter change
+    setCurrentPage(1);
+
     // Reload products with new filters if we're filtering by brand
     if (selectedBrand) {
-      await loadProductsForBrand(selectedBrand.id, selectedBrand.name, currentSortBy, filters);
+      await loadProductsForBrand(selectedBrand.id, selectedBrand.name, currentSortBy, filters, 1);
     }
     // Reload products with new filters if we're in products view
     else if (currentView === 'products' && categoryPath.length > 0) {
@@ -569,35 +515,7 @@ export default function DiscoveryScreen() {
         const priceFilter = filters.priceRanges.length > 0 ? filters.priceRanges[0] : 'All Prices';
         const brandFilter = filters.brands.length > 0 ? filters.brands[0] : 'All Brands';
 
-        const results = await listingsService.searchListings(searchText.trim(), priceFilter, brandFilter);
-
-        // Client-side filtering for multiple selections
-        let filteredResults = results;
-
-        if (filters.priceRanges.length > 0) {
-          filteredResults = filteredResults.filter((product) => {
-            return filters.priceRanges.some((range) => {
-              const price = product.starting_price || 0;
-              if (range === 'Under £50.00') return price < 50;
-              if (range === '£50.00 - £100.00') return price >= 50 && price <= 100;
-              if (range === '£100.00 - £200.00') return price >= 100 && price <= 200;
-              if (range === 'Over £200.00') return price > 200;
-              return true;
-            });
-          });
-        }
-
-        if (filters.brands.length > 0) {
-          filteredResults = filteredResults.filter((product) => filters.brands.includes(product.brand_id || ''));
-        }
-
-        // Apply size filtering for applied filters if size attribute is available
-        if (filters.sizes.length > 0 && currentSizeAttributeId) {
-          const productIdsWithSizes = await listingsService.getProductIdsBySizes(filters.sizes, currentSizeAttributeId);
-          filteredResults = filteredResults.filter((product) => productIdsWithSizes.includes(product.id));
-        }
-
-        setSearchResults(filteredResults);
+        await loadSearchPage(1);
       } catch (error) {
         console.error('Error searching with filters:', error);
         setSearchResults([]);
@@ -612,16 +530,18 @@ export default function DiscoveryScreen() {
 
     // Reload products with new sort if we're filtering by brand
     if (selectedBrand) {
-      loadProductsForBrand(selectedBrand.id, selectedBrand.name, sortOption, appliedFilters);
+      setCurrentPage(1);
+      loadProductsForBrand(selectedBrand.id, selectedBrand.name, sortOption, appliedFilters, 1);
     }
     // Reload products with new sort if we're in products view
     else if (currentView === 'products' && categoryPath.length > 0) {
+      setCurrentPage(1);
       loadProductsForCategory(categoryPath[categoryPath.length - 1], sortOption, appliedFilters);
     }
   };
 
   const getTotalFilterCount = () => {
-    return appliedFilters.priceRanges.length + appliedFilters.brands.length + appliedFilters.sizes.length;
+    return appliedFilters.priceRanges.length + appliedFilters.brands.length;
   };
 
   const handleProductPress = (productId: string) => {
@@ -634,6 +554,34 @@ export default function DiscoveryScreen() {
     if (selectedBrand) return selectedBrand.name;
     if (categoryPath.length === 0) return 'Discover';
     return categoryPath[categoryPath.length - 1].name;
+  };
+
+  // Pagination controls handlers
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageInputChange = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setPageInput(numericValue);
+  };
+
+  const handlePageInputSubmit = () => {
+    const pageNumber = parseInt(pageInput, 10);
+    if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    } else {
+      setPageInput(currentPage.toString());
+    }
+    Keyboard.dismiss();
   };
 
   const getCurrentCategories = () => {
@@ -714,6 +662,36 @@ export default function DiscoveryScreen() {
                 </View>
               }
             />
+          )}
+          {/* Pagination Controls for search */}
+          {showSearchResults && totalPages > 1 && (
+            <View className="mt-1 mb-2">
+              <View className="flex-row justify-center items-center gap-3">
+                <Pressable onPress={goToPrevPage} disabled={currentPage === 1} className="px-3 py-2">
+                  <Text className={`${currentPage === 1 ? 'text-gray-400' : 'text-black'}`}>
+                    <Feather name="chevron-left" size={24} color="#000" />
+                  </Text>
+                </Pressable>
+                <View className="flex-row items-center gap-2">
+                  <TextInput
+                    value={pageInput}
+                    onChangeText={handlePageInputChange}
+                    onSubmitEditing={handlePageInputSubmit}
+                    onBlur={handlePageInputSubmit}
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-center text-base font-inter-medium text-black min-w-[50px]"
+                  />
+                  <Text className="text-base font-inter-medium text-gray-600 mx-2">/</Text>
+                  <Text className="text-base font-inter-medium text-black">{totalPages}</Text>
+                </View>
+                <Pressable onPress={goToNextPage} disabled={currentPage === totalPages} className="px-3 py-2">
+                  <Text className={`${currentPage === totalPages ? 'text-gray-400' : 'text-black'}`}>
+                    <Feather name="chevron-right" size={24} color="#000" />
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
           )}
         </View>
       );
@@ -827,6 +805,36 @@ export default function DiscoveryScreen() {
                 }
               />
             )}
+            {/* Pagination Controls for products */}
+            {currentView === 'products' && totalPages > 1 && (
+              <View className="bg-gray-50 py-2">
+                <View className="flex-row justify-center items-center gap-3">
+                  <Pressable onPress={goToPrevPage} disabled={currentPage === 1} className="px-3 py-2">
+                    <Text className={`${currentPage === 1 ? 'text-gray-400' : 'text-black'}`}>
+                      <Feather name="chevron-left" size={24} color="#000" />
+                    </Text>
+                  </Pressable>
+                  <View className="flex-row items-center gap-2">
+                    <TextInput
+                      value={pageInput}
+                      onChangeText={handlePageInputChange}
+                      onSubmitEditing={handlePageInputSubmit}
+                      onBlur={handlePageInputSubmit}
+                      keyboardType="number-pad"
+                      returnKeyType="done"
+                      className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-center text-base font-inter-medium text-black min-w-[50px]"
+                    />
+                    <Text className="text-base font-inter-medium text-gray-600 mx-2">/</Text>
+                    <Text className="text-base font-inter-medium text-black">{totalPages}</Text>
+                  </View>
+                  <Pressable onPress={goToNextPage} disabled={currentPage === totalPages} className="px-3 py-2">
+                    <Text className={`${currentPage === totalPages ? 'text-gray-400' : 'text-black'}`}>
+                      <Feather name="chevron-right" size={24} color="#000" />
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
           </View>
         );
 
@@ -844,7 +852,6 @@ export default function DiscoveryScreen() {
         onApply={handleFiltersApply}
         priceOptions={availablePrices}
         brandOptions={availableBrands}
-        sizeOptions={availableSizes}
         initialFilters={appliedFilters}
       />
 
