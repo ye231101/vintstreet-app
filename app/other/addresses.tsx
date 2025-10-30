@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config/supabase';
+import { SavedAddress, savedAddressesService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -6,21 +6,6 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-interface SavedAddress {
-  id: string;
-  label: string | null;
-  first_name: string;
-  last_name: string;
-  address_line1: string;
-  address_line2: string | null;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
-  phone: string;
-  is_default: boolean;
-}
 
 export default function AddressesScreen() {
   const { user } = useAuth();
@@ -39,15 +24,8 @@ export default function AddressesScreen() {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase
-        .from('saved_addresses')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('is_default', { ascending: false })
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setAddresses((data as any) || []);
+      const data = await savedAddressesService.list(user.id);
+      setAddresses(data as SavedAddress[] || []);
     } catch (err: any) {
       console.error('Error loading addresses:', err);
       showErrorToast(err.message || 'Error loading addresses');
@@ -75,10 +53,7 @@ export default function AddressesScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            const { error } = await supabase.from('saved_addresses').delete().eq('id', address.id);
-
-            if (error) throw error;
-
+            await savedAddressesService.remove(address.id);
             showSuccessToast('Address deleted successfully');
             loadAddresses();
           } catch (err: any) {

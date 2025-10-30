@@ -31,9 +31,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash-logo.png",
           "imageWidth": 200,
-          "resizeMode": "contain",
+          "resizeMode": "cover",
           "backgroundColor": "#ffffff",
           "dark": {
             "backgroundColor": "#000000"
@@ -41,19 +41,12 @@
         }
       ],
       [
-        "expo-font",
+        "@stripe/stripe-react-native",
         {
-          "fonts": [
-            "node_modules/@expo-google-fonts/inter/Inter_100Thin.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_200ExtraLight.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_300Light.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_400Regular.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_500Medium.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_600SemiBold.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_700Bold.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_800ExtraBold.ttf",
-            "node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"
-          ]
+          "urlScheme": "vintstreetapp",
+          "merchantIdentifier": "merchant.com.vintstreet.app",
+          "enableGooglePay": true,
+          "enableApplePay": true
         }
       ]
     ],

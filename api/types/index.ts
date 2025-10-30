@@ -10,6 +10,7 @@ export * from './messages.types';
 export * from './offers.types';
 export * from './orders.types';
 export * from './reviews.types';
+export * from './saved-addresses.types';
 export * from './seller.types';
 export * from './shipping.types';
 export * from './storage.types';

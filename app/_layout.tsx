@@ -11,6 +11,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -26,7 +27,7 @@ import { ReduxProvider } from '@/providers/redux-provider';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { handleAuthStateChange, initializeAuth } from '@/store/slices/authSlice';
 import { removeStorageValue, setStorageValue } from '@/utils/storage';
-import { setToastRef } from '@/utils/toast';
+import { setToastRef, showErrorToast } from '@/utils/toast';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -153,6 +154,12 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
+  useEffect(() => {
+    if (!process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+      showErrorToast('❌ Stripe publishable key is not set');
+    }
+  }, []);
+
   if (!fontsLoaded) {
     // Show a loading screen or return null while fonts are loading
     return null;
@@ -160,27 +167,30 @@ export default function RootLayout() {
 
   return (
     <ReduxProvider>
-      <ToastProvider offsetTop={100}>
-        <ToastInit />
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <AuthWrapper>
-            <Stack>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="product" options={{ headerShown: false }} />
-              <Stack.Screen name="message" options={{ headerShown: false }} />
-              <Stack.Screen name="seller-profile" options={{ headerShown: false }} />
-              <Stack.Screen name="seller" options={{ headerShown: false }} />
-              <Stack.Screen name="other" options={{ headerShown: false }} />
-              <Stack.Screen name="cart" options={{ headerShown: false }} />
-              <Stack.Screen name="checkout" options={{ headerShown: false }} />
-              <Stack.Screen name="stream" options={{ headerShown: false }} />
-              <Stack.Screen name="articles" options={{ headerShown: false }} />
-            </Stack>
-          </AuthWrapper>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </ToastProvider>
+      <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY as string}>
+        <ToastProvider offsetTop={100}>
+          <ToastInit />
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <AuthWrapper>
+              <Stack>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="product" options={{ headerShown: false }} />
+                <Stack.Screen name="message" options={{ headerShown: false }} />
+                <Stack.Screen name="seller-profile" options={{ headerShown: false }} />
+                <Stack.Screen name="seller" options={{ headerShown: false }} />
+                <Stack.Screen name="other" options={{ headerShown: false }} />
+                <Stack.Screen name="cart" options={{ headerShown: false }} />
+                <Stack.Screen name="checkout" options={{ headerShown: false }} />
+                <Stack.Screen name="payment-success" options={{ headerShown: false }} />
+                <Stack.Screen name="stream" options={{ headerShown: false }} />
+                <Stack.Screen name="articles" options={{ headerShown: false }} />
+              </Stack>
+            </AuthWrapper>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </ToastProvider>
+      </StripeProvider>
     </ReduxProvider>
   );
 }
