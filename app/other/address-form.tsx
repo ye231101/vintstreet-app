@@ -18,10 +18,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Mapbox Access Token - Replace with your actual token
-const MAPBOX_ACCESS_TOKEN =
-  'pk.eyJ1Ijoic2VuaW9yZGV2MTIyMCIsImEiOiJjbWhiN3BiN2wxcDIwMmxzNnpiamN1N2RhIn0.TkD3d296tutjaKt9z4_njA';
-
 // InputField component moved outside to prevent re-creation on each render
 const InputField = ({
   label,
@@ -98,9 +94,9 @@ const AddressAutocompleteField = ({
     try {
       setIsSearching(true);
       const res = await axios.get(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          text
-        )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&autocomplete=true&limit=10&types=address,place,postcode`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(text)}.json?access_token=${
+          process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN
+        }&autocomplete=true&limit=10&types=address,place,postcode`
       );
 
       // Sort results to prioritize address types first

@@ -1,8 +1,8 @@
 import {
-  BuyerProfile,
-  buyerService,
   CartItem,
   ordersService,
+  SavedAddress,
+  savedAddressesService,
   ShippingOption,
   shippingService,
   stripeService,
@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
+import axios from 'axios';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -98,14 +99,12 @@ const InputField = ({
 );
 
 export default function CheckoutScreen() {
-  const { productId, sellerId, productIds } = useLocalSearchParams();
+  const { sellerId, productIds } = useLocalSearchParams();
 
   const { cart, isLoading, refreshCart, removeItem } = useCart();
   const { user } = useAuth();
   const [checkoutItems, setCheckoutItems] = useState<CartItem[]>([]);
   const [sellerInfo, setSellerInfo] = useState<any>(null);
-  const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
-  const [profileLoading, setProfileLoading] = useState(false);
 
   // Step completion tracking
   const [stepCompleted, setStepCompleted] = useState([false, false]);
@@ -128,6 +127,12 @@ export default function CheckoutScreen() {
   const [shippingMethods, setShippingMethods] = useState<ShippingOption[]>([]);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Saved addresses
+  const [addressesLoading, setAddressesLoading] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [useSavedAddress, setUseSavedAddress] = useState<boolean>(true);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
 
   const [countries] = useState([
     { code: 'GB', name: 'United Kingdom' },
@@ -155,6 +160,10 @@ export default function CheckoutScreen() {
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
 
+  // Mapbox address autocomplete
+  const [addressResults, setAddressResults] = useState<any[]>([]);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+
   // Filter countries based on search
   const filteredCountries = countries.filter(
     (country) =>
@@ -164,7 +173,7 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     loadCheckoutData();
-  }, [productId, sellerId, productIds]);
+  }, [sellerId, productIds]);
 
   useEffect(() => {
     if (sellerId) {
@@ -174,7 +183,7 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     if (user?.id) {
-      fetchBuyerProfile();
+      loadSavedAddresses();
     }
   }, [user?.id]);
 
@@ -195,14 +204,6 @@ export default function CheckoutScreen() {
       // Set seller info from the first item
       if (cartItems.length > 0 && cartItems[0].product?.seller_info_view) {
         setSellerInfo(cartItems[0].product.seller_info_view);
-      }
-    } else if (productId) {
-      // Single product checkout (legacy support)
-      const cartItem = cart.items.filter((item) => productId === item.product?.id);
-
-      setCheckoutItems(cartItem);
-      if (cartItem[0]?.product?.seller_info_view) {
-        setSellerInfo(cartItem[0]?.product.seller_info_view);
       }
     }
   };
@@ -227,36 +228,73 @@ export default function CheckoutScreen() {
     }
   };
 
-  const fetchBuyerProfile = async () => {
+  const loadSavedAddresses = async () => {
     if (!user?.id) return;
 
-    setProfileLoading(true);
+    setAddressesLoading(true);
     try {
-      const profile = await buyerService.getBuyerProfile(user.id);
-      setBuyerProfile(profile);
+      const data = await savedAddressesService.list(user.id);
+      const list = (data as SavedAddress[]) || [];
+      setSavedAddresses(list);
 
-      // Pre-fill shipping information if available
-      if (profile) {
-        const shippingAddress = buyerService.getShippingAddress(profile);
-        if (shippingAddress) {
-          setShippingInformation({
-            firstName: shippingAddress.firstName,
-            lastName: shippingAddress.lastName,
-            address1: shippingAddress.addressLine1,
-            address2: shippingAddress.addressLine2 || '',
-            city: shippingAddress.city,
-            state: shippingAddress.state || '',
-            postalCode: shippingAddress.postalCode,
-            country: shippingAddress.country,
-            phone: shippingAddress.phone || '',
-          });
-        }
+      if (list.length > 0) {
+        // Prefer default; else first
+        const defaultAddress = list.find((a) => a.is_default) || list[0];
+        setSelectedAddressId(defaultAddress.id);
+        setUseSavedAddress(true);
+
+        // Apply to form
+        setShippingInformation({
+          firstName: defaultAddress.first_name,
+          lastName: defaultAddress.last_name,
+          address1: defaultAddress.address_line1,
+          address2: defaultAddress.address_line2 || '',
+          city: defaultAddress.city,
+          state: defaultAddress.state || '',
+          postalCode: defaultAddress.postal_code,
+          country: defaultAddress.country,
+          phone: defaultAddress.phone || '',
+        });
+      } else {
+        setUseSavedAddress(false);
       }
-    } catch (error) {
-      console.error('Error fetching buyer profile:', error);
+    } catch (err) {
+      console.error('Error loading saved addresses:', err);
+      setSavedAddresses([]);
+      setUseSavedAddress(false);
     } finally {
-      setProfileLoading(false);
+      setAddressesLoading(false);
     }
+  };
+
+  const applySavedAddressToForm = (address: SavedAddress) => {
+    setSelectedAddressId(address.id);
+    setShippingInformation({
+      firstName: address.first_name,
+      lastName: address.last_name,
+      address1: address.address_line1,
+      address2: address.address_line2 || '',
+      city: address.city,
+      state: address.state || '',
+      postalCode: address.postal_code,
+      country: address.country,
+      phone: address.phone || '',
+    });
+  };
+
+  const clearShippingForm = () => {
+    setShippingInformation({
+      firstName: '',
+      lastName: '',
+      address1: '',
+      address2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: 'GB',
+      phone: '',
+    });
+    setShippingInformationErrors({});
   };
 
   // Update functions that clear errors when typing
@@ -270,6 +308,145 @@ export default function CheckoutScreen() {
       return prev;
     });
   }, []);
+
+  // Address autocomplete fetch
+  const fetchPlaces = async (text: string) => {
+    updateShippingAddress('address1', text);
+
+    if (!text || text.length < 3) {
+      setAddressResults([]);
+      return;
+    }
+
+    try {
+      setIsSearchingAddress(true);
+      const res = await axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(text)}.json?access_token=${
+          process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN
+        }&autocomplete=true&limit=10&types=address,place,postcode`
+      );
+
+      const sorted = (res.data?.features || []).sort((a: any, b: any) => {
+        const order: any = { address: 0, place: 1, postcode: 2, region: 3 };
+        const aType = a.place_type?.[0] || 'other';
+        const bType = b.place_type?.[0] || 'other';
+        return (order[aType] ?? 999) - (order[bType] ?? 999);
+      });
+      setAddressResults(sorted.slice(0, 5));
+    } catch (e) {
+      setAddressResults([]);
+    } finally {
+      setIsSearchingAddress(false);
+    }
+  };
+
+  // When user selects an address suggestion, parse and populate fields
+  const handleAddressSelect = (place: any) => {
+    const context = place.context || [];
+    const placeType = place.place_type?.[0] || '';
+
+    const placeNameParts = (place.place_name || '').split(',').map((p: string) => p.trim());
+
+    let addressLine1Value = '';
+    if (placeType === 'address' && placeNameParts.length > 0) {
+      addressLine1Value = placeNameParts[0];
+    } else if (placeType === 'postcode' || placeType === 'place') {
+      addressLine1Value = '';
+    } else if (place.address && place.text) {
+      addressLine1Value = `${place.address} ${place.text}`;
+    } else if (place.text && placeType === 'address') {
+      addressLine1Value = place.text;
+    }
+
+    let cityValue = '';
+    let stateValue = '';
+    let postalCodeValue = '';
+    let countryValue = '';
+
+    if (placeType === 'postcode') {
+      postalCodeValue = place.text || placeNameParts[0] || '';
+    }
+
+    if (place.properties?.postcode && !postalCodeValue) {
+      postalCodeValue = place.properties.postcode;
+    }
+
+    context.forEach((item: any) => {
+      if (item.id.includes('place')) {
+        cityValue = item.text;
+      } else if (item.id.includes('locality') && !cityValue) {
+        cityValue = item.text;
+      } else if (item.id.includes('region')) {
+        if (item.short_code) {
+          const parts = item.short_code.split('-');
+          stateValue = parts.length > 1 ? parts[1] : parts[0];
+        } else {
+          stateValue = item.text;
+        }
+      } else if (item.id.includes('postcode') && !postalCodeValue) {
+        postalCodeValue = item.text;
+      } else if (item.id.includes('country')) {
+        countryValue = item.short_code || item.text;
+      }
+    });
+
+    if (!cityValue) {
+      if (placeType === 'postcode' && placeNameParts.length > 1) {
+        cityValue = placeNameParts[1];
+      } else if (placeType === 'place') {
+        cityValue = placeNameParts[0] || '';
+      } else if (placeNameParts.length > 1) {
+        cityValue = placeNameParts[1];
+      }
+    }
+
+    if (!stateValue) {
+      let statePart = '';
+      if (placeType === 'postcode' && placeNameParts.length > 2) {
+        statePart = placeNameParts[2];
+      } else if (placeType === 'place' && placeNameParts.length > 1) {
+        statePart = placeNameParts[1];
+      } else if (placeNameParts.length > 2) {
+        statePart = placeNameParts[2];
+      }
+      if (statePart) {
+        const stateMatch = statePart.match(/\b[A-Z]{2,3}\b/);
+        if (stateMatch) {
+          stateValue = stateMatch[0];
+        } else {
+          stateValue = statePart.replace(/\d+/g, '').trim();
+        }
+      }
+    }
+
+    if (!postalCodeValue) {
+      const postalCodePattern = /\b\d{4,7}(-\d{4})?\b/;
+      for (const part of placeNameParts) {
+        const m = part.match(postalCodePattern);
+        if (m) {
+          postalCodeValue = m[0];
+          break;
+        }
+      }
+    }
+
+    if (!countryValue) {
+      const lastPart = placeNameParts[placeNameParts.length - 1];
+      if (lastPart && !/^\d+$/.test(lastPart) && lastPart.length > 1) {
+        countryValue = lastPart;
+      }
+    }
+
+    setAddressResults([]);
+    setShippingInformation((prev) => ({
+      ...prev,
+      address1: addressLine1Value,
+      city: cityValue,
+      state: stateValue,
+      postalCode: postalCodeValue,
+      country: (countryValue || prev.country).toUpperCase(),
+    }));
+  };
 
   const validateShippingInformation = () => {
     const errors: ShippingInformationErrors = {};
@@ -492,113 +669,281 @@ export default function CheckoutScreen() {
               <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
                 <Feather name="box" color="#666" size={20} />
                 <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Information</Text>
-                {profileLoading && <ActivityIndicator size="small" color="#666" />}
+                {addressesLoading && <ActivityIndicator size="small" color="#666" />}
               </View>
 
               {/* Section Content */}
               <View className="p-4">
-                <View className="flex-row items-center gap-2">
-                  <View className="flex-1">
+                {/* Saved addresses selector */}
+                {savedAddresses.length > 0 && (
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className="text-sm font-inter-bold text-gray-800">Delivery Address</Text>
+                    <TouchableOpacity onPress={() => router.push('/other/addresses' as any)}>
+                      <Text className="text-sm font-inter-bold text-gray-800">Manage Addresses</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {addressesLoading ? (
+                  <View className="flex-row items-center justify-center py-3">
+                    <ActivityIndicator size="small" color="#000" />
+                    <Text className="ml-2 text-sm text-gray-600">Loading saved addresses...</Text>
+                  </View>
+                ) : savedAddresses.length > 0 ? (
+                  <View className="gap-4 mb-4">
+                    <TouchableOpacity
+                      onPress={() => {
+                        setUseSavedAddress(true);
+                        const addr =
+                          savedAddresses.find((a) => a.id === selectedAddressId) ||
+                          savedAddresses.find((a) => a.is_default) ||
+                          savedAddresses[0];
+                        if (addr) applySavedAddressToForm(addr);
+                      }}
+                      className="flex-row items-center mr-6"
+                    >
+                      <View
+                        className={`w-4 h-4 rounded-full border-2 ${
+                          useSavedAddress ? 'border-black bg-black' : 'border-gray-300'
+                        }`}
+                      >
+                        {useSavedAddress && <View className="w-2 h-2 rounded-full bg-white m-0.5" />}
+                      </View>
+                      <Text className="ml-2 text-sm font-inter-semibold text-gray-800">Use saved address</Text>
+                    </TouchableOpacity>
+
+                    {useSavedAddress && (
+                      <View className="gap-2">
+                        {savedAddresses.map((addr) => (
+                          <TouchableOpacity
+                            key={addr.id}
+                            onPress={() => {
+                              setSelectedAddressId(addr.id);
+                              applySavedAddressToForm(addr);
+                            }}
+                            className={`p-3 border rounded-lg ${
+                              selectedAddressId === addr.id ? 'border-black bg-black/10' : 'border-gray-200 bg-white'
+                            }`}
+                          >
+                            <View className="gap-1">
+                              <View className="flex-row items-center gap-3">
+                                <View
+                                  className={`w-4 h-4 rounded-full border-2 ${
+                                    selectedAddressId === addr.id ? 'border-black bg-black' : 'border-gray-300'
+                                  }`}
+                                >
+                                  {selectedAddressId === addr.id && (
+                                    <View className="w-2 h-2 rounded-full bg-white m-0.5" />
+                                  )}
+                                </View>
+                                <View className="flex-row items-center gap-2">
+                                  {!!addr.label && (
+                                    <Text className="text-sm font-inter-bold text-black">{addr.label}</Text>
+                                  )}
+                                  {addr.is_default && (
+                                    <Text className="text-[10px] px-2 py-0.5 rounded-lg bg-black text-white font-inter-bold">
+                                      Default
+                                    </Text>
+                                  )}
+                                </View>
+                              </View>
+
+                              <View className="flex-1 ml-7">
+                                <Text className="text-sm font-inter-semibold text-black">
+                                  {addr.first_name} {addr.last_name}
+                                </Text>
+                                <Text className="text-xs text-black">{addr.address_line1}</Text>
+                                {!!addr.address_line2 && (
+                                  <Text className="text-xs text-black">{addr.address_line2}</Text>
+                                )}
+                                <Text className="text-xs text-black">
+                                  {addr.city}
+                                  {addr.state ? `, ${addr.state}` : ''} {addr.postal_code}, {addr.country}
+                                </Text>
+                                {!!addr.phone && <Text className="text-xs text-black">{addr.phone}</Text>}
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        setUseSavedAddress(false);
+                        clearShippingForm();
+                      }}
+                      className="flex-row items-center"
+                    >
+                      <View
+                        className={`w-4 h-4 rounded-full border-2 ${
+                          !useSavedAddress ? 'border-black bg-black' : 'border-gray-300'
+                        }`}
+                      >
+                        {!useSavedAddress && <View className="w-2 h-2 rounded-full bg-white m-0.5" />}
+                      </View>
+                      <Text className="ml-2 text-sm font-inter-semibold text-gray-800">Use a different address</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : null}
+
+                {/* Manual address form */}
+                {savedAddresses.length === 0 || !useSavedAddress ? (
+                  <>
+                    <View className="flex-row items-center gap-2">
+                      <View className="flex-1">
+                        <InputField
+                          label="First Name"
+                          value={shippingInformation.firstName}
+                          onChangeText={(text) => updateShippingAddress('firstName', text)}
+                          placeholder="First Name"
+                          autoCapitalize="none"
+                          required
+                          error={shippingInformationErrors.firstName}
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <InputField
+                          label="Last Name"
+                          value={shippingInformation.lastName}
+                          onChangeText={(text) => updateShippingAddress('lastName', text)}
+                          placeholder="Last Name"
+                          autoCapitalize="none"
+                          required
+                          error={shippingInformationErrors.lastName}
+                        />
+                      </View>
+                    </View>
+
+                    <View className="mb-4">
+                      <Text className="mb-2 text-sm font-inter-bold text-gray-800">
+                        Address Line 1 <Text className="text-red-500">*</Text>
+                      </Text>
+                      <View className={`relative`}>
+                        <View
+                          className={`flex-row items-center px-3 rounded-lg bg-white border ${
+                            shippingInformationErrors.address1 ? 'border-red-400' : 'border-gray-200'
+                          }`}
+                        >
+                          <TextInput
+                            value={shippingInformation.address1}
+                            onChangeText={fetchPlaces}
+                            placeholder="Start typing your address..."
+                            autoCapitalize="words"
+                            autoCorrect={false}
+                            className="flex-1 py-3 text-base font-inter"
+                          />
+                          {isSearchingAddress && <ActivityIndicator size="small" color="#9CA3AF" />}
+                        </View>
+                        {shippingInformationErrors.address1 && (
+                          <Text className="mt-1 text-xs font-inter-semibold text-red-400">
+                            {shippingInformationErrors.address1}
+                          </Text>
+                        )}
+
+                        {addressResults.length > 0 && (
+                          <View className="mt-2 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
+                            <ScrollView
+                              style={{ maxHeight: 200 }}
+                              nestedScrollEnabled
+                              keyboardShouldPersistTaps="handled"
+                            >
+                              {addressResults.map((item: any) => {
+                                const placeType = item.place_type?.[0] || '';
+                                const icon = placeType === 'address' ? '📍' : placeType === 'place' ? '🏙️' : '📮';
+                                return (
+                                  <TouchableOpacity
+                                    key={item.id}
+                                    onPress={() => handleAddressSelect(item)}
+                                    className="px-4 py-3 border-b border-gray-200"
+                                  >
+                                    <View className="flex-row items-start">
+                                      <Text className="mr-2">{icon}</Text>
+                                      <View className="flex-1">
+                                        <Text className="text-gray-900 text-sm font-inter">{item.place_name}</Text>
+                                        <Text className="text-gray-500 text-xs font-inter mt-1 capitalize">
+                                          {placeType || 'location'}
+                                        </Text>
+                                      </View>
+                                    </View>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </ScrollView>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+
                     <InputField
-                      label="First Name"
-                      value={shippingInformation.firstName}
-                      onChangeText={(text) => updateShippingAddress('firstName', text)}
-                      placeholder="First Name"
+                      label="Address Line 2"
+                      value={shippingInformation.address2 || ''}
+                      onChangeText={(text) => updateShippingAddress('address2', text)}
+                      placeholder="Address Line 2"
+                      autoCapitalize="none"
+                    />
+
+                    <InputField
+                      label="City"
+                      value={shippingInformation.city}
+                      onChangeText={(text) => updateShippingAddress('city', text)}
+                      placeholder="City"
                       autoCapitalize="none"
                       required
-                      error={shippingInformationErrors.firstName}
+                      error={shippingInformationErrors.city}
                     />
-                  </View>
-                  <View className="flex-1">
+
+                    <View className="flex-row items-center gap-2">
+                      <View className="flex-1">
+                        <InputField
+                          label="State/County"
+                          value={shippingInformation.state}
+                          onChangeText={(text) => updateShippingAddress('state', text)}
+                          placeholder="State/County"
+                          autoCapitalize="none"
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <InputField
+                          label="Postal Code"
+                          value={shippingInformation.postalCode}
+                          onChangeText={(text) => updateShippingAddress('postalCode', text)}
+                          placeholder="Postal Code"
+                          autoCapitalize="none"
+                          required
+                          error={shippingInformationErrors.postalCode}
+                        />
+                      </View>
+                    </View>
+
+                    <View className="mb-4">
+                      <Text className="mb-2 text-sm font-inter-bold text-gray-800">
+                        Country <Text className="text-red-500">*</Text>
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => setShowCountryPicker(true)}
+                        className="flex-row items-center px-3 py-3 rounded-lg bg-white border border-gray-200"
+                      >
+                        <Text className="flex-1 text-base font-inter-semibold text-gray-800">
+                          {countries.find((c) => c.code === shippingInformation.country)?.name || 'Select Country'}
+                        </Text>
+                        <Feather name="chevron-down" color="#666" size={20} />
+                      </TouchableOpacity>
+                      <Text className="mt-1 text-xs font-inter-semibold text-gray-600">
+                        Changing country may affect shipping costs.
+                      </Text>
+                    </View>
+
                     <InputField
-                      label="Last Name"
-                      value={shippingInformation.lastName}
-                      onChangeText={(text) => updateShippingAddress('lastName', text)}
-                      placeholder="Last Name"
-                      autoCapitalize="none"
-                      required
-                      error={shippingInformationErrors.lastName}
-                    />
-                  </View>
-                </View>
-
-                <InputField
-                  label="Address Line 1"
-                  value={shippingInformation.address1}
-                  onChangeText={(text) => updateShippingAddress('address1', text)}
-                  placeholder="Address Line 1"
-                  autoCapitalize="none"
-                  required
-                  error={shippingInformationErrors.address1}
-                />
-
-                <InputField
-                  label="Address Line 2"
-                  value={shippingInformation.address2 || ''}
-                  onChangeText={(text) => updateShippingAddress('address2', text)}
-                  placeholder="Address Line 2"
-                  autoCapitalize="none"
-                />
-
-                <InputField
-                  label="City"
-                  value={shippingInformation.city}
-                  onChangeText={(text) => updateShippingAddress('city', text)}
-                  placeholder="City"
-                  autoCapitalize="none"
-                  required
-                  error={shippingInformationErrors.city}
-                />
-
-                <View className="flex-row items-center gap-2">
-                  <View className="flex-1">
-                    <InputField
-                      label="State/County"
-                      value={shippingInformation.state}
-                      onChangeText={(text) => updateShippingAddress('state', text)}
-                      placeholder="State/County"
+                      label="Phone"
+                      value={shippingInformation.phone}
+                      onChangeText={(text) => updateShippingAddress('phone', text)}
+                      placeholder="Phone"
+                      keyboardType="numeric"
                       autoCapitalize="none"
                     />
-                  </View>
-                  <View className="flex-1">
-                    <InputField
-                      label="Postal Code"
-                      value={shippingInformation.postalCode}
-                      onChangeText={(text) => updateShippingAddress('postalCode', text)}
-                      placeholder="Postal Code"
-                      autoCapitalize="none"
-                      required
-                      error={shippingInformationErrors.postalCode}
-                    />
-                  </View>
-                </View>
-
-                <View className="mb-4">
-                  <Text className="mb-2 text-sm font-inter-bold text-gray-800">
-                    Country <Text className="text-red-500">*</Text>
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => setShowCountryPicker(true)}
-                    className="flex-row items-center px-3 py-3 rounded-lg bg-white border border-gray-200"
-                  >
-                    <Text className="flex-1 text-base font-inter-semibold text-gray-800">
-                      {countries.find((c) => c.code === shippingInformation.country)?.name || 'Select Country'}
-                    </Text>
-                    <Feather name="chevron-down" color="#666" size={20} />
-                  </TouchableOpacity>
-                  <Text className="mt-1 text-xs font-inter-semibold text-gray-600">
-                    Changing country may affect shipping costs.
-                  </Text>
-                </View>
-
-                <InputField
-                  label="Phone"
-                  value={shippingInformation.phone}
-                  onChangeText={(text) => updateShippingAddress('phone', text)}
-                  placeholder="Phone"
-                  keyboardType="numeric"
-                  autoCapitalize="none"
-                />
+                  </>
+                ) : null}
               </View>
             </View>
 

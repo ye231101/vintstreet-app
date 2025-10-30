@@ -214,6 +214,12 @@ export default function AccountScreen() {
                 <Feather name="chevron-right" size={16} color="#000" />
               </Pressable>
 
+              <Pressable onPress={() => router.push('/seller/finances')} className="flex-row items-center px-4 py-3">
+                <Feather name="dollar-sign" size={24} color="#000" />
+                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Finance</Text>
+                <Feather name="chevron-right" size={16} color="#000" />
+              </Pressable>
+
               <Pressable
                 onPress={() => router.push('/other/payment-setup')}
                 className="flex-row items-center px-4 py-3"
