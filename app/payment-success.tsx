@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, BackHandler, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PaymentSuccessScreen() {
@@ -29,18 +29,31 @@ export default function PaymentSuccessScreen() {
     }
   }, [session_id]);
 
+  // Hardware back: send users to cart
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        router.replace('/cart');
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [])
+  );
+
   const handleContinueShopping = () => {
-    router.push('/(tabs)');
+    router.replace('/(tabs)');
   };
 
   const handleViewOrders = () => {
-    router.push('/other/orders');
+    router.replace('/other/orders');
   };
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color="#007AFF" />
+      <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
+        <ActivityIndicator size="large" color="#000" />
         <Text className="text-lg font-inter-semibold text-gray-800 mt-4">Verifying Payment...</Text>
         <Text className="text-sm font-inter-regular text-gray-600 mt-2 text-center px-8">
           Please wait while we confirm your payment
@@ -51,7 +64,7 @@ export default function PaymentSuccessScreen() {
 
   if (paymentStatus === 'success') {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-gray-50">
         <View className="flex-1 justify-center items-center px-6">
           <View className="bg-green-100 rounded-full p-6 mb-6">
             <Feather name="check" size={48} color="#10B981" />
@@ -64,12 +77,15 @@ export default function PaymentSuccessScreen() {
             shortly.
           </Text>
 
-          <View className="w-full space-y-3">
-            <TouchableOpacity onPress={handleViewOrders} className="bg-blue-600 rounded-xl py-4 px-6">
+          <View className="w-full gap-4">
+            <TouchableOpacity onPress={handleViewOrders} className="bg-black border border-black rounded-lg py-4 px-6">
               <Text className="text-white text-center font-inter-semibold text-base">View My Orders</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleContinueShopping} className="border border-gray-300 rounded-xl py-4 px-6">
+            <TouchableOpacity
+              onPress={handleContinueShopping}
+              className="bg-white border border-gray-300 rounded-lg py-4 px-6"
+            >
               <Text className="text-gray-800 text-center font-inter-semibold text-base">Continue Shopping</Text>
             </TouchableOpacity>
           </View>
@@ -79,7 +95,7 @@ export default function PaymentSuccessScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-50">
       <View className="flex-1 justify-center items-center px-6">
         <View className="bg-red-100 rounded-full p-6 mb-6">
           <Feather name="x" size={48} color="#EF4444" />
@@ -91,12 +107,15 @@ export default function PaymentSuccessScreen() {
           There was an issue processing your payment. Please try again or contact support if the problem persists.
         </Text>
 
-        <View className="w-full space-y-3">
-          <TouchableOpacity onPress={handleViewOrders} className="bg-blue-600 rounded-xl py-4 px-6">
+        <View className="w-full gap-4">
+          <TouchableOpacity onPress={handleViewOrders} className="bg-black border border-black rounded-lg py-4 px-6">
             <Text className="text-white text-center font-inter-semibold text-base">View My Orders</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleContinueShopping} className="border border-gray-300 rounded-xl py-4 px-6">
+          <TouchableOpacity
+            onPress={handleContinueShopping}
+            className="bg-white border border-gray-300 rounded-lg py-4 px-6"
+          >
             <Text className="text-gray-800 text-center font-inter-semibold text-base">Continue Shopping</Text>
           </TouchableOpacity>
         </View>

@@ -9,12 +9,12 @@ import {
 } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
+import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -329,18 +329,18 @@ export default function CheckoutScreen() {
 
   const processCheckout = async () => {
     if (!canProceedToCheckout()) {
-      Alert.alert('Complete Required Fields', getValidationMessage());
+      showWarningToast(getValidationMessage());
       return;
     }
 
     // Validate shipping information
     if (!validateShippingInformation()) {
-      Alert.alert('Validation Error', 'Please fill in all required fields correctly.');
+      showErrorToast('Please fill in all required fields correctly.');
       return;
     }
 
     if (!user?.id) {
-      Alert.alert('Error', 'You must be logged in to complete checkout.');
+      showErrorToast('You must be logged in to complete checkout.');
       return;
     }
 
@@ -422,36 +422,14 @@ export default function CheckoutScreen() {
         }
 
         // Show success message
-        Alert.alert(
-          'Redirecting to Payment',
-          `Your order has been created and you're being redirected to complete payment securely with Stripe.`,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                // The user will be redirected to Stripe checkout in browser
-                // After payment completion, they'll be redirected back to the app
-              },
-            },
-          ]
-        );
+        showSuccessToast('Your order is created. Redirecting to Stripe to complete payment.');
       } else {
         // Payment initiation failed
-        Alert.alert('Payment Setup Failed', 'Failed to set up payment. Please try again.', [
-          {
-            text: 'View Orders',
-            onPress: () => router.push('/other/orders'),
-          },
-          {
-            text: 'Try Again',
-            onPress: () => processCheckout(),
-          },
-        ]);
+        showErrorToast('Failed to set up payment. Please try again.');
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      Alert.alert(
-        'Checkout Failed',
+      showErrorToast(
         error instanceof Error ? error.message : 'An error occurred while processing your order. Please try again.'
       );
     } finally {
