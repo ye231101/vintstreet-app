@@ -20,7 +20,7 @@ export interface Order {
   funds_released?: boolean;
   buyer_confirmed?: boolean;
   issue_reported?: boolean;
-  payout_status?: string;
+  payout_status?: 'available' | 'clearing' | 'on_hold';
   listings?: {
     id: string;
     product_name: string;
