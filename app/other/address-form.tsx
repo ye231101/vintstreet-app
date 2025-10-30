@@ -1,4 +1,4 @@
-import { AddressData, buyerService } from '@/api';
+import { supabase } from '@/api/config/supabase';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -13,13 +13,14 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  FlatList,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 
 // Mapbox Access Token - Replace with your actual token
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VuaW9yZGV2MTIyMCIsImEiOiJjbWhiN3BiN2wxcDIwMmxzNnpiamN1N2RhIn0.TkD3d296tutjaKt9z4_njA';
+const MAPBOX_ACCESS_TOKEN =
+  'pk.eyJ1Ijoic2VuaW9yZGV2MTIyMCIsImEiOiJjbWhiN3BiN2wxcDIwMmxzNnpiamN1N2RhIn0.TkD3d296tutjaKt9z4_njA';
 
 // InputField component moved outside to prevent re-creation on each render
 const InputField = ({
@@ -88,7 +89,7 @@ const AddressAutocompleteField = ({
 
   const fetchPlaces = async (text: string) => {
     onChangeText(text);
-    
+
     if (text.length < 3) {
       setResults([]);
       return;
@@ -101,15 +102,15 @@ const AddressAutocompleteField = ({
           text
         )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&autocomplete=true&limit=10&types=address,place,postcode`
       );
-      
+
       // Sort results to prioritize address types first
       const sortedResults = res.data.features.sort((a: any, b: any) => {
-        const typeOrder: any = { 'address': 0, 'place': 1, 'postcode': 2, 'region': 3 };
+        const typeOrder: any = { address: 0, place: 1, postcode: 2, region: 3 };
         const aType = a.place_type?.[0] || 'other';
         const bType = b.place_type?.[0] || 'other';
         return (typeOrder[aType] ?? 999) - (typeOrder[bType] ?? 999);
       });
-      
+
       setResults(sortedResults.slice(0, 5));
     } catch (error) {
       console.error('Error fetching places:', error);
@@ -149,15 +150,11 @@ const AddressAutocompleteField = ({
 
       {results.length > 0 && (
         <View className="mt-2 bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden">
-          <ScrollView 
-            style={{ maxHeight: 200 }}
-            nestedScrollEnabled
-            keyboardShouldPersistTaps="handled"
-          >
+          <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
             {results.map((item) => {
               const placeType = item.place_type?.[0] || '';
               const icon = placeType === 'address' ? '📍' : placeType === 'place' ? '🏙️' : '📮';
-              
+
               return (
                 <TouchableOpacity
                   key={item.id}
@@ -184,12 +181,13 @@ const AddressAutocompleteField = ({
 };
 
 export default function AddressFormScreen() {
-  const { type, edit, id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // Form state
+  const [label, setLabel] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [addressLine1, setAddressLine1] = useState('');
@@ -199,66 +197,51 @@ export default function AddressFormScreen() {
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('');
   const [phone, setPhone] = useState('');
+  const [isDefault, setIsDefault] = useState(false);
 
-  const isShipping = type === 'shipping';
-  const isEditing = edit === 'true';
+  const isEditing = !!id;
 
   useEffect(() => {
     if (isEditing && id) {
       loadAddress();
-    } else if (user?.id) {
-      loadExistingProfile();
     }
   }, []);
 
-  const loadExistingProfile = async () => {
-    if (!user?.id) return;
+  const loadAddress = async () => {
+    if (!user?.id || !id) return;
 
     try {
       setIsLoading(true);
-      const profile = await buyerService.getBuyerProfile(user.id);
+      const { data, error } = await supabase
+        .from('saved_addresses')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single();
 
-      if (profile) {
-        // Load existing address data if available
-        if (isShipping) {
-          const address = buyerService.getShippingAddress(profile);
-          if (address) {
-            setFirstName(address.firstName);
-            setLastName(address.lastName);
-            setAddressLine1(address.addressLine1);
-            setAddressLine2(address.addressLine2 || '');
-            setCity(address.city);
-            setState(address.state || '');
-            setPostalCode(address.postalCode);
-            setCountry(address.country);
-            setPhone(address.phone || '');
-          }
-        } else {
-          const address = buyerService.getBillingAddress(profile);
-          if (address) {
-            setFirstName(address.firstName);
-            setLastName(address.lastName);
-            setAddressLine1(address.addressLine1);
-            setAddressLine2(address.addressLine2 || '');
-            setCity(address.city);
-            setState(address.state || '');
-            setPostalCode(address.postalCode);
-            setCountry(address.country);
-            setPhone(address.phone || '');
-          }
-        }
+      if (error) throw error;
+
+      if (data) {
+        const addressData = data as any;
+        setLabel(addressData.label || '');
+        setFirstName(addressData.first_name);
+        setLastName(addressData.last_name);
+        setAddressLine1(addressData.address_line1);
+        setAddressLine2(addressData.address_line2 || '');
+        setCity(addressData.city);
+        setState(addressData.state || '');
+        setPostalCode(addressData.postal_code);
+        setCountry(addressData.country);
+        setPhone(addressData.phone || '');
+        setIsDefault(addressData.is_default);
       }
-    } catch (error) {
-      console.error('Error loading profile:', error);
+    } catch (error: any) {
+      console.error('Error loading address:', error);
+      showErrorToast(error.message || 'Failed to load address');
+      router.back();
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const loadAddress = async () => {
-    // This function would load a specific address if editing
-    // For now, we'll use the loadExistingProfile
-    loadExistingProfile();
   };
 
   const handleAddressSelect = (place: any) => {
@@ -268,7 +251,7 @@ export default function AddressFormScreen() {
     const placeNameParts = place.place_name.split(',').map((p: string) => p.trim());
 
     let addressLine1Value = '';
-    
+
     if (placeType === 'address' && placeNameParts.length > 0) {
       // For address type, ALWAYS use the first part (complete street address)
       addressLine1Value = placeNameParts[0];
@@ -337,7 +320,7 @@ export default function AddressFormScreen() {
     // Fallback: Extract state/region from place_name if not found in context
     if (!stateValue) {
       let statePart = '';
-      
+
       if (placeType === 'postcode' && placeNameParts.length > 2) {
         // For postcode: third part is state/region
         statePart = placeNameParts[2];
@@ -348,7 +331,7 @@ export default function AddressFormScreen() {
         // Generic: third part
         statePart = placeNameParts[2];
       }
-      
+
       if (statePart) {
         // Try to extract state code (2-3 uppercase letters)
         const stateMatch = statePart.match(/\b[A-Z]{2,3}\b/);
@@ -388,7 +371,7 @@ export default function AddressFormScreen() {
     setCity(cityValue);
     setState(stateValue);
     setPostalCode(postalCodeValue);
-    setCountry(countryValue);
+    setCountry(countryValue.toUpperCase());
   };
 
   const validateForm = () => {
@@ -416,6 +399,10 @@ export default function AddressFormScreen() {
       showErrorToast('Please enter country');
       return false;
     }
+    if (!phone.trim()) {
+      showErrorToast('Please enter phone number');
+      return false;
+    }
     return true;
   };
 
@@ -429,25 +416,53 @@ export default function AddressFormScreen() {
     setIsSaving(true);
 
     try {
-      const addressData: AddressData = {
-        firstName,
-        lastName,
-        addressLine1,
-        addressLine2: addressLine2 || undefined,
-        city,
-        state: state || undefined,
-        postalCode,
-        country,
-        phone: phone || undefined,
-      };
+      // If setting this as default, first unset all other defaults for this user
+      if (isDefault) {
+        const { error: updateError } = await supabase
+          .from('saved_addresses')
+          .update({ is_default: false })
+          .eq('user_id', user.id)
+          .neq('id', id || ''); // Exclude current address if editing
 
-      if (isShipping) {
-        await buyerService.saveShippingAddress(user.id, addressData);
-      } else {
-        await buyerService.saveBillingAddress(user.id, addressData);
+        if (updateError) {
+          console.error('Error unsetting other defaults:', updateError);
+          // Don't throw - continue with saving
+        }
       }
 
-      showSuccessToast(`${isShipping ? 'Shipping' : 'Billing'} address saved successfully`);
+      const addressData = {
+        user_id: user.id,
+        label: label.trim() || null,
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        address_line1: addressLine1.trim(),
+        address_line2: addressLine2.trim() || null,
+        city: city.trim(),
+        state: state.trim() || '',
+        postal_code: postalCode.trim(),
+        country: country.trim().toUpperCase(), // Convert to uppercase
+        phone: phone.trim(),
+        is_default: isDefault,
+      };
+
+      if (isEditing && id) {
+        // Update existing address
+        const { error } = await supabase
+          .from('saved_addresses')
+          .update(addressData)
+          .eq('id', id)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        showSuccessToast('Address updated successfully');
+      } else {
+        // Insert new address
+        const { error } = await supabase.from('saved_addresses').insert(addressData);
+
+        if (error) throw error;
+        showSuccessToast('Address added successfully');
+      }
+
       setTimeout(() => {
         router.back();
       }, 500);
@@ -466,9 +481,7 @@ export default function AddressFormScreen() {
           <TouchableOpacity onPress={() => router.back()} hitSlop={8} disabled={isLoading}>
             <Feather name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
-            {isEditing ? 'Edit' : 'Add'} {isShipping ? 'Shipping' : 'Billing'} Address
-          </Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">{isEditing ? 'Edit' : 'Add'} Address</Text>
         </View>
 
         <View className="flex-1 bg-gray-50 justify-center items-center">
@@ -487,9 +500,7 @@ export default function AddressFormScreen() {
           <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
-          {isEditing ? 'Edit' : 'Add'} {isShipping ? 'Shipping' : 'Billing'} Address
-        </Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">{isEditing ? 'Edit' : 'Add'} Address</Text>
       </View>
 
       <KeyboardAvoidingView
@@ -507,13 +518,23 @@ export default function AddressFormScreen() {
             <View className="bg-blue-500/10 rounded-lg p-4 mb-6 flex-row items-start">
               <Feather name="info" color="#007AFF" size={18} />
               <Text className="flex-1 text-blue-700 text-sm font-inter-semibold ml-3">
-                {isShipping
-                  ? 'This address will be used for shipping your orders'
-                  : 'This address will be used for billing and invoices'}
+                {isEditing ? 'Update your saved address details' : 'Add a new shipping address to your account'}
               </Text>
             </View>
 
             {/* Form */}
+            <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+              <Text className="text-gray-900 text-lg font-inter-bold mb-4">Address Information</Text>
+
+              <InputField
+                label="Address Label (Optional)"
+                value={label}
+                onChangeText={setLabel}
+                placeholder="e.g., Home, Work, Mom's House"
+                editable={!isSaving}
+              />
+            </View>
+
             <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
               <Text className="text-gray-900 text-lg font-inter-bold mb-4">Personal Information</Text>
 
@@ -546,6 +567,7 @@ export default function AddressFormScreen() {
                 onChangeText={setPhone}
                 placeholder="+1 (555) 123-4567"
                 keyboardType="phone-pad"
+                required
                 editable={!isSaving}
               />
             </View>
@@ -606,12 +628,31 @@ export default function AddressFormScreen() {
               <InputField
                 label="Country"
                 value={country}
-                onChangeText={setCountry}
+                onChangeText={(text) => setCountry(text.toUpperCase())}
                 placeholder="US"
                 autoCapitalize="characters"
                 required
                 editable={!isSaving}
               />
+            </View>
+
+            {/* Default Address Toggle */}
+            <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1 mr-4">
+                  <Text className="text-gray-900 text-base font-inter-bold mb-1">Set as default address</Text>
+                  <Text className="text-gray-600 text-sm font-inter">
+                    Use this address as your primary shipping address
+                  </Text>
+                </View>
+                <Switch
+                  value={isDefault}
+                  onValueChange={setIsDefault}
+                  disabled={isSaving}
+                  trackColor={{ false: '#D1D5DB', true: '#000' }}
+                  thumbColor="#fff"
+                />
+              </View>
             </View>
 
             {/* Save Button */}
