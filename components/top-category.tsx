@@ -11,6 +11,7 @@ interface TopCategory {
   id: number;
   title: string;
   image: string;
+  slug: string;
 }
 
 const topCategories: TopCategory[] = [
@@ -18,57 +19,43 @@ const topCategories: TopCategory[] = [
     id: 1,
     title: 'Caps',
     image: require('@/assets/images/cat/cat_caps.jpg'),
+    slug: 'men-accessories-hats-caps',
   },
   {
     id: 2,
     title: 'Denim',
     image: require('@/assets/images/cat/cat_denim.jpg'),
+    slug: 'men-clothing-shirts-denim-shirts',
   },
   {
     id: 3,
     title: 'Vinyl',
     image: require('@/assets/images/cat/cat_vinyl.jpg'),
+    slug: 'vinyls',
   },
   {
     id: 4,
     title: 'Football Shirts',
     image: require('@/assets/images/cat/cat_football_shirts.jpg'),
+    slug: 'footwear',
   },
   {
     id: 5,
-    title: 'Gaming',
-    image: require('@/assets/images/cat/cat_gaming.jpg'),
+    title: 'Games',
+    image: require('@/assets/images/cat/cat_games.jpg'),
+    slug: 'games',
   },
   {
     id: 6,
-    title: "Levi's",
-    image: require('@/assets/images/cat/cat_levis.jpg'),
-  },
-  {
-    id: 7,
-    title: 'Nike',
-    image: require('@/assets/images/cat/cat_nike.jpg'),
-  },
-  {
-    id: 8,
-    title: 'Tees',
-    image: require('@/assets/images/cat/cat_tees.jpg'),
-  },
-  {
-    id: 9,
     title: 'VeeFriends',
     image: require('@/assets/images/cat/cat_veefriends.jpg'),
-  },
-  {
-    id: 10,
-    title: 'Y2K',
-    image: require('@/assets/images/cat/cat_y2k.jpg'),
+    slug: 'veefriends-cards',
   },
 ];
 
 const TopCategoryCard = ({ category }: { category: TopCategory }) => (
   <Pressable
-    onPress={() => router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.title)}` as any)}
+    onPress={() => router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as any)}
     className="relative mr-2 overflow-hidden rounded-lg border border-gray-200"
     style={{
       width: screenWidth / 2,

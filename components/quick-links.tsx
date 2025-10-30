@@ -12,6 +12,7 @@ enum NavigationType {
 }
 
 interface QuickLink {
+  id: number;
   title: string;
   description: string;
   imageUrl: any;
@@ -22,6 +23,7 @@ interface QuickLink {
 
 const quickLinks: QuickLink[] = [
   {
+    id: 1,
     title: 'Meet Vint Street',
     description: 'What, who, where, why, and how',
     imageUrl: require('@/assets/images/homepage_slider/1.jpg'),
@@ -30,6 +32,7 @@ const quickLinks: QuickLink[] = [
     routeName: '/articles/meet-vint-street',
   },
   {
+    id: 2,
     title: 'Buying, Selling & Re-Listing',
     description: 'Learn how it all works',
     imageUrl: require('@/assets/images/homepage_slider/2.jpg'),
@@ -38,25 +41,28 @@ const quickLinks: QuickLink[] = [
     routeName: '/articles/selling-relisting',
   },
   {
+    id: 3,
     title: 'Get Informed',
     description: 'See the best fits. Add yours.',
-    imageUrl: require('@/assets/images/homepage_slider/4.jpg'),
+    imageUrl: require('@/assets/images/homepage_slider/3.jpg'),
     link: 'https://vintstreet.com/inspiration',
     navigationType: NavigationType.Internal,
     routeName: '/articles/get-informed',
   },
   {
+    id: 4,
     title: 'Our Community',
     description: 'Join the discussion',
-    imageUrl: require('@/assets/images/homepage_slider/5.jpg'),
+    imageUrl: require('@/assets/images/homepage_slider/4.jpg'),
     link: 'https://vintstreet.com/community',
     navigationType: NavigationType.Internal,
     routeName: '/articles/our-community',
   },
   {
+    id: 5,
     title: 'Help Centre',
     description: 'Problem? Solved!',
-    imageUrl: require('@/assets/images/homepage_slider/6.jpg'),
+    imageUrl: require('@/assets/images/homepage_slider/5.jpg'),
     link: 'https://vintstreet.com/help',
     navigationType: NavigationType.HelpCenter,
     routeName: '/account/help-center',
@@ -65,13 +71,13 @@ const quickLinks: QuickLink[] = [
 
 export default function QuickLinks() {
   const scrollRef = useRef<ScrollView | null>(null);
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(quickLinks[0].id);
 
   const onScroll = (event: any) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const viewWidth = event.nativeEvent.layoutMeasurement.width;
     const current = Math.round(contentOffsetX / viewWidth);
-    if (current !== index) setIndex(current);
+    if (current + 1 !== index) setIndex(current + 1);
   };
 
   const launchUrl = async (url?: string) => {
@@ -128,8 +134,8 @@ export default function QuickLinks() {
           scrollEventThrottle={16}
           className="absolute inset-0"
         >
-          {quickLinks.map((item, index) => (
-            <View key={index} style={{ width: screenWidth - 16 }}>
+          {quickLinks.map((item) => (
+            <View key={item.id} style={{ width: screenWidth - 16 }}>
               <Pressable onPress={() => handleTap(item)} className="w-full relative" style={{ aspectRatio: 16 / 7 }}>
                 <Image source={item.imageUrl} resizeMode="cover" className="w-full h-full" />
                 <LinearGradient
@@ -147,11 +153,11 @@ export default function QuickLinks() {
           ))}
         </ScrollView>
         <View pointerEvents="none" className="absolute left-0 right-0 bottom-3 flex-row justify-center items-center">
-          {quickLinks.map((_, i) => (
+          {quickLinks.map((item) => (
             <View
-              key={i}
+              key={item.id}
               className="w-1.5 h-1.5 rounded-full mx-1"
-              style={{ backgroundColor: i === index ? '#ffffff' : 'rgba(255,255,255,0.5)' }}
+              style={{ backgroundColor: item.id === index ? '#ffffff' : 'rgba(255,255,255,0.5)' }}
             />
           ))}
         </View>
