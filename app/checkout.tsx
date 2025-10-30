@@ -98,7 +98,7 @@ const InputField = ({
 );
 
 export default function CheckoutScreen() {
-  const { productId, sellerId, productIds } = useLocalSearchParams();
+  const { sellerId, productIds } = useLocalSearchParams();
 
   const { cart, isLoading, refreshCart, removeItem } = useCart();
   const { user } = useAuth();
@@ -164,7 +164,7 @@ export default function CheckoutScreen() {
 
   useEffect(() => {
     loadCheckoutData();
-  }, [productId, sellerId, productIds]);
+  }, [sellerId, productIds]);
 
   useEffect(() => {
     if (sellerId) {
@@ -195,14 +195,6 @@ export default function CheckoutScreen() {
       // Set seller info from the first item
       if (cartItems.length > 0 && cartItems[0].product?.seller_info_view) {
         setSellerInfo(cartItems[0].product.seller_info_view);
-      }
-    } else if (productId) {
-      // Single product checkout (legacy support)
-      const cartItem = cart.items.filter((item) => productId === item.product?.id);
-
-      setCheckoutItems(cartItem);
-      if (cartItem[0]?.product?.seller_info_view) {
-        setSellerInfo(cartItem[0]?.product.seller_info_view);
       }
     }
   };
