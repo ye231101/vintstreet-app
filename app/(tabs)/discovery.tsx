@@ -4,8 +4,8 @@ import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
 import SortBar from '@/components/sort-bar';
 import { Feather } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -91,22 +91,21 @@ export default function DiscoveryScreen() {
     loadInitialData();
   }, []);
 
-  // Handle category parameter from navigation
-  useEffect(() => {
-    if (category && categories.length > 0) {
-      const categoryName = decodeURIComponent(category as string);
-      // Find the category in categories and navigate to it
-      const foundCategory = categoriesService.findCategoryBySlug(
-        categories,
-        categoryName.toLowerCase().replace(/\s+/g, '-')
-      );
-      if (foundCategory) {
-        handleCategoryPress(foundCategory);
-      } else {
-        handleAllCategoriesPress();
+  // Handle category parameter whenever this screen is focused (runs on each visit)
+  useFocusEffect(
+    useCallback(() => {
+      if (category && categories.length > 0) {
+        const categoryName = decodeURIComponent(category as string);
+        const foundCategory = categoriesService.findCategoryBySlug(
+          categories,
+          categoryName.toLowerCase().replace(/\s+/g, '-')
+        );
+        if (foundCategory) {
+          handleCategoryPress(foundCategory);
+        }
       }
-    }
-  }, [category, categories]);
+    }, [category, categories])
+  );
 
   // Handle brand parameter from navigation
   useEffect(() => {
