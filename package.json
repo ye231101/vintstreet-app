@@ -23,7 +23,7 @@
     "@supabase/supabase-js": "^2.75.0",
     "axios": "^1.13.1",
     "base64-arraybuffer": "^1.0.2",
-    "expo": "~54.0.13",
+    "expo": "^54.0.21",
     "expo-constants": "~18.0.9",
     "expo-dev-client": "~6.0.15",
     "expo-font": "~14.0.9",
