@@ -27,6 +27,12 @@ export default function HomeScreen() {
     setPageInput(currentPage.toString());
   }, [currentPage]);
 
+  useEffect(() => {
+    if (searchKeyword === '') {
+      fetchProducts();
+    }
+  }, [searchKeyword]);
+
   const fetchProducts = async (keyword?: string) => {
     try {
       setIsLoading(true);

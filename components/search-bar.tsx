@@ -129,7 +129,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
 
   const handleClearSearch = () => {
     onChangeText?.('');
-    onSearch?.('');
     setSuggestions([]);
   };
 
@@ -137,8 +136,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
     if (value && value.trim().length > 0) {
       await addRecentSearch(value.trim());
     }
-    setShowSuggestions(false);
-    Keyboard.dismiss();
+    handleBlur();
     onSearch?.(value || '');
   };
 
