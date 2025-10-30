@@ -167,11 +167,7 @@ export default function RootLayout() {
 
   return (
     <ReduxProvider>
-      <StripeProvider
-        publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY as string}
-        merchantIdentifier="merchant.com.vintstreet.app"
-        urlScheme="vintstreetapp"
-      >
+      <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY as string}>
         <ToastProvider offsetTop={100}>
           <ToastInit />
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

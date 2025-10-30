@@ -43,8 +43,10 @@
       [
         "@stripe/stripe-react-native",
         {
+          "urlScheme": "vintstreetapp",
           "merchantIdentifier": "merchant.com.vintstreet.app",
-          "enableGooglePay": true
+          "enableGooglePay": true,
+          "enableApplePay": true
         }
       ]
     ],
