@@ -10,7 +10,6 @@ export interface SearchBarProps {
   value?: string;
   onChangeText?: (text: string) => void;
   onSearch?: (text: string) => void;
-  onSuggestionsVisibilityChange?: (visible: boolean) => void;
 }
 
 interface Suggestion {
@@ -19,22 +18,11 @@ interface Suggestion {
   id?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = 'Search...',
-  value,
-  onChangeText,
-  onSearch,
-  onSuggestionsVisibilityChange,
-}) => {
+const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value, onChangeText, onSearch }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Notify parent when suggestions visibility changes
-  useEffect(() => {
-    onSuggestionsVisibilityChange?.(showSuggestions);
-  }, [showSuggestions, onSuggestionsVisibilityChange]);
 
   // Load recent searches when input is focused and empty
   const loadRecentSearches = useCallback(async () => {
@@ -112,10 +100,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   const handleBlur = () => {
-    // Delay hiding suggestions to allow tap on suggestion to register
-    setTimeout(() => {
-      setShowSuggestions(false);
-    }, 200);
+    setShowSuggestions(false);
+    Keyboard.dismiss();
   };
 
   const handleSuggestionPress = async (suggestion: Suggestion) => {
@@ -134,6 +120,17 @@ const SearchBar: React.FC<SearchBarProps> = ({
     event.stopPropagation();
     await removeRecentSearch(searchTerm);
     await loadRecentSearches();
+  };
+
+  const handleChangeText = (text: string) => {
+    onChangeText?.(text);
+    setShowSuggestions(true);
+  };
+
+  const handleClearSearch = () => {
+    onChangeText?.('');
+    onSearch?.('');
+    setSuggestions([]);
   };
 
   const handleSearch = async () => {
@@ -178,131 +175,96 @@ const SearchBar: React.FC<SearchBarProps> = ({
   );
 
   return (
-    <>
-      <View className="bg-black" style={{ position: 'relative', zIndex: 1000 }}>
-        <View className="flex-row items-center gap-8 p-4">
-          <View className="flex-1 flex-row items-center bg-gray-800 rounded-lg px-3">
-            <Feather name="search" size={24} color="white" />
-            <TextInput
-              className="flex-1 ml-2 text-base font-inter-bold text-white py-3"
-              placeholder={placeholder}
-              placeholderTextColor="#999"
-              value={value}
-              onChangeText={onChangeText}
-              onSubmitEditing={handleSearch}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              returnKeyType="search"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {value && value.length > 0 && (
-              <Pressable
-                onPress={() => {
-                  onChangeText?.('');
-                  onSearch?.('');
-                  setSuggestions([]);
-                }}
-              >
-                <Feather name="x" size={20} color="white" />
-              </Pressable>
-            )}
-          </View>
-          <Pressable onPress={() => router.push('/cart')}>
-            <Feather name="shopping-bag" size={28} color="white" />
-          </Pressable>
+    <View className="relative bg-black">
+      <View className="flex-row items-center gap-8 p-4">
+        <View className="flex-1 flex-row items-center bg-gray-800 rounded-lg px-3">
+          <Feather name="search" size={24} color="white" />
+          <TextInput
+            className="flex-1 ml-2 text-base font-inter-bold text-white py-3"
+            placeholder={placeholder}
+            placeholderTextColor="#999"
+            value={value}
+            onChangeText={handleChangeText}
+            onSubmitEditing={handleSearch}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {value && value.length > 0 && (
+            <Pressable onPress={handleClearSearch} hitSlop={8}>
+              <Feather name="x" size={20} color="white" />
+            </Pressable>
+          )}
         </View>
-
-        {/* Light grey backdrop overlay - non-interactive, just visual */}
-        {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              top: 70,
-              left: 0,
-              right: 0,
-              bottom: -5000,
-              backgroundColor: 'rgba(128, 128, 128, 0.2)',
-              zIndex: 998,
-            }}
-          />
-        )}
-
-        {/* Suggestions Dropdown - Absolutely Positioned */}
-        {showSuggestions && suggestions.length > 0 && (
-          <View
-            className="bg-white mx-4 rounded-lg"
-            style={{
-              position: 'absolute',
-              top: 70,
-              left: 0,
-              right: 0,
-              maxHeight: 400,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 8,
-              elevation: 5,
-              zIndex: 1000,
-              overflow: 'hidden',
-            }}
-          >
-            <FlatList
-              data={suggestions}
-              keyExtractor={(item, index) => `${item.type}-${item.value}-${index}`}
-              renderItem={renderSuggestion}
-              keyboardShouldPersistTaps="handled"
-              nestedScrollEnabled={true}
-              scrollEnabled={true}
-              showsVerticalScrollIndicator={true}
-              style={{ maxHeight: 400 }}
-              contentContainerStyle={{ flexGrow: 1 }}
-            />
-          </View>
-        )}
-
-        {/* Interactive backdrop below suggestions to close on tap */}
-        {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
-          <Pressable
-            style={{
-              position: 'absolute',
-              top: 470,
-              left: 0,
-              right: 0,
-              bottom: -5000,
-              backgroundColor: 'transparent',
-              zIndex: 999,
-            }}
-            onPress={() => {
-              setShowSuggestions(false);
-              Keyboard.dismiss();
-            }}
-          />
-        )}
-
-        {/* Loading indicator - Absolutely Positioned */}
-        {showSuggestions && isLoadingSuggestions && suggestions.length === 0 && (
-          <View
-            className="bg-white mx-4 rounded-lg p-4"
-            style={{
-              position: 'absolute',
-              top: 70,
-              left: 0,
-              right: 0,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 8,
-              elevation: 5,
-              zIndex: 1000,
-            }}
-          >
-            <Text className="text-center text-gray-600 text-sm font-inter-medium">Loading suggestions...</Text>
-          </View>
-        )}
+        <Pressable onPress={() => router.push('/cart')} hitSlop={8}>
+          <Feather name="shopping-bag" size={28} color="white" />
+        </Pressable>
       </View>
-    </>
+
+      {/* Light grey backdrop overlay - non-interactive, just visual */}
+      {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
+        <Pressable
+          onPress={handleBlur}
+          className="absolute left-0 right-0"
+          style={{ top: 70, bottom: -9999, zIndex: 1000 }}
+        />
+      )}
+
+      {/* Suggestions Dropdown - Absolutely Positioned */}
+      {showSuggestions && suggestions.length > 0 && (
+        <View
+          className="bg-white mx-4 rounded-lg"
+          style={{
+            position: 'absolute',
+            top: 70,
+            left: 0,
+            right: 0,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+            elevation: 5,
+            zIndex: 1000,
+            overflow: 'hidden',
+          }}
+        >
+          <FlatList
+            data={suggestions}
+            keyExtractor={(item, index) => `${item.type}-${item.value}-${index}`}
+            renderItem={renderSuggestion}
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled={true}
+            scrollEnabled={true}
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={{ flexGrow: 1 }}
+            style={{ maxHeight: 400 }}
+          />
+        </View>
+      )}
+
+      {/* Loading indicator - Absolutely Positioned */}
+      {showSuggestions && isLoadingSuggestions && suggestions.length === 0 && (
+        <View
+          className="bg-white mx-4 rounded-lg p-4"
+          style={{
+            position: 'absolute',
+            top: 70,
+            left: 0,
+            right: 0,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+            elevation: 5,
+            zIndex: 1000,
+          }}
+        >
+          <Text className="text-center text-gray-600 text-sm font-inter-medium">Loading suggestions...</Text>
+        </View>
+      )}
+    </View>
   );
 };
 
