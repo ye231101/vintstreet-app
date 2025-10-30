@@ -1,4 +1,4 @@
-import { attributesService, categoriesService, Category, listingsService, Product } from '@/api';
+import { categoriesService, Category, listingsService, Product } from '@/api';
 import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-modal';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
@@ -36,17 +36,14 @@ export default function DiscoveryScreen() {
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>({
     priceRanges: [],
     brands: [],
-    sizes: [],
   });
   const [availableBrands, setAvailableBrands] = useState<FilterOption[]>([]);
-  const [availableSizes, setAvailableSizes] = useState<FilterOption[]>([]);
   const [availablePrices, setAvailablePrices] = useState<FilterOption[]>([
     { label: 'Under £50', value: 'Under £50.00', count: 0 },
     { label: '£50 - £100', value: '£50.00 - £100.00', count: 0 },
     { label: '£100 - £200', value: '£100.00 - £200.00', count: 0 },
     { label: 'Over £200', value: 'Over £200.00', count: 0 },
   ]);
-  const [currentSizeAttributeId, setCurrentSizeAttributeId] = useState<string | undefined>();
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Load categories and brands on component mount
@@ -73,16 +70,6 @@ export default function DiscoveryScreen() {
           // Set empty array as fallback
           setAvailableBrands([]);
         }
-
-        // Set default sizes (will be updated when category is selected)
-        setAvailableSizes([
-          { label: 'XS', value: 'XS', count: 0 },
-          { label: 'S', value: 'S', count: 0 },
-          { label: 'M', value: 'M', count: 0 },
-          { label: 'L', value: 'L', count: 0 },
-          { label: 'XL', value: 'XL', count: 0 },
-          { label: 'XXL', value: 'XXL', count: 0 },
-        ]);
       } catch (error) {
         console.error('Error loading initial data:', error);
       }
@@ -166,69 +153,6 @@ export default function DiscoveryScreen() {
         { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
       ]);
 
-      // Load available sizes from attributes
-      // Find the deepest category level to get attributes
-      let attributesData = [];
-      if (categoryPath.length > 0) {
-        const currentCategory = categoryPath[categoryPath.length - 1];
-        // Try to get subcategory_id from the current category
-        const subcategoryId = currentCategory.id;
-
-        try {
-          attributesData = await attributesService.getAttributes(subcategoryId);
-
-          // Find size attribute
-          const sizeAttribute = attributesData.find(
-            (attr) =>
-              attr.name.toLowerCase() === 'size' ||
-              attr.name.toLowerCase() === 'sizes' ||
-              attr.name.toLowerCase().includes('size')
-          );
-
-          if (sizeAttribute && sizeAttribute.attribute_options) {
-            const sizeAttributeId = sizeAttribute.id;
-            setCurrentSizeAttributeId(sizeAttributeId);
-
-            // Get actual size counts from database
-            const sizeCounts = await listingsService.getSizeCounts(category.id, sizeAttributeId);
-
-            setAvailableSizes(
-              sizeAttribute.attribute_options
-                .filter((opt) => opt.is_active)
-                .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
-                .map((opt) => ({
-                  label: opt.value,
-                  value: opt.id,
-                  count: sizeCounts.get(opt.id) || 0,
-                }))
-            );
-          } else {
-            setCurrentSizeAttributeId(undefined);
-            // Fallback to common sizes if no size attribute found
-            setAvailableSizes([
-              { label: 'XS', value: 'XS', count: 0 },
-              { label: 'S', value: 'S', count: 0 },
-              { label: 'M', value: 'M', count: 0 },
-              { label: 'L', value: 'L', count: 0 },
-              { label: 'XL', value: 'XL', count: 0 },
-              { label: 'XXL', value: 'XXL', count: 0 },
-            ]);
-          }
-        } catch (error) {
-          console.error('Error loading attributes for sizes:', error);
-          setCurrentSizeAttributeId(undefined);
-          // Fallback to common sizes
-          setAvailableSizes([
-            { label: 'XS', value: 'XS', count: 0 },
-            { label: 'S', value: 'S', count: 0 },
-            { label: 'M', value: 'M', count: 0 },
-            { label: 'L', value: 'L', count: 0 },
-            { label: 'XL', value: 'XL', count: 0 },
-            { label: 'XXL', value: 'XXL', count: 0 },
-          ]);
-        }
-      }
-
       // Use filters if provided, otherwise use current state
       const currentFilters = filters || appliedFilters;
 
@@ -258,15 +182,6 @@ export default function DiscoveryScreen() {
 
       if (currentFilters.brands.length > 0) {
         filteredProducts = filteredProducts.filter((product) => currentFilters.brands.includes(product.brand_id || ''));
-      }
-
-      // Apply size filtering if size attribute is available
-      if (currentFilters.sizes.length > 0 && currentSizeAttributeId) {
-        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
-          currentFilters.sizes,
-          currentSizeAttributeId
-        );
-        filteredProducts = filteredProducts.filter((product) => productIdsWithSizes.includes(product.id));
       }
 
       setProducts(filteredProducts);
@@ -317,17 +232,6 @@ export default function DiscoveryScreen() {
         { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
       ]);
 
-      // For brand filtering, use common sizes
-      setAvailableSizes([
-        { label: 'XS', value: 'XS', count: 0 },
-        { label: 'S', value: 'S', count: 0 },
-        { label: 'M', value: 'M', count: 0 },
-        { label: 'L', value: 'L', count: 0 },
-        { label: 'XL', value: 'XL', count: 0 },
-        { label: 'XXL', value: 'XXL', count: 0 },
-      ]);
-      setCurrentSizeAttributeId(undefined);
-
       // Use filters if provided, otherwise use current state
       const currentFilters = filters || appliedFilters;
 
@@ -368,15 +272,6 @@ export default function DiscoveryScreen() {
       // Filter by the selected brand
       filteredProducts = filteredProducts.filter((product) => product.brand_id === brandId);
 
-      // Apply size filtering if available
-      if (currentFilters.sizes.length > 0 && currentSizeAttributeId) {
-        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
-          currentFilters.sizes,
-          currentSizeAttributeId
-        );
-        filteredProducts = filteredProducts.filter((product) => productIdsWithSizes.includes(product.id));
-      }
-
       setProducts(filteredProducts);
     } catch (err) {
       console.error('Error loading products for brand:', err);
@@ -416,10 +311,8 @@ export default function DiscoveryScreen() {
       setShowSearchResults(false);
       setSearchText('');
       setSearchResults([]);
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
       return;
     }
 
@@ -427,27 +320,21 @@ export default function DiscoveryScreen() {
       setSelectedBrand(null);
       setCategoryPath([]);
       setCurrentView('categories');
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
       return;
     }
 
     if (categoryPath.length > 1) {
       setCategoryPath((prev) => prev.slice(0, -1));
       setCurrentView('subcategories');
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
     } else if (categoryPath.length === 1) {
       setCategoryPath([]);
       setCurrentView('categories');
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
     }
   };
 
@@ -481,16 +368,6 @@ export default function DiscoveryScreen() {
         { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
       ]);
 
-      // For search, use common sizes as we don't have category context
-      setAvailableSizes([
-        { label: 'XS', value: 'XS', count: 0 },
-        { label: 'S', value: 'S', count: 0 },
-        { label: 'M', value: 'M', count: 0 },
-        { label: 'L', value: 'L', count: 0 },
-        { label: 'XL', value: 'XL', count: 0 },
-        { label: 'XXL', value: 'XXL', count: 0 },
-      ]);
-
       // For now, use first selected filter for API compatibility
       const priceFilter = appliedFilters.priceRanges.length > 0 ? appliedFilters.priceRanges[0] : 'All Prices';
       const brandFilter = appliedFilters.brands.length > 0 ? appliedFilters.brands[0] : 'All Brands';
@@ -517,15 +394,6 @@ export default function DiscoveryScreen() {
         filteredResults = filteredResults.filter((product) => appliedFilters.brands.includes(product.brand_id || ''));
       }
 
-      // Apply size filtering for search results if size attribute is available
-      if (appliedFilters.sizes.length > 0 && currentSizeAttributeId) {
-        const productIdsWithSizes = await listingsService.getProductIdsBySizes(
-          appliedFilters.sizes,
-          currentSizeAttributeId
-        );
-        filteredResults = filteredResults.filter((product) => productIdsWithSizes.includes(product.id));
-      }
-
       setSearchResults(filteredResults);
     } catch (error) {
       console.error('Error searching products:', error);
@@ -541,10 +409,8 @@ export default function DiscoveryScreen() {
     if (text.trim() === '') {
       setShowSearchResults(false);
       setSearchResults([]);
-      setAppliedFilters({ priceRanges: [], brands: [], sizes: [] });
+      setAppliedFilters({ priceRanges: [], brands: [] });
       setAvailableBrands([]);
-      setAvailableSizes([]);
-      setCurrentSizeAttributeId(undefined);
     }
   };
 
@@ -591,12 +457,6 @@ export default function DiscoveryScreen() {
           filteredResults = filteredResults.filter((product) => filters.brands.includes(product.brand_id || ''));
         }
 
-        // Apply size filtering for applied filters if size attribute is available
-        if (filters.sizes.length > 0 && currentSizeAttributeId) {
-          const productIdsWithSizes = await listingsService.getProductIdsBySizes(filters.sizes, currentSizeAttributeId);
-          filteredResults = filteredResults.filter((product) => productIdsWithSizes.includes(product.id));
-        }
-
         setSearchResults(filteredResults);
       } catch (error) {
         console.error('Error searching with filters:', error);
@@ -621,7 +481,7 @@ export default function DiscoveryScreen() {
   };
 
   const getTotalFilterCount = () => {
-    return appliedFilters.priceRanges.length + appliedFilters.brands.length + appliedFilters.sizes.length;
+    return appliedFilters.priceRanges.length + appliedFilters.brands.length;
   };
 
   const handleProductPress = (productId: string) => {
@@ -844,7 +704,6 @@ export default function DiscoveryScreen() {
         onApply={handleFiltersApply}
         priceOptions={availablePrices}
         brandOptions={availableBrands}
-        sizeOptions={availableSizes}
         initialFilters={appliedFilters}
       />
 
