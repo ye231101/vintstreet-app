@@ -19,7 +19,7 @@ class StripeService {
   }) {
     try {
       console.log('[STRIPE] Creating checkout session for orders:', orderData.orders.length);
-      
+
       // Validate order data
       if (!orderData.orders || orderData.orders.length === 0) {
         throw new Error('No orders provided');
@@ -41,7 +41,10 @@ class StripeService {
       console.log('[STRIPE] Sending data to edge function:', JSON.stringify(orderData, null, 2));
 
       // Check authentication status
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
       if (authError || !user) {
         console.error('[STRIPE] Authentication error:', authError);
         throw new Error('User not authenticated');
@@ -50,10 +53,10 @@ class StripeService {
 
       const { data, error } = await supabase.functions.invoke('create-checkout-split', {
         body: {
-          platform: "mobile",
+          platform: 'mobile',
           orders: orderData.orders,
-          shippingCost: orderData.shippingCost
-        }
+          shippingCost: orderData.shippingCost,
+        },
       });
 
       console.log('[STRIPE] Edge function response:', { data, error });
@@ -63,14 +66,16 @@ class StripeService {
           message: error.message,
           name: error.name,
           stack: error.stack,
-          context: error.context
+          context: error.context,
         });
-        
+
         // Try to get more specific error information
         if (error.message.includes('non-2xx status code')) {
-          throw new Error(`Edge function failed with status error. Check server logs for details. Original error: ${error.message}`);
+          throw new Error(
+            `Edge function failed with status error. Check server logs for details. Original error: ${error.message}`
+          );
         }
-        
+
         throw new Error(`Failed to create checkout session: ${error.message}`);
       }
 
@@ -94,7 +99,7 @@ class StripeService {
   async openCheckout(checkoutUrl: string) {
     try {
       const supported = await Linking.canOpenURL(checkoutUrl);
-      
+
       if (!supported) {
         throw new Error('Cannot open checkout URL');
       }
@@ -103,37 +108,6 @@ class StripeService {
       return { success: true };
     } catch (error) {
       console.error('[STRIPE] Error opening checkout:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Test the Edge Function with minimal data
-   */
-  async testEdgeFunction() {
-    try {
-      console.log('[STRIPE] Testing Edge Function with minimal data');
-      
-      const testData = {
-        orders: [{
-          id: 'test-order-123',
-          seller_id: 'test-seller-123',
-          product_name: 'Test Product',
-          seller_name: 'Test Seller',
-          price: 10.00,
-          quantity: 1
-        }],
-        shippingCost: 5.00
-      };
-
-      const { data, error } = await supabase.functions.invoke('create-checkout-split', {
-        body: testData
-      });
-
-      console.log('[STRIPE] Test response:', { data, error });
-      return { data, error };
-    } catch (error) {
-      console.error('[STRIPE] Test error:', error);
       throw error;
     }
   }

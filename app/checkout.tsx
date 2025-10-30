@@ -2,7 +2,6 @@ import {
   BuyerProfile,
   buyerService,
   CartItem,
-  cartService,
   ordersService,
   ShippingOption,
   shippingService,
@@ -23,7 +22,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -101,7 +100,7 @@ const InputField = ({
 export default function CheckoutScreen() {
   const { productId, sellerId, productIds } = useLocalSearchParams();
 
-  const { cart, isLoading } = useCart();
+  const { cart, isLoading, refreshCart, removeItem } = useCart();
   const { user } = useAuth();
   const [checkoutItems, setCheckoutItems] = useState<CartItem[]>([]);
   const [sellerInfo, setSellerInfo] = useState<any>(null);
@@ -328,18 +327,6 @@ export default function CheckoutScreen() {
     return `Please complete: ${missingFields.slice(0, -1).join(', ')}, and ${missingFields[missingFields.length - 1]}`;
   };
 
-  const testStripeFunction = async () => {
-    try {
-      console.log('[CHECKOUT] Testing Stripe Edge Function...');
-      const result = await stripeService.testEdgeFunction();
-      console.log('[CHECKOUT] Test result:', result);
-      Alert.alert('Test Result', `Test completed. Check console for details. Error: ${result.error ? 'Yes' : 'No'}`);
-    } catch (error) {
-      console.error('[CHECKOUT] Test error:', error);
-      Alert.alert('Test Error', `Test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
   const processCheckout = async () => {
     if (!canProceedToCheckout()) {
       Alert.alert('Complete Required Fields', getValidationMessage());
@@ -419,12 +406,20 @@ export default function CheckoutScreen() {
       // Process payment with Stripe using StripeService
       const paymentResult = await stripeService.processPayment({
         orders: createdOrders,
-        shippingCost: selectedShipping.price
+        shippingCost: selectedShipping.price,
       });
 
       if (paymentResult.success) {
-        // Clear the cart after successful payment initiation
-        await cartService.clearCart(user.id);
+        // Remove only the items included in this checkout
+        const listingIdsToRemove = checkoutItems
+          .map((item) => item.product?.id)
+          .filter((id): id is string => typeof id === 'string' && id.length > 0);
+
+        if (listingIdsToRemove.length > 0) {
+          await Promise.all(listingIdsToRemove.map((listingId) => removeItem(listingId)));
+          // Refresh cart state in the app
+          await refreshCart();
+        }
 
         // Show success message
         Alert.alert(
@@ -813,14 +808,6 @@ export default function CheckoutScreen() {
 
         {/* Bottom Action Button */}
         <View className="p-4 bg-white border-t border-gray-200">
-          {/* Debug Test Button - Remove in production */}
-          <TouchableOpacity
-            onPress={testStripeFunction}
-            className="rounded-2xl py-2 items-center bg-blue-500 mb-2"
-          >
-            <Text className="text-white font-inter-semibold text-base">Test Stripe Function</Text>
-          </TouchableOpacity>
-          
           <TouchableOpacity
             onPress={processCheckout}
             disabled={checkoutLoading || !canProceedToCheckout()}

@@ -11,7 +11,7 @@ export default function PaymentSuccessScreen() {
 
   useEffect(() => {
     console.log('[PAYMENT_SUCCESS] Component mounted with session_id:', session_id);
-    
+
     // In a real implementation, you would verify the payment status
     // with your backend or Stripe webhook
     if (session_id) {
@@ -41,9 +41,7 @@ export default function PaymentSuccessScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text className="text-lg font-inter-semibold text-gray-800 mt-4">
-          Verifying Payment...
-        </Text>
+        <Text className="text-lg font-inter-semibold text-gray-800 mt-4">Verifying Payment...</Text>
         <Text className="text-sm font-inter-regular text-gray-600 mt-2 text-center px-8">
           Please wait while we confirm your payment
         </Text>
@@ -58,33 +56,21 @@ export default function PaymentSuccessScreen() {
           <View className="bg-green-100 rounded-full p-6 mb-6">
             <Feather name="check" size={48} color="#10B981" />
           </View>
-          
-          <Text className="text-2xl font-inter-bold text-gray-800 mb-2 text-center">
-            Payment Successful!
-          </Text>
-          
+
+          <Text className="text-2xl font-inter-bold text-gray-800 mb-2 text-center">Payment Successful!</Text>
+
           <Text className="text-base font-inter-regular text-gray-600 mb-8 text-center leading-6">
-            Your order has been confirmed and payment processed successfully. 
-            You will receive a confirmation email shortly.
+            Your order has been confirmed and payment processed successfully. You will receive a confirmation email
+            shortly.
           </Text>
 
           <View className="w-full space-y-3">
-            <TouchableOpacity
-              onPress={handleViewOrders}
-              className="bg-blue-600 rounded-xl py-4 px-6"
-            >
-              <Text className="text-white text-center font-inter-semibold text-base">
-                View My Orders
-              </Text>
+            <TouchableOpacity onPress={handleViewOrders} className="bg-blue-600 rounded-xl py-4 px-6">
+              <Text className="text-white text-center font-inter-semibold text-base">View My Orders</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={handleContinueShopping}
-              className="border border-gray-300 rounded-xl py-4 px-6"
-            >
-              <Text className="text-gray-800 text-center font-inter-semibold text-base">
-                Continue Shopping
-              </Text>
+            <TouchableOpacity onPress={handleContinueShopping} className="border border-gray-300 rounded-xl py-4 px-6">
+              <Text className="text-gray-800 text-center font-inter-semibold text-base">Continue Shopping</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -98,32 +84,20 @@ export default function PaymentSuccessScreen() {
         <View className="bg-red-100 rounded-full p-6 mb-6">
           <Feather name="x" size={48} color="#EF4444" />
         </View>
-        
-        <Text className="text-2xl font-inter-bold text-gray-800 mb-2 text-center">
-          Payment Failed
-        </Text>
-        
+
+        <Text className="text-2xl font-inter-bold text-gray-800 mb-2 text-center">Payment Failed</Text>
+
         <Text className="text-base font-inter-regular text-gray-600 mb-8 text-center leading-6">
           There was an issue processing your payment. Please try again or contact support if the problem persists.
         </Text>
 
         <View className="w-full space-y-3">
-          <TouchableOpacity
-            onPress={handleViewOrders}
-            className="bg-blue-600 rounded-xl py-4 px-6"
-          >
-            <Text className="text-white text-center font-inter-semibold text-base">
-              View My Orders
-            </Text>
+          <TouchableOpacity onPress={handleViewOrders} className="bg-blue-600 rounded-xl py-4 px-6">
+            <Text className="text-white text-center font-inter-semibold text-base">View My Orders</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleContinueShopping}
-            className="border border-gray-300 rounded-xl py-4 px-6"
-          >
-            <Text className="text-gray-800 text-center font-inter-semibold text-base">
-              Continue Shopping
-            </Text>
+          <TouchableOpacity onPress={handleContinueShopping} className="border border-gray-300 rounded-xl py-4 px-6">
+            <Text className="text-gray-800 text-center font-inter-semibold text-base">Continue Shopping</Text>
           </TouchableOpacity>
         </View>
       </View>
