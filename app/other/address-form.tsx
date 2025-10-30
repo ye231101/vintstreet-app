@@ -1,7 +1,8 @@
-import { supabase } from '@/api/config/supabase';
+import { savedAddressesService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
+import axios from 'axios';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -9,14 +10,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import axios from 'axios';
 
 // Mapbox Access Token - Replace with your actual token
 const MAPBOX_ACCESS_TOKEN =
@@ -212,14 +212,7 @@ export default function AddressFormScreen() {
 
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('saved_addresses')
-        .select('*')
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .single();
-
-      if (error) throw error;
+      const data = await savedAddressesService.getById(String(id), user.id);
 
       if (data) {
         const addressData = data as any;
@@ -399,10 +392,6 @@ export default function AddressFormScreen() {
       showErrorToast('Please enter country');
       return false;
     }
-    if (!phone.trim()) {
-      showErrorToast('Please enter phone number');
-      return false;
-    }
     return true;
   };
 
@@ -418,16 +407,7 @@ export default function AddressFormScreen() {
     try {
       // If setting this as default, first unset all other defaults for this user
       if (isDefault) {
-        const { error: updateError } = await supabase
-          .from('saved_addresses')
-          .update({ is_default: false })
-          .eq('user_id', user.id)
-          .neq('id', id || ''); // Exclude current address if editing
-
-        if (updateError) {
-          console.error('Error unsetting other defaults:', updateError);
-          // Don't throw - continue with saving
-        }
+        await savedAddressesService.unsetDefaultForUser(user.id, isEditing ? String(id) : undefined);
       }
 
       const addressData = {
@@ -446,20 +426,10 @@ export default function AddressFormScreen() {
       };
 
       if (isEditing && id) {
-        // Update existing address
-        const { error } = await supabase
-          .from('saved_addresses')
-          .update(addressData)
-          .eq('id', id)
-          .eq('user_id', user.id);
-
-        if (error) throw error;
+        await savedAddressesService.update(String(id), user.id, addressData);
         showSuccessToast('Address updated successfully');
       } else {
-        // Insert new address
-        const { error } = await supabase.from('saved_addresses').insert(addressData);
-
-        if (error) throw error;
+        await savedAddressesService.create(addressData);
         showSuccessToast('Address added successfully');
       }
 
@@ -567,7 +537,6 @@ export default function AddressFormScreen() {
                 onChangeText={setPhone}
                 placeholder="+1 (555) 123-4567"
                 keyboardType="phone-pad"
-                required
                 editable={!isSaving}
               />
             </View>

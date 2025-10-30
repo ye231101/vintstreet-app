@@ -14,6 +14,7 @@ export { messagesService } from './messages.service';
 export { offersService } from './offers.service';
 export { ordersService } from './orders.service';
 export { reviewsService } from './reviews.service';
+export { savedAddressesService } from './saved-addresses.service';
 export { sellerService } from './seller.service';
 export { shippingService } from './shipping.service';
 export { storageService } from './storage.service';
