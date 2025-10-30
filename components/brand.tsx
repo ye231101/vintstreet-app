@@ -1,6 +1,8 @@
 import { Image } from 'expo-image';
-import React from 'react';
-import { Dimensions, ScrollView, View } from 'react-native';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Pressable, ScrollView, View } from 'react-native';
+import { brandsService } from '@/api';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -8,6 +10,7 @@ interface Brand {
   id: number;
   name: string;
   image: string;
+  brandId?: string; // Database brand ID
 }
 
 const brands = [
@@ -43,24 +46,61 @@ const brands = [
   },
 ];
 
-const BrandCard = ({ brand }: { brand: Brand }) => (
-  <View
-    className="bg-white rounded-lg p-2 mr-2 mb-2 border border-gray-200 items-center justify-center"
-    style={{
-      width: screenWidth / 3,
-      height: screenWidth / 4,
-    }}
-  >
-    <Image source={brand.image} contentFit="contain" transition={1000} style={{ width: '100%', height: '100%' }} />
-  </View>
-);
+const BrandCard = ({ brand }: { brand: Brand }) => {
+  const handlePress = () => {
+    // Navigate to discovery screen with brand filter (similar to category)
+    if (brand.brandId) {
+      router.push(`/(tabs)/discovery?brand=${encodeURIComponent(brand.brandId)}&brandName=${encodeURIComponent(brand.name)}` as any);
+    }
+  };
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      className="bg-white rounded-lg p-2 mr-2 mb-2 border border-gray-200 items-center justify-center active:opacity-70"
+      style={{
+        width: screenWidth / 3,
+        height: screenWidth / 4,
+      }}
+    >
+      <Image source={brand.image} contentFit="contain" transition={1000} style={{ width: '100%', height: '100%' }} />
+    </Pressable>
+  );
+};
 
 export default function Brand() {
+  const [brandsWithIds, setBrandsWithIds] = useState<Brand[]>(brands);
+
+  useEffect(() => {
+    // Fetch brand IDs from database and match with local brands
+    const fetchBrandIds = async () => {
+      try {
+        const dbBrands = await brandsService.getBrands({ is_active: true });
+        
+        // Map local brands with database brand IDs
+        const updatedBrands = brands.map((brand) => {
+          const dbBrand = dbBrands.find((db) => db.name.toLowerCase() === brand.name.toLowerCase());
+          return {
+            ...brand,
+            brandId: dbBrand?.id,
+          };
+        });
+        
+        setBrandsWithIds(updatedBrands);
+      } catch (error) {
+        console.error('Error fetching brand IDs:', error);
+        // Keep using brands without database IDs if fetch fails
+      }
+    };
+
+    fetchBrandIds();
+  }, []);
+
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      {Array.from({ length: Math.ceil(brands.length / 2) }).map((_, colIndex) => {
-        const first = brands[colIndex * 2];
-        const second = brands[colIndex * 2 + 1];
+      {Array.from({ length: Math.ceil(brandsWithIds.length / 2) }).map((_, colIndex) => {
+        const first = brandsWithIds[colIndex * 2];
+        const second = brandsWithIds[colIndex * 2 + 1];
         return (
           <View key={colIndex}>
             {first && <BrandCard key={first.id} brand={first} />}
