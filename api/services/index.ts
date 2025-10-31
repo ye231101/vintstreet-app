@@ -11,6 +11,7 @@ export { cartService } from './cart.service';
 export { categoriesService } from './categories.service';
 export { listingsService } from './listings.service';
 export { messagesService } from './messages.service';
+export { notificationsService } from './notifications.service';
 export { offersService } from './offers.service';
 export { ordersService } from './orders.service';
 export { reviewsService } from './reviews.service';

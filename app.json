@@ -11,7 +11,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.vintstreet.app",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"]
+      }
     },
     "android": {
       "package": "com.vintstreet.app",
@@ -51,6 +54,15 @@
           "merchantIdentifier": "merchant.com.vintstreet.app",
           "enableGooglePay": true,
           "enableApplePay": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#000000",
+          "sounds": [],
+          "mode": "production"
         }
       ]
     ],

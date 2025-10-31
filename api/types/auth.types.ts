@@ -10,6 +10,7 @@ export interface AuthUser {
   bio?: string;
   preferred_currency?: string;
   is_blocked?: string;
+  expo_push_token?: string;
 }
 
 export interface SignUpData {
@@ -55,5 +56,6 @@ export function mapSupabaseUserToAuthUser(supabaseUser: SupabaseUser | null): Au
     bio: supabaseUser.user_metadata?.bio,
     preferred_currency: supabaseUser.user_metadata?.preferred_currency,
     is_blocked: supabaseUser.user_metadata?.is_blocked,
+    expo_push_token: supabaseUser.user_metadata?.expo_push_token,
   };
 }

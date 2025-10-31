@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase';
 import { Conversation, Message } from '../types';
+import { notificationsService } from './notifications.service';
 
 class MessagesService {
   /**
@@ -190,18 +191,45 @@ class MessagesService {
     parent_message_id?: string;
   }): Promise<void> {
     try {
-      const { error } = await supabase.from('messages').insert([
-        {
-          ...messageData,
-          status: 'unread',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ]);
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([
+          {
+            ...messageData,
+            status: 'unread',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ])
+        .select()
+        .single();
 
       if (error) {
         throw new Error(`Failed to send message: ${error.message}`);
       }
+
+      // Create notification for the recipient
+      // Fetch sender's profile for notification
+      const { data: senderProfile } = await supabase
+        .from('profiles')
+        .select('full_name, username')
+        .eq('user_id', messageData.sender_id)
+        .single();
+
+      const senderName = (senderProfile as any)?.full_name || (senderProfile as any)?.username || 'Someone';
+
+      // Create notification asynchronously (don't await to avoid blocking)
+      notificationsService
+        .notifyNewMessage(
+          messageData.recipient_id,
+          senderName,
+          messageData.message.length > 100 ? messageData.message.substring(0, 100) + '...' : messageData.message,
+          {
+            message_id: (data as unknown as Message)?.id,
+            conversation_id: messageData.parent_message_id || messageData.subject,
+          }
+        )
+        .catch((err) => console.error('Error creating message notification:', err));
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;

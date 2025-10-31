@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase';
 import { Offer } from '../types';
+import { notificationsService } from './notifications.service';
 
 class OffersService {
   /**
@@ -162,7 +163,33 @@ class OffersService {
           throw new Error(`Failed to update offer: ${error.message}`);
         }
 
-        return (data as unknown as Offer) ?? null;
+        const updatedOffer = (data as unknown as Offer) ?? null;
+
+        // Create notification for seller about updated/re-submitted offer
+        if (updatedOffer) {
+          // Fetch buyer and listing info for notification
+          Promise.all([
+            supabase.from('profiles').select('full_name, username').eq('user_id', params.buyer_id).single(),
+            supabase.from('listings').select('product_name').eq('id', params.listing_id).single(),
+          ])
+            .then(([buyerProfile, listing]) => {
+              const buyerName =
+                (buyerProfile.data as unknown as { full_name?: string; username?: string })?.full_name ||
+                (buyerProfile.data as unknown as { full_name?: string; username?: string })?.username ||
+                'A buyer';
+              const productName = (listing.data as unknown as { product_name?: string })?.product_name || 'your item';
+
+              notificationsService
+                .notifyNewOffer(params.seller_id, buyerName, productName, params.offer_amount, {
+                  offer_id: updatedOffer.id,
+                  listing_id: params.listing_id,
+                } as unknown as { offer_id?: string; listing_id?: string })
+                .catch((err) => console.error('Error creating offer notification:', err));
+            })
+            .catch((err) => console.error('Error fetching offer notification data:', err));
+        }
+
+        return updatedOffer;
       } else {
         // Create new offer
         const { data, error } = await supabase
@@ -183,7 +210,33 @@ class OffersService {
           throw new Error(`Failed to create offer: ${error.message}`);
         }
 
-        return (data as unknown as Offer) ?? null;
+        const newOffer = (data as unknown as Offer) ?? null;
+
+        // Create notification for seller about new offer
+        if (newOffer) {
+          // Fetch buyer and listing info for notification
+          Promise.all([
+            supabase.from('profiles').select('full_name, username').eq('user_id', params.buyer_id).single(),
+            supabase.from('listings').select('product_name').eq('id', params.listing_id).single(),
+          ])
+            .then(([buyerProfile, listing]) => {
+              const buyerName =
+                (buyerProfile.data as unknown as { full_name?: string; username?: string })?.full_name ||
+                (buyerProfile.data as unknown as { full_name?: string; username?: string })?.username ||
+                'A buyer';
+              const productName = (listing.data as unknown as { product_name?: string })?.product_name || 'your item';
+
+              notificationsService
+                .notifyNewOffer(params.seller_id, buyerName, productName, params.offer_amount, {
+                  offer_id: newOffer.id,
+                  listing_id: params.listing_id,
+                } as unknown as { offer_id?: string; listing_id?: string })
+                .catch((err) => console.error('Error creating offer notification:', err));
+            })
+            .catch((err) => console.error('Error fetching offer notification data:', err));
+        }
+
+        return newOffer;
       }
     } catch (error) {
       console.error('Error creating offer:', error);
@@ -198,10 +251,73 @@ class OffersService {
    */
   async updateOfferStatus(offerId: string, status: 'accepted' | 'declined'): Promise<void> {
     try {
+      // First fetch the offer to get buyer/seller info
+      const { data: offerData, error: fetchError } = await supabase
+        .from('offers')
+        .select('buyer_id, seller_id, offer_amount, listing_id')
+        .eq('id', offerId)
+        .single();
+
+      if (fetchError) {
+        throw new Error(`Failed to fetch offer: ${fetchError.message}`);
+      }
+
       const { error } = await supabase.from('offers').update({ status }).eq('id', offerId);
 
       if (error) {
         throw new Error(`Failed to update offer status: ${error.message}`);
+      }
+
+      // Create notification for buyer about offer response
+      if (offerData && (offerData as any).buyer_id) {
+        Promise.all([
+          supabase
+            .from('profiles')
+            .select('full_name, username')
+            .eq('user_id', (offerData as unknown as { seller_id?: string })?.seller_id)
+            .single(),
+          supabase
+            .from('listings')
+            .select('product_name')
+            .eq('id', (offerData as unknown as { listing_id?: string })?.listing_id)
+            .single(),
+        ])
+          .then(([sellerProfile, listing]) => {
+            const sellerName =
+              (sellerProfile.data as unknown as { full_name?: string; username?: string })?.full_name ||
+              (sellerProfile.data as unknown as { full_name?: string; username?: string })?.username ||
+              'The seller';
+            const productName = (listing.data as unknown as { product_name?: string })?.product_name || 'your offer';
+
+            if (status === 'accepted') {
+              notificationsService
+                .notifyOfferAccepted(
+                  (offerData as unknown as { buyer_id?: string })?.buyer_id as string,
+                  sellerName,
+                  productName,
+                  (offerData as unknown as { offer_amount?: number })?.offer_amount as number,
+                  {
+                    offer_id: offerId,
+                    listing_id: (offerData as unknown as Offer)?.listing_id,
+                  } as unknown as { offer_id?: string; listing_id?: string }
+                )
+                .catch((err) => console.error('Error creating offer accepted notification:', err));
+            } else if (status === 'declined') {
+              notificationsService
+                .notifyOfferDeclined(
+                  (offerData as unknown as { buyer_id?: string })?.buyer_id as string,
+                  sellerName,
+                  productName,
+                  (offerData as unknown as { offer_amount?: number })?.offer_amount as number,
+                  {
+                    offer_id: offerId,
+                    listing_id: (offerData as unknown as Offer)?.listing_id,
+                  } as unknown as { offer_id?: string; listing_id?: string }
+                )
+                .catch((err) => console.error('Error creating offer declined notification:', err));
+            }
+          })
+          .catch((err) => console.error('Error fetching offer reply notification data:', err));
       }
     } catch (error) {
       console.error('Error updating offer status:', error);

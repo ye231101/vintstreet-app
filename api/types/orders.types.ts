@@ -7,7 +7,7 @@ export interface Order {
   stream_id?: string;
   order_amount?: number;
   quantity?: number;
-  status: string;
+  status: 'pending' | 'shipped' | 'completed';
   delivery_status: 'processing' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
   status_color?: number;
   order_date: string;
