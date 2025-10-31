@@ -283,18 +283,6 @@ export default function AccountScreen() {
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/help-center')} className="flex-row items-center px-4 py-3">
-            <Feather name="help-circle" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Help Center</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
-
-          <Pressable onPress={() => router.push('/other/contact-support')} className="flex-row items-center px-4 py-3">
-            <Feather name="message-circle" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Contact Support</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
-
           <Pressable onPress={showLogoutConfirmation} className="flex-row items-center px-4 py-3">
             <Feather name="log-out" size={24} color="#ff4444" />
             <Text className="flex-1 ml-4 text-base font-inter-semibold text-red-500">Logout</Text>
