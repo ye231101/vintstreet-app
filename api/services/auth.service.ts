@@ -397,6 +397,7 @@ class AuthService {
     avatar_url?: string;
     user_type?: string;
     shop_name?: string;
+    expo_push_token?: string;
   }): Promise<{ error: string | null; success: boolean }> {
     try {
       // Get current user ID
@@ -421,6 +422,7 @@ class AuthService {
           avatar_url: data.avatar_url,
           user_type: data.user_type,
           shop_name: data.shop_name,
+          expo_push_token: data.expo_push_token,
         })
         .eq('user_id', user.id);
 
