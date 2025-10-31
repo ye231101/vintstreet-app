@@ -9,10 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vintstreet.app",
+      "buildNumber": "1"
     },
     "android": {
       "package": "com.vintstreet.app",
+      "versionCode": 1,
+      "versionName": "1.0.0",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

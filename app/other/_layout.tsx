@@ -11,6 +11,13 @@ export default function OtherLayout() {
       }}
     >
       <Stack.Screen
+        name="edit-profile"
+        options={{
+          title: 'Edit Profile',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="payment-setup"
         options={{
           title: 'Payment Setup',
@@ -49,34 +56,6 @@ export default function OtherLayout() {
         name="addresses"
         options={{
           title: 'Addresses',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="help-center"
-        options={{
-          title: 'Help Center',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="contact-support"
-        options={{
-          title: 'Contact Support',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="privacy-security"
-        options={{
-          title: 'Privacy & Security',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="edit-profile"
-        options={{
-          title: 'Edit Profile',
           headerShown: false,
         }}
       />

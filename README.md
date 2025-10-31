@@ -67,7 +67,7 @@ You can start developing by editing the files inside the **app** directory. This
 You can also create preview builds for testing:
 
 ```bash
-eas build --profile preview --platform android
+eas build --platform android --profile preview
 ```
 
 Learn more about [EAS Build profiles](https://docs.expo.dev/build/eas-json/) and [submitting to app stores](https://docs.expo.dev/submit/introduction/).
