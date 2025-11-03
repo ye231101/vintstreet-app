@@ -22,6 +22,10 @@
     "production": {
       "environment": "production",
       "autoIncrement": true,
+      "distribution": "store",
+      "ios": {
+        "buildConfiguration": "Release"
+      },
       "android": {
         "buildType": "app-bundle"
       }

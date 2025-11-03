@@ -8,18 +8,18 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -811,7 +811,7 @@ export default function SellScreen() {
   // Check if user is a buyer and show seller setup message
   if (user?.user_type === 'buyer') {
     return (
-      <SafeAreaView className="flex-1 mb-50 bg-black">
+      <SafeAreaView className="flex-1 mb-12 bg-black">
         {/* Header */}
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
@@ -895,7 +895,7 @@ export default function SellScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 mb-50 bg-black">
+    <SafeAreaView className="flex-1 mb-12 bg-black">
       {/* Header */}
       <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>

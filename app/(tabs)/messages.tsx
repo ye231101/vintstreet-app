@@ -91,7 +91,7 @@ export default function MessagesScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 mb-50 bg-black">
+    <SafeAreaView className="flex-1 mb-12 bg-black">
       {/* Header with Search */}
       <SearchBar value={searchText} onChangeText={setSearchText} />
 

@@ -97,9 +97,6 @@ module.exports = {
           900: '#0f172a',
         }
       },
-      spacing: {
-        '50': 50,
-      },
       fontFamily: {
         'inter-thin': ['inter-thin', 'Inter-Thin', 'system-ui', 'sans-serif'],
         'inter-extralight': ['inter-extralight', 'Inter-ExtraLight', 'system-ui', 'sans-serif'],

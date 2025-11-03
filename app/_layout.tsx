@@ -18,6 +18,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastProvider, useToast } from 'react-native-toast-notifications';
 import '../global.css';
 
@@ -170,31 +171,33 @@ export default function RootLayout() {
   }
 
   return (
-    <ReduxProvider>
-      <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY as string}>
-        <ToastProvider offsetTop={100}>
-          <ToastInit />
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <AuthWrapper>
-              <Stack>
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="product" options={{ headerShown: false }} />
-                <Stack.Screen name="message" options={{ headerShown: false }} />
-                <Stack.Screen name="seller-profile" options={{ headerShown: false }} />
-                <Stack.Screen name="seller" options={{ headerShown: false }} />
-                <Stack.Screen name="other" options={{ headerShown: false }} />
-                <Stack.Screen name="cart" options={{ headerShown: false }} />
-                <Stack.Screen name="checkout" options={{ headerShown: false }} />
-                <Stack.Screen name="payment-success" options={{ headerShown: false }} />
-                <Stack.Screen name="stream" options={{ headerShown: false }} />
-                <Stack.Screen name="articles" options={{ headerShown: false }} />
-              </Stack>
-            </AuthWrapper>
-            <StatusBar style="auto" />
-          </ThemeProvider>
-        </ToastProvider>
-      </StripeProvider>
-    </ReduxProvider>
+    <SafeAreaProvider>
+      <ReduxProvider>
+        <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY as string}>
+          <ToastProvider offsetTop={100}>
+            <ToastInit />
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <AuthWrapper>
+                <Stack>
+                  <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen name="product" options={{ headerShown: false }} />
+                  <Stack.Screen name="message" options={{ headerShown: false }} />
+                  <Stack.Screen name="seller-profile" options={{ headerShown: false }} />
+                  <Stack.Screen name="seller" options={{ headerShown: false }} />
+                  <Stack.Screen name="other" options={{ headerShown: false }} />
+                  <Stack.Screen name="cart" options={{ headerShown: false }} />
+                  <Stack.Screen name="checkout" options={{ headerShown: false }} />
+                  <Stack.Screen name="payment-success" options={{ headerShown: false }} />
+                  <Stack.Screen name="stream" options={{ headerShown: false }} />
+                  <Stack.Screen name="articles" options={{ headerShown: false }} />
+                </Stack>
+              </AuthWrapper>
+              <StatusBar style="auto" />
+            </ThemeProvider>
+          </ToastProvider>
+        </StripeProvider>
+      </ReduxProvider>
+    </SafeAreaProvider>
   );
 }

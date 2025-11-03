@@ -113,7 +113,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-50 bg-black">
+    <SafeAreaView className="flex-1 mb-12 bg-black">
       {/* Search Bar */}
       <SearchBar value={searchKeyword} onChangeText={(text) => setSearchKeyword(text)} onSearch={handleSearch} />
 
