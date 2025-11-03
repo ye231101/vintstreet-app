@@ -844,7 +844,7 @@ export default function DiscoveryScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-50 bg-black">
+    <SafeAreaView className="flex-1 mb-12 bg-black">
       {/* Filter Modal */}
       <FilterModal
         visible={showFilterModal}

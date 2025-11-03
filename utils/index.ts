@@ -1,17 +1,3 @@
-import Constants from 'expo-constants';
-
-export const getProjectId = () => {
-  if (
-    Constants.expoConfig &&
-    Constants.expoConfig.extra &&
-    Constants.expoConfig.extra.eas &&
-    Constants.expoConfig.extra.eas.projectId
-  ) {
-    return Constants.expoConfig.extra.eas.projectId;
-  }
-  return null; // Or handle the case where the projectId is not found
-};
-
 /**
  * Validates an email address using a comprehensive regex pattern
  * @param email - The email address to validate

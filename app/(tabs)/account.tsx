@@ -108,7 +108,7 @@ export default function AccountScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-50 bg-black">
+    <SafeAreaView className="flex-1 mb-12 bg-black">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="bg-gray-50">
         {/* Profile Header Section */}
         <View className="flex-row items-center p-4">

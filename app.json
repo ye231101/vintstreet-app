@@ -9,12 +9,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
       "bundleIdentifier": "com.vintstreet.app",
-      "buildNumber": "1",
+      "buildNumber": "1.0.0",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"]
-      }
+        "UIBackgroundModes": ["remote-notification"],
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "supportsTablet": true
     },
     "android": {
       "package": "com.vintstreet.app",
@@ -61,8 +62,7 @@
         {
           "icon": "./assets/images/icon.png",
           "color": "#000000",
-          "sounds": [],
-          "mode": "production"
+          "sounds": []
         }
       ]
     ],
