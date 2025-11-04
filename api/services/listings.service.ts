@@ -1227,6 +1227,88 @@ class ListingsService {
       throw new Error('Failed to fetch related products');
     }
   }
+
+  /**
+   * Bulk create product listings
+   * @param sellerId - The seller's user ID
+   * @param items - Array of product rows to insert
+   * @returns Number of products created
+   */
+  async bulkCreateProducts(
+    sellerId: string,
+    items: Array<{
+      product_name: string;
+      product_description?: string | null;
+      starting_price?: number | null;
+      discounted_price?: number | null;
+      product_image?: string | null;
+      product_images?: string[];
+      offers_enabled?: boolean;
+      category_id?: string | null;
+      subcategory_id?: string | null;
+      sub_subcategory_id?: string | null;
+      sub_sub_subcategory_id?: string | null;
+      brand_id?: string | null;
+      stock_quantity?: number | null;
+      status?: 'draft' | 'published' | 'private';
+    }>
+  ): Promise<number> {
+    try {
+      if (!sellerId) {
+        throw new Error('Missing sellerId');
+      }
+
+      const rows = items
+        .filter((row) => !!(row.product_name && row.product_name.trim().length > 0))
+        .map((row) => {
+          const sp = row.starting_price;
+          const dp = row.discounted_price;
+          const qty = row.stock_quantity;
+
+          const startingPrice = sp !== undefined && sp !== null && !Number.isNaN(sp) ? Number(sp) : 0;
+          const discountedPrice = dp !== undefined && dp !== null && !Number.isNaN(dp) ? Number(dp) : null;
+          const stockQty = qty !== undefined && qty !== null && !Number.isNaN(qty as any) ? Number(qty) : null;
+
+          return {
+            seller_id: sellerId,
+            product_type: 'shop',
+            stream_id: 'master-catalog',
+            status: row.status || 'draft',
+            product_name: row.product_name.trim(),
+            product_description: row.product_description ?? null,
+            starting_price: startingPrice,
+            discounted_price: discountedPrice,
+            product_image: row.product_image ?? null,
+            product_images: row.product_images ?? null,
+            offers_enabled: row.offers_enabled ?? true,
+            category_id: row.category_id ?? null,
+            subcategory_id: row.subcategory_id ?? null,
+            sub_subcategory_id: row.sub_subcategory_id ?? null,
+            sub_sub_subcategory_id: row.sub_sub_subcategory_id ?? null,
+            brand_id: row.brand_id ?? null,
+            stock_quantity: stockQty,
+          };
+        });
+
+      if (rows.length === 0) {
+        return 0;
+      }
+
+      const { data, error } = await supabase
+        .from('listings')
+        .insert(rows)
+        .select('id');
+
+      if (error) {
+        throw new Error(`Failed to bulk create products: ${error.message}`);
+      }
+
+      return (data?.length as number) || 0;
+    } catch (error) {
+      console.error('Error in bulkCreateProducts:', error);
+      throw error;
+    }
+  }
 }
 
 export const listingsService = new ListingsService();

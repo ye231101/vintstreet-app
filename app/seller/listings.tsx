@@ -5,9 +5,11 @@ import { blurhash } from '@/utils';
 import { showErrorToast, showInfoToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import * as FileSystem from 'expo-file-system';
+import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ListingsScreen() {
@@ -16,6 +18,7 @@ export default function ListingsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('published');
   const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
   const { user } = useAuth();
 
   const tabs = [
@@ -49,6 +52,200 @@ export default function ListingsScreen() {
       setError(err instanceof Error ? err.message : 'Error loading products');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const parseCSV = (csv: string): Array<Record<string, string>> => {
+    const lines = csv.split(/\r?\n/).filter((l) => l.trim().length > 0);
+    if (lines.length === 0) return [];
+    const headers = (() => {
+      const row = lines[0];
+      const fields: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < row.length; i++) {
+        const ch = row[i];
+        if (ch === '"') {
+          if (inQuotes && row[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          fields.push(current.trim());
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      fields.push(current.trim());
+      return fields.map((h) => h.replace(/^"|"$/g, ''));
+    })();
+
+    const rows: Array<Record<string, string>> = [];
+    for (let li = 1; li < lines.length; li++) {
+      const row = lines[li];
+      const cols: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < row.length; i++) {
+        const ch = row[i];
+        if (ch === '"') {
+          if (inQuotes && row[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          cols.push(current);
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      cols.push(current);
+      if (cols.every((c) => c.trim() === '')) continue;
+      const record: Record<string, string> = {};
+      for (let i = 0; i < headers.length; i++) {
+        const key = headers[i];
+        const val = (cols[i] ?? '').trim().replace(/^"|"$/g, '');
+        record[key] = val;
+      }
+      rows.push(record);
+    }
+    return rows;
+  };
+
+  const handleBulkUpload = async () => {
+    try {
+      if (!user?.id) {
+        showErrorToast('Please sign in to bulk upload');
+        return;
+      }
+      setIsBulkUploading(true);
+      const csvMimeTypes = [
+        'text/csv',
+        'application/csv',
+        'text/comma-separated-values',
+        'application/vnd.ms-excel',
+        'application/octet-stream',
+        '*/*',
+      ];
+      const res = await DocumentPicker.getDocumentAsync({ type: csvMimeTypes as any, copyToCacheDirectory: true, multiple: false });
+      if (res.canceled || !res.assets || res.assets.length === 0) {
+        return;
+      }
+      const asset = res.assets[0];
+      const fileUri = asset.uri;
+      const mime = asset.mimeType || '';
+      const name = asset.name || '';
+
+      const looksCsv =
+        name.toLowerCase().endsWith('.csv') ||
+        /csv|comma\-separated\-values|vnd\.ms\-excel/i.test(mime || '');
+      if (!looksCsv) {
+        showErrorToast('Please select a CSV file');
+        return;
+      }
+
+      const readCsvContent = async (): Promise<string> => {
+        try {
+          if (Platform.OS === 'web') {
+            const resp = await fetch(fileUri);
+            return await resp.text();
+          }
+          // Try expo-file-system first
+          return await FileSystem.readAsStringAsync(fileUri);
+        } catch (_) {
+          try {
+            // Fallback for content:// URIs and others
+            const resp = await fetch(fileUri as any);
+            return await resp.text();
+          } catch (err) {
+            throw err;
+          }
+        }
+      };
+
+      const content = await readCsvContent();
+      const rows = parseCSV(content);
+      if (rows.length === 0) {
+        showErrorToast('No rows found in CSV');
+        return;
+      }
+
+      const normalized = rows.map((r) => {
+        const collectImageUrls = (): string[] => {
+          const candidates: string[] = [];
+          const pushSplit = (val?: string) => {
+            if (!val) return;
+            val
+              .split(/[,;\s]+/)
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+              .forEach((u) => candidates.push(u));
+          };
+
+          // Common CSV columns
+          pushSplit(r.product_image);
+          pushSplit(r.image_url);
+          pushSplit(r.image);
+          pushSplit(r.images);
+          pushSplit(r.image_urls);
+
+          // image1..image10 style
+          for (let i = 1; i <= 10; i++) {
+            const key = `image${i}` as keyof typeof r;
+            const v = (r as any)[key];
+            pushSplit(v);
+          }
+
+          // Deduplicate while preserving order
+          const seen = new Set<string>();
+          const unique = candidates.filter((u) => {
+            if (seen.has(u)) return false;
+            seen.add(u);
+            return true;
+          });
+          return unique;
+        };
+
+        const imageUrls = collectImageUrls();
+        const primaryImage = imageUrls.length > 0 ? imageUrls[0] : null;
+
+        return {
+          product_name: r.product_name || r.name || '',
+          product_description: r.product_description || r.description || null,
+          starting_price: r.starting_price ? Number(r.starting_price) : r.price ? Number(r.price) : null,
+          discounted_price: r.discounted_price ? Number(r.discounted_price) : null,
+          stock_quantity: r.stock_quantity ? Number(r.stock_quantity) : null,
+          category_id: r.category_id || null,
+          subcategory_id: r.subcategory_id || null,
+          sub_subcategory_id: r.sub_subcategory_id || null,
+          sub_sub_subcategory_id: r.sub_sub_subcategory_id || null,
+          brand_id: r.brand_id || null,
+          status: (r.status as any) || 'draft',
+          product_image: primaryImage,
+          product_images: imageUrls.length > 0 ? imageUrls : null,
+        } as any;
+      });
+
+      const valid = normalized.filter((n) => n.product_name && (n.starting_price === null || !Number.isNaN(n.starting_price)));
+      if (valid.length === 0) {
+        showErrorToast('CSV has no valid rows');
+        return;
+      }
+
+      const createdCount = await listingsService.bulkCreateProducts(user.id, valid as any);
+      showSuccessToast(`Created ${createdCount} products`);
+      await loadProducts();
+    } catch (e) {
+      console.error(e);
+      showErrorToast('Bulk upload failed');
+    } finally {
+      setIsBulkUploading(false);
     }
   };
 
@@ -283,13 +480,18 @@ export default function ListingsScreen() {
 
             {/* Bulk Upload Button */}
             <TouchableOpacity
-              onPress={() => {
-                showInfoToast('Bulk upload functionality coming soon');
-              }}
+              onPress={handleBulkUpload}
+              disabled={isBulkUploading}
               className="bg-gray-200 border border-gray-300 rounded-lg py-3 px-4 flex-row items-center justify-center flex-1 shadow-sm"
             >
-              <Feather name="upload" color="#333" size={16} className="mr-2" />
-              <Text className="text-gray-900 text-sm font-inter-medium">Bulk Upload</Text>
+              {isBulkUploading ? (
+                <ActivityIndicator size="small" color="#333" />
+              ) : (
+                <>
+                  <Feather name="upload" color="#333" size={16} className="mr-2" />
+                  <Text className="text-gray-900 text-sm font-inter-medium">Bulk Upload</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
 
