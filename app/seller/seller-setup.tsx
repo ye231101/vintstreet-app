@@ -1,18 +1,18 @@
-import { authService } from '@/api';
+import { authService, sellerService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -92,15 +92,20 @@ export default function SellerSetupScreen() {
       // Update user type to seller or both
       const newUserType = user.user_type === 'buyer' ? 'both' : 'seller';
 
-      // Update profile using auth service
+      // 1) Update user_type on profiles table
       const { error: profileError, success } = await authService.updateProfile({
         user_type: newUserType,
-        shop_name: shopName.trim(),
       });
 
       if (!success || profileError) {
         throw new Error(`Failed to update profile: ${profileError || 'Unknown error'}`);
       }
+
+      // 2) Save shop_name on seller_profiles table
+      await sellerService.saveSellerProfile(user.id, {
+        shop_name: shopName.trim(),
+        updated_at: new Date().toISOString(),
+      });
 
       // Store seller preferences in user metadata (optional)
       try {
@@ -112,9 +117,6 @@ export default function SellerSetupScreen() {
           },
           shop_name: shopName.trim(),
         };
-
-        // Store in local storage or could be added to profiles as jsonb
-        console.log('Seller preferences:', sellerPreferences);
       } catch (err) {
         console.log('Could not store preferences:', err);
       }
@@ -228,9 +230,7 @@ export default function SellerSetupScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-inter-bold text-black mb-1">Upload listings</Text>
-                <Text className="text-sm font-inter text-gray-600">
-                  Create product listings to sell anytime
-                </Text>
+                <Text className="text-sm font-inter text-gray-600">Create product listings to sell anytime</Text>
               </View>
             </View>
           </Pressable>
@@ -249,9 +249,7 @@ export default function SellerSetupScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-inter-bold text-black mb-1">Livestream</Text>
-                <Text className="text-sm font-inter text-gray-600">
-                  Sell live and engage with buyers in real-time
-                </Text>
+                <Text className="text-sm font-inter text-gray-600">Sell live and engage with buyers in real-time</Text>
               </View>
             </View>
           </Pressable>
@@ -274,9 +272,7 @@ export default function SellerSetupScreen() {
     <View className="flex-1 p-4">
       <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">Your shop name</Text>
-        <Text className="text-sm font-inter text-gray-600 text-center">
-          Choose a memorable name for your shop
-        </Text>
+        <Text className="text-sm font-inter text-gray-600 text-center">Choose a memorable name for your shop</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>

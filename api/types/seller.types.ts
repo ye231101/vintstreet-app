@@ -18,6 +18,8 @@ export interface DashboardReports {
 export interface SellerSettings {
   storeName: string;
   fullName: string;
+  displayName: string;
+  displayNameFormat: 'shop_name' | 'personal_name';
   rating: {
     rating: number;
     count: number;
