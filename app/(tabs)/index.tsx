@@ -113,7 +113,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-12 bg-black">
+    <SafeAreaView className="flex-1 mb-14 bg-white">
       {/* Search Bar */}
       <SearchBar value={searchKeyword} onChangeText={(text) => setSearchKeyword(text)} onSearch={handleSearch} />
 
@@ -122,7 +122,7 @@ export default function HomeScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1 gap-6 py-4 bg-gray-50">
+        <View className="flex-1 gap-6 py-4">
           {/* Quick Links Section */}
           <View className="px-2">
             <Text className="text-sm font-inter-bold text-black mb-3">QUICK LINKS</Text>
@@ -130,13 +130,13 @@ export default function HomeScreen() {
           </View>
 
           {/* Top Categories Section */}
-          <View className="pl-2">
+          <View className="px-2">
             <Text className="text-sm font-inter-bold text-black mb-3">TOP CATEGORIES</Text>
             <TopCategory />
           </View>
 
           {/* Brands Section */}
-          <View className="pl-2">
+          <View className="px-2">
             <Text className="text-sm font-inter-bold text-black mb-3">BRANDS YOU MAY LIKE</Text>
             <Brand />
           </View>
@@ -151,10 +151,10 @@ export default function HomeScreen() {
                 <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading products...</Text>
               </View>
             ) : error ? (
-              <View className="flex-1 justify-center items-center p-4">
+              <View className="flex-1 items-center justify-center p-4">
                 <Feather name="alert-circle" color="#ff4444" size={64} />
                 <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading products</Text>
-                <TouchableOpacity onPress={() => fetchProducts()} className="bg-black rounded-lg py-3 px-6">
+                <TouchableOpacity onPress={() => fetchProducts()} className="px-6 py-3 rounded-lg bg-black">
                   <Text className="text-base font-inter-bold text-white">Retry</Text>
                 </TouchableOpacity>
               </View>
@@ -165,7 +165,7 @@ export default function HomeScreen() {
                     <ProductCard key={item.id} product={item} onPress={() => router.push(`/product/${item.id}`)} />
                   ))
                 ) : (
-                  <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+                  <View className="flex-1 items-center justify-center p-4">
                     <Feather name="shopping-bag" color="#999" size={64} />
                     <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-900">No products found</Text>
                     <TouchableOpacity onPress={() => fetchProducts()} className="bg-black rounded-lg py-3 px-6">
@@ -178,14 +178,14 @@ export default function HomeScreen() {
 
             {/* Pagination Controls - Always visible */}
             {totalPages > 1 && (
-              <View className="mt-6 mb-4">
+              <View className="mt-4">
                 {/* Pagination Buttons */}
-                <View className="flex-row justify-center items-center gap-3">
+                <View className="flex-row items-center justify-center gap-3">
                   {/* Prev Arrow */}
                   <TouchableOpacity
                     onPress={goToPrevPage}
                     disabled={currentPage === 1 || isLoading}
-                    className="px-3 py-2"
+                    className="px-4 py-2"
                   >
                     <Text className={`${currentPage === 1 || isLoading ? 'text-gray-400' : 'text-black'}`}>
                       <Feather name="chevron-left" size={24} color="black" />
@@ -212,7 +212,7 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={goToNextPage}
                     disabled={currentPage === totalPages || isLoading}
-                    className="px-3 py-2"
+                    className="px-4 py-2"
                   >
                     <Text className={`${currentPage === totalPages || isLoading ? 'text-gray-400' : 'text-black'}`}>
                       <Feather name="chevron-right" size={24} color="black" />

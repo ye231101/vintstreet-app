@@ -133,7 +133,7 @@ export default function MyOffersScreen() {
     const productImage = offer.listings?.product_image;
 
     return (
-      <View className="bg-white rounded-xl mb-4 p-4 shadow-sm">
+      <View className="bg-white rounded-lg mb-4 p-4 shadow-lg">
         <View className="flex-row mb-3">
           {/* Product Image */}
           <View className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 mr-3">
@@ -218,17 +218,17 @@ export default function MyOffersScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Offers</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">My Offers</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1">
         <View className="border-b border-gray-200">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {tabs.map((tab) => {
@@ -237,7 +237,7 @@ export default function MyOffersScreen() {
                 <TouchableOpacity
                   key={tab.key}
                   onPress={() => setActiveTab(tab.key)}
-                  className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-black' : 'border-transparent'}`}
+                  className={`py-3 px-4 border-b-2 ${activeTab === tab.key ? 'border-black' : 'border-transparent'}`}
                 >
                   <Text
                     className={`text-base font-inter-semibold ${
@@ -253,12 +253,12 @@ export default function MyOffersScreen() {
         </View>
 
         {isLoading ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
             <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your offers...</Text>
           </View>
         ) : error ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="alert-circle" color="#ff4444" size={64} />
             <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading offers</Text>
             <TouchableOpacity onPress={loadOffers} className="bg-black rounded-lg py-3 px-6">
@@ -268,7 +268,7 @@ export default function MyOffersScreen() {
         ) : getFilteredOffers().length > 0 ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOffers} tintColor="#007AFF" />}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOffers} />}
             contentContainerStyle={{ flexGrow: 1 }}
             className="p-4"
           >
@@ -277,8 +277,8 @@ export default function MyOffersScreen() {
             ))}
           </ScrollView>
         ) : (
-          <View className="flex-1 justify-center items-center p-4">
-            <Feather name="shopping-bag" color="#666" size={64} />
+          <View className="flex-1 items-center justify-center p-4">
+            <Feather name="tag" color="#666" size={64} />
             <Text className="text-gray-900 text-lg font-inter-bold mt-4">No offers found</Text>
           </View>
         )}

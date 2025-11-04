@@ -66,7 +66,7 @@ export default function AddressesScreen() {
   };
 
   const AddressCard = ({ address }: { address: SavedAddress }) => (
-    <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+    <View className="bg-white rounded-lg p-4 mb-4 shadow-lg">
       {/* Header with Label and Default Badge */}
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center flex-1">
@@ -120,17 +120,17 @@ export default function AddressesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Addresses</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-black">My Addresses</Text>
         </View>
 
-        <View className="flex-1 bg-gray-50">
-          <View className="flex-1 justify-center items-center p-4">
+        <View className="flex-1">
+          <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
             <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading addresses...</Text>
           </View>
@@ -140,23 +140,23 @@ export default function AddressesScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
-        <Text className="ml-4 text-lg font-inter-bold text-white">My Addresses</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">My Addresses</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 p-4 bg-gray-50">
+        <View className="flex-1 p-4">
           {/* Info Text */}
           <Text className="text-gray-600 text-sm font-inter mb-4">Manage your saved shipping addresses</Text>
 
           {/* Address List */}
           {addresses.length === 0 ? (
-            <View className="bg-white rounded-xl p-8 shadow-sm items-center">
+            <View className="bg-white rounded-lg p-8 shadow-lg items-center">
               <View className="bg-gray-100 rounded-full p-6 mb-4">
                 <Feather name="home" color="#666" size={48} />
               </View>
@@ -178,7 +178,7 @@ export default function AddressesScreen() {
               {/* Add New Address Button */}
               <TouchableOpacity
                 onPress={addAddress}
-                className="bg-black rounded-xl p-4 shadow-sm flex-row items-center justify-center"
+                className="bg-black rounded-lg p-4 shadow-lg flex-row items-center justify-center"
               >
                 <Feather name="plus" size={20} color="#fff" />
                 <Text className="ml-2 text-white text-base font-inter-bold">Add New Address</Text>

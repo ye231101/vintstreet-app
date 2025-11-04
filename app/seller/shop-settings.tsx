@@ -1,19 +1,19 @@
 import { authService, sellerService } from '@/api';
+import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -165,16 +165,16 @@ export default function ShopSettingsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Shop Settings</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-black">Shop Settings</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your shop settings...</Text>
         </View>
@@ -183,309 +183,262 @@ export default function ShopSettingsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 gap-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 text-lg font-inter-bold text-white">Shop Settings</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">Shop Settings</Text>
 
         <Pressable onPress={handleViewShop} className="flex-row items-center">
-          <Feather name="eye" size={16} color="#fff" />
-          <Text className="ml-2 text-sm font-inter-semibold text-white">View Shop</Text>
+          <Feather name="eye" size={16} color="#000" />
+          <Text className="ml-2 text-sm font-inter-semibold text-black">View Shop</Text>
         </Pressable>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-          className="flex-1 p-4 gap-4 bg-gray-50"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        className="flex-1"
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
         >
-          {/* Business Information */}
-          <View className="p-4 gap-4 rounded-lg bg-white">
-            <View className="flex-row items-center gap-2">
-              <Feather name="briefcase" size={20} color="#000" />
-              <Text className="text-lg font-inter-bold text-black">Business Information</Text>
-            </View>
-
-            {/* Shop Name and Business Name */}
-            <View className="flex-row gap-4">
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">
-                  Shop Name <Text className="text-red-500">*</Text>
-                </Text>
-                <TextInput
-                  value={shopName}
-                  onChangeText={setShopName}
-                  placeholder="Shop name"
-                  placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
-
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Business Name</Text>
-                <TextInput
-                  value={businessName}
-                  onChangeText={setBusinessName}
-                  placeholder="Business name"
-                  placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
-            </View>
-
-            {/* Shop Tagline */}
-            <View>
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Shop Tagline</Text>
-              <TextInput
-                value={shopTagline}
-                onChangeText={setShopTagline}
-                placeholder="A catchy one-liner for your shop"
-                placeholderTextColor="#9CA3AF"
-                maxLength={100}
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-              />
-              <Text className="mt-1 text-xs font-inter-semibold text-gray-500 text-right">
-                {shopTagline.length}/100 characters
-              </Text>
-            </View>
-
-            {/* Shop Description */}
-            <View>
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Shop Description</Text>
-              <TextInput
-                value={shopDescription}
-                onChangeText={setShopDescription}
-                placeholder="Tell customers about your shop..."
-                placeholderTextColor="#9CA3AF"
-                multiline
-                numberOfLines={5}
-                maxLength={1000}
-                textAlignVertical="top"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-                style={{ height: 100 }}
-              />
-              <Text className="mt-1 text-xs font-inter-semibold text-gray-500 text-right">
-                {shopDescription.length}/1000 characters
-              </Text>
-            </View>
-
-            {/* Display Name Preference */}
-            <View className="gap-2">
+          <View className="gap-4 p-4">
+            {/* Business Information */}
+            <View className="gap-2 p-4 rounded-lg bg-white shadow-lg">
               <View className="flex-row items-center gap-2">
-                <Feather name="user" size={16} color="#000" />
-                <Text className="text-sm font-inter-semibold text-black">Display Name Preference</Text>
+                <Feather name="briefcase" size={20} color="#000" />
+                <Text className="text-lg font-inter-bold text-black">Business Information</Text>
               </View>
 
-              <Pressable
-                onPress={() => setDisplayNamePreference('shop_name')}
-                className="flex-row items-center px-4 py-3 bg-white border border-gray-200 rounded-lg"
-              >
-                <View
-                  className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
-                    displayNamePreference === 'shop_name' ? 'border-black' : 'border-gray-300'
-                  }`}
-                >
-                  {displayNamePreference === 'shop_name' && <View className="w-3 h-3 bg-black rounded-full" />}
+              {/* Shop Name and Business Name */}
+              <View className="flex-row gap-2">
+                <View className="flex-1">
+                  <InputComponent
+                    value={shopName}
+                    label="Shop Name"
+                    size="small"
+                    required={true}
+                    placeholder="Enter shop name"
+                    onChangeText={(text) => setShopName(text)}
+                  />
                 </View>
-                <View className="flex-1 ml-3">
-                  <Text className="text-base font-inter-semibold text-black">{getShopNamePreview()}</Text>
-                  <Text className="text-xs font-inter text-gray-500">
-                    Show shop name on product and seller pages
-                  </Text>
-                </View>
-              </Pressable>
 
-              <Pressable
-                onPress={() => setDisplayNamePreference('personal_name')}
-                className="flex-row items-center px-4 py-3 bg-white border border-gray-200 rounded-lg"
-              >
-                <View
-                  className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
-                    displayNamePreference === 'personal_name' ? 'border-black' : 'border-gray-300'
-                  }`}
-                >
-                  {displayNamePreference === 'personal_name' && <View className="w-3 h-3 bg-black rounded-full" />}
+                <View className="flex-1">
+                  <InputComponent
+                    value={businessName}
+                    label="Business Name"
+                    size="small"
+                    placeholder="Enter business name"
+                    onChangeText={(text) => setBusinessName(text)}
+                  />
                 </View>
-                <View className="flex-1 ml-3">
-                  <Text className="text-base font-inter-semibold text-black">{getPersonalNamePreview()}</Text>
-                  <Text className="text-xs font-inter text-gray-500">Show first name and surname initial</Text>
-                </View>
-              </Pressable>
-            </View>
+              </View>
 
-            {/* Tax ID and Business License */}
-            <View className="flex-1">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Tax ID (Optional)</Text>
-              <TextInput
+              {/* Shop Tagline */}
+              <InputComponent
+                value={shopTagline}
+                label="Shop Tagline"
+                size="small"
+                placeholder="A catchy one-liner for your shop"
+                onChangeText={(text) => setShopTagline(text)}
+                maxLength={100}
+              />
+
+              {/* Shop Description */}
+              <InputComponent
+                value={shopDescription}
+                label="Shop Description"
+                size="small"
+                placeholder="Tell customers about your shop..."
+                onChangeText={(text) => setShopDescription(text)}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                height={100}
+                maxLength={1000}
+              />
+
+              {/* Display Name Preference */}
+              <View className="gap-2">
+                <View className="flex-row items-center gap-2">
+                  <Feather name="user" size={16} color="#000" />
+                  <Text className="text-sm font-inter-semibold text-black">Display Name Preference</Text>
+                </View>
+
+                <Pressable
+                  onPress={() => setDisplayNamePreference('shop_name')}
+                  className="flex-row items-center gap-3 p-3 rounded bg-white border border-gray-200"
+                >
+                  <View
+                    className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+                      displayNamePreference === 'shop_name' ? 'border-black' : 'border-gray-300'
+                    }`}
+                  >
+                    {displayNamePreference === 'shop_name' && <View className="w-3 h-3 bg-black rounded-full" />}
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-inter-semibold text-black">{getShopNamePreview()}</Text>
+                    <Text className="text-xs font-inter text-gray-500">Show shop name on product and seller pages</Text>
+                  </View>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setDisplayNamePreference('personal_name')}
+                  className="flex-row items-center gap-3 p-3 rounded bg-white border border-gray-200"
+                >
+                  <View
+                    className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+                      displayNamePreference === 'personal_name' ? 'border-black' : 'border-gray-300'
+                    }`}
+                  >
+                    {displayNamePreference === 'personal_name' && <View className="w-3 h-3 bg-black rounded-full" />}
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-inter-semibold text-black">{getPersonalNamePreview()}</Text>
+                    <Text className="text-xs font-inter text-gray-500">Show first name and surname initial</Text>
+                  </View>
+                </Pressable>
+              </View>
+
+              {/* Tax ID and Business License */}
+              <InputComponent
                 value={taxId}
-                onChangeText={setTaxId}
+                label="Tax ID (Optional)"
+                size="small"
                 placeholder="Tax identification number"
-                placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
+                onChangeText={(text) => setTaxId(text)}
               />
-            </View>
 
-            <View className="flex-1">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Business License (Optional)</Text>
-              <TextInput
+              <InputComponent
                 value={businessLicense}
-                onChangeText={setBusinessLicense}
+                label="Business License (Optional)"
+                size="small"
                 placeholder="Business license number"
-                placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
+                onChangeText={(text) => setBusinessLicense(text)}
               />
             </View>
-          </View>
 
-          {/* Contact Information */}
-          <View className="p-4 gap-4 rounded-lg bg-white">
-            <View className="flex-row items-center gap-2">
-              <Feather name="mail" size={20} color="#000" />
-              <Text className="text-lg font-inter-bold text-black">Contact Information</Text>
-            </View>
+            {/* Contact Information */}
+            <View className="gap-2 p-4 rounded-lg bg-white shadow-lg">
+              <View className="flex-row items-center gap-2">
+                <Feather name="mail" size={20} color="#000" />
+                <Text className="text-lg font-inter-bold text-black">Contact Information</Text>
+              </View>
 
-            <View className="flex-1">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Email</Text>
-              <TextInput
+              <InputComponent
                 value={contactEmail}
-                onChangeText={setContactEmail}
+                label="Contact Email"
+                size="small"
                 placeholder="customer@yourshop.com"
-                placeholderTextColor="#9CA3AF"
+                onChangeText={(text) => setContactEmail(text)}
                 keyboardType="email-address"
-                autoCapitalize="none"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
-            </View>
 
-            <View className="flex-1">
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Contact Phone</Text>
-              <TextInput
+              <InputComponent
                 value={contactPhone}
-                onChangeText={setContactPhone}
+                label="Contact Phone"
+                size="small"
                 placeholder="+1 (555) 123-4567"
-                placeholderTextColor="#9CA3AF"
+                onChangeText={(text) => setContactPhone(text)}
                 keyboardType="phone-pad"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
               />
             </View>
-          </View>
 
-          {/* Return Address */}
-          <View className="p-4 gap-4 rounded-lg bg-white">
-            <View className="flex-row items-center gap-2">
-              <Feather name="map-pin" size={20} color="#000" />
-              <Text className="text-lg font-inter-bold text-black">Return Address</Text>
-            </View>
+            {/* Return Address */}
+            <View className="gap-2 p-4 rounded-lg bg-white shadow-lg">
+              <View className="flex-row items-center gap-2">
+                <Feather name="map-pin" size={20} color="#000" />
+                <Text className="text-lg font-inter-bold text-black">Return Address</Text>
+              </View>
 
-            <View>
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Address Line 1</Text>
-              <TextInput
+              <InputComponent
                 value={returnAddressLine1}
-                onChangeText={setReturnAddressLine1}
+                label="Address Line 1"
+                size="small"
                 placeholder="Street address"
-                placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
+                onChangeText={(text) => setReturnAddressLine1(text)}
               />
-            </View>
 
-            <View>
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Address Line 2 (Optional)</Text>
-              <TextInput
+              <InputComponent
                 value={returnAddressLine2}
-                onChangeText={setReturnAddressLine2}
+                label="Address Line 2 (Optional)"
+                size="small"
                 placeholder="Apartment, suite, etc."
-                placeholderTextColor="#9CA3AF"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
+                onChangeText={(text) => setReturnAddressLine2(text)}
+              />
+
+              <InputComponent
+                value={returnCity}
+                label="City"
+                size="small"
+                placeholder="City"
+                onChangeText={(text) => setReturnCity(text)}
+              />
+
+              <InputComponent
+                value={returnState}
+                label="State"
+                size="small"
+                placeholder="State"
+                onChangeText={(text) => setReturnState(text)}
+              />
+
+              <InputComponent
+                value={returnPostalCode}
+                label="ZIP Code"
+                size="small"
+                placeholder="ZIP code"
+                onChangeText={(text) => setReturnPostalCode(text)}
               />
             </View>
 
-            <View className="flex-row gap-2">
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">City</Text>
-                <TextInput
-                  value={returnCity}
-                  onChangeText={setReturnCity}
-                  placeholder="City"
-                  placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-                />
+            {/* Policies */}
+            <View className="gap-2 p-4 rounded-lg bg-white shadow-lg">
+              <View className="flex-row items-center gap-2">
+                <Feather name="file-text" size={20} color="#000" />
+                <Text className="text-lg font-inter-bold text-black">Policies</Text>
               </View>
 
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">State</Text>
-                <TextInput
-                  value={returnState}
-                  onChangeText={setReturnState}
-                  placeholder="State"
-                  placeholderTextColor="#9CA3AF"
-                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
-
-              <View className="flex-1">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">ZIP Code</Text>
-                <TextInput
-                  value={returnPostalCode}
-                  onChangeText={setReturnPostalCode}
-                  placeholder="ZIP code"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="number-pad"
-                  className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Policies */}
-          <View className="p-4 gap-4 rounded-lg bg-white">
-            <View className="flex-row items-center gap-2">
-              <Feather name="file-text" size={20} color="#000" />
-              <Text className="text-lg font-inter-bold text-black">Policies</Text>
-            </View>
-
-            <View>
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Shipping Policy</Text>
-              <TextInput
+              <InputComponent
                 value={shippingPolicy}
-                onChangeText={setShippingPolicy}
+                label="Shipping Policy"
+                size="small"
                 placeholder="Describe your shipping policies, delivery times, costs..."
-                placeholderTextColor="#9CA3AF"
+                onChangeText={(text) => setShippingPolicy(text)}
                 multiline
-                numberOfLines={5}
+                numberOfLines={4}
                 textAlignVertical="top"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
-                style={{ height: 100 }}
+                height={100}
               />
-            </View>
 
-            <View>
-              <Text className="mb-2 text-sm font-inter-semibold text-black">Return Policy</Text>
-              <TextInput
+              <InputComponent
                 value={returnPolicy}
-                onChangeText={setReturnPolicy}
+                label="Return Policy"
+                size="small"
                 placeholder="Describe your return and refund policies..."
-                placeholderTextColor="#9CA3AF"
+                onChangeText={(text) => setReturnPolicy(text)}
                 multiline
-                numberOfLines={5}
+                numberOfLines={4}
                 textAlignVertical="top"
-                className="px-4 py-3 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
+                height={100}
               />
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Save Button */}
-      <View className="p-4 bg-white border-t border-gray-200">
+      <View className="p-4">
         <Pressable
           onPress={handleSaveProfile}
           disabled={loading}
-          className={`py-4 rounded-xl ${loading ? 'bg-gray-400' : 'bg-black'}`}
+          className={`py-4 rounded-lg ${loading ? 'bg-gray-400' : 'bg-black'}`}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />

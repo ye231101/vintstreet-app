@@ -18,13 +18,6 @@ export default function OtherLayout() {
         }}
       />
       <Stack.Screen
-        name="payment-setup"
-        options={{
-          title: 'Payment Setup',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
         name="orders"
         options={{
           title: 'My Orders',
@@ -42,13 +35,6 @@ export default function OtherLayout() {
         name="wishlist"
         options={{
           title: 'My Wishlist',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="payment-methods"
-        options={{
-          title: 'Payment Methods',
           headerShown: false,
         }}
       />

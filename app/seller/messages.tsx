@@ -90,20 +90,20 @@ export default function MessagesScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Messages</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">My Messages</Text>
       </View>
 
       {/* Messages Content */}
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1">
         {/* Search Bar */}
-        <View className="px-4 py-3 bg-white border-b border-gray-200">
-          <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-2">
+        <View className="px-4 py-2 bg-white border-b border-gray-200">
+          <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-1">
             <Feather name="search" size={20} color="#666" />
             <TextInput
               className="flex-1 ml-2 bg-transparent text-base font-inter text-black"
@@ -116,12 +116,12 @@ export default function MessagesScreen() {
         </View>
 
         {isLoading ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
             <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading messages...</Text>
           </View>
         ) : error ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="alert-circle" color="#ff4444" size={64} />
             <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading messages</Text>
             <TouchableOpacity onPress={loadConversations} className="bg-black rounded-lg py-3 px-6">
@@ -129,7 +129,7 @@ export default function MessagesScreen() {
             </TouchableOpacity>
           </View>
         ) : conversations.length === 0 ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="inbox" size={64} color="#ccc" />
             <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-600">No messages yet</Text>
             <Text className="text-sm font-inter-semibold text-center text-gray-400">
@@ -137,7 +137,7 @@ export default function MessagesScreen() {
             </Text>
           </View>
         ) : filteredConversations.length === 0 ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="search" size={64} color="#ccc" />
             <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-600">No results found</Text>
             <Text className="text-sm font-inter-semibold text-center text-gray-400">
@@ -147,9 +147,7 @@ export default function MessagesScreen() {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} tintColor="#000" />
-            }
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             contentContainerStyle={{ flexGrow: 1 }}
           >
             {/* Table Header */}
@@ -196,9 +194,7 @@ export default function MessagesScreen() {
                   <Text className="text-sm font-inter-semibold text-gray-700" numberOfLines={1}>
                     {conversation.subject || 'No subject'}
                   </Text>
-                  <Text className="text-xs font-inter text-gray-500">
-                    {formatTime(conversation.last_message_time)}
-                  </Text>
+                  <Text className="text-xs font-inter text-gray-500">{formatTime(conversation.last_message_time)}</Text>
                 </View>
 
                 {/* Status */}

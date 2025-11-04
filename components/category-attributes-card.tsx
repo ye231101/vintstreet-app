@@ -49,8 +49,8 @@ export const CategoryAttributesCard: React.FC<CategoryAttributesCardProps> = ({
   onAttributeChange,
 }) => {
   return (
-    <View className="bg-white rounded-lg p-4 mb-4">
-      <Text className="text-lg font-inter-bold text-black mb-4">Category & Attributes</Text>
+    <View className="w-full gap-4 p-4 rounded-lg bg-white shadow-lg">
+      <Text className="text-lg font-inter-bold text-black">Category & Attributes</Text>
 
       <CategorySelectionForm
         selectedCategoryId={selectedCategoryId}

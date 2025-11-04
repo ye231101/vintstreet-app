@@ -53,42 +53,51 @@ const topCategories: TopCategory[] = [
   },
 ];
 
-const TopCategoryCard = ({ category }: { category: TopCategory }) => (
-  <Pressable
-    onPress={() => router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as any)}
-    className="relative mr-2 overflow-hidden rounded-lg border border-gray-200"
-    style={{
-      width: screenWidth / 2,
-      height: (screenWidth / 2) * (9 / 16),
-    }}
-  >
-    <Image source={category.image} contentFit="cover" transition={1000} style={{ width: '100%', height: '100%' }} />
-    {/* 3-step gradient overlay */}
-    <View className="absolute inset-0 bg-transparent">
-      <LinearGradient
-        colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0)']}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        locations={[0.0, 0.5, 0.8]}
-        className="absolute inset-0"
-      />
-    </View>
-    {/* Title with arrow */}
-    <View className="absolute left-3 right-3 bottom-3 flex-row items-center justify-between">
-      <Text className="text-base font-inter-bold text-white" numberOfLines={1}>
-        {category.title}
-      </Text>
-      <Feather name="chevron-right" size={16} color="white" />
-    </View>
-  </Pressable>
-);
+const TopCategoryCard = ({ category }: { category: TopCategory }) => {
+  const handlePress = () => {
+    // Navigate to discovery screen with category filter
+    router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as any);
+  };
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      className="relative overflow-hidden rounded-lg bg-white border border-gray-200"
+      style={{
+        width: screenWidth / 2,
+        height: (screenWidth / 2) * (9 / 16),
+      }}
+    >
+      <Image source={category.image} contentFit="cover" transition={1000} style={{ width: '100%', height: '100%' }} />
+      {/* 3-step gradient overlay */}
+      <View className="absolute inset-0 bg-transparent">
+        <LinearGradient
+          colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0)']}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 0, y: 0 }}
+          locations={[0.0, 0.5, 0.8]}
+          className="absolute inset-0"
+        />
+      </View>
+      {/* Title with arrow */}
+      <View className="absolute left-3 right-3 bottom-3 flex-row items-center justify-between">
+        <Text className="text-base font-inter-bold text-white" numberOfLines={1}>
+          {category.title}
+        </Text>
+        <Feather name="chevron-right" size={16} color="white" />
+      </View>
+    </Pressable>
+  );
+};
 
 export default function TopCategory() {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      {topCategories.map((category) => (
-        <TopCategoryCard key={category.id} category={category} />
-      ))}
+      <View className="flex-row gap-2">
+        {topCategories.map((category) => (
+          <TopCategoryCard key={category.id} category={category} />
+        ))}
+      </View>
     </ScrollView>
   );
 }

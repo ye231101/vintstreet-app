@@ -24,7 +24,7 @@ import '../global.css';
 
 import { authService } from '@/api';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useNotifications } from '@/hooks/use-notifications';
+// import { useNotifications } from '@/hooks/use-notifications';
 import { ReduxProvider } from '@/providers/redux-provider';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { handleAuthStateChange, initializeAuth } from '@/store/slices/authSlice';
@@ -47,9 +47,9 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
   const { isAuthenticated, isInitialized } = useAppSelector((state) => state.auth);
   const appState = useRef(AppState.currentState);
-  
+
   // Initialize push notifications only when authenticated
-  useNotifications(isAuthenticated);
+  // useNotifications(isAuthenticated);
 
   useEffect(() => {
     // Initialize authentication on app start

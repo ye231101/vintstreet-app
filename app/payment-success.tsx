@@ -52,7 +52,7 @@ export default function PaymentSuccessScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
+      <SafeAreaView className="flex-1 bg-gray-50 items-center justify-center">
         <ActivityIndicator size="large" color="#000" />
         <Text className="text-lg font-inter-semibold text-gray-800 mt-4">Verifying Payment...</Text>
         <Text className="text-sm font-inter-regular text-gray-600 mt-2 text-center px-8">
@@ -65,7 +65,7 @@ export default function PaymentSuccessScreen() {
   if (paymentStatus === 'success') {
     return (
       <SafeAreaView className="flex-1 bg-gray-50">
-        <View className="flex-1 justify-center items-center px-6">
+        <View className="flex-1 items-center justify-center px-6">
           <View className="bg-green-100 rounded-full p-6 mb-6">
             <Feather name="check" size={48} color="#10B981" />
           </View>
@@ -96,7 +96,7 @@ export default function PaymentSuccessScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-1 justify-center items-center px-6">
+      <View className="flex-1 items-center justify-center px-6">
         <View className="bg-red-100 rounded-full p-6 mb-6">
           <Feather name="x" size={48} color="#EF4444" />
         </View>

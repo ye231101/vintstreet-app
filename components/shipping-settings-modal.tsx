@@ -1,5 +1,5 @@
 import { ShippingAddress, ShippingProvider, shippingService } from '@/api';
-import { DropdownComponent } from '@/components/common';
+import { DropdownComponent, InputComponent } from '@/components/common';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
@@ -10,9 +10,8 @@ import {
   Modal,
   Pressable,
   Text,
-  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 interface ShippingSettingsModalProps {
@@ -183,7 +182,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
   const renderContent = () => {
     if (!userId) {
       return (
-        <View className="flex-1 justify-center items-center py-12">
+        <View className="flex-1 items-center justify-center py-12">
           <Feather name="user-x" size={48} color="#EF4444" />
           <Text className="text-gray-900 text-lg font-inter-semibold mt-4 mb-2">Authentication Required</Text>
           <Text className="text-gray-600 text-sm font-inter-semibold text-center">
@@ -195,9 +194,9 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
 
     if (isLoading) {
       return (
-        <View className="flex-1 justify-center items-center py-12">
+        <View className="flex-1 items-center justify-center py-12">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="text-gray-600 text-sm font-inter-semibold mt-2">Loading...</Text>
+          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
       );
     }
@@ -232,35 +231,37 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
               <Text className="text-lg font-inter-semibold text-gray-900 mb-4">Shipping From</Text>
 
               <View className="flex-col gap-4">
-                <View className="flex-row gap-4">
+                <View className="flex-row gap-2">
                   <View className="flex-1">
-                    <Text className="text-sm font-inter-semibold text-gray-700 mb-2">City *</Text>
-                    <TextInput
+                    <InputComponent
                       value={addressData.return_city}
-                      onChangeText={(text) => setAddressData((prev) => ({ ...prev, return_city: text }))}
+                      label="City"
+                      size="small"
+                      required={true}
                       placeholder="City"
-                      className="border border-gray-300 rounded-lg px-4 py-3"
-                      maxLength={100}
+                      onChangeText={(text) => setAddressData((prev) => ({ ...prev, return_city: text }))}
                     />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Postcode *</Text>
-                    <TextInput
+                    <InputComponent
                       value={addressData.return_postal_code}
+                      label="Postal Code"
+                      size="small"
+                      required={true}
+                      placeholder="Postal Code"
                       onChangeText={(text) => setAddressData((prev) => ({ ...prev, return_postal_code: text }))}
-                      placeholder="Postcode"
-                      className="border border-gray-300 rounded-lg px-4 py-3"
-                      maxLength={20}
                     />
                   </View>
                 </View>
 
                 <View>
-                  <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Country *</Text>
                   <DropdownComponent
                     data={COUNTRY_OPTIONS}
-                    value={countryValue}
+                    label="Country"
+                    size="small"
+                    required={true}
                     placeholder="Select a country"
+                    value={countryValue}
                     onChange={(item) => setAddressData((prev) => ({ ...prev, return_country: item.value }))}
                   />
                 </View>
@@ -332,23 +333,21 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
 
             <View className="flex-row gap-4">
               <View className="flex-1">
-                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Minimum Days</Text>
-                <TextInput
-                  keyboardType="numeric"
+                <InputComponent
                   value={deliveryTimeframe.min}
-                  onChangeText={(text) => setDeliveryTimeframe((prev) => ({ ...prev, min: text }))}
+                  label="Minimum Days"
+                  size="small"
                   placeholder="1"
-                  className="border border-gray-300 rounded-lg px-4 py-3"
+                  onChangeText={(text) => setDeliveryTimeframe((prev) => ({ ...prev, min: text }))}
                 />
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Maximum Days</Text>
-                <TextInput
-                  keyboardType="numeric"
+                <InputComponent
                   value={deliveryTimeframe.max}
-                  onChangeText={(text) => setDeliveryTimeframe((prev) => ({ ...prev, max: text }))}
+                  label="Maximum Days"
+                  size="small"
                   placeholder="10"
-                  className="border border-gray-300 rounded-lg px-4 py-3"
+                  onChangeText={(text) => setDeliveryTimeframe((prev) => ({ ...prev, max: text }))}
                 />
               </View>
             </View>
@@ -366,7 +365,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
     <Modal visible={isOpen} transparent animationType="slide" onRequestClose={handleClose}>
       <Pressable className="flex-1 bg-black/50">
         <View className="flex-1" />
-        <View className="bg-white w-full rounded-t-3xl" style={{ height: modalHeight }}>
+        <View className="bg-white w-full rounded-t-2xl" style={{ height: modalHeight }}>
           {/* Fixed Header */}
           <View className="p-6 border-b border-gray-200">
             <View className="flex-row items-center justify-between mb-2">

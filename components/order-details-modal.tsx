@@ -147,7 +147,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl max-h-[90%]">
+        <View className="bg-white rounded-t-2xl max-h-[90%]">
           {/* Header */}
           <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-200">
             <View className="flex-1">

@@ -1,5 +1,5 @@
 import { CreateStreamData, storageService, streamsService } from '@/api';
-import { DropdownComponent } from '@/components/common';
+import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -16,7 +16,6 @@ import {
   Platform,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -324,17 +323,17 @@ export default function ScheduleStreamScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">
             {isEditMode ? 'Edit Stream' : 'Schedule Stream'}
           </Text>
         </View>
 
-        <View className="flex-1 justify-center items-center bg-gray-50">
+        <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
@@ -343,13 +342,13 @@ export default function ScheduleStreamScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} disabled={isSaving}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">
           {isEditMode ? 'Edit Stream' : 'Schedule Stream'}
         </Text>
       </View>
@@ -360,66 +359,45 @@ export default function ScheduleStreamScreen() {
         keyboardVerticalOffset={100}
       >
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-          <View className="flex-1 p-4 gap-4 bg-gray-50">
-            <View className="gap-4 p-4 bg-white shadow-sm rounded-lg">
+          <View className="flex-1 p-4 gap-4">
+            <View className="gap-4 p-4 rounded-lg bg-white shadow-lg">
               <View className="flex-1 flex-row items-center gap-2">
                 <Feather name="camera" size={20} color="#000" />
                 <Text className="text-lg font-inter-bold text-black">Stream Details</Text>
               </View>
 
               {/* Title */}
-              <View className="flex-1 gap-2">
-                <Text className="text-sm font-inter-semibold text-gray-700">Stream Title *</Text>
-                <TextInput
-                  placeholder="e.g., Live Fashion Show - Spring Collection"
-                  placeholderTextColor="#9CA3AF"
-                  value={title}
-                  onChangeText={setTitle}
-                  maxLength={100}
-                  className="border border-gray-300 rounded-lg px-4 py-3"
-                />
-              </View>
+              <InputComponent
+                value={title}
+                label="Stream Title"
+                size="small"
+                required={true}
+                placeholder="e.g., Live Fashion Show - Spring Collection"
+                onChangeText={setTitle}
+              />
 
               {/* Description */}
-              <View className="flex-1 gap-2">
-                <Text className="text-sm font-inter-semibold text-gray-700">Description *</Text>
-                <TextInput
-                  placeholder="Tell viewers what to expect from your stream..."
-                  placeholderTextColor="#9CA3AF"
-                  multiline
-                  textAlignVertical="top"
-                  value={description}
-                  onChangeText={setDescription}
-                  numberOfLines={4}
-                  maxLength={500}
-                  className="border border-gray-300 rounded-lg px-4 py-3"
-                  style={{ height: 100 }}
-                />
-                <Text className="text-sm font-inter-semibold text-gray-500 text-right mt-1">
-                  {description.length}/500 characters
-                </Text>
-              </View>
-
-              {/* Category */}
-              <View className="gap-2">
-                <Text className="text-sm font-inter-semibold text-gray-700">Category *</Text>
-                <DropdownComponent
-                  data={STREAM_CATEGORY_OPTIONS}
-                  value={category}
-                  placeholder="Select a category for your stream"
-                  onChange={(item) => setCategory(item.value)}
-                />
-              </View>
+              <InputComponent
+                value={description}
+                label="Description"
+                size="small"
+                required={true}
+                placeholder="Tell viewers what to expect from your stream..."
+                onChangeText={setDescription}
+                multiline={true}
+                numberOfLines={4}
+                textAlignVertical="top"
+                height={100}
+                maxLength={500}
+              />
 
               {/* Stream Status & Time Until Start */}
-              <View className="flex-row items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <View className="flex-row items-center justify-between p-3 bg-gray-100 rounded-lg">
                 <View className="flex-row items-center gap-3">
                   <View className="bg-blue-600 rounded-full px-3 py-1">
                     <Text className="text-xs font-inter-bold text-white uppercase">SCHEDULED</Text>
                   </View>
-                  {category && (
-                    <Text className="text-sm font-inter-semibold text-gray-700">{category}</Text>
-                  )}
+                  {category && <Text className="text-sm font-inter-semibold text-gray-700">{category}</Text>}
                 </View>
                 <View className="flex-row items-center gap-1">
                   <Feather name="clock" size={16} color="#8B5CF6" />
@@ -429,7 +407,7 @@ export default function ScheduleStreamScreen() {
                       const diffMs = now.getTime() - startTime.getTime();
                       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                       const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                      
+
                       if (diffMs < 0) {
                         return 'Started';
                       } else if (diffHours < 1) {
@@ -510,7 +488,7 @@ export default function ScheduleStreamScreen() {
               </View>
             </View>
 
-            <View className="gap-4 p-4 bg-white shadow-sm rounded-lg">
+            <View className="gap-4 p-4 rounded-lg bg-white shadow-lg">
               <View className="flex-1 flex-row items-center gap-2">
                 <Feather name="calendar" size={20} color="#000" />
                 <Text className="text-lg font-inter-bold text-black">Schedule Show</Text>
@@ -616,9 +594,9 @@ export default function ScheduleStreamScreen() {
         onRequestClose={() => setShowImagePickerModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="p-5 rounded-t-3xl bg-white">
+          <View className="rounded-t-2xl bg-white">
             {/* Header */}
-            <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-lg font-inter-bold text-black">Add Stream Thumbnail</Text>
               <TouchableOpacity
                 onPress={() => setShowImagePickerModal(false)}
@@ -628,19 +606,19 @@ export default function ScheduleStreamScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Info */}
-            <View className="p-3 mb-4 rounded-lg bg-blue-50">
-              <View className="flex-row items-center">
-                <Feather name="info" size={16} color="#3B82F6" />
-                <Text className="ml-2 text-sm font-inter-semibold text-blue-800">Recommended: 16:9 aspect ratio</Text>
+            <View className="gap-4 p-4">
+              {/* Info */}
+              <View className="p-4 rounded-lg bg-blue-50">
+                <View className="flex-row items-center">
+                  <Feather name="info" size={16} color="#3B82F6" />
+                  <Text className="ml-2 text-sm font-inter-semibold text-blue-800">Recommended: 16:9 aspect ratio</Text>
+                </View>
+                <Text className="mt-1 text-xs font-inter-semibold text-blue-600">
+                  Choose a high-quality image that represents your stream content
+                </Text>
               </View>
-              <Text className="mt-1 text-xs font-inter-semibold text-blue-600">
-                Choose a high-quality image that represents your stream content
-              </Text>
-            </View>
 
-            {/* Options */}
-            <View className="gap-4">
+              {/* Options */}
               <TouchableOpacity
                 className="flex-row items-center gap-1 py-4 px-4 rounded-lg bg-gray-100"
                 onPress={pickImageFromGallery}

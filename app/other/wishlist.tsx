@@ -54,11 +54,11 @@ export default function WishlistScreen() {
       <TouchableOpacity
         onPress={() => navigateToProduct(item.id)}
         activeOpacity={0.7}
-        className="bg-white rounded-xl mb-4 shadow-sm"
+        className="bg-white rounded-lg mb-4 shadow-lg"
       >
         <View className="flex-row items-center">
           {/* Product Image */}
-          <View className="w-28 h-28 rounded-xl overflow-hidden">
+          <View className="w-28 h-28 rounded-lg overflow-hidden">
             <Image
               source={item.product_image}
               contentFit="cover"
@@ -136,14 +136,14 @@ export default function WishlistScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Wishlist</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">My Wishlist</Text>
 
         {wishlist.length > 0 && (
           <View className="bg-white rounded-full px-3 py-1.5">
@@ -152,14 +152,14 @@ export default function WishlistScreen() {
         )}
       </View>
 
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1">
         {isLoading && !refreshing && wishlist.length === 0 ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
             <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your wishlist...</Text>
           </View>
         ) : wishlist.length === 0 ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="heart" color="#666" size={64} />
             <Text className="text-gray-900 text-lg font-inter-bold mt-4">Your wishlist is empty</Text>
             <Text className="text-gray-600 text-sm font-inter text-center mt-2 mb-6">
@@ -172,7 +172,7 @@ export default function WishlistScreen() {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#007AFF" />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             contentContainerStyle={{ flexGrow: 1 }}
             className="p-4"
           >

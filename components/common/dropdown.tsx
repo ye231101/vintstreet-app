@@ -11,26 +11,30 @@ export interface DropdownItem {
 interface DropdownProps {
   data: DropdownItem[];
   value: string;
-  required?: boolean;
   label?: string;
   icon?: string;
+  size?: 'small' | 'medium' | 'large';
+  required?: boolean;
   placeholder?: string;
+  disabled?: boolean;
+  height?: number;
   maxHeight?: number;
   onChange: (item: DropdownItem) => void;
   style?: StyleProp<ViewStyle>;
   placeholderStyle?: StyleProp<TextStyle>;
   selectedTextStyle?: StyleProp<TextStyle>;
-  disabled?: boolean;
   error?: string;
 }
 
 export const DropdownComponent: React.FC<DropdownProps> = ({
   data,
   value,
-  required = false,
   label,
   icon,
+  size = 'medium',
+  required = false,
   placeholder = 'Select an option',
+  height,
   maxHeight = 300,
   onChange,
   style,
@@ -43,7 +47,7 @@ export const DropdownComponent: React.FC<DropdownProps> = ({
     dropdown: {
       alignItems: 'center',
       justifyContent: 'center',
-      height: 50,
+      height: height || (size === 'small' ? 40 : size === 'medium' ? 50 : 60),
       paddingVertical: 12,
       paddingHorizontal: icon ? 12 : 6,
       backgroundColor: '#fff',
@@ -64,7 +68,7 @@ export const DropdownComponent: React.FC<DropdownProps> = ({
   });
 
   return (
-    <View className="flex-1 gap-2">
+    <View className="w-full gap-2">
       {label && (
         <Text className="text-sm font-inter-semibold text-gray-700">
           {label} {required && <Text className="text-red-500">*</Text>}

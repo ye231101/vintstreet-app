@@ -19,7 +19,7 @@ export default function StreamsScreen() {
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
   const [showAllOverdue, setShowAllOverdue] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  
+
   // Modal states
   const [endStreamModal, setEndStreamModal] = useState<{ visible: boolean; streamId: string | null }>({
     visible: false,
@@ -83,7 +83,7 @@ export default function StreamsScreen() {
 
   const confirmEndStream = async () => {
     if (!endStreamModal.streamId) return;
-    
+
     setIsProcessing(true);
     try {
       await streamsService.endStream(endStreamModal.streamId);
@@ -100,7 +100,7 @@ export default function StreamsScreen() {
 
   const confirmCancelStream = async () => {
     if (!cancelStreamModal.streamId) return;
-    
+
     setIsProcessing(true);
     try {
       await streamsService.cancelStream(cancelStreamModal.streamId);
@@ -148,15 +148,15 @@ export default function StreamsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Streams</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">My Streams</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center bg-gray-50">
+        <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading streams...</Text>
         </View>
@@ -166,19 +166,19 @@ export default function StreamsScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Streams</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">My Streams</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading streams</Text>
           <TouchableOpacity onPress={loadStreams} className="bg-black rounded-lg py-3 px-6">
-            <Text className="text-base font-inter-bold text-white">Retry</Text>
+            <Text className="text-base font-inter-bold text-black">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -186,23 +186,21 @@ export default function StreamsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Streams</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">My Streams</Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} tintColor="#000" />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1 gap-4 p-4 bg-gray-50">
+        <View className="flex-1 gap-4 p-4">
           <View className="flex-row gap-4">
             <TouchableOpacity
               onPress={() => router.push('/stream/schedule')}
@@ -556,7 +554,7 @@ export default function StreamsScreen() {
           </View>
 
           {streams.length === 0 && (
-            <View className="flex-1 justify-center items-center p-8">
+            <View className="flex-1 items-center justify-center p-8">
               <Feather name="video" size={64} color="#ccc" />
               <Text className="text-gray-600 text-lg font-inter-bold mt-4 mb-2">No streams yet</Text>
               <Text className="text-gray-500 text-sm font-inter text-center mb-6">

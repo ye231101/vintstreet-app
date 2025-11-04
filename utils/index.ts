@@ -17,7 +17,7 @@ export const validateEmail = (email: string) => {
  * Blurhash for the app
  * @returns string - blurhash
  */
-export const blurhash = 'LHF7~qC=^7WB6cof86t71R*I96IM';
+export const blurhash = 'L8AAaa_300IUxuRjRjt7004n~q%M';
 
 /**
  * Export storage utilities

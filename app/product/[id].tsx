@@ -177,7 +177,7 @@ export default function ProductDetailScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-gray-50">
+      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-white">
         <ActivityIndicator size="large" color="#000" />
         <Text className="mt-3 text-sm font-inter-semibold text-gray-600">Loading product...</Text>
       </SafeAreaView>
@@ -186,47 +186,43 @@ export default function ProductDetailScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-gray-50 p-4">
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
-          <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading product</Text>
-          <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
-            <Text className="text-base font-inter-bold text-white">Retry</Text>
-          </TouchableOpacity>
-        </View>
+      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-white">
+        <Feather name="alert-circle" color="#ff4444" size={64} />
+        <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading product</Text>
+        <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+          <Text className="text-base font-inter-bold text-white">Retry</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
   if (!product) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-gray-50">
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
-          <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="my-4 text-lg font-inter-bold text-red-500">Product not found</Text>
-          <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
-            <Text className="text-base font-inter-bold text-white">Retry</Text>
-          </TouchableOpacity>
-        </View>
+      <SafeAreaView className="flex-1 items-center justify-center p-4 bg-white">
+        <Feather name="alert-circle" color="#ff4444" size={64} />
+        <Text className="my-4 text-lg font-inter-bold text-red-500">Product not found</Text>
+        <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+          <Text className="text-base font-inter-bold text-white">Retry</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
+        <Text numberOfLines={1} className="flex-1 text-lg font-inter-bold text-black">
           {product.product_name}
         </Text>
       </View>
 
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 gap-4 py-4 bg-gray-50">
+        <View className="flex-1 gap-4 py-4">
           {/* Image Carousel */}
           {product.product_images?.length > 0 ? (
             <View>
@@ -252,7 +248,7 @@ export default function ProductDetailScreen() {
 
               {/* Pagination Dots */}
               {product.product_images.length > 1 && (
-                <View className="flex-row justify-center items-center py-2">
+                <View className="flex-row items-center justify-center py-2">
                   {product.product_images.map((_: any, index: number) => (
                     <View
                       key={index}
@@ -275,7 +271,7 @@ export default function ProductDetailScreen() {
               />
             </View>
           ) : (
-            <View className="w-full h-60 bg-gray-100 items-center justify-center">
+            <View className="w-full h-60 items-center justify-center">
               <Text className="text-sm font-inter-semibold text-gray-500">No image</Text>
             </View>
           )}
@@ -366,11 +362,11 @@ export default function ProductDetailScreen() {
                   </Text>
                 )}
               </View>
-              <View className="flex-row items-center">
+              <View className="flex-row items-center gap-2">
                 <TouchableOpacity
                   onPress={handleAddToCart}
                   disabled={!!cartItem || isAddingToCart}
-                  className={`flex-row items-center px-4 py-2 rounded-lg mr-2 ${
+                  className={`flex-row items-center px-4 py-2 rounded-lg ${
                     cartItem ? 'bg-gray-100 border border-gray-200' : 'bg-black border border-black'
                   }`}
                 >
@@ -392,7 +388,7 @@ export default function ProductDetailScreen() {
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="flex-row items-center px-4 py-2 rounded-lg mr-2 bg-white border border-gray-200"
+                  className="flex-row items-center px-4 py-2 rounded-lg bg-white border border-gray-200"
                   onPress={() => setIsOfferOpen(true)}
                 >
                   <Feather name="message-circle" size={16} color="#000" className="mr-2" />
@@ -404,12 +400,12 @@ export default function ProductDetailScreen() {
 
           {/* Tabs */}
           <View className="px-4">
-            <View className="flex-row bg-white rounded-t-lg overflow-hidden border border-gray-200">
+            <View className="flex-row rounded-t-lg overflow-hidden border border-gray-200">
               {(['description', 'details', 'seller'] as const).map((t) => (
                 <Pressable
                   key={t}
                   className={`flex-1 px-4 py-3 ${
-                    activeTab === t ? 'bg-white' : 'bg-gray-50'
+                    activeTab === t ? 'bg-white' : 'bg-gray-100'
                   } border-r border-gray-200 items-center justify-center`}
                   onPress={() => setActiveTab(t)}
                 >
@@ -424,15 +420,19 @@ export default function ProductDetailScreen() {
               ))}
             </View>
 
-            <View className="bg-white border border-t-0 border-gray-200 p-4">
+            <View className="border border-t-0 border-gray-200">
               {activeTab === 'description' && (
-                <Text className="text-sm font-inter-semibold text-gray-800">{product.product_description || '-'}</Text>
+                <View className="p-4">
+                  <Text className="text-sm font-inter-semibold text-gray-800">
+                    {product.product_description || '-'}
+                  </Text>
+                </View>
               )}
               {activeTab === 'details' && (
-                <View className="gap-4">
+                <View>
                   {/* Brand Information */}
                   {product.brands?.name && (
-                    <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center justify-between p-4">
                       <Text className="text-sm font-inter-bold text-gray-800">Brand</Text>
                       <Text className="text-sm font-inter-semibold text-gray-800">{product.brands.name}</Text>
                     </View>
@@ -442,12 +442,12 @@ export default function ProductDetailScreen() {
 
                   {/* Product Attributes */}
                   {attributesLoading ? (
-                    <View className="flex-row items-center justify-center py-4">
+                    <View className="flex-row items-center justify-center p-4">
                       <ActivityIndicator size="small" color="#000" />
                       <Text className="text-sm font-inter-semibold text-gray-600 ml-2">Loading attributes...</Text>
                     </View>
                   ) : productAttributes.length > 0 ? (
-                    <View>
+                    <View className="p-4">
                       <Text className="text-sm font-inter-bold text-gray-800 mb-3">Product Attributes</Text>
                       <View className="gap-2">
                         {productAttributes.map((attribute: any, index: number) => {
@@ -498,7 +498,7 @@ export default function ProductDetailScreen() {
                       </View>
                     </View>
                   ) : (
-                    <View>
+                    <View className="p-4">
                       <Text className="text-sm font-inter-semibold text-gray-600">
                         No additional attributes available.
                       </Text>
@@ -508,49 +508,48 @@ export default function ProductDetailScreen() {
               )}
               {activeTab === 'seller' && (
                 <View>
-                  {/* Seller Profile Section */}
-                  <View className="bg-white p-4 mb-4">
-                    <View className="flex-row items-center mb-3">
-                      <View className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 items-center justify-center mr-3">
-                        <Image
-                          source={
-                            product.seller_info_view?.avatar_url ||
-                            `https://ui-avatars.com/api/?name=${product.seller_info_view?.shop_name}&length=1`
-                          }
-                          contentFit="cover"
-                          placeholder={blurhash}
-                          transition={1000}
-                          style={{ width: '100%', height: '100%' }}
-                        />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={1}>
-                          {product.seller_info_view?.shop_name || product.seller_info_view?.full_name || 'Seller'}
-                        </Text>
-                        {formattedDate ? (
-                          <Text className="text-sm font-inter-semibold text-gray-500">Listed {formattedDate}</Text>
-                        ) : null}
-                      </View>
-                      <Pressable
-                        onPress={handleViewShop}
-                        className="px-3 py-2 border border-gray-300 rounded-lg flex-row items-center"
-                      >
-                        <Feather name="eye" size={20} color="black" className="mr-2" />
-                        <Text className="text-sm font-inter-semibold text-gray-800">View Shop</Text>
-                      </Pressable>
+                  <View className="flex-row items-center gap-3 p-4">
+                    <View className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 items-center justify-center">
+                      <Image
+                        source={
+                          product.seller_info_view?.avatar_url ||
+                          `https://ui-avatars.com/api/?name=${product.seller_info_view?.shop_name}&length=1`
+                        }
+                        contentFit="cover"
+                        placeholder={blurhash}
+                        transition={1000}
+                        style={{ width: '100%', height: '100%' }}
+                      />
                     </View>
+                    <View className="flex-1 gap-1">
+                      <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={1}>
+                        {product.seller_info_view?.shop_name || product.seller_info_view?.full_name || 'Seller'}
+                      </Text>
+                      {formattedDate ? (
+                        <Text className="text-sm font-inter-semibold text-gray-500">Listed {formattedDate}</Text>
+                      ) : null}
+                    </View>
+                    <Pressable
+                      onPress={handleViewShop}
+                      className="flex-row items-center gap-2 px-3 py-2 rounded-lg border border-gray-300"
+                    >
+                      <Feather name="eye" size={20} color="black" />
+                      <Text className="text-sm font-inter-semibold text-gray-800">View Shop</Text>
+                    </Pressable>
+                  </View>
 
-                    {/* Contact Seller Section */}
-                    <View className="border-t border-gray-200 pt-3">
-                      <Text className="text-base font-inter-semibold text-gray-800 mb-3">Contact Seller</Text>
-                      <Pressable
-                        onPress={handleContactSeller}
-                        className="bg-black px-4 py-3 rounded-lg flex-row items-center justify-center"
-                      >
-                        <Feather name="message-circle" size={20} color="white" className="mr-2" />
-                        <Text className="text-white text-sm font-inter-semibold">Send Message</Text>
-                      </Pressable>
-                    </View>
+                  <View className="h-px bg-gray-200" />
+
+                  {/* Contact Seller Section */}
+                  <View className="p-4">
+                    <Text className="mb-3 text-base font-inter-semibold text-gray-800">Contact Seller</Text>
+                    <Pressable
+                      onPress={handleContactSeller}
+                      className="flex-row items-center justify-center px-4 py-3 rounded-lg bg-black"
+                    >
+                      <Feather name="message-circle" size={20} color="white" className="mr-2" />
+                      <Text className="text-white text-sm font-inter-semibold">Send Message</Text>
+                    </Pressable>
                   </View>
                 </View>
               )}
@@ -559,13 +558,13 @@ export default function ProductDetailScreen() {
 
           {/* Related Products Section */}
           {relatedProductsLoading ? (
-            <View className="flex-1 items-center justify-center py-8">
+            <View className="flex-1 items-center justify-center p-4">
               <ActivityIndicator size="large" color="#000" />
-              <Text className="ml-3 text-base font-inter text-gray-600">Loading related products...</Text>
+              <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading related products...</Text>
             </View>
           ) : relatedProducts.length > 0 ? (
             <View className="px-4">
-              <Text className="text-xl font-inter-bold text-black my-4">Related Products</Text>
+              <Text className="my-4 text-xl font-inter-bold text-black">Related Products</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
                 {relatedProducts.map((relatedProduct: any) => {
                   const isRelatedInCart = cart.items.some((cartItem) => cartItem.product?.id === relatedProduct.id);
@@ -573,7 +572,7 @@ export default function ProductDetailScreen() {
                     <Pressable
                       key={relatedProduct.id}
                       onPress={() => router.push(`/product/${relatedProduct.id}` as any)}
-                      className="w-44 bg-white rounded-lg overflow-hidden mx-2 border border-gray-200"
+                      className="w-44 overflow-hidden mx-2 rounded-lg bg-white border border-gray-200"
                     >
                       {/* Product Image */}
                       <View className="w-full h-44 overflow-hidden relative">
@@ -659,8 +658,8 @@ export default function ProductDetailScreen() {
               </ScrollView>
             </View>
           ) : (
-            <View className="px-4">
-              <Text className="text-xl font-inter-bold text-black my-4">No related products found</Text>
+            <View className="p-4">
+              <Text className="text-xl font-inter-bold text-black">No related products found</Text>
             </View>
           )}
         </View>

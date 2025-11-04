@@ -135,24 +135,27 @@ export default function QuickLinks() {
           className="absolute inset-0"
         >
           {quickLinks.map((item) => (
-            <View key={item.id} style={{ width: screenWidth - 16 }}>
-              <Pressable onPress={() => handleTap(item)} className="w-full relative" style={{ aspectRatio: 16 / 7 }}>
-                <Image source={item.imageUrl} resizeMode="cover" className="w-full h-full" />
-                <LinearGradient
-                  colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.7)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  className="absolute inset-0"
-                />
-                <View className="absolute left-4 right-4 bottom-6">
-                  <Text className="text-2xl font-inter-bold text-white mb-3">{item.title}</Text>
-                  <Text className="text-base font-inter-semibold text-white opacity-95">{item.description}</Text>
-                </View>
-              </Pressable>
-            </View>
+            <Pressable
+              key={item.id}
+              onPress={() => handleTap(item)}
+              className="relative"
+              style={{ width: screenWidth - 16, aspectRatio: 16 / 7 }}
+            >
+              <Image source={item.imageUrl} resizeMode="cover" className="w-full h-full" />
+              <LinearGradient
+                colors={['rgba(0,0,0,0.0)', 'rgba(0,0,0,0.7)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                className="absolute inset-0"
+              />
+              <View className="absolute left-4 right-4 bottom-6">
+                <Text className="text-2xl font-inter-bold text-white mb-3">{item.title}</Text>
+                <Text className="text-base font-inter-semibold text-white opacity-95">{item.description}</Text>
+              </View>
+            </Pressable>
           ))}
         </ScrollView>
-        <View pointerEvents="none" className="absolute left-0 right-0 bottom-3 flex-row justify-center items-center">
+        <View pointerEvents="none" className="absolute left-0 right-0 bottom-3 flex-row items-center justify-center">
           {quickLinks.map((item) => (
             <View
               key={item.id}

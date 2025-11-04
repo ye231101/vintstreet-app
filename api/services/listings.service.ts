@@ -316,6 +316,77 @@ class ListingsService {
   }
 
   /**
+   * Get paginated listings for a seller with infinite scroll support
+   * @param sellerId - The seller's user ID
+   * @param pageParam - Current page offset
+   * @param pageSize - Number of products per page
+   */
+  async getSellerListingsInfinite(
+    sellerId: string,
+    pageParam: number = 0,
+    pageSize: number = 20
+  ): Promise<InfiniteQueryResult> {
+    try {
+      // Build the count query
+      const { count } = await supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', sellerId)
+        .eq('status', 'published');
+
+      // Build the data query
+      const { data, error } = await supabase
+        .from('listings')
+        .select(
+          `
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_images,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          stock_quantity,
+          status,
+          created_at,
+          product_categories(id, name)
+        `
+        )
+        .eq('seller_id', sellerId)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .range(pageParam, pageParam + pageSize - 1);
+
+      if (error) {
+        throw new Error(`Failed to fetch seller listings: ${error.message}`);
+      }
+
+      // Optimized: Fetch seller info using the new view (single query instead of 2)
+      const { data: seller } = await supabase.from('seller_info_view').select('*').eq('user_id', sellerId).single();
+
+      const productsWithSeller = (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: seller || null,
+      })) as Product[];
+
+      return {
+        products: productsWithSeller,
+        nextPage: data && data.length === pageSize ? pageParam + pageSize : undefined,
+        total: count || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching seller listings infinite:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get a single listing by id
    */
   async getListingById(listingId: string): Promise<Product | null> {
