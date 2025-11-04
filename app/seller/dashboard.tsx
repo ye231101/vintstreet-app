@@ -38,7 +38,7 @@ export default function DashboardScreen() {
     total: 0,
     published: 0,
     draft: 0,
-    sold: 0,
+    private: 0,
   });
   const [offersStats, setOffersStats] = useState({
     pending: 0,
@@ -90,14 +90,14 @@ export default function DashboardScreen() {
       setSellerSettings(settings);
 
       // Calculate listings statistics
-      const published = listings.filter((l) => l.status === 'published').length;
-      const draft = listings.filter((l) => l.status === 'draft').length;
+      const publishedListings = listings.filter((l) => l.status === 'published').length;
+      const draftListings = listings.filter((l) => l.status === 'draft').length;
       const privateListings = listings.filter((l) => l.status === 'private').length;
       setListingsStats({
         total: listings.length,
-        published,
-        draft,
-        sold: privateListings, // Using private as sold/archived
+        published: publishedListings,
+        draft: draftListings,
+        private: privateListings,
       });
 
       // Calculate offers statistics
@@ -218,13 +218,13 @@ export default function DashboardScreen() {
     icon?: string;
     iconColor?: string;
   }) => (
-    <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
+    <View className="flex-1 p-4 rounded-lg bg-white shadow-lg">
       <View className="flex-row items-center justify-between mb-2">
-        <Text className="text-gray-600 text-sm font-inter-semibold">{title}</Text>
+        <Text className="text-sm font-inter-semibold text-gray-600">{title}</Text>
         {icon && <Feather name={icon as any} size={16} color={iconColor} />}
       </View>
-      <Text className="text-gray-900 text-2xl font-inter-bold mb-1">{value}</Text>
-      {subtitle && <Text className="text-gray-500 text-xs font-inter">{subtitle}</Text>}
+      <Text className="mb-1 text-2xl font-inter-bold text-gray-900">{value}</Text>
+      {subtitle && <Text className="text-xs font-inter text-gray-500">{subtitle}</Text>}
     </View>
   );
 
@@ -314,9 +314,9 @@ export default function DashboardScreen() {
         : getPersonalNameDisplay(sellerSettings.fullName) || sellerSettings.fullName || sellerSettings.storeName;
 
     return (
-      <View className="p-4 rounded-lg bg-white shadow-lg">
+      <View className="rounded-lg bg-white shadow-lg">
         {/* Store Header */}
-        <View className="flex-row items-center mb-4">
+        <View className="flex-row items-center p-4">
           <View className="w-16 h-16 rounded-full bg-blue-100 items-center justify-center mr-4">
             <Feather name="shopping-bag" color="#007AFF" size={28} />
           </View>
@@ -337,10 +337,10 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        <View className="h-px bg-gray-200 my-3" />
+        <View className="h-px bg-gray-200" />
 
         {/* Store Stats */}
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-between p-4">
           <View className="flex-1 items-center">
             <Text className="text-gray-900 text-lg font-inter-bold">{listingsStats.published}</Text>
             <Text className="text-gray-600 text-xs font-inter mt-1">Active Listings</Text>
@@ -363,11 +363,13 @@ export default function DashboardScreen() {
     const averageOrderValue = summary.completedOrders > 0 ? summary.totalSales / summary.completedOrders : 0;
 
     return (
-      <View className="gap-4 rounded-lg bg-white shadow-lg">
-        <View className="flex-row items-center justify-between">
+      <View className="rounded-lg bg-white shadow-lg">
+        <View className="flex-row items-center justify-between p-4">
           <Text className="text-lg font-inter-bold text-gray-900">Financial Summary</Text>
           <Feather name="trending-up" color="#34C759" size={20} />
         </View>
+
+        <View className="h-px bg-gray-200" />
 
         <View className="gap-2 p-4">
           <View className="flex-row justify-between">
@@ -405,17 +407,19 @@ export default function DashboardScreen() {
 
         <View className="h-px bg-gray-200" />
 
-        <View className="flex-row justify-between">
-          <Text className="text-base font-inter-bold text-gray-900">Active Orders</Text>
-          <Text className="text-base font-inter-bold text-gray-900">{activeOrders}</Text>
-        </View>
-        <View className="flex-row justify-between">
-          <Text className="text-sm font-inter text-gray-600">Processing</Text>
-          <Text className="text-sm font-inter-semibold text-gray-900">{summary.processingOrders}</Text>
-        </View>
-        <View className="flex-row justify-between">
-          <Text className="text-sm font-inter text-gray-600">Pending</Text>
-          <Text className="text-sm font-inter-semibold text-gray-900">{summary.pendingOrders}</Text>
+        <View className="gap-2 p-4">
+          <View className="flex-row justify-between">
+            <Text className="text-base font-inter-bold text-gray-900">Active Orders</Text>
+            <Text className="text-base font-inter-bold text-gray-900">{activeOrders}</Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text className="text-sm font-inter text-gray-600">Processing</Text>
+            <Text className="text-sm font-inter-semibold text-gray-900">{summary.processingOrders}</Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text className="text-sm font-inter text-gray-600">Pending</Text>
+            <Text className="text-sm font-inter-semibold text-gray-900">{summary.pendingOrders}</Text>
+          </View>
         </View>
       </View>
     );
@@ -489,7 +493,7 @@ export default function DashboardScreen() {
             setPendingPeriod(null);
             setIsDateModalOpen(true);
           }}
-          className="flex-row items-center bg-gray-800 rounded-lg px-3 py-1.5"
+          className="flex-row items-center bg-gray-800 rounded-lg px-3 py-1"
         >
           <Feather name="calendar" color="#fff" size={16} />
           <Text className="text-white text-sm font-inter-semibold ml-2">{getPeriodLabel()}</Text>
@@ -534,7 +538,7 @@ export default function DashboardScreen() {
           </View>
 
           {/* Quick Stats */}
-          <View className="mb-6 gap-3">
+          <View className="gap-3 mb-6">
             <View className="flex-row gap-3">
               <StatsCard
                 title="Total Sales"
@@ -597,70 +601,70 @@ export default function DashboardScreen() {
           </View>
 
           {/* Order Status Breakdown */}
-          {reportsData?.summary && (
-            <View className="mb-6">
-              <Text className="text-gray-900 text-lg font-inter-bold mb-3">Order Status Breakdown</Text>
-              <OrderStatusBreakdown />
-            </View>
-          )}
+          <View className="mb-6">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Order Status Breakdown</Text>
+            <OrderStatusBreakdown />
+          </View>
 
           {/* Quick Actions */}
-          <Text className="text-gray-900 text-lg font-inter-bold mb-3">Quick Actions</Text>
-          <View className="p-4 mb-6 rounded-lg bg-white shadow-lg">
-            <View className="flex-row items-center justify-between mb-3">
-              <TouchableOpacity
-                onPress={() => router.push('/seller/orders')}
-                className="flex-1 p-3 mr-1 rounded bg-gray-100 items-center"
-              >
-                <Feather name="package" color="#333" size={20} className="mb-1.5" />
-                <Text className="text-xs font-inter-bold text-gray-900">Orders</Text>
-              </TouchableOpacity>
+          <View className="mb-6">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Quick Actions</Text>
+            <View className="p-4 rounded-lg bg-white shadow-lg">
+              <View className="flex-row items-center justify-between mb-3">
+                <TouchableOpacity
+                  onPress={() => router.push('/seller/orders')}
+                  className="flex-1 p-3 mr-1 rounded bg-gray-100 items-center"
+                >
+                  <Feather name="package" color="#333" size={20} className="mb-1.5" />
+                  <Text className="text-xs font-inter-bold text-gray-900">Orders</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => router.push('/seller/offers')}
-                className="flex-1 p-3 mx-1 rounded bg-gray-100 items-center"
-              >
-                <Feather name="heart" color="#8B5CF6" size={20} className="mb-1.5" />
-                <Text className="text-xs font-inter-bold text-gray-900">Offers</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/seller/offers')}
+                  className="flex-1 p-3 mx-1 rounded bg-gray-100 items-center"
+                >
+                  <Feather name="heart" color="#8B5CF6" size={20} className="mb-1.5" />
+                  <Text className="text-xs font-inter-bold text-gray-900">Offers</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => router.push('/seller/reviews')}
-                className="flex-1 p-3 mx-1 rounded bg-gray-100 items-center"
-              >
-                <Feather name="star" color="#FFD700" size={20} className="mb-1.5" />
-                <Text className="text-xs font-inter-bold text-gray-900">Reviews</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/seller/reviews')}
+                  className="flex-1 p-3 mx-1 rounded bg-gray-100 items-center"
+                >
+                  <Feather name="star" color="#FFD700" size={20} className="mb-1.5" />
+                  <Text className="text-xs font-inter-bold text-gray-900">Reviews</Text>
+                </TouchableOpacity>
 
+                <TouchableOpacity
+                  onPress={() => router.push('/seller/listings')}
+                  className="flex-1 p-3 ml-1 rounded bg-gray-100 items-center"
+                >
+                  <Feather name="grid" color="#34C759" size={20} className="mb-1.5" />
+                  <Text className="text-xs font-inter-bold text-gray-900">Listings</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Shipping Settings Button */}
               <TouchableOpacity
-                onPress={() => router.push('/seller/listings')}
-                className="flex-1 p-3 ml-1 rounded bg-gray-100 items-center"
+                onPress={() => {
+                  if (!user?.id) {
+                    Alert.alert('Authentication Required', 'Please sign in to manage shipping settings.');
+                    return;
+                  }
+                  setIsShippingModalOpen(true);
+                }}
+                className="p-4 mt-4 flex-row items-center rounded bg-blue-50"
               >
-                <Feather name="grid" color="#34C759" size={20} className="mb-1.5" />
-                <Text className="text-xs font-inter-bold text-gray-900">Listings</Text>
+                <Feather name="truck" color="#007AFF" size={20} className="mr-3" />
+                <View className="flex-1">
+                  <Text className="text-sm font-inter-semibold text-gray-900">Shipping Settings</Text>
+                  <Text className="text-xs font-inter text-gray-600">
+                    Manage your shipping options and delivery times
+                  </Text>
+                </View>
+                <Feather name="chevron-right" color="#666" size={16} />
               </TouchableOpacity>
             </View>
-
-            {/* Shipping Settings Button */}
-            <TouchableOpacity
-              onPress={() => {
-                if (!user?.id) {
-                  Alert.alert('Authentication Required', 'Please sign in to manage shipping settings.');
-                  return;
-                }
-                setIsShippingModalOpen(true);
-              }}
-              className="p-4 mt-4 flex-row items-center rounded bg-blue-50"
-            >
-              <Feather name="truck" color="#007AFF" size={20} className="mr-3" />
-              <View className="flex-1">
-                <Text className="text-sm font-inter-semibold text-gray-900">Shipping Settings</Text>
-                <Text className="text-xs font-inter text-gray-600">
-                  Manage your shipping options and delivery times
-                </Text>
-              </View>
-              <Feather name="chevron-right" color="#666" size={16} />
-            </TouchableOpacity>
           </View>
 
           {/* Store Profile */}
@@ -682,47 +686,47 @@ export default function DashboardScreen() {
           {/* Listings Statistics */}
           <View className="mb-6">
             <Text className="text-gray-900 text-lg font-inter-bold mb-3">Listings Overview</Text>
-            <View className="bg-white rounded-xl p-4 shadow-sm">
-              <View className="flex-row items-center justify-between mb-4">
+            <View className="bg-white rounded-lg shadow-lg">
+              <View className="flex-row items-center justify-between p-4">
                 <View className="flex-row items-center">
                   <View className="w-10 h-10 rounded-full bg-blue-100 justify-center items-center mr-3">
                     <Feather name="grid" color="#007AFF" size={20} />
                   </View>
                   <View>
-                    <Text className="text-gray-900 text-base font-inter-bold">Total Listings</Text>
-                    <Text className="text-gray-600 text-sm font-inter">{listingsStats.total} items</Text>
+                    <Text className="text-base font-inter-bold text-gray-900">Total Listings</Text>
+                    <Text className="text-sm font-inter text-gray-600">{listingsStats.total} items</Text>
                   </View>
                 </View>
-                <Text className="text-gray-900 text-2xl font-inter-bold">{listingsStats.total}</Text>
+                <Text className="text-2xl font-inter-bold text-gray-900">{listingsStats.total}</Text>
               </View>
 
-              <View className="h-px bg-gray-200 my-3" />
+              <View className="h-px bg-gray-200" />
 
-              <View className="flex-row justify-between mb-2">
-                <View className="flex-row items-center">
-                  <View className="w-2 h-2 rounded-full bg-green-500 mr-2" />
-                  <Text className="text-gray-600 text-sm font-inter">Published</Text>
+              <View className="gap-2 p-4">
+                <View className="flex-row justify-between">
+                  <View className="flex-row items-center">
+                    <View className="w-2 h-2 rounded-full bg-green-500 mr-2" />
+                    <Text className="text-gray-600 text-sm font-inter">Published</Text>
+                  </View>
+                  <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.published}</Text>
                 </View>
-                <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.published}</Text>
-              </View>
 
-              <View className="flex-row justify-between mb-2">
-                <View className="flex-row items-center">
-                  <View className="w-2 h-2 rounded-full bg-gray-400 mr-2" />
-                  <Text className="text-gray-600 text-sm font-inter">Draft</Text>
+                <View className="flex-row justify-between">
+                  <View className="flex-row items-center">
+                    <View className="w-2 h-2 rounded-full bg-gray-400 mr-2" />
+                    <Text className="text-gray-600 text-sm font-inter">Draft</Text>
+                  </View>
+                  <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.draft}</Text>
                 </View>
-                <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.draft}</Text>
-              </View>
 
-              {listingsStats.sold > 0 && (
                 <View className="flex-row justify-between">
                   <View className="flex-row items-center">
                     <View className="w-2 h-2 rounded-full bg-purple-500 mr-2" />
                     <Text className="text-gray-600 text-sm font-inter">Private</Text>
                   </View>
-                  <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.sold}</Text>
+                  <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.private}</Text>
                 </View>
-              )}
+              </View>
             </View>
           </View>
 
@@ -730,7 +734,7 @@ export default function DashboardScreen() {
           {offersStats.total > 0 && (
             <View className="mb-6">
               <Text className="text-gray-900 text-lg font-inter-bold mb-3">Offers Overview</Text>
-              <View className="bg-white rounded-xl p-4 shadow-sm">
+              <View className="bg-white rounded-lg p-4 shadow-lg">
                 <View className="flex-row items-center justify-between mb-4">
                   <View className="flex-row items-center">
                     <View className="w-10 h-10 rounded-full bg-purple-100 justify-center items-center mr-3">
@@ -838,7 +842,7 @@ export default function DashboardScreen() {
               {/* Custom Date Range */}
               <View className="mb-6">
                 <Text className="text-gray-600 text-sm font-inter-semibold mb-3">Custom Date Range</Text>
-                <View className="bg-gray-50 rounded-xl p-4">
+                <View className="bg-gray-50 rounded-lg p-4">
                   {/* Start Date */}
                   <View className="mb-4">
                     <Text className="text-gray-700 text-sm font-inter-semibold mb-2">Start Date</Text>
