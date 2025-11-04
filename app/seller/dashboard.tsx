@@ -1,10 +1,21 @@
-import { DashboardReports, sellerService, SellerSettings } from '@/api';
+import { DashboardReports, listingsService, offersService, sellerService, SellerSettings } from '@/api';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
@@ -14,20 +25,41 @@ export default function DashboardScreen() {
   const [reportsData, setReportsData] = useState<DashboardReports | null>(null);
   const [sellerSettings, setSellerSettings] = useState<SellerSettings | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState('week');
+  const [customDateRange, setCustomDateRange] = useState<{ start: Date; end: Date } | null>(null);
   const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
+  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [tempStartDate, setTempStartDate] = useState(new Date());
+  const [tempEndDate, setTempEndDate] = useState(new Date());
+  const [pendingPeriod, setPendingPeriod] = useState<string | null>(null);
+  const [pendingCustomDateRange, setPendingCustomDateRange] = useState<{ start: Date; end: Date } | null>(null);
+  const [listingsStats, setListingsStats] = useState({
+    total: 0,
+    published: 0,
+    draft: 0,
+    sold: 0,
+  });
+  const [offersStats, setOffersStats] = useState({
+    pending: 0,
+    accepted: 0,
+    declined: 0,
+    total: 0,
+  });
 
   const periodOptions = [
-    { value: 'today', label: 'Today' },
-    { value: 'week', label: 'This Week' },
-    { value: 'month', label: 'This Month' },
-    { value: 'year', label: 'This Year' },
+    { value: 'today', label: 'Today', icon: 'calendar' },
+    { value: 'week', label: 'This Week', icon: 'calendar' },
+    { value: 'month', label: 'This Month', icon: 'calendar' },
+    { value: 'year', label: 'This Year', icon: 'calendar' },
+    { value: 'custom', label: 'Custom Date Range', icon: 'calendar' },
   ];
 
   useEffect(() => {
     if (user?.id) {
       loadDashboardData();
     }
-  }, [selectedPeriod, user?.id]);
+  }, [selectedPeriod, customDateRange, user?.id]);
 
   const loadDashboardData = async () => {
     if (!user?.id) {
@@ -40,14 +72,45 @@ export default function DashboardScreen() {
     setError(null);
 
     try {
+      // Determine period parameter for API call
+      const periodParam = customDateRange ? 'custom' : selectedPeriod;
+      
       // Fetch all dashboard data in parallel
-      const [reports, settings] = await Promise.all([
-        sellerService.getDashboardReports(user.id, selectedPeriod),
+      const [reports, settings, listings, offers] = await Promise.all([
+        sellerService.getDashboardReports(
+          user.id,
+          periodParam,
+          customDateRange ? { start: customDateRange.start, end: customDateRange.end } : undefined
+        ),
         sellerService.getSellerSettings(user.id),
+        listingsService.getSellerListings(user.id).catch(() => []),
+        offersService.getOffers(user.id, 'seller').catch(() => []),
       ]);
 
       setReportsData(reports);
       setSellerSettings(settings);
+
+      // Calculate listings statistics
+      const published = listings.filter((l) => l.status === 'published').length;
+      const draft = listings.filter((l) => l.status === 'draft').length;
+      const privateListings = listings.filter((l) => l.status === 'private').length;
+      setListingsStats({
+        total: listings.length,
+        published,
+        draft,
+        sold: privateListings, // Using private as sold/archived
+      });
+
+      // Calculate offers statistics
+      const pending = offers.filter((o) => o.status === 'pending').length;
+      const accepted = offers.filter((o) => o.status === 'accepted').length;
+      const declined = offers.filter((o) => o.status === 'declined').length;
+      setOffersStats({
+        pending,
+        accepted,
+        declined,
+        total: offers.length,
+      });
     } catch (err: any) {
       console.error('Error loading dashboard data:', err);
       setError(err?.message || 'Error loading dashboard data');
@@ -57,15 +120,110 @@ export default function DashboardScreen() {
   };
 
   const changePeriod = (period: string) => {
-    if (period !== selectedPeriod) {
-      setSelectedPeriod(period);
+    if (period === 'custom') {
+      // Set default dates (last 7 days) or use existing custom range
+      const end = customDateRange?.end || new Date();
+      const start = customDateRange?.start || (() => {
+        const date = new Date();
+        date.setDate(date.getDate() - 7);
+        return date;
+      })();
+      setTempStartDate(start);
+      setTempEndDate(end);
+      setPendingPeriod('custom');
+    } else {
+      // Set pending period without applying immediately
+      setPendingPeriod(period);
+      setPendingCustomDateRange(null);
     }
   };
 
-  const StatsCard = ({ title, value, isPositive = true }: { title: string; value: string; isPositive?: boolean }) => (
+  const applyPeriodChange = () => {
+    if (pendingPeriod === 'custom') {
+      if (tempStartDate > tempEndDate) {
+        Alert.alert('Invalid Date Range', 'Start date must be before end date.');
+        return;
+      }
+      setCustomDateRange({ start: tempStartDate, end: tempEndDate });
+      setSelectedPeriod('custom');
+      setPendingCustomDateRange({ start: tempStartDate, end: tempEndDate });
+    } else if (pendingPeriod) {
+      setCustomDateRange(null);
+      setSelectedPeriod(pendingPeriod);
+      setPendingCustomDateRange(null);
+    }
+    setPendingPeriod(null);
+    setIsDateModalOpen(false);
+  };
+
+  const cancelPeriodChange = () => {
+    // Reset pending changes to current state
+    setPendingPeriod(null);
+    setPendingCustomDateRange(null);
+    if (customDateRange) {
+      setTempStartDate(customDateRange.start);
+      setTempEndDate(customDateRange.end);
+    }
+    setIsDateModalOpen(false);
+  };
+
+  const getPendingPeriodLabel = () => {
+    if (pendingPeriod === 'custom') {
+      const startStr = tempStartDate.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+      const endStr = tempEndDate.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+      return `${startStr} - ${endStr}`;
+    }
+    if (pendingPeriod) {
+      return periodOptions.find((p) => p.value === pendingPeriod)?.label || '';
+    }
+    return getPeriodLabel();
+  };
+
+  const getPeriodLabel = () => {
+    if (customDateRange) {
+      const startStr = customDateRange.start.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+      const endStr = customDateRange.end.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+      return `${startStr} - ${endStr}`;
+    }
+    return periodOptions.find((p) => p.value === selectedPeriod)?.label || 'This Week';
+  };
+
+  const StatsCard = ({
+    title,
+    value,
+    subtitle,
+    icon,
+    iconColor = '#007AFF',
+  }: {
+    title: string;
+    value: string;
+    subtitle?: string;
+    icon?: string;
+    iconColor?: string;
+  }) => (
     <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
-      <Text className="text-gray-600 text-sm font-inter-semibold mb-2">{title}</Text>
-      <Text className="text-gray-900 text-2xl font-inter-bold">{value}</Text>
+      <View className="flex-row items-center justify-between mb-2">
+        <Text className="text-gray-600 text-sm font-inter-semibold">{title}</Text>
+        {icon && <Feather name={icon as any} size={16} color={iconColor} />}
+      </View>
+      <Text className="text-gray-900 text-2xl font-inter-bold mb-1">{value}</Text>
+      {subtitle && <Text className="text-gray-500 text-xs font-inter">{subtitle}</Text>}
     </View>
   );
 
@@ -148,14 +306,40 @@ export default function DashboardScreen() {
 
           <View className="flex-1">
             <Text className="text-gray-900 text-xl font-inter-bold mb-1">{sellerSettings.storeName}</Text>
-            {sellerSettings.rating.count > 0 && (
+            {sellerSettings.fullName && (
+              <Text className="text-gray-600 text-sm font-inter mb-1">{sellerSettings.fullName}</Text>
+            )}
+            {sellerSettings.rating.count > 0 ? (
               <View className="flex-row items-center">
                 {renderStars(sellerSettings.rating.rating, 14)}
                 <Text className="text-gray-900 text-sm font-inter ml-1">
-                  {sellerSettings.rating.rating} ({sellerSettings.rating.count} reviews)
+                  {sellerSettings.rating.rating.toFixed(1)} ({sellerSettings.rating.count} review
+                  {sellerSettings.rating.count !== 1 ? 's' : ''})
                 </Text>
               </View>
+            ) : (
+              <Text className="text-gray-500 text-sm font-inter">No reviews yet</Text>
             )}
+          </View>
+        </View>
+
+        <View className="h-px bg-gray-200 my-3" />
+
+        {/* Store Stats */}
+        <View className="flex-row justify-between">
+          <View className="flex-1 items-center">
+            <Text className="text-gray-900 text-lg font-inter-bold">{listingsStats.published}</Text>
+            <Text className="text-gray-600 text-xs font-inter mt-1">Active Listings</Text>
+          </View>
+          <View className="w-px bg-gray-200 mx-2" />
+          <View className="flex-1 items-center">
+            <Text className="text-gray-900 text-lg font-inter-bold">{reportsData?.summary?.completedOrders || 0}</Text>
+            <Text className="text-gray-600 text-xs font-inter mt-1">Completed Orders</Text>
+          </View>
+          <View className="w-px bg-gray-200 mx-2" />
+          <View className="flex-1 items-center">
+            <Text className="text-gray-900 text-lg font-inter-bold">{reportsData?.summary?.pageviews || 0}</Text>
+            <Text className="text-gray-600 text-xs font-inter mt-1">Page Views</Text>
           </View>
         </View>
       </View>
@@ -166,33 +350,66 @@ export default function DashboardScreen() {
     if (!reportsData?.summary) return null;
 
     const summary = reportsData.summary;
+    const activeOrders = summary.processingOrders + summary.pendingOrders;
+    const averageOrderValue =
+      summary.completedOrders > 0 ? summary.totalSales / summary.completedOrders : 0;
 
     return (
       <View className="bg-white rounded-xl p-4 shadow-sm">
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-gray-900 text-lg font-inter-bold">Financial Summary</Text>
+          <Feather name="trending-up" color="#34C759" size={20} />
+        </View>
+
         <View className="mb-3">
           <View className="flex-row justify-between mb-3">
-            <Text className="text-gray-600 text-sm font-inter">Total Sales</Text>
-            <Text className="text-gray-900 text-sm font-inter-bold">{summary.formattedTotalSales}</Text>
+            <View className="flex-1">
+              <Text className="text-gray-600 text-sm font-inter">Total Sales</Text>
+              <Text className="text-gray-400 text-xs font-inter">Completed orders only</Text>
+            </View>
+            <Text className="text-gray-900 text-base font-inter-bold">{summary.formattedTotalSales}</Text>
           </View>
 
           <View className="flex-row justify-between mb-3">
-            <Text className="text-gray-600 text-sm font-inter">Current Balance</Text>
-            <Text className="text-gray-900 text-sm font-inter-bold">{summary.formattedSellerBalance}</Text>
+            <View className="flex-1">
+              <Text className="text-gray-600 text-sm font-inter">Available Balance</Text>
+              <Text className="text-gray-400 text-xs font-inter">Ready to withdraw</Text>
+            </View>
+            <Text className="text-gray-900 text-base font-inter-bold">{summary.formattedSellerBalance}</Text>
           </View>
 
           <View className="flex-row justify-between mb-3">
-            <Text className="text-gray-600 text-sm font-inter">Total Orders</Text>
-            <Text className="text-gray-900 text-sm font-inter-bold">{summary.totalOrders}</Text>
+            <View className="flex-1">
+              <Text className="text-gray-600 text-sm font-inter">Average Order Value</Text>
+              <Text className="text-gray-400 text-xs font-inter">Per completed order</Text>
+            </View>
+            <Text className="text-gray-900 text-base font-inter-bold">
+              £{averageOrderValue.toFixed(2)}
+            </Text>
+          </View>
+
+          <View className="flex-row justify-between mb-3">
+            <View className="flex-1">
+              <Text className="text-gray-600 text-sm font-inter">Total Orders</Text>
+              <Text className="text-gray-400 text-xs font-inter">All time periods</Text>
+            </View>
+            <Text className="text-gray-900 text-base font-inter-bold">{summary.totalOrders}</Text>
           </View>
         </View>
 
         <View className="h-px bg-gray-200 my-3" />
 
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-between mb-2">
           <Text className="text-gray-900 text-base font-inter-bold">Active Orders</Text>
-          <Text className="text-gray-900 text-base font-inter-bold">
-            {summary.processingOrders + summary.pendingOrders}
-          </Text>
+          <Text className="text-gray-900 text-base font-inter-bold">{activeOrders}</Text>
+        </View>
+        <View className="flex-row justify-between">
+          <Text className="text-gray-600 text-sm font-inter">Processing</Text>
+          <Text className="text-gray-900 text-sm font-inter-semibold">{summary.processingOrders}</Text>
+        </View>
+        <View className="flex-row justify-between">
+          <Text className="text-gray-600 text-sm font-inter">Pending</Text>
+          <Text className="text-gray-900 text-sm font-inter-semibold">{summary.pendingOrders}</Text>
         </View>
       </View>
     );
@@ -255,17 +472,25 @@ export default function DashboardScreen() {
 
         <TouchableOpacity
           onPress={() => {
-            Alert.alert(
-              'Select Period',
-              'Choose a time period',
-              periodOptions.map((option) => ({
-                text: option.label,
-                onPress: () => changePeriod(option.value),
-              }))
-            );
+            // Initialize dates if modal is opened directly
+            if (!customDateRange) {
+              const end = new Date();
+              const start = new Date();
+              start.setDate(start.getDate() - 7);
+              setTempStartDate(start);
+              setTempEndDate(end);
+            } else {
+              setTempStartDate(customDateRange.start);
+              setTempEndDate(customDateRange.end);
+            }
+            // Reset pending period when opening modal
+            setPendingPeriod(null);
+            setIsDateModalOpen(true);
           }}
+          className="flex-row items-center bg-gray-800 rounded-lg px-3 py-1.5"
         >
-          <Feather name="calendar" color="#fff" size={20} />
+          <Feather name="calendar" color="#fff" size={16} />
+          <Text className="text-white text-sm font-inter-semibold ml-2">{getPeriodLabel()}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={loadDashboardData}>
@@ -282,24 +507,89 @@ export default function DashboardScreen() {
           {/* Period Selector */}
           <View className="flex-row items-center gap-2 mb-4">
             <Text className="text-gray-600 text-sm font-inter-semibold">Period:</Text>
-            <View className="bg-gray-200 rounded px-3 py-1.5">
-              <Text className="text-gray-900 text-sm font-inter-bold">
-                {periodOptions.find((p) => p.value === selectedPeriod)?.label}
-              </Text>
-            </View>
+            <TouchableOpacity
+              onPress={() => {
+                // Initialize dates if modal is opened directly
+                if (!customDateRange) {
+                  const end = new Date();
+                  const start = new Date();
+                  start.setDate(start.getDate() - 7);
+                  setTempStartDate(start);
+                  setTempEndDate(end);
+                } else {
+                  setTempStartDate(customDateRange.start);
+                  setTempEndDate(customDateRange.end);
+                }
+                // Reset pending period when opening modal
+                setPendingPeriod(null);
+                setIsDateModalOpen(true);
+              }}
+              className="bg-gray-200 rounded px-3 py-1.5 flex-row items-center"
+            >
+              <Text className="text-gray-900 text-sm font-inter-bold">{getPeriodLabel()}</Text>
+              <Feather name="chevron-down" color="#666" size={16} className="ml-1" />
+            </TouchableOpacity>
           </View>
 
           {/* Quick Stats */}
           <View className="mb-6 gap-3">
             <View className="flex-row gap-3">
-              <StatsCard title="Total Sales" value={reportsData?.summary?.formattedTotalSales || '£0.00'} />
-              <StatsCard title="Total Orders" value={reportsData?.summary?.totalOrders?.toString() || '0'} />
+              <StatsCard
+                title="Total Sales"
+                value={reportsData?.summary?.formattedTotalSales || '£0.00'}
+                subtitle={`${reportsData?.summary?.completedOrders || 0} completed orders`}
+                icon="dollar-sign"
+                iconColor="#34C759"
+              />
+              <StatsCard
+                title="Total Orders"
+                value={reportsData?.summary?.totalOrders?.toString() || '0'}
+                subtitle={`${(reportsData?.summary?.processingOrders || 0) + (reportsData?.summary?.pendingOrders || 0)} active`}
+                icon="package"
+                iconColor="#007AFF"
+              />
             </View>
 
             <View className="flex-row gap-3">
-              <StatsCard title="Page Views" value={reportsData?.summary?.pageviews?.toString() || '0'} />
-              <StatsCard title="Balance" value={reportsData?.summary?.formattedSellerBalance || '£0.00'} />
+              <StatsCard
+                title="Page Views"
+                value={reportsData?.summary?.pageviews?.toString() || '0'}
+                subtitle={`${listingsStats.published} active listings`}
+                icon="eye"
+                iconColor="#8B5CF6"
+              />
+              <StatsCard
+                title="Available Balance"
+                value={reportsData?.summary?.formattedSellerBalance || '£0.00'}
+                subtitle="Ready to withdraw"
+                icon="credit-card"
+                iconColor="#FF9500"
+              />
             </View>
+
+            {/* Average Order Value */}
+            {reportsData?.summary && reportsData.summary.totalOrders > 0 && (
+              <View className="flex-row gap-3">
+                <StatsCard
+                  title="Average Order Value"
+                  value={
+                    reportsData.summary.completedOrders > 0
+                      ? `£${(reportsData.summary.totalSales / reportsData.summary.completedOrders).toFixed(2)}`
+                      : '£0.00'
+                  }
+                  subtitle="Per completed order"
+                  icon="trending-up"
+                  iconColor="#34C759"
+                />
+                <StatsCard
+                  title="Active Listings"
+                  value={listingsStats.published.toString()}
+                  subtitle={`${listingsStats.draft} draft${listingsStats.draft !== 1 ? 's' : ''}`}
+                  icon="grid"
+                  iconColor="#007AFF"
+                />
+              </View>
+            )}
           </View>
 
           {/* Order Status Breakdown */}
@@ -385,6 +675,106 @@ export default function DashboardScreen() {
             </View>
           )}
 
+          {/* Listings Statistics */}
+          <View className="mb-6">
+            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Listings Overview</Text>
+            <View className="bg-white rounded-xl p-4 shadow-sm">
+              <View className="flex-row items-center justify-between mb-4">
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 rounded-full bg-blue-100 justify-center items-center mr-3">
+                    <Feather name="grid" color="#007AFF" size={20} />
+                  </View>
+                  <View>
+                    <Text className="text-gray-900 text-base font-inter-bold">Total Listings</Text>
+                    <Text className="text-gray-600 text-sm font-inter">{listingsStats.total} items</Text>
+                  </View>
+                </View>
+                <Text className="text-gray-900 text-2xl font-inter-bold">{listingsStats.total}</Text>
+              </View>
+
+              <View className="h-px bg-gray-200 my-3" />
+
+              <View className="flex-row justify-between mb-2">
+                <View className="flex-row items-center">
+                  <View className="w-2 h-2 rounded-full bg-green-500 mr-2" />
+                  <Text className="text-gray-600 text-sm font-inter">Published</Text>
+                </View>
+                <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.published}</Text>
+              </View>
+
+              <View className="flex-row justify-between mb-2">
+                <View className="flex-row items-center">
+                  <View className="w-2 h-2 rounded-full bg-gray-400 mr-2" />
+                  <Text className="text-gray-600 text-sm font-inter">Draft</Text>
+                </View>
+                <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.draft}</Text>
+              </View>
+
+              {listingsStats.sold > 0 && (
+                <View className="flex-row justify-between">
+                  <View className="flex-row items-center">
+                    <View className="w-2 h-2 rounded-full bg-purple-500 mr-2" />
+                    <Text className="text-gray-600 text-sm font-inter">Private</Text>
+                  </View>
+                  <Text className="text-gray-900 text-sm font-inter-bold">{listingsStats.sold}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+
+          {/* Offers Statistics */}
+          {offersStats.total > 0 && (
+            <View className="mb-6">
+              <Text className="text-gray-900 text-lg font-inter-bold mb-3">Offers Overview</Text>
+              <View className="bg-white rounded-xl p-4 shadow-sm">
+                <View className="flex-row items-center justify-between mb-4">
+                  <View className="flex-row items-center">
+                    <View className="w-10 h-10 rounded-full bg-purple-100 justify-center items-center mr-3">
+                      <Feather name="heart" color="#8B5CF6" size={20} />
+                    </View>
+                    <View>
+                      <Text className="text-gray-900 text-base font-inter-bold">Total Offers</Text>
+                      <Text className="text-gray-600 text-sm font-inter">{offersStats.total} received</Text>
+                    </View>
+                  </View>
+                  <Text className="text-gray-900 text-2xl font-inter-bold">{offersStats.total}</Text>
+                </View>
+
+                <View className="h-px bg-gray-200 my-3" />
+
+                {offersStats.pending > 0 && (
+                  <View className="flex-row justify-between mb-2">
+                    <View className="flex-row items-center">
+                      <View className="w-2 h-2 rounded-full bg-yellow-500 mr-2" />
+                      <Text className="text-gray-600 text-sm font-inter">Pending</Text>
+                    </View>
+                    <Text className="text-gray-900 text-sm font-inter-bold">{offersStats.pending}</Text>
+                  </View>
+                )}
+
+                {offersStats.accepted > 0 && (
+                  <View className="flex-row justify-between mb-2">
+                    <View className="flex-row items-center">
+                      <View className="w-2 h-2 rounded-full bg-green-500 mr-2" />
+                      <Text className="text-gray-600 text-sm font-inter">Accepted</Text>
+                    </View>
+                    <Text className="text-gray-900 text-sm font-inter-bold">{offersStats.accepted}</Text>
+                  </View>
+                )}
+
+                {offersStats.declined > 0 && (
+                  <View className="flex-row justify-between">
+                    <View className="flex-row items-center">
+                      <View className="w-2 h-2 rounded-full bg-red-500 mr-2" />
+                      <Text className="text-gray-600 text-sm font-inter">Declined</Text>
+                    </View>
+                    <Text className="text-gray-900 text-sm font-inter-bold">{offersStats.declined}</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          )}
+
           {/* Financial Summary */}
           {reportsData?.summary && <FinancialSummary />}
         </View>
@@ -396,6 +786,162 @@ export default function DashboardScreen() {
         onClose={() => setIsShippingModalOpen(false)}
         userId={user?.id}
       />
+
+      {/* Date Selection Modal */}
+      <Modal
+        visible={isDateModalOpen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsDateModalOpen(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl p-6 max-h-[80%]">
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-gray-900 text-xl font-inter-bold">Select Time Period</Text>
+              <TouchableOpacity onPress={() => setIsDateModalOpen(false)}>
+                <Feather name="x" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* Quick Period Options */}
+              <View className="mb-6">
+                <Text className="text-gray-600 text-sm font-inter-semibold mb-3">Quick Select</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {periodOptions
+                    .filter((option) => option.value !== 'custom')
+                    .map((option) => {
+                      const isSelected = pendingPeriod
+                        ? pendingPeriod === option.value
+                        : selectedPeriod === option.value && !customDateRange;
+                      return (
+                        <TouchableOpacity
+                          key={option.value}
+                          onPress={() => changePeriod(option.value)}
+                          className={`rounded-lg px-4 py-2.5 ${
+                            isSelected ? 'bg-blue-600' : 'bg-gray-100'
+                          }`}
+                        >
+                          <Text
+                            className={`text-sm font-inter-semibold ${
+                              isSelected ? 'text-white' : 'text-gray-900'
+                            }`}
+                          >
+                            {option.label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                </View>
+              </View>
+
+              {/* Custom Date Range */}
+              <View className="mb-6">
+                <Text className="text-gray-600 text-sm font-inter-semibold mb-3">Custom Date Range</Text>
+                <View className="bg-gray-50 rounded-xl p-4">
+                  {/* Start Date */}
+                  <View className="mb-4">
+                    <Text className="text-gray-700 text-sm font-inter-semibold mb-2">Start Date</Text>
+                    <TouchableOpacity
+                      onPress={() => setShowStartDatePicker(true)}
+                      className="bg-white rounded-lg p-3 flex-row items-center justify-between border border-gray-200"
+                    >
+                      <Text className="text-gray-900 text-base font-inter">
+                        {tempStartDate.toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </Text>
+                      <Feather name="calendar" size={20} color="#666" />
+                    </TouchableOpacity>
+                    {showStartDatePicker && (
+                      <DateTimePicker
+                        value={tempStartDate}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={(event, selectedDate) => {
+                          if (Platform.OS === 'android') {
+                            setShowStartDatePicker(false);
+                          }
+                          if (event.type === 'set' && selectedDate) {
+                            setTempStartDate(selectedDate);
+                            if (Platform.OS === 'ios') {
+                              setShowStartDatePicker(false);
+                            }
+                          } else if (event.type === 'dismissed') {
+                            setShowStartDatePicker(false);
+                          }
+                        }}
+                        maximumDate={tempEndDate}
+                      />
+                    )}
+                  </View>
+
+                  {/* End Date */}
+                  <View>
+                    <Text className="text-gray-700 text-sm font-inter-semibold mb-2">End Date</Text>
+                    <TouchableOpacity
+                      onPress={() => setShowEndDatePicker(true)}
+                      className="bg-white rounded-lg p-3 flex-row items-center justify-between border border-gray-200"
+                    >
+                      <Text className="text-gray-900 text-base font-inter">
+                        {tempEndDate.toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </Text>
+                      <Feather name="calendar" size={20} color="#666" />
+                    </TouchableOpacity>
+                    {showEndDatePicker && (
+                      <DateTimePicker
+                        value={tempEndDate}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={(event, selectedDate) => {
+                          if (Platform.OS === 'android') {
+                            setShowEndDatePicker(false);
+                          }
+                          if (event.type === 'set' && selectedDate) {
+                            setTempEndDate(selectedDate);
+                            if (Platform.OS === 'ios') {
+                              setShowEndDatePicker(false);
+                            }
+                          } else if (event.type === 'dismissed') {
+                            setShowEndDatePicker(false);
+                          }
+                        }}
+                        minimumDate={tempStartDate}
+                        maximumDate={new Date()}
+                      />
+                    )}
+                  </View>
+                </View>
+              </View>
+
+              {/* Action Buttons */}
+              <View className="flex-row gap-3">
+                <TouchableOpacity
+                  onPress={cancelPeriodChange}
+                  className="flex-1 bg-gray-100 rounded-lg py-3 items-center"
+                >
+                  <Text className="text-gray-900 text-base font-inter-semibold">Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={applyPeriodChange}
+                  className="flex-1 bg-black rounded-lg py-3 items-center"
+                  disabled={!pendingPeriod}
+                >
+                  <Text className={`text-base font-inter-semibold ${pendingPeriod ? 'text-white' : 'text-gray-400'}`}>
+                    Apply
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -5,12 +5,22 @@ class SellerService {
   /**
    * Get dashboard reports for a seller
    * @param sellerId - The seller's user ID
-   * @param period - Time period for reports ('today', 'week', 'month', 'year')
+   * @param period - Time period for reports ('today', 'week', 'month', 'year', 'custom')
+   * @param customDateRange - Optional custom date range for 'custom' period
    */
-  async getDashboardReports(sellerId: string, period: string = 'week'): Promise<DashboardReports> {
+  async getDashboardReports(
+    sellerId: string,
+    period: string = 'week',
+    customDateRange?: { start: Date; end: Date }
+  ): Promise<DashboardReports> {
     try {
       // Calculate date range based on period
-      const dateRange = this.getDateRange(period);
+      const dateRange = customDateRange
+        ? {
+            start: customDateRange.start.toISOString(),
+            end: customDateRange.end.toISOString(),
+          }
+        : this.getDateRange(period);
 
       // Get orders within the date range
       const { data: orders, error: ordersError } = await supabase
