@@ -17,7 +17,16 @@ import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SellerProfile {
@@ -55,9 +64,27 @@ export default function SellerProfileScreen() {
   // Contact modal state
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
+  // Pagination state
+  const PRODUCTS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageInput, setPageInput] = useState('1');
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+
   useEffect(() => {
     loadSellerData();
   }, [sellerId]);
+
+  useEffect(() => {
+    if (activeTab === 'products' && sellerId) {
+      loadProducts();
+    }
+  }, [currentPage, sellerId, activeTab]);
+
+  useEffect(() => {
+    setPageInput(currentPage.toString());
+  }, [currentPage]);
 
   const loadSellerData = async () => {
     if (!sellerId) return;
@@ -80,10 +107,6 @@ export default function SellerProfileScreen() {
         display_name_format: sellerProfileData?.display_name_format || 'shop_name',
       };
       setSellerProfile(sellerProfile);
-
-      // Load seller products
-      const products = await listingsService.getSellerListings(sellerId);
-      setSellerProducts(products.filter((p) => p.status === 'published'));
 
       // Load upcoming shows
       const streams = await streamsService.getSellerStreams(sellerId);
@@ -118,6 +141,36 @@ export default function SellerProfileScreen() {
     }
   };
 
+  const loadProducts = async () => {
+    if (!sellerId) return;
+
+    try {
+      setIsLoadingProducts(true);
+      const pageOffset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+      const result = await listingsService.getSellerListingsInfinite(sellerId, pageOffset, PRODUCTS_PER_PAGE);
+
+      setSellerProducts(result.products);
+      setTotalProducts(result.total || 0);
+
+      // Calculate total pages
+      if (result.total !== undefined) {
+        setTotalPages(Math.max(1, Math.ceil(result.total / PRODUCTS_PER_PAGE)));
+      } else {
+        // If we got fewer products than requested, we're on the last page
+        if (result.products.length < PRODUCTS_PER_PAGE) {
+          setTotalPages(currentPage);
+        } else if (result.nextPage === undefined) {
+          setTotalPages(currentPage);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setSellerProducts([]);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+
   const handleFollowToggle = async () => {
     if (!user?.id || !sellerId) {
       showInfoToast('Please sign in to follow sellers');
@@ -146,6 +199,42 @@ export default function SellerProfileScreen() {
       return;
     }
     setIsContactModalOpen(true);
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageInputChange = (text: string) => {
+    // Only allow numbers
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setPageInput(numericValue);
+  };
+
+  const handlePageInputSubmit = () => {
+    const pageNumber = parseInt(pageInput, 10);
+    if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    } else {
+      // Reset to current page if invalid
+      setPageInput(currentPage.toString());
+    }
+  };
+
+  const handleTabChange = (tab: 'products' | 'shows' | 'reviews') => {
+    setActiveTab(tab);
+    if (tab === 'products' && sellerId) {
+      // Reset to page 1 when switching to products tab
+      setCurrentPage(1);
+    }
   };
 
   const handleSubmitReview = async () => {
@@ -224,7 +313,7 @@ export default function SellerProfileScreen() {
   );
 
   const renderReviewItem = ({ item }: { item: Review }) => (
-    <View className="bg-white p-4 mb-3 rounded-lg border border-gray-200">
+    <View className="p-4 mb-3 rounded-lg bg-white border border-gray-200">
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-sm font-inter-semibold text-gray-800">{item.customerName}</Text>
         {renderStars(item.rating, 16)}
@@ -242,22 +331,22 @@ export default function SellerProfileScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className="flex-1 items-center justify-center p-4 bg-white">
         <ActivityIndicator size="large" color="#000" />
-        <Text className="text-sm font-inter-semibold text-gray-600 mt-3">Loading seller profile...</Text>
+        <Text className="mt-3 text-sm font-inter-semibold text-gray-600">Loading seller profile...</Text>
       </View>
     );
   }
 
   if (!sellerProfile) {
     return (
-      <View className="flex-1 items-center justify-center bg-white p-4">
+      <View className="flex-1 items-center justify-center p-4 bg-white">
         <Feather name="user-x" size={64} color="#999" />
-        <Text className="text-xl font-inter-bold text-gray-800 mt-4">Seller Not Found</Text>
-        <Text className="text-sm font-inter-semibold text-gray-600 mt-2 text-center">
+        <Text className="mt-4 text-xl font-inter-bold text-gray-800">Seller Not Found</Text>
+        <Text className="mt-2 text-center text-sm font-inter-semibold text-gray-600">
           This seller profile doesn't exist or has been removed.
         </Text>
-        <Pressable className="bg-black px-6 py-3 rounded-lg mt-4" onPress={() => router.back()}>
+        <Pressable className="mt-4 px-6 py-3 rounded-lg bg-black" onPress={() => router.back()}>
           <Text className="text-white text-sm font-inter-semibold">Go Back</Text>
         </Pressable>
       </View>
@@ -289,15 +378,15 @@ export default function SellerProfileScreen() {
   })();
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="bg-gray-50">
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         {/* Header Section */}
-        <View className="bg-white px-4 py-6 border-b border-gray-200">
+        <View className="px-4 py-6 bg-white border-b border-gray-200">
           <View className="flex-row items-start">
             {/* Avatar */}
-            <View className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 items-center justify-center mr-4">
+            <View className="items-center justify-center w-20 h-20 overflow-hidden rounded-full bg-gray-200 mr-4">
               <Image
-                source={sellerProfile.avatar_url}
+                source={sellerProfile.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&length=1`}
                 contentFit="cover"
                 placeholder={blurhash}
                 transition={1000}
@@ -309,7 +398,7 @@ export default function SellerProfileScreen() {
             <View className="flex-1">
               <Text className="text-xl font-inter-bold text-gray-800">{displayName}</Text>
               {sellerProfile.username && (
-                <Text className="text-sm font-inter-semibold text-gray-500 mt-1">@{sellerProfile.username}</Text>
+                <Text className="mt-1 text-sm font-inter-semibold text-gray-500">@{sellerProfile.username}</Text>
               )}
               {sellerProfile.bio && (
                 <Text className="text-sm font-inter-semibold text-gray-700 mt-2">{sellerProfile.bio}</Text>
@@ -354,19 +443,19 @@ export default function SellerProfileScreen() {
           <View className="flex-row">
             <Pressable
               className={`flex-1 py-4 ${activeTab === 'products' ? 'border-b-2 border-black' : ''}`}
-              onPress={() => setActiveTab('products')}
+              onPress={() => handleTabChange('products')}
             >
               <Text
                 className={`text-center text-sm font-inter-semibold ${
                   activeTab === 'products' ? 'font-inter-semibold text-black' : 'text-gray-600'
                 }`}
               >
-                Products ({sellerProducts.length})
+                Products ({totalProducts})
               </Text>
             </Pressable>
             <Pressable
               className={`flex-1 py-4 ${activeTab === 'shows' ? 'border-b-2 border-black' : ''}`}
-              onPress={() => setActiveTab('shows')}
+              onPress={() => handleTabChange('shows')}
             >
               <Text
                 className={`text-center text-sm font-inter-semibold ${
@@ -378,7 +467,7 @@ export default function SellerProfileScreen() {
             </Pressable>
             <Pressable
               className={`flex-1 py-4 ${activeTab === 'reviews' ? 'border-b-2 border-black' : ''}`}
-              onPress={() => setActiveTab('reviews')}
+              onPress={() => handleTabChange('reviews')}
             >
               <Text
                 className={`text-center text-sm font-inter-semibold ${
@@ -394,14 +483,69 @@ export default function SellerProfileScreen() {
         {/* Tab Content */}
         {activeTab === 'products' ? (
           <View className="p-2">
-            {sellerProducts.length > 0 ? (
-              <FlatList
-                data={sellerProducts}
-                renderItem={renderProductItem}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                scrollEnabled={false}
-              />
+            {isLoadingProducts ? (
+              <View className="items-center justify-center py-12">
+                <ActivityIndicator size="large" color="#000" />
+                <Text className="mt-3 text-sm font-inter-semibold text-gray-600">Loading products...</Text>
+              </View>
+            ) : sellerProducts.length > 0 ? (
+              <>
+                <FlatList
+                  data={sellerProducts}
+                  renderItem={renderProductItem}
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  scrollEnabled={false}
+                />
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <View className="mt-4">
+                    <View className="flex-row items-center justify-center gap-3">
+                      {/* Prev Arrow */}
+                      <TouchableOpacity
+                        onPress={goToPrevPage}
+                        disabled={currentPage === 1 || isLoadingProducts}
+                        className="px-4 py-2"
+                      >
+                        <Feather
+                          name="chevron-left"
+                          size={24}
+                          color={currentPage === 1 || isLoadingProducts ? '#999' : '#000'}
+                        />
+                      </TouchableOpacity>
+
+                      {/* Current Page Input / Total Pages */}
+                      <View className="flex-row items-center gap-2">
+                        <TextInput
+                          value={pageInput}
+                          onChangeText={handlePageInputChange}
+                          onSubmitEditing={handlePageInputSubmit}
+                          onBlur={handlePageInputSubmit}
+                          keyboardType="number-pad"
+                          returnKeyType="done"
+                          editable={!isLoadingProducts}
+                          className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-center text-base font-inter-medium text-black min-w-[50px]"
+                        />
+                        <Text className="text-base font-inter-medium text-gray-600">/</Text>
+                        <Text className="text-base font-inter-medium text-black">{totalPages}</Text>
+                      </View>
+
+                      {/* Next Arrow */}
+                      <TouchableOpacity
+                        onPress={goToNextPage}
+                        disabled={currentPage === totalPages || isLoadingProducts}
+                        className="px-4 py-2"
+                      >
+                        <Feather
+                          name="chevron-right"
+                          size={24}
+                          color={currentPage === totalPages || isLoadingProducts ? '#999' : '#000'}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </>
             ) : (
               <View className="items-center justify-center py-12">
                 <Feather name="shopping-bag" size={48} color="#999" />

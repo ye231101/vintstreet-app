@@ -78,7 +78,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
             onPress={() => onAttributeChange(attribute.id, !selectedValue)}
           >
             <View
-              className={`w-5 h-5 border-2 rounded mr-3 justify-center items-center ${
+              className={`w-5 h-5 border-2 rounded mr-3 items-center justify-center ${
                 selectedValue ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
               }`}
             >
@@ -158,7 +158,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
         }}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl pt-5 px-5 pb-5 max-h-4/5">
+          <View className="bg-white rounded-t-2xl pt-5 px-5 pb-5 max-h-4/5">
             {/* Header */}
             <View className="flex-row items-center justify-between mb-5">
               <Text className="text-lg font-inter-bold text-black">{selectedAttribute.name}</Text>
@@ -167,7 +167,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
                   setShowAttributeModal(false);
                   setSelectedAttribute(null);
                 }}
-                className="w-6 h-6 justify-center items-center"
+                className="w-6 h-6 items-center justify-center"
               >
                 <Feather name="x" size={20} color="#000" />
               </TouchableOpacity>
@@ -220,14 +220,13 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
   };
 
   return (
-    <View className="pt-2 mt-2">
-      <Text className="font-semibold text-sm text-gray-500 mb-4">Category-Specific Attributes</Text>
-      <View className="space-y-4">
+    <View className="gap-4 mt-2">
+      <Text className="font-semibold text-sm text-gray-500">Category-Specific Attributes</Text>
+      <View className="gap-4">
         {attributes.map((attribute) => (
-          <View key={attribute.id} className="mb-4">
-            <Text className="text-sm font-inter-semibold text-black mb-2">
-              {attribute.name}
-              {attribute.is_required && <Text className="text-red-500 ml-1">*</Text>}
+          <View key={attribute.id} className="gap-2">
+            <Text className="text-sm font-inter-semibold text-black">
+              {attribute.name} {attribute.is_required && <Text className="text-red-500">*</Text>}
             </Text>
             {renderAttributeInput(attribute)}
           </View>

@@ -252,7 +252,7 @@ export default function CartScreen() {
         </View>
 
         {/* Seller Total and Checkout */}
-        <View className="p-4 border-t border-gray-200 bg-gray-50">
+        <View className="p-4 border-t border-gray-200">
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-base font-inter-bold text-gray-800">
               Subtotal ({sellerData.items.length} item{sellerData.items.length !== 1 ? 's' : ''})
@@ -282,16 +282,16 @@ export default function CartScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your cart...</Text>
         </View>
@@ -301,16 +301,16 @@ export default function CartScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading cart</Text>
           <TouchableOpacity onPress={handleRefreshCart} className="bg-black rounded-lg py-3 px-6">
@@ -323,16 +323,16 @@ export default function CartScreen() {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
+      <SafeAreaView className="flex-1 bg-white">
         <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
+          <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">Your Cart</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <Feather name="shopping-bag" color="#999" size={64} />
           <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-900">Your cart is empty</Text>
           <Text className="mb-4 text-sm font-inter-semibold text-center text-gray-600">
@@ -347,33 +347,33 @@ export default function CartScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Your Cart</Text>
+        <Text className="flex-1 ml-4 text-lg font-inter-bold text-black">Your Cart</Text>
 
         <TouchableOpacity onPress={() => setShowClearModal(true)} hitSlop={8} className="mr-8">
-          <Feather name="trash-2" color="#fff" size={20} />
+          <Feather name="trash-2" color="#000" size={20} />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleRefreshCart}>
           {isRefreshing ? (
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color="#000" />
           ) : (
-            <Feather name="refresh-cw" color="#fff" size={20} />
+            <Feather name="refresh-cw" color="#000" size={20} />
           )}
         </TouchableOpacity>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefreshCart} tintColor="#007AFF" />}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefreshCart} />}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1 gap-4 p-4 bg-gray-50">
+        <View className="flex-1 gap-4 p-4">
           {Object.entries(sellerGroups).map(([sellerId, sellerData]) => (
             <SellerGroupSection
               key={sellerId}
@@ -386,9 +386,9 @@ export default function CartScreen() {
       </ScrollView>
 
       <Modal visible={showClearModal} transparent animationType="fade" onRequestClose={() => setShowClearModal(false)}>
-        <View className="flex-1 bg-black/50 justify-center items-center p-5">
+        <View className="flex-1 bg-black/50 items-center justify-center p-5">
           <View className="bg-white rounded-xl p-6 w-full max-w-sm">
-            <Text className="text-lg font-inter-bold text-gray-800 mb-4 text-center">Clear Cart</Text>
+            <Text className="text-lg font-inter-bold text-black mb-4 text-center">Clear Cart</Text>
             <Text className="text-base font-inter-semibold text-gray-600 mb-6 text-center">
               Are you sure you want to remove all items from your cart?
             </Text>
@@ -397,7 +397,7 @@ export default function CartScreen() {
                 onPress={() => setShowClearModal(false)}
                 className="flex-1 bg-gray-100 rounded-lg py-3 mr-2 items-center"
               >
-                <Text className="text-gray-800 text-base font-inter-bold">Cancel</Text>
+                <Text className="text-black text-base font-inter-bold">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleClearCart}

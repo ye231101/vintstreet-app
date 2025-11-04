@@ -1,5 +1,5 @@
 import { messagesService, Order, Product } from '@/api';
-import { DropdownComponent } from '@/components/common';
+import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -9,12 +9,10 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  Pressable,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 interface ContactModalProps {
@@ -104,21 +102,20 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         className="flex-1"
       >
-        <Pressable onPress={onClose} className="flex-1 bg-black/50 justify-end">
-          <View className="flex-1" />
-          <Pressable className="bg-white rounded-t-3xl max-h-[90%]" onPress={(e) => e.stopPropagation()}>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-2xl">
             {/* Header */}
-            <View className="flex-col p-4 gap-2 border-b border-gray-200">
+            <View className="flex-col gap-2 p-4 border-b border-gray-200">
               <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
+                <View className="flex-row items-center gap-2">
                   <Feather name="message-circle" size={20} color="#000" />
-                  <Text className="text-xl font-inter-bold text-gray-900 ml-2">{modalTitle}</Text>
+                  <Text className="text-xl font-inter-bold text-gray-900">{modalTitle}</Text>
                 </View>
                 <TouchableOpacity onPress={onClose} hitSlop={8}>
-                  <Feather name="x" size={24} color="#666" />
+                  <Feather name="x" size={24} color="#000" />
                 </TouchableOpacity>
               </View>
-              <Text className="text-sm font-inter text-gray-600">{modalDescription}</Text>
+              <Text className="text-sm font-inter-semibold text-gray-600">{modalDescription}</Text>
             </View>
 
             <ScrollView
@@ -126,51 +123,47 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
               nestedScrollEnabled={true}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ flexGrow: 1 }}
-              className="p-4"
             >
-              <View className="gap-4">
+              <View className="gap-4 p-4">
                 {/* Order Reference */}
                 {order?.id && (
-                  <View className="p-4 bg-gray-100 rounded-lg">
+                  <View className="p-4 rounded-lg bg-gray-100">
                     <Text className="text-sm font-inter-semibold text-gray-600">{order?.order_number}</Text>
                   </View>
                 )}
 
                 {/* Subject */}
-                <View className="gap-2">
-                  <Text className="text-sm font-inter-semibold text-gray-700">Subject *</Text>
-                  <DropdownComponent
-                    data={SUBJECT_OPTIONS}
-                    value={subject}
-                    placeholder="Select a subject"
-                    onChange={(item) => setSubject(item.value)}
-                  />
-                </View>
+                <DropdownComponent
+                  data={SUBJECT_OPTIONS}
+                  value={subject}
+                  label="Subject"
+                  size="small"
+                  required={true}
+                  placeholder="Select a subject"
+                  onChange={(item) => setSubject(item.value)}
+                />
 
                 {/* Message */}
-                <View className="gap-2">
-                  <Text className="text-sm font-inter-medium text-gray-900">Message *</Text>
-                  <TextInput
-                    className="border border-gray-300 rounded-lg px-4 py-3 h-48"
-                    placeholder="Type your message here..."
-                    placeholderTextColor="#9CA3AF"
-                    multiline
-                    textAlignVertical="top"
-                    value={message}
-                    onChangeText={setMessage}
-                    maxLength={1000}
-                  />
-                  <Text className="text-xs font-inter-semibold text-gray-500 text-right mt-1">
-                    {message.length}/1000 characters
-                  </Text>
-                </View>
+                <InputComponent
+                  value={message}
+                  label="Message"
+                  size="small"
+                  required={true}
+                  placeholder="Type your message here..."
+                  onChangeText={(text) => setMessage(text)}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                  height={200}
+                  maxLength={1000}
+                />
 
                 {/* Actions */}
                 <View className="flex-row gap-4">
                   <TouchableOpacity
                     onPress={handleSubmit}
                     disabled={isSubmitting || !subject.trim() || !message.trim()}
-                    className={`flex-row flex-1 items-center justify-center py-3 rounded-lg ${
+                    className={`flex-1 flex-row items-center justify-center py-3 rounded-lg ${
                       isSubmitting || !subject.trim() || !message.trim() ? 'bg-gray-300' : 'bg-black'
                     }`}
                   >
@@ -187,15 +180,15 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
                   <TouchableOpacity
                     onPress={onClose}
                     disabled={isSubmitting}
-                    className="flex-1 bg-gray-200 rounded-lg py-3 flex-row items-center justify-center"
+                    className="flex-1 flex-row items-center justify-center py-3 rounded-lg bg-gray-200"
                   >
                     <Text className="text-base font-inter-bold text-gray-900 text-center">Cancel</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </ScrollView>
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </KeyboardAvoidingView>
     </Modal>
   );

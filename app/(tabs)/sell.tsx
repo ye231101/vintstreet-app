@@ -1,5 +1,6 @@
 import { attributesService, brandsService, listingsService, storageService } from '@/api';
 import { CategoryAttributesCard } from '@/components/category-attributes-card';
+import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { AuthUtils } from '@/utils/auth-utils';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
@@ -8,21 +9,27 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const ITEM_TYPE_OPTIONS = [
+  { label: 'Single Item', value: 'single' },
+  { label: 'Multi Item (with quantity)', value: 'multi' },
+];
 
 export default function SellScreen() {
   const { productId } = useLocalSearchParams<{ productId?: string }>();
@@ -35,10 +42,7 @@ export default function SellScreen() {
   const [category, setCategory] = useState('');
   const [itemType, setItemType] = useState('single');
   const [enableOffers, setEnableOffers] = useState(true);
-  const [purchaseNote, setPurchaseNote] = useState('');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [showItemTypeDropdown, setShowItemTypeDropdown] = useState(false);
-  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [categories, setCategories] = useState<
@@ -622,7 +626,6 @@ export default function SellScreen() {
       setItemType('single');
       setEnableOffers(true);
       setStockQuantity('');
-      setPurchaseNote('');
       setProductImages([]);
       setDynamicAttributes({});
       setAttributes([]);
@@ -745,7 +748,6 @@ export default function SellScreen() {
       setItemType('single');
       setEnableOffers(true);
       setStockQuantity('');
-      setPurchaseNote('');
       setProductImages([]);
       setDynamicAttributes({});
       setAttributes([]);
@@ -767,82 +769,39 @@ export default function SellScreen() {
     }
   };
 
-  // Handle save as draft from modal
-  const handleSaveAsDraftAndLeave = async () => {
-    setShowUnsavedChangesModal(false);
-    await handleSaveDraft();
-  };
-
-  // Handle continue without saving
-  const handleContinueWithoutSaving = () => {
-    setShowUnsavedChangesModal(false);
-    // Clear all form data
-    setTitle('');
-    setDescription('');
-    setPrice('');
-    setSalePrice('');
-    setBrand('');
-    setCategory('');
-    setItemType('single');
-    setEnableOffers(true);
-    setStockQuantity('');
-    setPurchaseNote('');
-    setProductImages([]);
-    setDynamicAttributes({});
-    setAttributes([]);
-    setSelectedCategoryId('');
-    setSelectedSubcategoryId('');
-    setSelectedSubSubcategoryId('');
-    setSelectedSubSubSubcategoryId('');
-    setSelectedBrandId('');
-    setSubcategories([]);
-    setSubSubcategories([]);
-    setSubSubSubcategories([]);
-    setCurrentCategoryLevel('category');
-    setIsMarketplaceListing(true);
-    // Navigate away (this would be handled by the navigation system)
-  };
-
-  // Handle cancel - stay on page
-  const handleCancelNavigation = () => {
-    setShowUnsavedChangesModal(false);
-  };
-
   // Check if user is a buyer and show seller setup message
   if (user?.user_type === 'buyer') {
     return (
-      <SafeAreaView className="flex-1 mb-12 bg-black">
+      <SafeAreaView className="flex-1 mb-14 bg-white">
         {/* Header */}
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+        <View className="flex-row items-center gap-4 p-4 border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Become a Seller</Text>
-
-          <Feather name="shopping-bag" size={28} color="#fff" />
+          <Text className="flex-1 text-lg font-inter-bold text-black">Become a Seller</Text>
         </View>
 
         {/* Seller Setup Message */}
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
-          <View className="items-center p-6 rounded-2xl bg-white shadow-lg w-full">
+        <View className="flex-1 items-center justify-center p-4">
+          <View className="w-full items-center p-6 rounded-2xl bg-white shadow-lg">
             {/* Icon */}
             <View className="items-center justify-center w-20 h-20 mb-6 rounded-full bg-blue-100">
               <Feather name="user-plus" size={40} color="#3B82F6" />
             </View>
 
             {/* Title */}
-            <Text className="mb-4 text-2xl font-inter-bold text-black text-center">Become a Seller</Text>
+            <Text className="mb-4 text-center text-2xl font-inter-bold text-black">Become a Seller</Text>
 
             {/* Description */}
-            <Text className="mb-6 text-sm font-inter-semibold text-gray-600 text-center leading-6">
+            <Text className="mb-6 text-center text-sm font-inter-semibold text-gray-600 leading-6">
               You're currently set up as a buyer. To start selling products on Vint Street, you'll need to set up your
               seller account first.
             </Text>
 
             {/* Benefits List */}
             <View className="w-full mb-8">
-              <Text className="mb-3 text-base font-inter-bold text-black text-center">Why become a seller?</Text>
+              <Text className="mb-3 text-center text-base font-inter-bold text-black">Why become a seller?</Text>
 
               <View className="gap-1 mb-4">
                 <View className="flex-row items-center">
@@ -870,22 +829,24 @@ export default function SellScreen() {
             {/* Action Buttons */}
             <View className="w-full gap-2 mb-4">
               <TouchableOpacity
-                className="w-full py-4 bg-black rounded-lg"
+                className="w-full h-14 items-center justify-center rounded-lg bg-black"
                 onPress={() => {
-                  // Navigate to seller setup/profile page
                   router.push('/seller/seller-setup');
                 }}
               >
-                <Text className="text-base font-inter-bold text-white text-center">Set Up Seller Account</Text>
+                <Text className="text-base font-inter-bold text-white">Set Up Seller Account</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity className="w-full py-3 bg-gray-200 rounded-lg" onPress={() => router.back()}>
-                <Text className="text-base font-inter-semibold text-gray-700 text-center">Maybe Later</Text>
+              <TouchableOpacity
+                className="w-full h-14 items-center justify-center rounded-lg bg-gray-200"
+                onPress={() => router.back()}
+              >
+                <Text className="text-base font-inter-bold text-gray-800">Maybe Later</Text>
               </TouchableOpacity>
             </View>
 
             {/* Help Text */}
-            <Text className="mt-6 text-xs font-inter-semibold text-gray-500 text-center">
+            <Text className="mt-6 text-center text-sm font-inter-semibold text-gray-500">
               Need help? Contact our support team for assistance with seller setup.
             </Text>
           </View>
@@ -895,18 +856,16 @@ export default function SellScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 mb-12 bg-black">
+    <SafeAreaView className="flex-1 mb-14 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
+        <Text className="flex-1 text-lg font-inter-bold text-black">
           {productId ? 'Edit Product' : 'Add New Product'}
         </Text>
-
-        <Feather name="shopping-bag" size={28} color="#fff" />
       </View>
 
       <KeyboardAvoidingView
@@ -916,36 +875,36 @@ export default function SellScreen() {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1 }}
           scrollEnabled={scrollEnabled}
           directionalLockEnabled={false}
           nestedScrollEnabled={false}
+          contentContainerStyle={{ flexGrow: 1 }}
         >
-          <View className="flex-1 gap-4 p-4 bg-gray-50">
+          <View className="flex-1 gap-4 p-4">
             {/* Product Images Section */}
-            <View className="p-4 rounded-lg bg-white">
-              <Text className="mb-4 text-lg font-inter-bold text-black">Product Images (Multiple)</Text>
+            <View className="w-full gap-4 p-4 rounded-lg bg-white shadow-lg">
+              <Text className="text-lg font-inter-bold text-black">Product Images (Multiple)</Text>
 
               {/* Upload Area */}
               <TouchableOpacity
-                className={`items-center p-6 mb-4 rounded-lg border-2 border-dashed ${
-                  productImages.length >= 10 ? 'border-green-300 bg-green-50' : 'border-gray-300'
-                }`}
                 onPress={() => setShowImagePickerModal(true)}
                 disabled={isUploadingImages}
+                className={`w-full items-center p-6 rounded-lg border-2 border-dashed ${
+                  productImages.length >= 10 ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                }`}
               >
                 {isUploadingImages ? (
                   <>
-                    <Feather name="loader" size={32} color="#666" />
+                    <ActivityIndicator size="small" color="#666" />
                     <Text className="mt-2 text-sm font-inter-semibold text-gray-600">Uploading images...</Text>
                     <Text className="mt-1 text-xs font-inter-semibold text-gray-400">{uploadProgress}% complete</Text>
-                    <View className="mt-3 px-4 py-2 rounded-lg bg-gray-200 opacity-50">
+                    <View className="mt-3 px-4 py-2 rounded-lg bg-gray-200">
                       <Text className="text-sm font-inter-semibold text-gray-700">Uploading...</Text>
                     </View>
                   </>
                 ) : productImages.length >= 10 ? (
                   <>
-                    <Feather name="check-circle" size={32} color="#10B981" />
+                    <Feather name="check-circle" size={32} color="#10b981" />
                     <Text className="mt-2 text-sm font-inter-semibold text-green-600">Maximum images reached</Text>
                     <Text className="mt-1 text-xs font-inter-semibold text-green-500">
                       You have selected all 10 images for your product
@@ -963,8 +922,8 @@ export default function SellScreen() {
                       Up to 10MB each, multiple images supported
                     </Text>
                     <TouchableOpacity
-                      className="mt-3 px-4 py-2 rounded-lg bg-gray-200"
                       onPress={() => setShowImagePickerModal(true)}
+                      className="mt-3 px-4 py-2 rounded-lg bg-gray-200"
                     >
                       <Text className="text-sm font-inter-semibold text-gray-700">
                         {productImages.length > 0 ? 'Add More Images' : 'Choose Images'}
@@ -976,14 +935,12 @@ export default function SellScreen() {
 
               {/* Image Previews */}
               {productImages.length > 0 && (
-                <View className="mt-3">
-                  <View className="flex-row items-center justify-between mb-2">
-                    <Text className="text-sm font-inter-semibold text-gray-700">
-                      {productImages.length} of 10 images
-                    </Text>
+                <View className="gap-2">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-sm font-inter-bold text-gray-700">{productImages.length} of 10 images</Text>
                     {isUploadingImages && (
-                      <View className="flex-row items-center">
-                        <Text className="mr-2 text-xs font-inter-semibold text-gray-500">
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-xs font-inter-semibold text-gray-500">
                           Uploading... {uploadProgress}%
                         </Text>
                         <View className="w-16 h-1 bg-gray-200 rounded-full">
@@ -994,20 +951,17 @@ export default function SellScreen() {
                   </View>
 
                   {/* Info about drag and primary image */}
-                  <View className="p-2 mb-3 rounded-lg bg-blue-50">
-                    <Text className="text-xs font-inter-semibold text-blue-800">
+                  <View className="p-2 rounded-lg bg-blue-50">
+                    <Text className="text-sm font-inter-semibold text-blue-800">
                       💡 Long press and drag images to reorder. The first image will be your cover photo.
                     </Text>
                   </View>
 
                   <View
-                    style={{
-                      width: '100%',
-                      minHeight: Math.ceil(productImages.length / 3) * ((Dimensions.get('window').width - 48) / 3 + 8),
-                    }}
                     onTouchStart={() => setScrollEnabled(false)}
                     onTouchEnd={() => setTimeout(() => setScrollEnabled(true), 200)}
                     onTouchCancel={() => setTimeout(() => setScrollEnabled(true), 200)}
+                    className="w-full"
                   >
                     <DraggableGrid
                       numColumns={3}
@@ -1022,21 +976,17 @@ export default function SellScreen() {
 
                         return (
                           <View
+                            className="m-1"
                             style={{
                               width: imageSize,
                               height: imageSize,
-                              margin: 4,
                             }}
                           >
                             <View
+                              className="w-full h-full rounded-lg overflow-hidden"
                               style={{
-                                width: '100%',
-                                height: '100%',
                                 borderWidth: item.isPrimary ? 3 : 1,
-                                borderColor: item.isPrimary ? '#FFD700' : '#ccc',
-                                borderRadius: 10,
-                                overflow: 'hidden',
-                                backgroundColor: '#f0f0f0',
+                                borderColor: item.isPrimary ? '#ffd700' : '#ccc',
                               }}
                             >
                               <Image
@@ -1065,14 +1015,10 @@ export default function SellScreen() {
                                     left: 0,
                                     right: 0,
                                     backgroundColor: 'rgba(0,0,0,0.7)',
-                                    padding: 3,
+                                    padding: 4,
                                   }}
                                 >
-                                  <Text
-                                    style={{ color: 'white', fontSize: 10, textAlign: 'center', fontWeight: 'bold' }}
-                                  >
-                                    ⭐ COVER
-                                  </Text>
+                                  <Text className="text-center text-xs font-inter-bold text-white">⭐ COVER</Text>
                                 </View>
                               )}
 
@@ -1187,23 +1133,25 @@ export default function SellScreen() {
             </View>
 
             {/* Product Information Section */}
-            <View className="p-4 rounded-lg bg-white">
-              <Text className="mb-4 text-lg font-inter-bold text-black">Product Information</Text>
+            <View className="w-full gap-4 p-4 rounded-lg bg-white shadow-lg">
+              <Text className="text-lg font-inter-bold text-black">Product Information</Text>
 
               {/* Product Name Field */}
-              <View className="mb-4">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Product Name *</Text>
-                <TextInput
-                  className="px-3 py-3 text-sm font-inter bg-white rounded-lg border border-gray-300"
-                  placeholder="Enter product name"
-                  value={title}
-                  onChangeText={setTitle}
-                />
-              </View>
+              <InputComponent
+                value={title}
+                label="Product Name"
+                size="small"
+                required={true}
+                placeholder="Enter product name"
+                onChangeText={(text) => setTitle(text)}
+                returnKeyType="next"
+                textContentType="name"
+                autoComplete="name"
+              />
 
               {/* Brand Field */}
-              <View className="mb-4">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Brand</Text>
+              <View className="gap-2">
+                <Text className="text-sm font-inter-semibold text-black">Brand</Text>
                 <TouchableOpacity
                   className="flex-row items-center justify-between px-3 py-3 bg-white rounded-lg border border-gray-300"
                   onPress={() => setShowBrandModal(true)}
@@ -1230,28 +1178,30 @@ export default function SellScreen() {
               </View>
 
               {/* Description Field */}
-              <View className="mb-4">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Description</Text>
-                <TextInput
-                  className="px-3 text-sm font-inter-semibold h-24 bg-white rounded-lg border border-gray-300"
-                  placeholder="Describe your product"
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  textAlignVertical="top"
-                />
-              </View>
+              <InputComponent
+                value={description}
+                label="Description"
+                size="small"
+                placeholder="Describe your product"
+                onChangeText={(text) => setDescription(text)}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                height={100}
+              />
 
               {/* Price Fields */}
-              <View className="flex-row gap-4 mb-4">
-                <View className="flex-1">
-                  <Text className="mb-2 text-sm font-inter-semibold text-black">Price *</Text>
-                  <View className="flex-row items-center">
-                    <View className="px-3 py-3 bg-gray-200 rounded-l-lg border border-gray-300">
+              <View className="flex-row gap-4">
+                <View className="flex-1 gap-2">
+                  <Text className="text-sm font-inter-semibold text-gray-700">
+                    Price <Text className="text-red-500">*</Text>
+                  </Text>
+                  <View className="flex-row items-center" style={{ height: 40 }}>
+                    <View className="h-full items-center justify-center p-3 rounded-l-lg bg-gray-200 border border-gray-300">
                       <Text className="text-sm font-inter-bold text-gray-700">£ GBP</Text>
                     </View>
                     <TextInput
-                      className="px-3 py-3 text-sm font-inter-semibold flex-1 bg-white rounded-r-lg border border-gray-300 border-l-0"
+                      className="h-full flex-1 p-3 rounded-r-lg bg-white border border-gray-300 border-l-0 text-sm font-inter-semibold"
                       placeholder="0.00"
                       value={price}
                       onChangeText={setPrice}
@@ -1259,14 +1209,14 @@ export default function SellScreen() {
                     />
                   </View>
                 </View>
-                <View className="flex-1">
-                  <Text className="mb-2 text-sm font-inter-semibold text-black">Sale Price</Text>
-                  <View className="flex-row items-center">
-                    <View className="px-3 py-3 bg-gray-200 rounded-l-lg border border-gray-300">
+                <View className="flex-1 gap-2">
+                  <Text className="text-sm font-inter-semibold text-gray-700">Sale Price</Text>
+                  <View className="flex-row items-center" style={{ height: 40 }}>
+                    <View className="h-full items-center justify-center p-3 rounded-l-lg bg-gray-200 border border-gray-300">
                       <Text className="text-sm font-inter-bold text-gray-700">£ GBP</Text>
                     </View>
                     <TextInput
-                      className="px-3 py-3 text-sm font-inter-semibold flex-1 bg-white rounded-r-lg border border-gray-300 border-l-0"
+                      className="h-full flex-1 p-3 rounded-r-lg bg-white border border-gray-300 border-l-0 text-sm font-inter-semibold"
                       placeholder="0.00"
                       value={salePrice}
                       onChangeText={setSalePrice}
@@ -1277,17 +1227,16 @@ export default function SellScreen() {
               </View>
 
               {/* Enable Offers Checkbox */}
-              <View className="flex-row items-center">
-                <TouchableOpacity
-                  className={`w-5 h-5 border-2 rounded ${
+              <Pressable onPress={() => setEnableOffers(!enableOffers)} className="flex-row items-center gap-2">
+                <View
+                  className={`w-5 h-5 items-center justify-center rounded border-2 ${
                     enableOffers ? 'bg-black border-black' : 'border-gray-300'
-                  } justify-center items-center mr-3`}
-                  onPress={() => setEnableOffers(!enableOffers)}
+                  }`}
                 >
                   {enableOffers && <Feather name="check" size={14} color="#fff" />}
-                </TouchableOpacity>
+                </View>
                 <Text className="text-sm font-inter-semibold text-black">Enable offers on this product</Text>
-              </View>
+              </Pressable>
             </View>
 
             {/* Category & Attributes Section */}
@@ -1307,139 +1256,206 @@ export default function SellScreen() {
             />
 
             {/* Stock Management Section */}
-            <View className="p-4 rounded-lg bg-white">
-              <Text className="mb-4 text-lg font-inter-bold text-black">Stock Management</Text>
+            <View className="w-full gap-4 p-4 rounded-lg bg-white shadow-lg">
+              <Text className="text-lg font-inter-bold text-black">Stock Management</Text>
 
-              <View className="mb-4">
-                <Text className="mb-2 text-sm font-inter-semibold text-black">Item Type *</Text>
-                <View className="relative">
-                  <TouchableOpacity
-                    className="flex-row items-center justify-between px-3 py-3 bg-white rounded-lg border border-gray-300"
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      setShowItemTypeDropdown(!showItemTypeDropdown);
-                    }}
-                  >
-                    <Text className="text-sm font-inter-semibold text-black">
-                      {itemTypeOptions.find((type) => type.key === itemType)?.label || 'Select item type'}
-                    </Text>
-                    <Feather name="chevron-down" size={16} color="#999" />
-                  </TouchableOpacity>
-
-                  {showItemTypeDropdown && (
-                    <View className="absolute top-11 left-0 right-0 z-50 rounded-lg border border-gray-300 shadow-lg bg-white">
-                      {itemTypeOptions.map((type, index) => (
-                        <TouchableOpacity
-                          key={type.key}
-                          className={`px-3 py-3 ${
-                            index < itemTypeOptions.length - 1 ? 'border-b border-gray-100' : ''
-                          } ${type.key === itemType ? 'bg-gray-100' : 'bg-transparent'}`}
-                          onPress={(e) => {
-                            e.stopPropagation();
-                            setItemType(type.key);
-                            setShowItemTypeDropdown(false);
-                          }}
-                        >
-                          <View className="flex-row items-center justify-between">
-                            <Text className="text-sm font-inter-semibold text-black">{type.label}</Text>
-                            {type.key === itemType && <Feather name="check" size={16} color="#000" />}
-                          </View>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              </View>
+              <DropdownComponent
+                data={ITEM_TYPE_OPTIONS}
+                value={itemType}
+                label="Item Type"
+                size="small"
+                required={true}
+                placeholder="Choose your item type"
+                onChange={(item) => setItemType(item.value)}
+              />
 
               {/* Stock Quantity Field - Only show for Multi Item */}
               {itemType === 'multi' && (
-                <View className="mb-4">
-                  <Text className="mb-2 text-sm font-inter-semibold text-black">Stock Quantity *</Text>
-                  <TextInput
-                    className="px-3 py-3 text-sm font-inter bg-white rounded-lg border border-gray-300"
-                    placeholder="Enter available quantity"
-                    value={stockQuantity}
-                    onChangeText={setStockQuantity}
-                    keyboardType="numeric"
-                  />
-                </View>
+                <InputComponent
+                  value={stockQuantity}
+                  label="Stock Quantity"
+                  size="small"
+                  required={true}
+                  placeholder="Enter available quantity"
+                  onChangeText={(text) => setStockQuantity(text)}
+                  keyboardType="numeric"
+                />
               )}
             </View>
 
             {/* Product Visibility Section */}
-            <View className="p-4 rounded-lg bg-white">
-              <View className="flex-row items-center mb-2">
-                <Feather name="globe" size={20} color="#000" className="mr-2" />
-                <Text className="text-lg font-inter-bold text-black">Product Visibility</Text>
+            <View className="w-full gap-4 p-4 rounded-lg bg-white shadow-lg">
+              <View className="w-full gap-2">
+                <View className="flex-row items-center gap-2">
+                  <Feather name="globe" size={20} color="#000" />
+                  <Text className="text-lg font-inter-bold text-black">Product Visibility</Text>
+                </View>
+
+                <Text className="text-sm font-inter-semibold text-gray-700">Control where your product appears</Text>
               </View>
-              <Text className="mb-4 text-sm font-inter-semibold text-gray-600">Control where your product appears</Text>
 
               <View className="flex-row items-center justify-between">
-                <View className="flex-1">
+                <View className="flex-1 gap-1">
                   <Text className="text-sm font-inter-semibold text-black">List on Marketplace</Text>
-                  <Text className="text-xs font-inter-semibold text-gray-500 mt-1">
+                  <Text className="text-xs font-inter-semibold text-gray-500">
                     {isMarketplaceListing ? 'Visible to all users' : 'Only visible in your shop'}
                   </Text>
                 </View>
-                <TouchableOpacity
+
+                <Pressable
                   onPress={() => setIsMarketplaceListing(!isMarketplaceListing)}
-                  className={`w-14 h-8 rounded-full justify-center ${
+                  className={`w-14 h-8 items-center justify-center p-1 rounded-full ${
                     isMarketplaceListing ? 'bg-black' : 'bg-gray-300'
                   }`}
                 >
                   <View
-                    className={`w-6 h-6 rounded-full bg-white shadow-lg ${isMarketplaceListing ? 'ml-7' : 'ml-1'}`}
+                    className={`w-6 h-6 items-center justify-center rounded-full bg-white shadow-lg ${
+                      isMarketplaceListing ? 'self-end' : 'self-start'
+                    }`}
                   />
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
 
             {/* Action Buttons */}
-            <View className="flex-row gap-4">
+            <View className="w-full flex-row gap-4">
               <TouchableOpacity
-                className={`flex-1 items-center py-3 rounded-lg ${isSavingDraft ? 'bg-gray-400' : 'bg-black'}`}
                 onPress={handleSaveDraft}
                 disabled={isSavingDraft || isPublishing}
+                className={`flex-1 items-center justify-center py-3 rounded-lg ${
+                  isSavingDraft ? 'bg-gray-400' : 'bg-black'
+                }`}
               >
-                <Text className="text-base font-inter-semibold text-white">
-                  {isSavingDraft ? 'Saving...' : productId ? 'Update Draft' : 'Save as Draft'}
-                </Text>
+                {isSavingDraft ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text className="text-base font-inter-semibold text-white">
+                    {productId ? 'Update Draft' : 'Save as Draft'}
+                  </Text>
+                )}
               </TouchableOpacity>
+
               <TouchableOpacity
-                className={`flex-1 items-center py-3 rounded-lg ${isPublishing ? 'bg-gray-400' : 'bg-black'}`}
                 onPress={handlePublishItem}
                 disabled={isSavingDraft || isPublishing}
+                className={`flex-1 items-center py-3 rounded-lg ${isPublishing ? 'bg-gray-400' : 'bg-black'}`}
               >
-                <Text className="text-base font-inter-semibold text-white">
-                  {isPublishing
-                    ? productId
-                      ? 'Updating...'
-                      : 'Publishing...'
-                    : productId
-                    ? 'Update Product'
-                    : 'Publish to Marketplace'}
-                </Text>
+                {isPublishing ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text className="text-base font-inter-semibold text-white">
+                    {productId ? 'Update Product' : 'Publish to Marketplace'}
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
+      {/* Brand Selection Modal */}
+      <Modal
+        visible={showBrandModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowBrandModal(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          className="flex-1"
+        >
+          <View className="flex-1 justify-end bg-black/50">
+            <View className="max-h-4/5 rounded-t-2xl bg-white">
+              {/* Header */}
+              <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+                <Text className="text-lg font-inter-bold text-black">Select Brand</Text>
+                <TouchableOpacity
+                  onPress={() => setShowBrandModal(false)}
+                  hitSlop={8}
+                  className="items-center justify-center"
+                >
+                  <Feather name="x" size={20} color="#000" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Search Bar */}
+              <View className="p-4">
+                <InputComponent
+                  value={brandSearchQuery}
+                  size="small"
+                  placeholder="Search brands..."
+                  onChangeText={(text) => setBrandSearchQuery(text)}
+                />
+              </View>
+
+              {/* Brand List */}
+              <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
+                <View className="px-4">
+                  {filteredBrands.length === 0 ? (
+                    <View className="items-center justify-center py-8">
+                      <Text className="text-sm font-inter-semibold text-gray-500">No brands found</Text>
+                    </View>
+                  ) : (
+                    filteredBrands.map((brand) => (
+                      <TouchableOpacity
+                        key={brand.id}
+                        onPress={() => {
+                          setSelectedBrandId(brand.id);
+                          setBrand(brand.name);
+                          setShowBrandModal(false);
+                          setBrandSearchQuery('');
+                        }}
+                        className={`flex-row items-center justify-between px-3 py-3 rounded-lg ${
+                          selectedBrandId === brand.id ? 'bg-gray-100' : 'bg-transparent'
+                        }`}
+                      >
+                        <View className="flex-1 flex-row items-center">
+                          {brand.logo_url && (
+                            <Image source={{ uri: brand.logo_url }} className="w-6 h-6 mr-3" resizeMode="contain" />
+                          )}
+                          <Text className="text-sm font-inter-semibold text-black flex-1">{brand.name}</Text>
+                        </View>
+                        {selectedBrandId === brand.id && <Feather name="check" size={16} color="#000" />}
+                      </TouchableOpacity>
+                    ))
+                  )}
+                </View>
+              </ScrollView>
+
+              {/* Clear Selection Button */}
+              {selectedBrandId && (
+                <View className="p-4">
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedBrandId('');
+                      setBrand('');
+                      setBrandSearchQuery('');
+                      setShowBrandModal(false);
+                    }}
+                    className="items-center justify-center py-3 px-4 rounded-lg bg-gray-200"
+                  >
+                    <Text className="text-sm font-inter-semibold text-black">Clear Selection</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
       {/* Category Selection Modal */}
       <Modal
         visible={showCategoryModal}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => {
-          setShowCategoryModal(false);
-          resetCategoryModal();
-        }}
+        onRequestClose={() => setShowCategoryModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="p-5 max-h-4/5 rounded-t-3xl bg-white">
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="max-h-4/5 rounded-t-2xl bg-white">
             {/* Header */}
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+              <View className="flex-row items-center gap-3">
                 {currentCategoryLevel !== 'category' && (
                   <TouchableOpacity
                     onPress={() => {
@@ -1457,68 +1473,63 @@ export default function SellScreen() {
                         setSelectedSubSubSubcategoryId('');
                       }
                     }}
-                    className="mr-3"
                   >
                     <Feather name="arrow-left" size={20} color="#000" />
                   </TouchableOpacity>
                 )}
-                <Text className="text-lg font-inter-semibold text-black">
+                <Text className="text-lg font-inter-bold text-black">
                   {currentCategoryLevel === 'category' && 'Select Category'}
                   {currentCategoryLevel === 'subcategory' && 'Select Subcategory'}
                   {currentCategoryLevel === 'subSubcategory' && 'Select Type'}
                   {currentCategoryLevel === 'subSubSubcategory' && 'Select Specific Type'}
                 </Text>
               </View>
+
               <TouchableOpacity
-                onPress={() => {
-                  setShowCategoryModal(false);
-                  resetCategoryModal();
-                }}
-                className="items-center justify-center w-6 h-6"
+                onPress={() => setShowCategoryModal(false)}
+                hitSlop={8}
+                className="items-center justify-center"
               >
                 <Feather name="x" size={20} color="#000" />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
-              {currentCategoryLevel === 'category' && (
-                <>
-                  {categories.length === 0 ? (
-                    <View className="items-center py-8">
+              <View className="px-4">
+                {currentCategoryLevel === 'category' &&
+                  (categories.length === 0 ? (
+                    <View className="items-center justify-center py-8">
                       <Text className="text-sm font-inter-semibold text-gray-500">No categories available</Text>
                     </View>
                   ) : (
                     categories.map((category) => (
                       <TouchableOpacity
                         key={category.id}
-                        className="flex-row items-center justify-between py-4"
                         onPress={async () => {
                           setSelectedCategoryId(category.id);
                           setCategory(category.name);
                           await loadSubcategories(category.id);
                           setCurrentCategoryLevel('subcategory');
                         }}
+                        className="flex-row items-center justify-between py-3"
                       >
                         <Text className="text-base font-inter-semibold text-black">{category.name}</Text>
                         <Feather name="chevron-right" size={16} color="#999" />
                       </TouchableOpacity>
                     ))
-                  )}
-                </>
-              )}
+                  ))}
 
-              {currentCategoryLevel === 'subcategory' && (
-                <>
-                  {subcategories.length === 0 ? (
-                    <View className="items-center py-8">
+                {currentCategoryLevel === 'subcategory' &&
+                  (subcategories.length === 0 ? (
+                    <View className="items-center justify-center py-8 gap-4">
                       <Text className="text-sm font-inter-semibold text-gray-500">No subcategories available</Text>
                       <TouchableOpacity
-                        className="px-6 py-3 mt-4 rounded-lg bg-black"
                         onPress={() => {
                           setCurrentCategoryLevel('subSubcategory');
                         }}
+                        className="px-6 py-3 rounded-lg bg-black"
                       >
-                        <Text className="font-inter-semibold text-white">
+                        <Text className="text-base font-inter-semibold text-white">
                           Continue with {categories.find((c) => c.id === selectedCategoryId)?.name || 'Category'}
                         </Text>
                       </TouchableOpacity>
@@ -1527,34 +1538,31 @@ export default function SellScreen() {
                     subcategories.map((subcategory) => (
                       <TouchableOpacity
                         key={subcategory.id}
-                        className="flex-row items-center justify-between py-4"
                         onPress={async () => {
                           setSelectedSubcategoryId(subcategory.id);
                           await loadSubSubcategories(subcategory.id);
                           await loadAttributes(subcategory.id);
                           setCurrentCategoryLevel('subSubcategory');
                         }}
+                        className="flex-row items-center justify-between py-3"
                       >
                         <Text className="text-base font-inter-semibold text-black">{subcategory.name}</Text>
                         <Feather name="chevron-right" size={16} color="#999" />
                       </TouchableOpacity>
                     ))
-                  )}
-                </>
-              )}
+                  ))}
 
-              {currentCategoryLevel === 'subSubcategory' && (
-                <>
-                  {subSubcategories.length === 0 ? (
-                    <View className="items-center py-8">
+                {currentCategoryLevel === 'subSubcategory' &&
+                  (subSubcategories.length === 0 ? (
+                    <View className="items-center justify-center py-8 gap-4">
                       <Text className="text-sm font-inter-semibold text-gray-500">No types available</Text>
                       <TouchableOpacity
-                        className="px-6 py-3 mt-4 rounded-lg bg-black"
                         onPress={() => {
                           setCurrentCategoryLevel('subSubSubcategory');
                         }}
+                        className="px-6 py-3 rounded-lg bg-black"
                       >
-                        <Text className="font-inter-semibold text-white">
+                        <Text className="text-base font-inter-semibold text-white">
                           Continue with{' '}
                           {subcategories.find((s) => s.id === selectedSubcategoryId)?.name || 'Subcategory'}
                         </Text>
@@ -1564,32 +1572,31 @@ export default function SellScreen() {
                     subSubcategories.map((subSubcategory) => (
                       <TouchableOpacity
                         key={subSubcategory.id}
-                        className="flex-row items-center justify-between py-4"
                         onPress={async () => {
                           setSelectedSubSubcategoryId(subSubcategory.id);
                           await loadSubSubSubcategories(subSubcategory.id);
                           await loadAttributes(selectedSubcategoryId, subSubcategory.id);
                           setCurrentCategoryLevel('subSubSubcategory');
                         }}
+                        className="flex-row items-center justify-between py-3"
                       >
                         <Text className="text-base font-inter-semibold text-black">{subSubcategory.name}</Text>
                         <Feather name="chevron-right" size={16} color="#999" />
                       </TouchableOpacity>
                     ))
-                  )}
-                </>
-              )}
+                  ))}
 
-              {currentCategoryLevel === 'subSubSubcategory' && (
-                <>
-                  {subSubSubcategories.length === 0 ? (
-                    <View className="items-center py-8">
+                {currentCategoryLevel === 'subSubSubcategory' &&
+                  (subSubSubcategories.length === 0 ? (
+                    <View className="items-center justify-center py-8 gap-4">
                       <Text className="text-sm font-inter-semibold text-gray-500">No specific types available</Text>
                       <TouchableOpacity
-                        className="px-6 py-3 mt-4 rounded-lg bg-black"
-                        onPress={() => setShowCategoryModal(false)}
+                        onPress={() => {
+                          setShowCategoryModal(false);
+                        }}
+                        className="px-6 py-3 rounded-lg bg-black"
                       >
-                        <Text className="font-inter-semibold text-white">
+                        <Text className="text-base font-inter-semibold text-white">
                           Use{' '}
                           {subSubcategories.find((s) => s.id === selectedSubSubcategoryId)?.name || 'Sub-subcategory'}
                         </Text>
@@ -1599,159 +1606,23 @@ export default function SellScreen() {
                     subSubSubcategories.map((subSubSubcategory) => (
                       <TouchableOpacity
                         key={subSubSubcategory.id}
-                        className="flex-row items-center justify-between py-4"
                         onPress={() => {
                           setSelectedSubSubSubcategoryId(subSubSubcategory.id);
                           setShowCategoryModal(false);
                         }}
+                        className="flex-row items-center justify-between py-3"
                       >
                         <Text className="text-base font-inter-semibold text-black">{subSubSubcategory.name}</Text>
-                        <Feather name="check" size={16} color="#000" />
+                        {selectedSubSubSubcategoryId === subSubSubcategory.id && (
+                          <Feather name="check" size={16} color="#999" />
+                        )}
                       </TouchableOpacity>
                     ))
-                  )}
-                </>
-              )}
+                  ))}
+              </View>
             </ScrollView>
           </View>
         </View>
-      </Modal>
-
-      {/* Unsaved Changes Modal */}
-      <Modal
-        visible={showUnsavedChangesModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleCancelNavigation}
-      >
-        <View className="flex-1 bg-black/50 justify-center items-center px-5">
-          <View className="w-full max-w-sm p-6 rounded-xl bg-white">
-            <Text className="mb-3 text-lg font-inter-bold text-black text-center">Unsaved Changes</Text>
-
-            <Text className="mb-6 text-sm font-inter-semibold text-gray-600 text-center leading-5">
-              You have unsaved changes. Would you like to save them as a draft before leaving?
-            </Text>
-
-            <View className="gap-3">
-              <TouchableOpacity
-                className={`items-center py-3 rounded-lg ${isSavingDraft ? 'bg-gray-400' : 'bg-black'}`}
-                onPress={handleSaveAsDraftAndLeave}
-                disabled={isSavingDraft}
-              >
-                <Text className="text-base font-inter-semibold text-white">
-                  {isSavingDraft ? 'Saving...' : 'Save as Draft'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                className="items-center py-3 bg-red-500 rounded-lg"
-                onPress={handleContinueWithoutSaving}
-                disabled={isSavingDraft}
-              >
-                <Text className="text-base font-inter-semibold text-white">Discard Changes</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                className="items-center py-3 bg-gray-200 rounded-lg"
-                onPress={handleCancelNavigation}
-                disabled={isSavingDraft}
-              >
-                <Text className="text-base font-inter-semibold text-black">Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Brand Selection Modal */}
-      <Modal
-        visible={showBrandModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowBrandModal(false)}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-          className="flex-1"
-        >
-          <View className="flex-1 justify-end bg-black/50">
-            <View className="p-5 max-h-4/5 rounded-t-3xl bg-white">
-              {/* Header */}
-              <View className="flex-row items-center justify-between mb-4">
-                <Text className="text-lg font-inter-bold text-black">Select Brand</Text>
-                <TouchableOpacity
-                  onPress={() => setShowBrandModal(true)}
-                  className="items-center justify-center w-6 h-6"
-                >
-                  <Feather name="x" size={20} color="#000" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Search Bar */}
-              <View className="mb-4">
-                <TextInput
-                  className="px-3 py-3 text-sm font-inter bg-white rounded-lg border border-gray-300"
-                  placeholder="Search brands..."
-                  value={brandSearchQuery}
-                  onChangeText={setBrandSearchQuery}
-                  autoFocus
-                />
-              </View>
-
-              {/* Brand List */}
-              <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
-                {!brandSearchQuery.trim() && (
-                  <Text className="px-3 mb-3 text-sm font-inter-semibold text-gray-600">Popular Brands</Text>
-                )}
-
-                {filteredBrands.length === 0 ? (
-                  <View className="items-center py-8">
-                    <Text className="text-sm font-inter-semibold text-gray-500">No brands found</Text>
-                  </View>
-                ) : (
-                  filteredBrands.map((brand) => (
-                    <TouchableOpacity
-                      key={brand.id}
-                      className={`flex-row items-center justify-between px-3 py-3 ${
-                        selectedBrandId === brand.id ? 'bg-gray-100' : 'bg-transparent'
-                      }`}
-                      onPress={() => {
-                        setSelectedBrandId(brand.id);
-                        setBrand(brand.name);
-                        setShowBrandModal(false);
-                        setBrandSearchQuery('');
-                      }}
-                    >
-                      <View className="flex-row items-center">
-                        {brand.logo_url && (
-                          <Image source={{ uri: brand.logo_url }} className="w-6 h-6 mr-3" resizeMode="contain" />
-                        )}
-                        <Text className="text-sm font-inter-semibold text-black flex-1">{brand.name}</Text>
-                      </View>
-                      {selectedBrandId === brand.id && <Feather name="check" size={16} color="#000" />}
-                    </TouchableOpacity>
-                  ))
-                )}
-              </ScrollView>
-
-              {/* Clear Selection Button */}
-              {selectedBrandId && (
-                <TouchableOpacity
-                  className="items-center py-3 px-4 mt-4 bg-gray-200 rounded-lg"
-                  onPress={() => {
-                    setSelectedBrandId('');
-                    setBrand('');
-                    setShowBrandModal(false);
-                    setBrandSearchQuery('');
-                  }}
-                >
-                  <Text className="text-sm font-inter-semibold text-black">Clear Selection</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </KeyboardAvoidingView>
       </Modal>
 
       {/* Image Picker Modal */}
@@ -1762,9 +1633,9 @@ export default function SellScreen() {
         onRequestClose={() => setShowImagePickerModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="p-5 rounded-t-3xl bg-white">
+          <View className="rounded-t-2xl bg-white">
             {/* Header */}
-            <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-lg font-inter-bold text-black">Add Product Images</Text>
               <TouchableOpacity
                 onPress={() => setShowImagePickerModal(false)}
@@ -1774,23 +1645,23 @@ export default function SellScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Image Count Info */}
-            <View className="p-3 mb-4 rounded-lg bg-blue-50">
-              <View className="flex-row items-center">
-                <Feather name="info" size={16} color="#3B82F6" />
-                <Text className="ml-2 text-sm font-inter-semibold text-blue-800">
-                  {productImages.length} of 10 images selected
+            <View className="p-4 gap-4">
+              {/* Image Count Info */}
+              <View className="p-4 rounded-lg bg-blue-50">
+                <View className="flex-row items-center">
+                  <Feather name="info" size={16} color="#3B82F6" />
+                  <Text className="ml-2 text-sm font-inter-semibold text-blue-800">
+                    {productImages.length} of 10 images selected
+                  </Text>
+                </View>
+                <Text className="mt-1 text-xs font-inter-semibold text-blue-600">
+                  You can add up to 10 high-quality images to showcase your product
                 </Text>
               </View>
-              <Text className="mt-1 text-xs font-inter-semibold text-blue-600">
-                You can add up to 10 high-quality images to showcase your product
-              </Text>
-            </View>
 
-            {/* Options */}
-            <View className="gap-4">
+              {/* Options */}
               <TouchableOpacity
-                className={`flex-row items-center gap-1 py-4 px-4 rounded-lg ${
+                className={`flex-row items-center gap-1 p-4 rounded-lg ${
                   productImages.length >= 10 ? 'bg-gray-100 opacity-50' : 'bg-gray-100'
                 }`}
                 onPress={pickImageFromGallery}
@@ -1809,7 +1680,7 @@ export default function SellScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className={`flex-row items-center gap-1 py-4 px-4 rounded-lg ${
+                className={`flex-row items-center gap-1 p-4 rounded-lg ${
                   productImages.length >= 10 ? 'bg-gray-100 opacity-50' : 'bg-gray-100'
                 }`}
                 onPress={takePhotoWithCamera}

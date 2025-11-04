@@ -1,9 +1,11 @@
 import { messagesService } from '@/api';
+import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Modal,
@@ -269,15 +271,15 @@ export default function MessageDetailScreen() {
   const messageItems = groupMessagesByDate(messages);
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center gap-4 p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
         <View className="flex-1">
-          <Text className="text-lg font-inter-bold text-white">{conversationInfo?.subject || 'Loading...'}</Text>
+          <Text className="text-lg font-inter-bold text-black">{conversationInfo?.subject || 'Loading...'}</Text>
           <Text className="text-sm font-inter-semibold text-gray-400">
             Conversation with {conversationInfo?.otherUserName || 'Loading...'}
           </Text>
@@ -288,7 +290,7 @@ export default function MessageDetailScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={loadMessages}>
-          <Feather name="refresh-cw" size={20} color="#fff" />
+          <Feather name="refresh-cw" size={20} color="#000" />
         </TouchableOpacity>
       </View>
 
@@ -298,9 +300,9 @@ export default function MessageDetailScreen() {
         onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1 py-4 bg-gray-50">
+        <View className="flex-1 py-4">
           {isLoading ? (
-            <View className="flex-1 justify-center items-center py-12">
+            <View className="flex-1 items-center justify-center py-12">
               <Text className="text-base font-inter-semibold text-gray-600">Loading messages...</Text>
             </View>
           ) : (
@@ -325,20 +327,15 @@ export default function MessageDetailScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <View className="flex-row items-center px-4 py-3 bg-gray-50 border-t border-gray-200">
-          <View
-            className="flex-1 flex-row items-center bg-gray-100 rounded-xl px-4 py-1 mr-3"
-            style={{ maxHeight: 250 }}
-          >
+        <View className="flex-row items-center gap-3 px-4 py-3 border-t border-gray-200">
+          <View className="flex-1 flex-row items-center bg-gray-100 rounded-xl px-4 py-1" style={{ maxHeight: 250 }}>
             <TextInput
-              className="flex-1 text-sm font-inter-semibold text-black"
-              style={{ maxHeight: 250 }}
-              placeholder="Type a message..."
-              placeholderTextColor="#999"
               value={messageText}
               onChangeText={setMessageText}
               multiline
               textAlignVertical="center"
+              placeholder="Type a message..."
+              placeholderTextColor="#999"
               onFocus={() => {
                 setTimeout(() => {
                   scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -349,22 +346,23 @@ export default function MessageDetailScreen() {
                   scrollViewRef.current?.scrollToEnd({ animated: true });
                 }, 100);
               }}
+              className="flex-1 text-sm font-inter-semibold text-black"
+              style={{ maxHeight: 250 }}
             />
           </View>
 
           <TouchableOpacity
             onPress={sendMessage}
             disabled={!messageText.trim() || isSending}
-            className={`w-10 h-10 rounded-full justify-center items-center shadow-lg ${
+            className={`w-10 h-10 rounded-full items-center justify-center shadow-lg ${
               !messageText.trim() || isSending ? 'bg-gray-400' : 'bg-black'
             }`}
           >
-            <Feather
-              name={isSending ? 'loader' : 'send'}
-              size={18}
-              color="#fff"
-              style={isSending ? { transform: [{ rotate: '0deg' }] } : {}}
-            />
+            {isSending ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Feather name="send" size={18} color="#fff" />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -376,35 +374,32 @@ export default function MessageDetailScreen() {
         transparent
         onRequestClose={() => setIsReportDialogOpen(false)}
       >
-        <View className="flex-1 bg-black/50 justify-center items-center px-4">
-          <View className="bg-gray-50 rounded-lg p-6 w-full max-w-md">
-            <Text className="text-lg font-inter-bold text-black mb-2">Report Message</Text>
-            <Text className="text-sm font-inter-semibold text-gray-600 mb-4">
+        <View className="flex-1 bg-black/50 items-center justify-center px-4">
+          <View className="bg-white rounded-lg p-6 w-full max-w-md">
+            <Text className="mb-2 text-lg font-inter-bold text-black">Report Message</Text>
+            <Text className="mb-4 text-sm font-inter-semibold text-gray-600">
               This will flag the message for administrator review. Please provide a reason for reporting this
               conversation.
             </Text>
 
-            <Text className="text-sm font-inter-semibold text-black mb-2">Reason for reporting</Text>
-            <TextInput
+            <InputComponent
               value={reportReason}
-              onChangeText={setReportReason}
+              label="Reason for reporting"
+              size="small"
               placeholder="Describe why you're reporting this message..."
+              onChangeText={(text) => setReportReason(text)}
               multiline
               numberOfLines={4}
-              maxLength={500}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
               textAlignVertical="top"
-              style={{ height: 100 }}
+              height={100}
+              maxLength={500}
             />
-            <Text className="text-right text-xs font-inter-semibold text-gray-500 mt-1">
-              {reportReason.length}/500 characters
-            </Text>
 
-            <View className="flex-row justify-end mt-6 space-x-2">
+            <View className="flex-row justify-end gap-2 mt-6">
               <TouchableOpacity
                 onPress={() => setIsReportDialogOpen(false)}
                 disabled={isReporting}
-                className="px-4 py-2 rounded-lg border border-gray-300 mr-2"
+                className="px-4 py-2 rounded-lg border border-gray-300"
               >
                 <Text className="text-gray-600">Cancel</Text>
               </TouchableOpacity>

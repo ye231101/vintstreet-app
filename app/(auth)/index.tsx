@@ -2,7 +2,16 @@ import { InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function IndexScreen() {
@@ -18,21 +27,25 @@ export default function IndexScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        className="flex-1"
       >
-        <View className="flex-1 items-center justify-center p-6">
-          <View className="gap-4 w-full max-w-lg">
-            <View className="items-center">
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <View className="w-full max-w-lg flex-1 items-center justify-center gap-4 p-6 mx-auto">
+            <View className="w-full items-center">
               <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
               <Text className="mt-4 text-2xl font-inter-bold text-center">Welcome to Vint Street</Text>
               <Text className="mt-2 text-base font-inter-semibold text-gray-500 text-center">Sign in to continue</Text>
             </View>
 
             {error && (
-              <View className="bg-red-50 border border-red-300 p-2.5 rounded-lg">
+              <View className="w-full bg-red-50 border border-red-300 p-2.5 rounded-lg">
                 <Text className="font-inter text-red-700">{error}</Text>
               </View>
             )}
@@ -62,7 +75,7 @@ export default function IndexScreen() {
               autoComplete="password"
             />
 
-            <View className="items-end">
+            <View className="w-full items-end">
               <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
                 <Text className="font-inter text-gray-800">Forgot Password?</Text>
               </Pressable>
@@ -71,22 +84,22 @@ export default function IndexScreen() {
             <Pressable
               onPress={onSubmit}
               disabled={loading}
-              className={`items-center justify-center h-14 rounded-lg ${loading ? 'bg-gray-400' : 'bg-black'}`}
+              className={`w-full h-14 items-center justify-center rounded-lg ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
               <Text className="text-base font-inter-bold text-white">
                 {loading ? <ActivityIndicator size="small" color="white" /> : 'LOG IN'}
               </Text>
             </Pressable>
 
-            <View className="flex-row justify-center">
+            <View className="w-full flex-row items-center justify-center">
               <Text className="font-inter text-gray-800">Don't have an account? </Text>
               <Pressable onPress={() => router.push('/(auth)/register')}>
                 <Text className="font-inter-bold text-gray-800">Register</Text>
               </Pressable>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

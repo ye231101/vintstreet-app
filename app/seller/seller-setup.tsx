@@ -162,7 +162,7 @@ export default function SellerSetupScreen() {
   };
 
   const renderStep1 = () => (
-    <View className="flex-1 p-4">
+    <View className="flex-1 p-4 bg-white">
       <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">
           What type of things would you like to sell?
@@ -176,7 +176,7 @@ export default function SellerSetupScreen() {
             <Pressable
               key={category.id}
               onPress={() => toggleCategory(category.id)}
-              className={`flex-row items-center px-5 py-4 mb-3 bg-white border rounded-xl ${
+              className={`flex-row items-center px-5 py-4 mb-3 bg-white border rounded-lg ${
                 selectedCategories.includes(category.id) ? 'border-black' : 'border-gray-200'
               }`}
             >
@@ -197,7 +197,7 @@ export default function SellerSetupScreen() {
         <Pressable
           onPress={handleContinueStep1}
           disabled={selectedCategories.length === 0}
-          className={`py-4 rounded-xl ${selectedCategories.length === 0 ? 'bg-gray-400' : 'bg-black'}`}
+          className={`py-4 rounded-lg ${selectedCategories.length === 0 ? 'bg-gray-400' : 'bg-black'}`}
         >
           <Text className="text-base font-inter-bold text-center text-white">Continue</Text>
         </Pressable>
@@ -206,7 +206,7 @@ export default function SellerSetupScreen() {
   );
 
   const renderStep2 = () => (
-    <View className="flex-1 p-4">
+    <View className="flex-1 p-4 bg-white">
       <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">How would you like to sell?</Text>
         <Text className="text-sm font-inter text-gray-600 text-center">You can choose one or both</Text>
@@ -216,7 +216,7 @@ export default function SellerSetupScreen() {
         <View className="flex-1 justify-center p-2">
           <Pressable
             onPress={() => setUploadListings(!uploadListings)}
-            className={`px-6 py-6 mb-4 bg-white border rounded-xl ${
+            className={`px-6 py-6 mb-4 bg-white border rounded-lg ${
               uploadListings ? 'border-black' : 'border-gray-200'
             }`}
           >
@@ -237,7 +237,7 @@ export default function SellerSetupScreen() {
 
           <Pressable
             onPress={() => setLivestream(!livestream)}
-            className={`px-6 py-6 bg-white border rounded-xl ${livestream ? 'border-black' : 'border-gray-200'}`}
+            className={`px-6 py-6 bg-white border rounded-lg ${livestream ? 'border-black' : 'border-gray-200'}`}
           >
             <View className="flex-row items-center">
               <View
@@ -260,7 +260,7 @@ export default function SellerSetupScreen() {
         <Pressable
           onPress={handleContinueStep2}
           disabled={!uploadListings && !livestream}
-          className={`py-4 rounded-xl ${!uploadListings && !livestream ? 'bg-gray-400' : 'bg-black'}`}
+          className={`py-4 rounded-lg ${!uploadListings && !livestream ? 'bg-gray-400' : 'bg-black'}`}
         >
           <Text className="text-base font-inter-bold text-center text-white">Continue</Text>
         </Pressable>
@@ -269,7 +269,7 @@ export default function SellerSetupScreen() {
   );
 
   const renderStep3 = () => (
-    <View className="flex-1 p-4">
+    <View className="flex-1 p-4 bg-white">
       <View className="p-2">
         <Text className="mb-2 text-3xl font-inter-bold text-black text-center">Your shop name</Text>
         <Text className="text-sm font-inter text-gray-600 text-center">Choose a memorable name for your shop</Text>
@@ -284,7 +284,7 @@ export default function SellerSetupScreen() {
             placeholder="Enter your shop name"
             placeholderTextColor="#9CA3AF"
             maxLength={50}
-            className="px-5 py-4 text-base font-inter text-black bg-white border border-gray-200 rounded-xl"
+            className="px-5 py-4 text-base font-inter text-black bg-white border border-gray-200 rounded-lg"
           />
           <Text className="mt-2 text-xs font-inter-semibold text-gray-500 text-right">
             {shopName.length}/50 characters
@@ -296,7 +296,7 @@ export default function SellerSetupScreen() {
         <Pressable
           onPress={handleCompleteSetup}
           disabled={loading || !shopName.trim()}
-          className={`py-4 rounded-xl ${loading || !shopName.trim() ? 'bg-gray-400' : 'bg-black'}`}
+          className={`py-4 rounded-lg ${loading || !shopName.trim() ? 'bg-gray-400' : 'bg-black'}`}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
@@ -309,7 +309,7 @@ export default function SellerSetupScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 bg-gray-50">
         {/* Header */}
         <View className="bg-white p-4">

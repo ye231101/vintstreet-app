@@ -93,7 +93,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
     if (options.length === 0) {
       return (
-        <View className="flex-1 justify-center items-center p-5">
+        <View className="flex-1 items-center justify-center p-5">
           <Feather name="inbox" size={48} color="#ccc" />
           <Text className="text-gray-400 font-inter-medium mt-3 text-center">
             No {selectedCategory} options available
@@ -132,7 +132,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <Pressable className="flex-1 bg-black/50 justify-end" onPress={onClose}>
         <Pressable
-          className="bg-white rounded-t-3xl"
+          className="bg-white rounded-t-2xl"
           style={{ height: '75%', maxHeight: 600 }}
           onPress={(e) => e.stopPropagation()}
         >

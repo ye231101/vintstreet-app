@@ -29,7 +29,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
-      <Pressable onPress={onClose} className="flex-1 bg-black/50 justify-center items-center p-4">
+      <Pressable onPress={onClose} className="flex-1 bg-black/50 items-center justify-center p-4">
         <Pressable className="bg-white rounded-2xl p-6 w-full max-w-sm" onPress={(e) => e.stopPropagation()}>
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">

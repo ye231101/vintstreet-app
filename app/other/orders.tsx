@@ -107,7 +107,7 @@ export default function OrdersScreen() {
   };
 
   const OrderCard = ({ order }: { order: Order }) => (
-    <View className="bg-white rounded-xl shadow-sm">
+    <View className="bg-white rounded-lg shadow-lg">
       {/* Order header */}
       <View className="flex-row justify-between items-start p-4">
         <View className="flex-1">
@@ -173,17 +173,17 @@ export default function OrdersScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">My Orders</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">My Orders</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1">
         <View className="border-b border-gray-200">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {tabs.map((tab) => {
@@ -192,7 +192,7 @@ export default function OrdersScreen() {
                 <TouchableOpacity
                   key={tab.key}
                   onPress={() => setActiveTab(tab.key)}
-                  className={`py-4 px-5 border-b-2 ${activeTab === tab.key ? 'border-black' : 'border-transparent'}`}
+                  className={`py-3 px-4 border-b-2 ${activeTab === tab.key ? 'border-black' : 'border-transparent'}`}
                 >
                   <Text
                     className={`text-base font-inter-semibold ${
@@ -208,12 +208,12 @@ export default function OrdersScreen() {
         </View>
 
         {isLoading ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
             <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your orders...</Text>
           </View>
         ) : error ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="alert-circle" color="#ff4444" size={64} />
             <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading orders</Text>
             <TouchableOpacity onPress={loadOrders} className="bg-black rounded-lg py-3 px-6">
@@ -223,7 +223,7 @@ export default function OrdersScreen() {
         ) : getFilteredOrders().length > 0 ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOrders} tintColor="#007AFF" />}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadOrders} />}
             contentContainerStyle={{ flexGrow: 1 }}
           >
             <View className="gap-4 p-4">
@@ -233,8 +233,8 @@ export default function OrdersScreen() {
             </View>
           </ScrollView>
         ) : (
-          <View className="flex-1 justify-center items-center p-4">
-            <Feather name="shopping-bag" color="#666" size={64} />
+          <View className="flex-1 items-center justify-center p-4">
+            <Feather name="shopping-cart" color="#666" size={64} />
             <Text className="text-gray-900 text-lg font-inter-bold mt-4">No orders found</Text>
             <Text className="text-gray-600 text-sm font-inter mt-2">
               {activeTab === 'all'

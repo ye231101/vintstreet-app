@@ -1,8 +1,8 @@
+import { brandsService } from '@/api';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, Pressable, ScrollView, View } from 'react-native';
-import { brandsService } from '@/api';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -48,16 +48,20 @@ const brands = [
 
 const BrandCard = ({ brand }: { brand: Brand }) => {
   const handlePress = () => {
-    // Navigate to discovery screen with brand filter (similar to category)
+    // Navigate to discovery screen with brand filter
     if (brand.brandId) {
-      router.push(`/(tabs)/discovery?brand=${encodeURIComponent(brand.brandId)}&brandName=${encodeURIComponent(brand.name)}` as any);
+      router.push(
+        `/(tabs)/discovery?brand=${encodeURIComponent(brand.brandId)}&brandName=${encodeURIComponent(
+          brand.name
+        )}` as any
+      );
     }
   };
 
   return (
     <Pressable
       onPress={handlePress}
-      className="bg-white rounded-lg p-2 mr-2 mb-2 border border-gray-200 items-center justify-center active:opacity-70"
+      className="items-center justify-center p-2 mb-2 rounded-lg bg-white border border-gray-200 active:opacity-70"
       style={{
         width: screenWidth / 3,
         height: screenWidth / 4,
@@ -76,7 +80,7 @@ export default function Brand() {
     const fetchBrandIds = async () => {
       try {
         const dbBrands = await brandsService.getBrands({ is_active: true });
-        
+
         // Map local brands with database brand IDs
         const updatedBrands = brands.map((brand) => {
           const dbBrand = dbBrands.find((db) => db.name.toLowerCase() === brand.name.toLowerCase());
@@ -85,7 +89,7 @@ export default function Brand() {
             brandId: dbBrand?.id,
           };
         });
-        
+
         setBrandsWithIds(updatedBrands);
       } catch (error) {
         console.error('Error fetching brand IDs:', error);
@@ -98,16 +102,18 @@ export default function Brand() {
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      {Array.from({ length: Math.ceil(brandsWithIds.length / 2) }).map((_, colIndex) => {
-        const first = brandsWithIds[colIndex * 2];
-        const second = brandsWithIds[colIndex * 2 + 1];
-        return (
-          <View key={colIndex}>
-            {first && <BrandCard key={first.id} brand={first} />}
-            {second && <BrandCard key={second.id} brand={second} />}
-          </View>
-        );
-      })}
+      <View className="flex-row gap-2">
+        {Array.from({ length: Math.ceil(brandsWithIds.length / 2) }).map((_, colIndex) => {
+          const first = brandsWithIds[colIndex * 2];
+          const second = brandsWithIds[colIndex * 2 + 1];
+          return (
+            <View key={colIndex}>
+              {first && <BrandCard key={first.id} brand={first} />}
+              {second && <BrandCard key={second.id} brand={second} />}
+            </View>
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }

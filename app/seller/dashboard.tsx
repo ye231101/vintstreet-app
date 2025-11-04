@@ -2,6 +2,7 @@ import { DashboardReports, listingsService, offersService, sellerService, Seller
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather, FontAwesome } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -15,7 +16,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
@@ -247,24 +247,24 @@ export default function DashboardScreen() {
 
     if (statusItems.length === 0) {
       return (
-        <View className="bg-white rounded-xl p-4 shadow-sm">
+        <View className="p-4 rounded-lg bg-white shadow-lg">
           <Text className="text-gray-600 text-sm font-inter-semibold text-center">No orders yet</Text>
         </View>
       );
     }
 
     return (
-      <View className="bg-white rounded-xl p-4 shadow-sm">
+      <View className="p-4 rounded-lg bg-white shadow-lg">
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-gray-900 text-base font-inter-bold">Order Status</Text>
-          <Text className="text-gray-600 text-sm font-inter">{summary.totalOrders} Total</Text>
+          <Text className="text-base font-inter-bold text-gray-900">Order Status</Text>
+          <Text className="text-sm font-inter text-gray-600">{summary.totalOrders} Total</Text>
         </View>
 
         {statusItems.map((item, index) => (
           <View key={index} className="flex-row items-center mb-2">
             <View className="w-3 h-3 rounded-full mr-3" style={{ backgroundColor: item.color }} />
-            <Text className="text-gray-900 text-sm font-inter-semibold flex-1">{item.label}</Text>
-            <Text className="text-gray-900 text-sm font-inter-bold">{item.count}</Text>
+            <Text className="flex-1 text-sm font-inter-semibold text-gray-900">{item.label}</Text>
+            <Text className="text-sm font-inter-bold text-gray-900">{item.count}</Text>
           </View>
         ))}
       </View>
@@ -314,19 +314,19 @@ export default function DashboardScreen() {
         : getPersonalNameDisplay(sellerSettings.fullName) || sellerSettings.fullName || sellerSettings.storeName;
 
     return (
-      <View className="bg-white rounded-xl p-4 shadow-sm">
+      <View className="p-4 rounded-lg bg-white shadow-lg">
         {/* Store Header */}
         <View className="flex-row items-center mb-4">
-          <View className="w-16 h-16 rounded-full bg-blue-100 justify-center items-center mr-4">
+          <View className="w-16 h-16 rounded-full bg-blue-100 items-center justify-center mr-4">
             <Feather name="shopping-bag" color="#007AFF" size={28} />
           </View>
 
           <View className="flex-1">
-            <Text className="text-gray-900 text-xl font-inter-bold mb-1">{displayTitle}</Text>
+            <Text className="mb-1 text-xl font-inter-bold text-gray-900">{displayTitle}</Text>
             {sellerSettings.rating.count > 0 ? (
               <View className="flex-row items-center">
                 {renderStars(sellerSettings.rating.rating, 14)}
-                <Text className="text-gray-900 text-sm font-inter ml-1">
+                <Text className="ml-1 text-sm font-inter text-gray-900">
                   {sellerSettings.rating.rating.toFixed(1)} ({sellerSettings.rating.count} review
                   {sellerSettings.rating.count !== 1 ? 's' : ''})
                 </Text>
@@ -363,59 +363,59 @@ export default function DashboardScreen() {
     const averageOrderValue = summary.completedOrders > 0 ? summary.totalSales / summary.completedOrders : 0;
 
     return (
-      <View className="bg-white rounded-xl p-4 shadow-sm">
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-gray-900 text-lg font-inter-bold">Financial Summary</Text>
+      <View className="gap-4 rounded-lg bg-white shadow-lg">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-lg font-inter-bold text-gray-900">Financial Summary</Text>
           <Feather name="trending-up" color="#34C759" size={20} />
         </View>
 
-        <View className="mb-3">
-          <View className="flex-row justify-between mb-3">
+        <View className="gap-2 p-4">
+          <View className="flex-row justify-between">
             <View className="flex-1">
               <Text className="text-gray-600 text-sm font-inter">Total Sales</Text>
               <Text className="text-gray-400 text-xs font-inter">Completed orders only</Text>
             </View>
-            <Text className="text-gray-900 text-base font-inter-bold">{summary.formattedTotalSales}</Text>
+            <Text className="text-base font-inter-bold text-gray-900">{summary.formattedTotalSales}</Text>
           </View>
 
-          <View className="flex-row justify-between mb-3">
+          <View className="flex-row justify-between">
             <View className="flex-1">
               <Text className="text-gray-600 text-sm font-inter">Available Balance</Text>
               <Text className="text-gray-400 text-xs font-inter">Ready to withdraw</Text>
             </View>
-            <Text className="text-gray-900 text-base font-inter-bold">{summary.formattedSellerBalance}</Text>
+            <Text className="text-base font-inter-bold text-gray-900">{summary.formattedSellerBalance}</Text>
           </View>
 
-          <View className="flex-row justify-between mb-3">
+          <View className="flex-row justify-between">
             <View className="flex-1">
               <Text className="text-gray-600 text-sm font-inter">Average Order Value</Text>
               <Text className="text-gray-400 text-xs font-inter">Per completed order</Text>
             </View>
-            <Text className="text-gray-900 text-base font-inter-bold">£{averageOrderValue.toFixed(2)}</Text>
+            <Text className="text-base font-inter-bold text-gray-900">£{averageOrderValue.toFixed(2)}</Text>
           </View>
 
-          <View className="flex-row justify-between mb-3">
+          <View className="flex-row justify-between">
             <View className="flex-1">
               <Text className="text-gray-600 text-sm font-inter">Total Orders</Text>
               <Text className="text-gray-400 text-xs font-inter">All time periods</Text>
             </View>
-            <Text className="text-gray-900 text-base font-inter-bold">{summary.totalOrders}</Text>
+            <Text className="text-base font-inter-bold text-gray-900">{summary.totalOrders}</Text>
           </View>
         </View>
 
-        <View className="h-px bg-gray-200 my-3" />
+        <View className="h-px bg-gray-200" />
 
-        <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-900 text-base font-inter-bold">Active Orders</Text>
-          <Text className="text-gray-900 text-base font-inter-bold">{activeOrders}</Text>
+        <View className="flex-row justify-between">
+          <Text className="text-base font-inter-bold text-gray-900">Active Orders</Text>
+          <Text className="text-base font-inter-bold text-gray-900">{activeOrders}</Text>
         </View>
         <View className="flex-row justify-between">
-          <Text className="text-gray-600 text-sm font-inter">Processing</Text>
-          <Text className="text-gray-900 text-sm font-inter-semibold">{summary.processingOrders}</Text>
+          <Text className="text-sm font-inter text-gray-600">Processing</Text>
+          <Text className="text-sm font-inter-semibold text-gray-900">{summary.processingOrders}</Text>
         </View>
         <View className="flex-row justify-between">
-          <Text className="text-gray-600 text-sm font-inter">Pending</Text>
-          <Text className="text-gray-900 text-sm font-inter-semibold">{summary.pendingOrders}</Text>
+          <Text className="text-sm font-inter text-gray-600">Pending</Text>
+          <Text className="text-sm font-inter-semibold text-gray-900">{summary.pendingOrders}</Text>
         </View>
       </View>
     );
@@ -423,18 +423,16 @@ export default function DashboardScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 gap-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
-            {sellerSettings?.storeName || 'Seller Dashboard'}
-          </Text>
+          <Text className="flex-1 text-lg font-inter-bold text-black">Seller Dashboard</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your dashboard...</Text>
         </View>
@@ -444,18 +442,16 @@ export default function DashboardScreen() {
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 gap-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">
-            {sellerSettings?.storeName || 'Seller Dashboard'}
-          </Text>
+          <Text className="flex-1 text-lg font-inter-bold text-black">Seller Dashboard</Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading dashboard data</Text>
           <TouchableOpacity onPress={loadDashboardData} className="bg-black rounded-lg py-3 px-6">
@@ -467,14 +463,14 @@ export default function DashboardScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 gap-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center p-4 gap-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Seller Dashboard</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">Seller Dashboard</Text>
 
         <TouchableOpacity
           onPress={() => {
@@ -500,16 +496,16 @@ export default function DashboardScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={loadDashboardData}>
-          <Feather name="refresh-cw" color="#fff" size={20} />
+          <Feather name="refresh-cw" color="#000" size={20} />
         </TouchableOpacity>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadDashboardData} tintColor="#007AFF" />}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadDashboardData} />}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View className="flex-1 p-4 bg-gray-50">
+        <View className="flex-1 p-4">
           {/* Period Selector */}
           <View className="flex-row items-center gap-2 mb-4">
             <Text className="text-gray-600 text-sm font-inter-semibold">Period:</Text>
@@ -610,38 +606,38 @@ export default function DashboardScreen() {
 
           {/* Quick Actions */}
           <Text className="text-gray-900 text-lg font-inter-bold mb-3">Quick Actions</Text>
-          <View className="bg-white rounded-xl p-4 mb-6 shadow-sm">
+          <View className="p-4 mb-6 rounded-lg bg-white shadow-lg">
             <View className="flex-row items-center justify-between mb-3">
               <TouchableOpacity
                 onPress={() => router.push('/seller/orders')}
-                className="flex-1 bg-gray-100 rounded-lg p-3 mr-1 items-center"
+                className="flex-1 p-3 mr-1 rounded bg-gray-100 items-center"
               >
                 <Feather name="package" color="#333" size={20} className="mb-1.5" />
-                <Text className="text-gray-900 text-xs font-inter-bold">Orders</Text>
+                <Text className="text-xs font-inter-bold text-gray-900">Orders</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => router.push('/seller/offers')}
-                className="flex-1 bg-gray-100 rounded-lg p-3 mx-1 items-center"
+                className="flex-1 p-3 mx-1 rounded bg-gray-100 items-center"
               >
                 <Feather name="heart" color="#8B5CF6" size={20} className="mb-1.5" />
-                <Text className="text-gray-900 text-xs font-inter-bold">Offers</Text>
+                <Text className="text-xs font-inter-bold text-gray-900">Offers</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => router.push('/seller/reviews')}
-                className="flex-1 bg-gray-100 rounded-lg p-3 mx-1 items-center"
+                className="flex-1 p-3 mx-1 rounded bg-gray-100 items-center"
               >
                 <Feather name="star" color="#FFD700" size={20} className="mb-1.5" />
-                <Text className="text-gray-900 text-xs font-inter-bold">Reviews</Text>
+                <Text className="text-xs font-inter-bold text-gray-900">Reviews</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => router.push('/seller/listings')}
-                className="flex-1 bg-gray-100 rounded-lg p-3 ml-1 items-center"
+                className="flex-1 p-3 ml-1 rounded bg-gray-100 items-center"
               >
                 <Feather name="grid" color="#34C759" size={20} className="mb-1.5" />
-                <Text className="text-gray-900 text-xs font-inter-bold">Listings</Text>
+                <Text className="text-xs font-inter-bold text-gray-900">Listings</Text>
               </TouchableOpacity>
             </View>
 
@@ -654,12 +650,12 @@ export default function DashboardScreen() {
                 }
                 setIsShippingModalOpen(true);
               }}
-              className="bg-blue-50 rounded-lg p-4 mt-4 flex-row items-center"
+              className="p-4 mt-4 flex-row items-center rounded bg-blue-50"
             >
               <Feather name="truck" color="#007AFF" size={20} className="mr-3" />
               <View className="flex-1">
-                <Text className="text-gray-900 text-sm font-inter-semibold">Shipping Settings</Text>
-                <Text className="text-gray-600 text-xs font-inter">
+                <Text className="text-sm font-inter-semibold text-gray-900">Shipping Settings</Text>
+                <Text className="text-xs font-inter text-gray-600">
                   Manage your shipping options and delivery times
                 </Text>
               </View>
@@ -671,11 +667,11 @@ export default function DashboardScreen() {
           {sellerSettings && (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-900 text-lg font-inter-bold">Store Profile</Text>
+                <Text className="text-lg font-inter-bold text-gray-900">Store Profile</Text>
                 <TouchableOpacity onPress={() => router.push('/seller/shop-settings')}>
                   <View className="flex-row items-center">
                     <Feather name="edit-2" color="#007AFF" size={16} />
-                    <Text className="text-blue-600 text-base font-inter ml-1">Edit</Text>
+                    <Text className="ml-1 text-base font-inter text-blue-600">Edit</Text>
                   </View>
                 </TouchableOpacity>
               </View>

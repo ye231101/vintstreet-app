@@ -616,20 +616,20 @@ export default function CheckoutScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
+          <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-black">
             {sellerId && checkoutItems.length > 1
               ? `Checkout with ${sellerInfo?.shop_name || 'Seller'} (${checkoutItems.length} items)`
               : checkoutItems[0]?.product?.product_name || 'Checkout'}
           </Text>
         </View>
 
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your checkout...</Text>
         </View>
@@ -638,14 +638,14 @@ export default function CheckoutScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-white">
+        <Text numberOfLines={1} className="flex-1 ml-4 text-lg font-inter-bold text-black">
           {sellerId && checkoutItems.length > 1
             ? `Checkout with ${sellerInfo?.shop_name || 'Seller'} (${checkoutItems.length} items)`
             : checkoutItems[0]?.product?.product_name || 'Checkout'}
@@ -662,13 +662,13 @@ export default function CheckoutScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1 }}
         >
-          <View className="gap-4 p-4 bg-gray-50">
+          <View className="gap-4 p-4">
             {/* Shipping Information */}
-            <View className="bg-white rounded-xl">
+            <View className="rounded-lg bg-white shadow-lg">
               {/* Section Header */}
               <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
                 <Feather name="box" color="#666" size={20} />
-                <Text className="flex-1 ml-2 text-base font-inter-bold text-gray-800">Shipping Information</Text>
+                <Text className="flex-1 ml-2 text-base font-inter-bold text-black">Shipping Information</Text>
                 {addressesLoading && <ActivityIndicator size="small" color="#666" />}
               </View>
 
@@ -677,7 +677,7 @@ export default function CheckoutScreen() {
                 {/* Saved addresses selector */}
                 {savedAddresses.length > 0 && (
                   <View className="flex-row items-center justify-between mb-2">
-                    <Text className="text-sm font-inter-bold text-gray-800">Delivery Address</Text>
+                    <Text className="text-sm font-inter-bold text-black">Delivery Address</Text>
                     <TouchableOpacity onPress={() => router.push('/other/addresses' as any)}>
                       <Text className="text-sm font-inter-bold text-gray-800">Manage Addresses</Text>
                     </TouchableOpacity>
@@ -948,7 +948,7 @@ export default function CheckoutScreen() {
             </View>
 
             {/* Shipping Method */}
-            <View className="bg-white rounded-xl">
+            <View className="rounded-lg bg-white shadow-lg">
               {/* Section Header */}
               <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
                 <Feather name="truck" color="#666" size={20} />
@@ -1018,7 +1018,7 @@ export default function CheckoutScreen() {
             </View>
 
             {/* Payment */}
-            <View className="bg-white rounded-xl">
+            <View className="rounded-lg bg-white shadow-lg">
               {/* Section Header */}
               <View className="flex-row items-center px-5 py-4 rounded-t-2xl bg-white border-b border-gray-200">
                 <Feather name="credit-card" color="#666" size={20} />
@@ -1036,7 +1036,7 @@ export default function CheckoutScreen() {
             </View>
 
             {/* Order Summary */}
-            <View className="bg-white rounded-xl">
+            <View className="rounded-lg bg-white shadow-lg">
               {/* Header */}
               <View className="p-4 rounded-t-xl bg-white border-b border-gray-200">
                 <Text className="text-lg font-inter-bold text-gray-800">Order Summary</Text>
@@ -1166,7 +1166,7 @@ export default function CheckoutScreen() {
           onRequestClose={() => setShowCountryPicker(false)}
         >
           <View className="flex-1 justify-end bg-black/50">
-            <View className="bg-white rounded-t-3xl max-h-96">
+            <View className="bg-white rounded-t-2xl max-h-96">
               <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
                 <Text className="text-lg font-inter-bold text-gray-800">Select Country</Text>
                 <TouchableOpacity

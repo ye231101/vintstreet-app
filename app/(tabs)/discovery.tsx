@@ -1,12 +1,22 @@
 import { categoriesService, Category, listingsService, Product } from '@/api';
 import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-modal';
+import FilterSortBar from '@/components/filter-sort-bar';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
-import SortBar from '@/components/sort-bar';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Keyboard,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DiscoveryScreen() {
@@ -595,16 +605,16 @@ export default function DiscoveryScreen() {
     if (categoryPath.length === 0) return null;
 
     return (
-      <View className="bg-gray-50">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View className="flex-row items-center px-5 py-3">
-            <Pressable onPress={handleAllCategoriesPress}>
+      <View className="px-5 py-3">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexGrow: 0 }}>
+          <View className="flex-row items-center">
+            <TouchableOpacity onPress={handleAllCategoriesPress}>
               <Text className="text-base font-inter-bold text-black">All Categories</Text>
-            </Pressable>
+            </TouchableOpacity>
             {categoryPath.map((category, index) => (
               <View key={index} className="flex-row items-center">
                 <Feather name="chevron-right" size={16} color="#666" />
-                <Pressable
+                <TouchableOpacity
                   onPress={() => {
                     if (index === categoryPath.length - 1) return;
                     setCategoryPath((prev) => prev.slice(0, index + 1));
@@ -618,7 +628,7 @@ export default function DiscoveryScreen() {
                   >
                     {category.name}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             ))}
           </View>
@@ -632,14 +642,14 @@ export default function DiscoveryScreen() {
     if (showSearchResults) {
       return (
         <View className="flex-1">
-          <SortBar
+          <FilterSortBar
             filterCount={getTotalFilterCount()}
             sortBy={currentSortBy}
             onFilterPress={() => setShowFilterModal(true)}
             onSortChange={handleSortChange}
           />
           {isSearching ? (
-            <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+            <View className="flex-1 items-center justify-center p-2">
               <ActivityIndicator size="large" color="#000" />
               <Text className="mt-4 text-base font-inter-semibold text-gray-600">Searching products...</Text>
             </View>
@@ -649,11 +659,11 @@ export default function DiscoveryScreen() {
               keyExtractor={(item) => item.id}
               numColumns={2}
               renderItem={({ item }) => <ProductCard product={item} onPress={() => handleProductPress(item.id)} />}
-              className="p-2 bg-gray-50"
+              className="p-2"
               contentContainerStyle={{ flexGrow: 1, paddingBottom: 8 }}
               columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 8 }}
               ListEmptyComponent={
-                <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+                <View className="flex-1 items-center justify-center p-2">
                   <Feather name="search" size={64} color="#ccc" />
                   <Text className="mt-4 text-lg font-inter-bold text-gray-500 text-center">No results found</Text>
                   <Text className="mt-2 text-base font-inter-semibold text-center text-gray-400">
@@ -666,12 +676,12 @@ export default function DiscoveryScreen() {
           {/* Pagination Controls for search */}
           {showSearchResults && totalPages > 1 && (
             <View className="mt-1 mb-2">
-              <View className="flex-row justify-center items-center gap-3">
-                <Pressable onPress={goToPrevPage} disabled={currentPage === 1} className="px-3 py-2">
+              <View className="flex-row items-center justify-center gap-3">
+                <TouchableOpacity onPress={goToPrevPage} disabled={currentPage === 1} className="px-3 py-2">
                   <Text className={`${currentPage === 1 ? 'text-gray-400' : 'text-black'}`}>
                     <Feather name="chevron-left" size={24} color="#000" />
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
                 <View className="flex-row items-center gap-2">
                   <TextInput
                     value={pageInput}
@@ -685,11 +695,11 @@ export default function DiscoveryScreen() {
                   <Text className="text-base font-inter-medium text-gray-600 mx-2">/</Text>
                   <Text className="text-base font-inter-medium text-black">{totalPages}</Text>
                 </View>
-                <Pressable onPress={goToNextPage} disabled={currentPage === totalPages} className="px-3 py-2">
+                <TouchableOpacity onPress={goToNextPage} disabled={currentPage === totalPages} className="px-3 py-2">
                   <Text className={`${currentPage === totalPages ? 'text-gray-400' : 'text-black'}`}>
                     <Feather name="chevron-right" size={24} color="#000" />
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             </View>
           )}
@@ -699,7 +709,7 @@ export default function DiscoveryScreen() {
 
     if (isLoading) {
       return (
-        <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-2">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-4 text-base font-inter-semibold text-gray-600">Loading categories...</Text>
         </View>
@@ -708,12 +718,12 @@ export default function DiscoveryScreen() {
 
     if (error) {
       return (
-        <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+        <View className="flex-1 items-center justify-center p-2">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading categories</Text>
-          <Pressable className="bg-black px-6 py-3 rounded-lg" onPress={loadCategories}>
+          <TouchableOpacity className="px-6 py-3 rounded-lg bg-black" onPress={loadCategories}>
             <Text className="text-base font-inter-bold text-white">Retry</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -724,18 +734,18 @@ export default function DiscoveryScreen() {
           <FlatList
             data={categories}
             keyExtractor={(item) => item.id}
-            renderItem={({ item, index }) => (
-              <Pressable
-                className="flex-row items-center justify-between px-5 py-4 bg-gray-50"
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                className="flex-row items-center justify-between px-5 py-4"
                 onPress={() => handleCategoryPress(item)}
               >
                 <View className="flex-1 flex-row items-center">
                   <Text className="text-base font-inter-bold text-black">{item.name}</Text>
                 </View>
                 {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
-              </Pressable>
+              </TouchableOpacity>
             )}
-            className="flex-1 bg-gray-50"
+            className="flex-1"
           />
         );
 
@@ -744,41 +754,41 @@ export default function DiscoveryScreen() {
           <FlatList
             data={getCurrentCategories()}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item, index }) => (
-              <Pressable
-                className="flex-row items-center justify-between px-5 py-4 bg-gray-50"
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                className="flex-row items-center justify-between px-5 py-4"
                 onPress={() => handleSubcategoryPress(item)}
               >
                 <View className="flex-1 flex-row items-center">
                   <Text className="text-base font-inter-bold text-black">{item.name}</Text>
                 </View>
                 {item.children.length > 0 && <Feather name="chevron-right" size={20} color="#666" className="ml-2" />}
-              </Pressable>
+              </TouchableOpacity>
             )}
-            className="flex-1 bg-gray-50"
+            className="flex-1"
           />
         );
 
       case 'products':
         return (
           <View className="flex-1">
-            <SortBar
+            <FilterSortBar
               filterCount={getTotalFilterCount()}
               sortBy={currentSortBy}
               onFilterPress={() => setShowFilterModal(true)}
               onSortChange={handleSortChange}
             />
             {isLoadingProducts ? (
-              <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+              <View className="flex-1 items-center justify-center p-2">
                 <ActivityIndicator size="large" color="#000" />
                 <Text className="mt-4 text-base font-inter-semibold text-gray-600">Loading products...</Text>
               </View>
             ) : productsError ? (
-              <View className="flex-1 justify-center items-center p-2 bg-gray-50">
+              <View className="flex-1 items-center justify-center p-2">
                 <Feather name="alert-circle" color="#ff4444" size={64} />
                 <Text className="my-4 text-lg font-inter-bold text-red-500">{productsError}</Text>
-                <Pressable
-                  className="bg-black px-6 py-3 rounded-lg"
+                <TouchableOpacity
+                  className="px-6 py-3 rounded-lg bg-black"
                   onPress={() => {
                     if (categoryPath.length > 0) {
                       loadProductsForCategory(categoryPath[categoryPath.length - 1]);
@@ -786,7 +796,7 @@ export default function DiscoveryScreen() {
                   }}
                 >
                   <Text className="text-base font-inter-bold text-white">Retry</Text>
-                </Pressable>
+                </TouchableOpacity>
               </View>
             ) : (
               <FlatList
@@ -794,26 +804,26 @@ export default function DiscoveryScreen() {
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 renderItem={({ item }) => <ProductCard product={item} onPress={() => handleProductPress(item.id)} />}
-                className="p-2 bg-gray-50"
+                className="p-2"
                 columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 8 }}
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: 8 }}
                 ListEmptyComponent={
-                  <View className="flex-1 justify-center items-center">
+                  <View className="flex-1 items-center justify-center">
                     <Feather name="shopping-bag" color="#999" size={64} />
-                    <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-900">No products found</Text>
+                    <Text className="mt-4 text-lg font-inter-bold text-gray-900">No products found</Text>
                   </View>
                 }
               />
             )}
             {/* Pagination Controls for products */}
             {currentView === 'products' && totalPages > 1 && (
-              <View className="bg-gray-50 py-2">
-                <View className="flex-row justify-center items-center gap-3">
-                  <Pressable onPress={goToPrevPage} disabled={currentPage === 1} className="px-3 py-2">
+              <View className="py-4">
+                <View className="flex-row items-center justify-center gap-3">
+                  <TouchableOpacity onPress={goToPrevPage} disabled={currentPage === 1} className="px-4 py-2">
                     <Text className={`${currentPage === 1 ? 'text-gray-400' : 'text-black'}`}>
                       <Feather name="chevron-left" size={24} color="#000" />
                     </Text>
-                  </Pressable>
+                  </TouchableOpacity>
                   <View className="flex-row items-center gap-2">
                     <TextInput
                       value={pageInput}
@@ -822,16 +832,16 @@ export default function DiscoveryScreen() {
                       onBlur={handlePageInputSubmit}
                       keyboardType="number-pad"
                       returnKeyType="done"
-                      className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-center text-base font-inter-medium text-black min-w-[50px]"
+                      className="px-4 py-2 text-center text-base font-inter-medium text-black min-w-[50px] rounded-lg bg-white border border-gray-300"
                     />
                     <Text className="text-base font-inter-medium text-gray-600 mx-2">/</Text>
                     <Text className="text-base font-inter-medium text-black">{totalPages}</Text>
                   </View>
-                  <Pressable onPress={goToNextPage} disabled={currentPage === totalPages} className="px-3 py-2">
+                  <TouchableOpacity onPress={goToNextPage} disabled={currentPage === totalPages} className="px-4 py-2">
                     <Text className={`${currentPage === totalPages ? 'text-gray-400' : 'text-black'}`}>
                       <Feather name="chevron-right" size={24} color="#000" />
                     </Text>
-                  </Pressable>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}
@@ -844,7 +854,7 @@ export default function DiscoveryScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-12 bg-black">
+    <SafeAreaView className="flex-1 mb-14 bg-white">
       {/* Filter Modal */}
       <FilterModal
         visible={showFilterModal}
@@ -864,18 +874,18 @@ export default function DiscoveryScreen() {
       />
 
       {/* Header */}
-      <View className="flex-row items-center px-5 py-4 bg-gray-50">
+      <View className="flex-row items-center px-5 py-4">
         {(categoryPath.length > 0 || showSearchResults || selectedBrand) && (
-          <Pressable onPress={handleBack} className="mr-4">
+          <TouchableOpacity onPress={handleBack} className="mr-4">
             <Feather name="arrow-left" size={24} color="#000" />
-          </Pressable>
+          </TouchableOpacity>
         )}
         <Text className="flex-1 text-3xl font-inter-bold text-black ">{getCurrentTitle()}</Text>
       </View>
 
       {/* All Categories Label */}
       {!showSearchResults && !selectedBrand && categoryPath.length === 0 && (
-        <View className="px-5 py-3 bg-gray-50">
+        <View className="px-5 py-3">
           <Text className="text-base font-inter-bold text-gray-600">All Categories</Text>
         </View>
       )}
@@ -888,10 +898,10 @@ export default function DiscoveryScreen() {
 
       {/* Bottom Button for Categories */}
       {currentView === 'subcategories' && (
-        <View className="px-5 py-4 border-t border-gray-100 bg-gray-50">
-          <Pressable className="bg-black rounded py-3 items-center" onPress={handleViewAllProducts}>
-            <Text className="text-white text-base font-inter-bold">View all products in this category</Text>
-          </Pressable>
+        <View className="px-5 py-4 border-t border-gray-100">
+          <TouchableOpacity className="items-center py-3 rounded bg-black" onPress={handleViewAllProducts}>
+            <Text className="text-base font-inter-bold text-white">View all products in this category</Text>
+          </TouchableOpacity>
         </View>
       )}
     </SafeAreaView>

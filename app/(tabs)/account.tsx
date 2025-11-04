@@ -1,3 +1,4 @@
+import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
@@ -11,9 +12,8 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -108,12 +108,12 @@ export default function AccountScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 mb-12 bg-black">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }} className="bg-gray-50">
+    <SafeAreaView className="flex-1 mb-14 bg-white">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
         {/* Profile Header Section */}
-        <View className="flex-row items-center p-4">
+        <View className="flex-row items-center gap-4 p-4">
           {/* Profile Avatar */}
-          <View className="items-center justify-center w-24 h-24 mr-4 overflow-hidden rounded-full bg-gray-200">
+          <View className="items-center justify-center w-24 h-24 overflow-hidden rounded-full bg-gray-200">
             <Image
               source={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.full_name}&length=1`}
               contentFit="cover"
@@ -125,8 +125,8 @@ export default function AccountScreen() {
 
           {/* User Info */}
           <View className="flex-1">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-lg font-inter-bold text-black">{user?.full_name || 'Guest User'}</Text>
+            <View className="flex-row items-center justify-between gap-2">
+              <Text className="text-lg font-inter-bold text-black">{user?.full_name || 'Unknown User'}</Text>
               <TouchableOpacity onPress={() => router.push('/cart')} className="p-2">
                 <Feather name="shopping-bag" size={24} color="#000" />
               </TouchableOpacity>
@@ -139,11 +139,11 @@ export default function AccountScreen() {
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800" />
+        <View className="h-px bg-gray-200" />
 
         {/* Seller Hub Section */}
         <View className="px-2 py-4">
-          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SELLER HUB</Text>
+          <Text className="px-4 mb-2 text-xs font-inter-bold text-black uppercase">SELLER HUB</Text>
 
           {user?.user_type === 'buyer' ? (
             // Show "Set up Seller Account" for buyers only
@@ -184,11 +184,11 @@ export default function AccountScreen() {
                 <Feather name="chevron-right" size={16} color="#000" />
               </Pressable>
 
-              {/* <Pressable onPress={() => router.push('/seller/streams')} className="flex-row items-center px-4 py-3">
+              <Pressable onPress={() => router.push('/seller/streams')} className="flex-row items-center px-4 py-3">
                 <Feather name="video" size={24} color="#000" />
                 <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">My Streams</Text>
                 <Feather name="chevron-right" size={16} color="#000" />
-              </Pressable> */}
+              </Pressable>
 
               <Pressable onPress={() => router.push('/seller/messages')} className="flex-row items-center px-4 py-3">
                 <Feather name="mail" size={24} color="#000" />
@@ -219,25 +219,16 @@ export default function AccountScreen() {
                 <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Finance</Text>
                 <Feather name="chevron-right" size={16} color="#000" />
               </Pressable>
-
-              <Pressable
-                onPress={() => router.push('/other/payment-setup')}
-                className="flex-row items-center px-4 py-3"
-              >
-                <Feather name="credit-card" size={24} color="#000" />
-                <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Payment Setup</Text>
-                <Feather name="chevron-right" size={16} color="#000" />
-              </Pressable>
             </>
           )}
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800" />
+        <View className="h-px bg-gray-200" />
 
         {/* Shopping Section */}
         <View className="px-2 py-4">
-          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SHOPPING</Text>
+          <Text className="px-4 mb-2 text-xs font-inter-bold text-black uppercase">SHOPPING</Text>
 
           <Pressable onPress={() => router.push('/other/orders')} className="flex-row items-center px-4 py-3">
             <Feather name="shopping-cart" size={24} color="#000" />
@@ -257,12 +248,6 @@ export default function AccountScreen() {
             <Feather name="chevron-right" size={16} color="#000" />
           </Pressable>
 
-          <Pressable onPress={() => router.push('/other/payment-methods')} className="flex-row items-center px-4 py-3">
-            <Feather name="credit-card" size={24} color="#000" />
-            <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Payment Methods</Text>
-            <Feather name="chevron-right" size={16} color="#000" />
-          </Pressable>
-
           <Pressable onPress={() => router.push('/other/addresses')} className="flex-row items-center px-4 py-3">
             <Feather name="map-pin" size={24} color="#000" />
             <Text className="flex-1 ml-4 text-base font-inter-semibold text-black">Addresses</Text>
@@ -271,11 +256,11 @@ export default function AccountScreen() {
         </View>
 
         {/* Divider */}
-        <View className="h-px bg-gray-800" />
+        <View className="h-px bg-gray-200" />
 
         {/* Support Section */}
         <View className="px-2 py-4">
-          <Text className="mb-2 ml-4 text-xs font-inter-bold text-black uppercase">SUPPORT</Text>
+          <Text className="px-4 mb-2 text-xs font-inter-bold text-black uppercase">SUPPORT</Text>
 
           <Pressable onPress={handleChangePassword} className="flex-row items-center px-4 py-3">
             <Feather name="lock" size={24} color="#000" />
@@ -290,6 +275,88 @@ export default function AccountScreen() {
         </View>
       </ScrollView>
 
+      {/* Change Password Modal */}
+      <Modal
+        visible={showChangePasswordModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={handleClosePasswordModal}
+      >
+        <View className="flex-1 items-center justify-center p-4 bg-black/50">
+          <View className="w-full max-w-lg gap-4 p-6 rounded-lg bg-white shadow-lg">
+            {/* Header Section */}
+            <View className="items-center mb-6">
+              <View className="bg-blue-100 rounded-full p-4 mb-3">
+                <Feather name="lock" size={32} color="#3B82F6" />
+              </View>
+              <Text className="text-2xl font-inter-bold text-gray-900 mb-2">Change Password</Text>
+              <Text className="text-sm font-inter-regular text-gray-500 text-center">
+                Please enter your current password and choose a new secure password
+              </Text>
+            </View>
+
+            {/* Current Password Field */}
+            <InputComponent
+              value={currentPassword}
+              label="Current Password"
+              icon="shield"
+              placeholder="Enter current password"
+              onChangeText={setCurrentPassword}
+              secureTextEntry={!showCurrentPassword}
+              showPasswordToggle={true}
+              onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
+            />
+
+            {/* New Password Field */}
+            <InputComponent
+              value={newPassword}
+              label="New Password"
+              icon="shield"
+              placeholder="Enter new password"
+              onChangeText={setNewPassword}
+              secureTextEntry={!showNewPassword}
+              showPasswordToggle={true}
+              onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+            />
+
+            {/* Confirm Password Field */}
+            <InputComponent
+              value={confirmPassword}
+              label="Confirm New Password"
+              icon="shield"
+              placeholder="Confirm new password"
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirmPassword}
+              showPasswordToggle={true}
+              onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+            />
+
+            {/* Action Buttons */}
+            <View className="flex-row gap-3">
+              <Pressable
+                onPress={handleClosePasswordModal}
+                disabled={isChangingPassword}
+                className="flex-1 py-3.5 px-4 rounded-lg border-2 border-gray-200 bg-white"
+              >
+                <Text className="text-base font-inter-bold text-gray-700 text-center">Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={confirmChangePassword}
+                disabled={isChangingPassword}
+                className={`flex-1 py-3.5 px-4 rounded-lg shadow-lg ${isChangingPassword ? 'bg-gray-400' : 'bg-black'}`}
+              >
+                {isChangingPassword ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text className="text-base font-inter-bold text-white text-center">Save Changes</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Logout Confirmation Modal */}
       <Modal
         visible={showLogoutModal}
@@ -297,7 +364,7 @@ export default function AccountScreen() {
         animationType="fade"
         onRequestClose={() => setShowLogoutModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-center items-center p-4">
+        <View className="flex-1 bg-black/50 items-center justify-center p-4">
           <View className="bg-white rounded-xl p-4 w-full max-w-80 shadow-lg">
             <Text className="text-xl font-inter-bold text-black mb-4 text-center">Logout</Text>
 
@@ -312,132 +379,6 @@ export default function AccountScreen() {
 
               <Pressable onPress={handleLogout} className="px-5 py-3 bg-red-500 rounded-lg">
                 <Text className="text-base font-inter-semibold text-white">Logout</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Change Password Modal */}
-      <Modal
-        visible={showChangePasswordModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={handleClosePasswordModal}
-      >
-        <View className="flex-1 bg-black/60 justify-center items-center p-4">
-          <View className="bg-white rounded-2xl p-6 w-full max-w-96 shadow-2xl">
-            {/* Header Section */}
-            <View className="items-center mb-6">
-              <View className="bg-blue-100 rounded-full p-4 mb-3">
-                <Feather name="lock" size={32} color="#3B82F6" />
-              </View>
-              <Text className="text-2xl font-inter-bold text-gray-900 mb-2">Change Password</Text>
-              <Text className="text-sm font-inter-regular text-gray-500 text-center">
-                Please enter your current password and choose a new secure password
-              </Text>
-            </View>
-
-            {/* Current Password Field */}
-            <View className="mb-4">
-              <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Current Password</Text>
-              <View className="relative">
-                <View className="absolute left-3 top-3.5 z-10">
-                  <Feather name="shield" size={20} color="#999" />
-                </View>
-                <TextInput
-                  className="bg-gray-50 rounded-xl pl-11 pr-12 py-3.5 text-gray-900 font-inter-medium border-2 border-gray-200 focus:border-blue-500"
-                  placeholder="Enter current password"
-                  placeholderTextColor="#999"
-                  value={currentPassword}
-                  onChangeText={setCurrentPassword}
-                  secureTextEntry={!showCurrentPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-3.5"
-                  hitSlop={8}
-                >
-                  <Feather name={showCurrentPassword ? 'eye-off' : 'eye'} size={20} color="#666" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* New Password Field */}
-            <View className="mb-4">
-              <Text className="text-sm font-inter-semibold text-gray-700 mb-2">New Password</Text>
-              <View className="relative">
-                <View className="absolute left-3 top-3.5 z-10">
-                  <Feather name="key" size={20} color="#999" />
-                </View>
-                <TextInput
-                  className="bg-gray-50 rounded-xl pl-11 pr-12 py-3.5 text-gray-900 font-inter-medium border-2 border-gray-200 focus:border-blue-500"
-                  placeholder="Enter new password"
-                  placeholderTextColor="#999"
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  secureTextEntry={!showNewPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-3.5"
-                  hitSlop={8}
-                >
-                  <Feather name={showNewPassword ? 'eye-off' : 'eye'} size={20} color="#666" />
-                </TouchableOpacity>
-              </View>
-              <Text className="text-xs font-inter-regular text-gray-500 mt-1.5 ml-1">
-                Must be at least 6 characters
-              </Text>
-            </View>
-
-            {/* Confirm Password Field */}
-            <View className="mb-6">
-              <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Confirm New Password</Text>
-              <View className="relative">
-                <View className="absolute left-3 top-3.5 z-10">
-                  <Feather name="check-circle" size={20} color="#999" />
-                </View>
-                <TextInput
-                  className="bg-gray-50 rounded-xl pl-11 pr-12 py-3.5 text-gray-900 font-inter-medium border-2 border-gray-200 focus:border-blue-500"
-                  placeholder="Confirm new password"
-                  placeholderTextColor="#999"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3.5"
-                  hitSlop={8}
-                >
-                  <Feather name={showConfirmPassword ? 'eye-off' : 'eye'} size={20} color="#666" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Action Buttons */}
-            <View className="flex-row gap-3">
-              <Pressable
-                onPress={handleClosePasswordModal}
-                disabled={isChangingPassword}
-                className="flex-1 py-3.5 px-4 rounded-xl border-2 border-gray-200 bg-white"
-              >
-                <Text className="text-base font-inter-bold text-gray-700 text-center">Cancel</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={confirmChangePassword}
-                disabled={isChangingPassword}
-                className={`flex-1 py-3.5 px-4 rounded-xl shadow-lg ${
-                  isChangingPassword ? 'bg-blue-300' : 'bg-blue-500'
-                }`}
-              >
-                {isChangingPassword ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text className="text-base font-inter-bold text-white text-center">Save Changes</Text>
-                )}
               </Pressable>
             </View>
           </View>

@@ -91,96 +91,92 @@ export default function MessagesScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 mb-12 bg-black">
+    <SafeAreaView className="flex-1 mb-14 bg-white">
       {/* Header with Search */}
       <SearchBar value={searchText} onChangeText={setSearchText} />
 
       {/* Messages Content */}
-      <View className="flex-1 bg-gray-50">
-        {isLoading ? (
-          <View className="flex-1 justify-center items-center p-4">
-            <ActivityIndicator size="large" color="#000" />
-            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading conversations...</Text>
-          </View>
-        ) : error ? (
-          <View className="flex-1 justify-center items-center p-4">
-            <Feather name="alert-circle" color="#ff4444" size={64} />
-            <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading conversations</Text>
-            <TouchableOpacity onPress={loadConversations} className="bg-black rounded-lg py-3 px-6">
-              <Text className="text-base font-inter-bold text-white">Retry</Text>
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center p-4">
+          <ActivityIndicator size="large" color="#000" />
+          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading conversations...</Text>
+        </View>
+      ) : error ? (
+        <View className="flex-1 items-center justify-center p-4">
+          <Feather name="alert-circle" color="#ff4444" size={64} />
+          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading conversations</Text>
+          <TouchableOpacity onPress={loadConversations} className="bg-black rounded-lg py-3 px-6">
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : conversations.length === 0 ? (
+        <View className="flex-1 items-center justify-center p-4">
+          <Feather name="message-circle" size={64} color="#ccc" />
+          <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-600">No conversations yet</Text>
+          <Text className="text-sm font-inter-semibold text-center text-gray-400">
+            Start a conversation with a seller
+          </Text>
+        </View>
+      ) : filteredConversations.length === 0 ? (
+        <View className="flex-1 items-center justify-center p-4">
+          <Feather name="search" size={64} color="#ccc" />
+          <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-600">No results found</Text>
+          <Text className="text-sm font-inter-semibold text-center text-gray-400">
+            Try searching with different keywords
+          </Text>
+        </View>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          {filteredConversations.map((conversation) => (
+            <TouchableOpacity
+              key={conversation.id}
+              onPress={() => router.push(`/message/${conversation.id}`)}
+              className="flex-row items-center gap-3 py-3 px-4 border-b border-gray-100"
+            >
+              {/* Avatar */}
+              <View className="items-center justify-center w-12 h-12 rounded-full bg-black">
+                <Text className="text-white text-lg font-inter-bold">
+                  {conversation.other_user_name?.charAt(0)?.toUpperCase() || '?'}
+                </Text>
+              </View>
+
+              {/* Content */}
+              <View className="flex-1">
+                {/* Name */}
+                <Text className="mb-1 text-base font-inter-bold text-black">
+                  {conversation.other_user_name || 'Unknown User'}
+                </Text>
+
+                {/* Subject */}
+                <Text className="mb-0.5 text-sm font-inter-semibold text-gray-600">
+                  {conversation.subject || 'No subject'}
+                </Text>
+
+                {/* Last Message */}
+                <Text className="text-xs font-inter-semibold text-gray-400" numberOfLines={1}>
+                  {conversation.last_message || 'No messages yet'}
+                </Text>
+              </View>
+
+              {/* Time */}
+              <View className="items-end gap-2">
+                {conversation.unread_count > 0 && (
+                  <View className="min-w-[20px] items-center bg-red-500 rounded-full py-1 px-2">
+                    <Text className="text-white text-xs font-inter-bold">{conversation.unread_count}</Text>
+                  </View>
+                )}
+                <Text className="text-xs font-inter-semibold text-right text-gray-400">
+                  {formatTime(conversation.last_message_time)}
+                </Text>
+              </View>
             </TouchableOpacity>
-          </View>
-        ) : conversations.length === 0 ? (
-          <View className="flex-1 justify-center items-center p-4">
-            <Feather name="message-circle" size={64} color="#ccc" />
-            <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-600">No conversations yet</Text>
-            <Text className="text-sm font-inter-semibold text-center text-gray-400">
-              Start a conversation with a seller
-            </Text>
-          </View>
-        ) : filteredConversations.length === 0 ? (
-          <View className="flex-1 justify-center items-center p-4">
-            <Feather name="search" size={64} color="#ccc" />
-            <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-600">No results found</Text>
-            <Text className="text-sm font-inter-semibold text-center text-gray-400">
-              Try searching with different keywords
-            </Text>
-          </View>
-        ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000']} tintColor="#000" />
-            }
-            contentContainerStyle={{ flexGrow: 1 }}
-          >
-            {filteredConversations.map((conversation) => (
-              <TouchableOpacity
-                key={conversation.id}
-                onPress={() => router.push(`/message/${conversation.id}`)}
-                className="flex-row items-center py-3 px-4 border-b border-gray-100"
-              >
-                {/* Avatar */}
-                <View className="items-center justify-center w-12 h-12 mr-3 rounded-full bg-black">
-                  <Text className="text-white text-lg font-inter-bold">
-                    {conversation.other_user_name?.charAt(0)?.toUpperCase() || '?'}
-                  </Text>
-                </View>
-
-                {/* Content */}
-                <View className="flex-1">
-                  {/* Name */}
-                  <Text className="flex-1 mb-1 text-base font-inter-bold text-black">
-                    {conversation.other_user_name || 'Unknown User'}
-                  </Text>
-
-                  {/* Subject */}
-                  <Text className="mb-0.5 text-sm font-inter-semibold text-gray-600">
-                    {conversation.subject || 'No subject'}
-                  </Text>
-
-                  {/* Last Message */}
-                  <Text className="max-w-4/5 text-xs font-inter-semibold text-gray-400" numberOfLines={1}>
-                    {conversation.last_message || 'No messages yet'}
-                  </Text>
-                </View>
-
-                {/* Time */}
-                <View className="items-end gap-2">
-                  {conversation.unread_count > 0 && (
-                    <View className="min-w-[20px] items-center bg-red-500 rounded-full py-1 px-2">
-                      <Text className="text-white text-xs font-inter-bold">{conversation.unread_count}</Text>
-                    </View>
-                  )}
-                  <Text className="text-xs font-inter-semibold text-right text-gray-400">
-                    {formatTime(conversation.last_message_time)}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
-      </View>
+          ))}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

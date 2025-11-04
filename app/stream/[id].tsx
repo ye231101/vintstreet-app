@@ -95,8 +95,8 @@ export default function StreamScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading stream...</Text>
         </View>
@@ -106,12 +106,12 @@ export default function StreamScreen() {
 
   if (error || !stream) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">{error ? error : 'Stream not found'}</Text>
           <TouchableOpacity onPress={() => router.back()} className="bg-black rounded-lg py-3 px-6">
-            <Text className="text-base font-inter-bold text-white">Go Back</Text>
+            <Text className="text-base font-inter-bold text-black">Go Back</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -121,9 +121,9 @@ export default function StreamScreen() {
   const isStreamOwner = stream.seller_id === user?.id;
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 gap-4 bg-gray-50">
+        <View className="flex-1 gap-4">
           {/* Stream Video Placeholder */}
           <View className="relative">
             <View className="w-full h-64">
@@ -148,7 +148,7 @@ export default function StreamScreen() {
               </View>
             )}
             {stream.status !== 'live' && (
-              <View className="absolute inset-0 bg-black/60 justify-center items-center">
+              <View className="absolute inset-0 bg-black/60 items-center justify-center">
                 <Feather name="play-circle" size={64} color="#fff" />
                 <Text className="text-white text-base font-inter-bold mt-4">
                   {stream.status === 'scheduled' ? 'Stream Scheduled' : 'Stream Ended'}
@@ -173,23 +173,25 @@ export default function StreamScreen() {
 
             {/* Stream Details */}
             <View className="bg-gray-900 rounded-xl p-4 gap-3">
-              <View className="flex-row items-center gap-3">
-                <Feather name="clock" size={18} color="#fff" />
-                <Text className="text-white text-lg font-inter-semibold">
-                  {stream.status === 'scheduled' ? 'Starts' : 'Started'}
-                </Text>
+              <View className="gap-2">
+                <View className="flex-row items-center gap-3">
+                  <Feather name="clock" size={18} color="#fff" />
+                  <Text className="text-white text-lg font-inter-semibold">
+                    {stream.status === 'scheduled' ? 'Starts' : 'Started'}
+                  </Text>
+                </View>
+
+                <Text className="text-gray-400 text-sm font-inter ml-8">{formatDate(stream.start_time)}</Text>
               </View>
 
-              <Text className="text-gray-400 text-sm font-inter ml-8">{formatDate(stream.start_time)}</Text>
-
               {stream.end_time && (
-                <>
-                  <View className="flex-row items-center mt-3 mb-3">
+                <View className="gap-2">
+                  <View className="flex-row items-center">
                     <Feather name="check-circle" size={18} color="#fff" />
                     <Text className="text-white text-sm font-inter-semibold ml-3">Ended</Text>
                   </View>
                   <Text className="text-gray-400 text-sm font-inter ml-8">{formatDate(stream.end_time)}</Text>
-                </>
+                </View>
               )}
             </View>
 

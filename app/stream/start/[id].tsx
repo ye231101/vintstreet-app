@@ -92,8 +92,8 @@ export default function StartStreamScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-1 justify-center items-center p-4 bg-gray-50">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
@@ -106,32 +106,32 @@ export default function StartStreamScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 p-4 gap-4 bg-gray-50">
+        <View className="flex-1 p-4 gap-4">
           {/* Stream Preview */}
           <View className="w-full h-48 rounded-lg overflow-hidden">
             <Image source={stream.thumbnail} contentFit="cover" style={{ width: '100%', height: '100%' }} />
           </View>
 
           {/* Stream Info Card */}
-          <View className="bg-gray-900 rounded-lg p-4 gap-4">
-            <Text className="text-white text-xl font-inter-bold">{stream.title}</Text>
-            {stream.description && <Text className="text-gray-300 text-base font-inter">{stream.description}</Text>}
+          <View className="rounded-lg p-4 gap-4 bg-white shadow-lg">
+            <Text className="text-black text-xl font-inter-bold">{stream.title}</Text>
+            {stream.description && <Text className="text-black text-base font-inter">{stream.description}</Text>}
 
             <View className="self-start bg-purple-500 px-3 py-1 rounded-full">
               <Text className="text-white text-xs font-inter-bold">{stream.category}</Text>
             </View>
 
             <View className="flex-row items-center">
-              <Feather name="clock" size={16} color="#fff" />
-              <Text className="text-gray-400 text-sm font-inter ml-2">Scheduled: {formatDate(stream.start_time)}</Text>
+              <Feather name="clock" size={16} color="#000" />
+              <Text className="text-black text-sm font-inter ml-2">Scheduled: {formatDate(stream.start_time)}</Text>
             </View>
           </View>
 
           {/* Pre-stream Checklist */}
-          <View className="bg-gray-900 rounded-lg p-4 gap-4">
-            <Text className="text-white text-lg font-inter-bold">Pre-Stream Checklist</Text>
+          <View className="rounded-lg p-4 gap-4 bg-white shadow-lg">
+            <Text className="text-black text-lg font-inter-bold">Pre-Stream Checklist</Text>
 
             <ChecklistItem
               icon="wifi"
@@ -202,8 +202,8 @@ function ChecklistItem({ icon, text, subtext }: { icon: string; text: string; su
         <Feather name={icon as any} size={18} color="#22C55E" />
       </View>
       <View className="flex-1">
-        <Text className="text-white text-sm font-inter-semibold">{text}</Text>
-        <Text className="text-gray-400 text-xs font-inter mt-0.5">{subtext}</Text>
+        <Text className="text-black text-sm font-inter-semibold">{text}</Text>
+        <Text className="text-black text-xs font-inter mt-0.5">{subtext}</Text>
       </View>
     </View>
   );

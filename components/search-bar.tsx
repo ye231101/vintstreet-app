@@ -173,12 +173,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
   );
 
   return (
-    <View className="relative bg-black">
+    <View className="relative bg-white border-b border-gray-100">
       <View className="flex-row items-center gap-8 p-4">
-        <View className="flex-1 flex-row items-center bg-gray-800 rounded-lg px-3">
-          <Feather name="search" size={24} color="white" />
+        <View className="flex-1 flex-row items-center bg-gray-100 rounded-lg px-3">
+          <Feather name="search" size={20} color="#666" />
           <TextInput
-            className="flex-1 ml-2 text-base font-inter-bold text-white py-3"
+            className="flex-1 ml-2 text-base font-inter text-black py-3"
             placeholder={placeholder}
             placeholderTextColor="#999"
             value={value}
@@ -192,17 +192,17 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
           />
           {value && value.length > 0 && (
             <Pressable onPress={handleClearSearch} hitSlop={8}>
-              <Feather name="x" size={20} color="white" />
+              <Feather name="x" size={20} color="#666" />
             </Pressable>
           )}
         </View>
         <Pressable onPress={() => router.push('/cart')} hitSlop={8}>
-          <Feather name="shopping-bag" size={28} color="white" />
+          <Feather name="shopping-bag" size={24} color="#000" />
         </Pressable>
       </View>
 
       {/* Light grey backdrop overlay - non-interactive, just visual */}
-      {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
+      {showSuggestions && (isLoadingSuggestions || suggestions.length > 0) && (
         <Pressable
           onPress={handleBlur}
           className="absolute left-0 right-0"

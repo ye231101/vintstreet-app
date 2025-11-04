@@ -140,17 +140,17 @@ export default function FinancesScreen() {
 
   if (!connected) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Connect Stripe</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-black">Connect Stripe</Text>
         </View>
 
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View className="flex-1 p-4 bg-gray-50">
-            <View className="bg-white rounded-xl p-4 shadow-sm mb-4">
+          <View className="flex-1 gap-4 p-4">
+            <View className="p-4 rounded-lg bg-white shadow-lg">
               <Text className="text-gray-900 text-lg font-inter-bold mb-2">How it works</Text>
               <Text className="text-gray-700 text-sm font-inter mb-1">• Tap Connect Stripe Account below</Text>
               <Text className="text-gray-700 text-sm font-inter mb-1">• Complete onboarding (~5 minutes)</Text>
@@ -163,7 +163,7 @@ export default function FinancesScreen() {
               onPress={() => {
                 connectAccount().catch((err) => Alert.alert('Failed', err?.message || 'Could not start onboarding'));
               }}
-              className={`rounded-xl p-4 items-center ${loading ? 'bg-gray-400' : 'bg-black'}`}
+              className={`rounded-lg p-4 items-center ${loading ? 'bg-gray-400' : 'bg-black'}`}
             >
               <View className="flex-row items-center">
                 <Feather name="credit-card" color="#fff" size={18} />

@@ -11,10 +11,10 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { InputComponent } from './common/input';
 
 interface MakeOfferModalProps {
   isOpen: boolean;
@@ -91,17 +91,16 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({ isOpen, onClose,
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         className="flex-1"
       >
-        <Pressable onPress={handleClose} className="flex-1 bg-black/50 justify-end">
-          <View className="flex-1" />
-          <Pressable className="bg-white w-full rounded-t-3xl" onPress={(e) => e.stopPropagation()}>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-2xl">
             {/* Header */}
-            <View className="flex-row items-center justify-between p-4 gap-2 border-b border-gray-200">
-              <View className="flex-row items-center">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+              <View className="flex-row items-center gap-2">
                 <Feather name="tag" size={20} color="#000" />
-                <Text className="text-xl font-inter-bold text-gray-900 ml-2">Make an Offer</Text>
+                <Text className="text-xl font-inter-bold text-gray-900">Make an Offer</Text>
               </View>
               <TouchableOpacity onPress={handleClose} hitSlop={8}>
-                <Feather name="x" size={24} color="#666" />
+                <Feather name="x" size={24} color="#000" />
               </TouchableOpacity>
             </View>
 
@@ -111,114 +110,108 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({ isOpen, onClose,
               nestedScrollEnabled={true}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ flexGrow: 1 }}
-              className="p-4"
             >
-              {/* Product Info */}
-              <View className="bg-gray-50 rounded-lg p-4 mb-4">
-                <Text className="text-base font-inter-semibold text-gray-800 mb-1" numberOfLines={2}>
-                  {product.product_name}
-                </Text>
-                <Text className="text-sm font-inter-semibold text-gray-500">
-                  Current price: £
-                  {(product?.discounted_price ?? product?.starting_price ?? 0).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Text>
-              </View>
+              <View className="gap-4 p-4">
+                {/* Product Info */}
+                <View className="gap-1 p-4 rounded-lg bg-gray-50">
+                  <Text className="text-base font-inter-semibold text-gray-800" numberOfLines={2}>
+                    {product.product_name}
+                  </Text>
+                  <Text className="text-sm font-inter-semibold text-gray-500">
+                    Current price: £
+                    {(product?.discounted_price ?? product?.starting_price ?? 0).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Text>
+                </View>
 
-              {/* Offer Amount */}
-              <View className="mb-4">
-                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Your Offer (£) *</Text>
-                <TextInput
-                  keyboardType="decimal-pad"
-                  placeholder="Enter your offer amount"
-                  placeholderTextColor="#9CA3AF"
+                {/* Offer Amount */}
+                <InputComponent
                   value={offerAmount}
-                  onChangeText={setOfferAmount}
-                  className="border border-gray-300 rounded-lg px-4 py-3"
+                  label="Your Offer (£)"
+                  size="small"
+                  required={true}
+                  placeholder="Enter your offer amount"
+                  onChangeText={(text) => setOfferAmount(text)}
+                  keyboardType="decimal-pad"
                 />
-              </View>
 
-              {/* Quick Offer Suggestions */}
-              <View className="mb-4">
-                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Quick suggestions</Text>
-                <View className="flex-row gap-2">
-                  {suggestedOffers.map((suggestion) => (
-                    <Pressable
-                      key={suggestion.percentage}
-                      className="bg-gray-100 px-4 py-2 rounded-lg"
-                      onPress={() =>
-                        setOfferAmount(
-                          suggestion.amount.toLocaleString('en-US', {
+                {/* Quick Offer Suggestions */}
+                <View className="gap-2">
+                  <Text className="text-sm font-inter-semibold text-gray-700">Quick suggestions</Text>
+                  <View className="flex-row gap-2">
+                    {suggestedOffers.map((suggestion) => (
+                      <Pressable
+                        key={suggestion.percentage}
+                        className="px-4 py-2 rounded-lg bg-gray-100"
+                        onPress={() =>
+                          setOfferAmount(
+                            suggestion.amount.toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                          )
+                        }
+                      >
+                        <Text className="text-sm font-inter-semibold text-gray-800">
+                          £
+                          {suggestion.amount.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
-                          })
-                        )
-                      }
-                    >
-                      <Text className="text-sm font-inter-semibold text-gray-800">
-                        £
-                        {suggestion.amount.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </Text>
-                    </Pressable>
-                  ))}
+                          })}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
                 </View>
-              </View>
 
-              {/* Message */}
-              <View className="mb-4">
-                <Text className="text-sm font-inter-semibold text-gray-700 mb-2">Message (Optional)</Text>
-                <TextInput
-                  placeholder="Add a message to the seller..."
-                  placeholderTextColor="#9CA3AF"
-                  multiline
-                  textAlignVertical="top"
+                {/* Message */}
+                <InputComponent
                   value={offerMessage}
-                  onChangeText={setOfferMessage}
+                  label="Message (Optional)"
+                  size="small"
+                  placeholder="Add a message to the seller..."
+                  onChangeText={(text) => setOfferMessage(text)}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                  height={100}
                   maxLength={500}
-                  className="border border-gray-300 rounded-lg px-4 py-3"
-                  style={{ height: 100 }}
                 />
-                <Text className="text-sm font-inter-semibold text-gray-500 text-right mt-1">
-                  {offerMessage.length}/500 characters
-                </Text>
-              </View>
 
-              {offerError ? (
-                <View className="mb-4 p-4 bg-red-50 rounded-lg">
-                  <Text className="text-sm font-inter-semibold text-red-600">{offerError}</Text>
+                {offerError ? (
+                  <View className="mb-4 p-4 bg-red-50 rounded-lg">
+                    <Text className="text-sm font-inter-semibold text-red-600">{offerError}</Text>
+                  </View>
+                ) : null}
+
+                {/* Actions */}
+                <View className="flex-row gap-4">
+                  <Pressable
+                    disabled={isSubmittingOffer || !offerAmount.trim()}
+                    onPress={handleSubmitOffer}
+                    className={`flex-1 flex-row items-center justify-center py-3 rounded-lg bg-black ${
+                      isSubmittingOffer ? 'bg-gray-400' : 'bg-black'
+                    }`}
+                  >
+                    <Text className="text-base font-inter-bold text-white">
+                      {isSubmittingOffer ? <ActivityIndicator size="small" color="white" /> : 'Submit Offer'}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    disabled={isSubmittingOffer}
+                    onPress={handleClose}
+                    className="flex-1 flex-row items-center justify-center py-3 rounded-lg bg-gray-200"
+                  >
+                    <Text className="text-base font-inter-bold text-gray-900 text-center">Cancel</Text>
+                  </Pressable>
                 </View>
-              ) : null}
-
-              {/* Actions */}
-              <View className="flex-row gap-4">
-                <Pressable
-                  className={`flex-1 bg-black rounded-lg py-3 flex-row items-center justify-center ${
-                    isSubmittingOffer ? 'bg-gray-400' : 'bg-black'
-                  }`}
-                  disabled={isSubmittingOffer || !offerAmount.trim()}
-                  onPress={handleSubmitOffer}
-                >
-                  <Text className="text-base font-inter-bold text-white">
-                    {isSubmittingOffer ? <ActivityIndicator size="small" color="white" /> : 'Submit Offer'}
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  disabled={isSubmittingOffer}
-                  onPress={handleClose}
-                  className="flex-1 bg-gray-200 rounded-lg py-3 flex-row items-center justify-center"
-                >
-                  <Text className="text-base font-inter-bold text-gray-900 text-center">Cancel</Text>
-                </Pressable>
               </View>
             </ScrollView>
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </KeyboardAvoidingView>
     </Modal>
   );

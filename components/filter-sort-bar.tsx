@@ -33,16 +33,16 @@ const SortBar: React.FC<FilterSortBarProps> = ({
   };
 
   return (
-    <View className="p-4 bg-gray-50 border-b border-gray-100">
-      <View className="flex-row gap-4">
+    <View className="p-4 border-b border-gray-100">
+      <View className="flex-row items-center gap-4">
         {/* Filter Button */}
         <Pressable
           onPress={onFilterPress}
-          className="flex-row items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-lg"
-          style={{ minHeight: 40 }}
+          className="flex-row items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300"
+          style={{ height: 40 }}
         >
           <Feather name="filter" size={16} color="#000" />
-          <Text className="ml-2 text-sm font-inter-semibold text-black">
+          <Text className="text-sm font-inter-semibold text-black">
             Filter {filterCount > 0 ? `(${filterCount})` : ''}
           </Text>
         </Pressable>
@@ -55,10 +55,9 @@ const SortBar: React.FC<FilterSortBarProps> = ({
             placeholder="Sort by"
             onChange={(item) => handleSortChange(item.value)}
             style={{
-              backgroundColor: '#fff',
-              borderColor: '#d1d5db',
-              borderRadius: 8,
               height: 40,
+              borderRadius: 8,
+              backgroundColor: '#fff',
             }}
           />
         </View>

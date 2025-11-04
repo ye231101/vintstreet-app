@@ -1,4 +1,5 @@
 import { savedAddressesService } from '@/api';
+import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -442,15 +443,15 @@ export default function AddressFormScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-black">
-        <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
           <TouchableOpacity onPress={() => router.back()} hitSlop={8} disabled={isLoading}>
-            <Feather name="arrow-left" size={24} color="#fff" />
+            <Feather name="arrow-left" size={24} color="#000" />
           </TouchableOpacity>
-          <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">{isEditing ? 'Edit' : 'Add'} Address</Text>
+          <Text className="flex-1 text-lg font-inter-bold text-black">{isEditing ? 'Edit' : 'Add'} Address</Text>
         </View>
 
-        <View className="flex-1 bg-gray-50 justify-center items-center">
+        <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
@@ -459,14 +460,14 @@ export default function AddressFormScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8} disabled={isSaving}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">{isEditing ? 'Edit' : 'Add'} Address</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">{isEditing ? 'Edit' : 'Add'} Address</Text>
       </View>
 
       <KeyboardAvoidingView
@@ -479,7 +480,7 @@ export default function AddressFormScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 p-4 bg-gray-50">
+          <View className="flex-1 p-4">
             {/* Info Banner */}
             <View className="bg-blue-500/10 rounded-lg p-4 mb-6 flex-row items-start">
               <Feather name="info" color="#007AFF" size={18} />
@@ -489,120 +490,122 @@ export default function AddressFormScreen() {
             </View>
 
             {/* Form */}
-            <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
-              <Text className="text-gray-900 text-lg font-inter-bold mb-4">Address Information</Text>
-
-              <InputField
-                label="Address Label (Optional)"
+            <View className="bg-white rounded-lg p-4 mb-4 shadow-lg">
+              <InputComponent
                 value={label}
-                onChangeText={setLabel}
+                label="Address Label (Optional)"
+                size="small"
+                required={true}
                 placeholder="e.g., Home, Work, Mom's House"
-                editable={!isSaving}
+                onChangeText={(text) => setLabel(text)}
               />
             </View>
 
-            <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
-              <Text className="text-gray-900 text-lg font-inter-bold mb-4">Personal Information</Text>
+            <View className="bg-white rounded-lg gap-4 p-4 mb-4 shadow-lg">
+              <Text className="text-lg font-inter-bold text-black">Personal Information</Text>
 
-              <View className="flex-row -mx-2">
-                <View className="flex-1 px-2">
-                  <InputField
-                    label="First Name"
+              <View className="flex-row gap-2">
+                <View className="flex-1">
+                  <InputComponent
                     value={firstName}
-                    onChangeText={setFirstName}
+                    label="First Name"
+                    size="small"
+                    required={true}
                     placeholder="John"
-                    required
-                    editable={!isSaving}
+                    onChangeText={(text) => setFirstName(text)}
                   />
                 </View>
-                <View className="flex-1 px-2">
-                  <InputField
-                    label="Last Name"
+
+                <View className="flex-1">
+                  <InputComponent
                     value={lastName}
-                    onChangeText={setLastName}
+                    label="Last Name"
+                    size="small"
+                    required={true}
                     placeholder="Doe"
-                    required
-                    editable={!isSaving}
+                    onChangeText={(text) => setLastName(text)}
                   />
                 </View>
               </View>
 
-              <InputField
-                label="Phone Number"
+              <InputComponent
                 value={phone}
-                onChangeText={setPhone}
+                label="Phone Number"
+                size="small"
+                required={true}
                 placeholder="+1 (555) 123-4567"
+                onChangeText={(text) => setPhone(text)}
                 keyboardType="phone-pad"
-                editable={!isSaving}
               />
             </View>
 
             {/* Address Details */}
-            <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
-              <Text className="text-gray-900 text-lg font-inter-bold mb-4">Address Details</Text>
+            <View className="bg-white rounded-lg gap-4 p-4 mb-4 shadow-lg">
+              <Text className="text-lg font-inter-bold text-black">Address Details</Text>
 
-              <AddressAutocompleteField
-                label="Address Line 1"
+              <InputComponent
                 value={addressLine1}
-                onChangeText={setAddressLine1}
-                onSelectAddress={handleAddressSelect}
+                label="Address Line 1"
+                size="small"
+                required={true}
                 placeholder="Start typing your address..."
-                required
-                editable={!isSaving}
+                onChangeText={(text) => setAddressLine1(text)}
               />
 
-              <InputField
-                label="Address Line 2"
+              <InputComponent
                 value={addressLine2}
-                onChangeText={setAddressLine2}
+                label="Address Line 2"
+                size="small"
+                required={false}
                 placeholder="Apartment, suite, unit, building, floor, etc. (optional)"
-                editable={!isSaving}
+                onChangeText={(text) => setAddressLine2(text)}
               />
 
-              <InputField
-                label="City"
+              <InputComponent
                 value={city}
-                onChangeText={setCity}
+                label="City"
+                size="small"
+                required={true}
                 placeholder="New York"
-                required
-                editable={!isSaving}
+                onChangeText={(text) => setCity(text)}
               />
 
-              <View className="flex-row -mx-2">
-                <View className="flex-1 px-2">
-                  <InputField
-                    label="State"
+              <View className="flex-row gap-2">
+                <View className="flex-1">
+                  <InputComponent
                     value={state}
-                    onChangeText={setState}
+                    label="State"
+                    size="small"
+                    required={true}
                     placeholder="NY"
-                    editable={!isSaving}
+                    onChangeText={(text) => setState(text)}
                   />
                 </View>
-                <View className="flex-1 px-2">
-                  <InputField
-                    label="Postal Code"
+
+                <View className="flex-1">
+                  <InputComponent
                     value={postalCode}
-                    onChangeText={setPostalCode}
+                    label="Postal Code"
+                    size="small"
+                    required={true}
                     placeholder="10001"
-                    required
-                    editable={!isSaving}
+                    onChangeText={(text) => setPostalCode(text)}
                   />
                 </View>
               </View>
 
-              <InputField
-                label="Country"
+              <InputComponent
                 value={country}
-                onChangeText={(text) => setCountry(text.toUpperCase())}
+                label="Country"
+                size="small"
+                required={true}
                 placeholder="US"
-                autoCapitalize="characters"
-                required
-                editable={!isSaving}
+                onChangeText={(text) => setCountry(text.toUpperCase())}
               />
             </View>
 
             {/* Default Address Toggle */}
-            <View className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+            <View className="bg-white rounded-lg p-4 mb-4 shadow-lg">
               <View className="flex-row items-center justify-between">
                 <View className="flex-1 mr-4">
                   <Text className="text-gray-900 text-base font-inter-bold mb-1">Set as default address</Text>

@@ -4,19 +4,51 @@ import { Pressable, StyleProp, StyleSheet, Text, TextInput, View, ViewStyle } fr
 interface InputProps {
   value: string;
   label?: string;
-  required?: boolean;
   icon?: string;
+  size?: 'small' | 'medium' | 'large';
+  required?: boolean;
   placeholder?: string;
   onChangeText?: (text: string) => void;
   secureTextEntry?: boolean;
   showPasswordToggle?: boolean;
   onTogglePassword?: () => void;
-  keyboardType?: 'default' | 'email-address' | 'phone-pad';
+  keyboardType?: 'default' | 'email-address' | 'phone-pad' | 'numeric' | 'decimal-pad';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send';
   onSubmitEditing?: () => void;
-  textContentType?: 'none' | 'username' | 'password' | 'emailAddress' | 'name' | 'telephoneNumber' | 'streetAddressLine1' | 'streetAddressLine2' | 'postalCode' | 'location' | 'countryName';
-  autoComplete?: 'off' | 'username' | 'password' | 'email' | 'name' | 'tel' | 'street-address' | 'postal-code' | 'cc-number' | 'cc-csc' | 'cc-exp' | 'cc-exp-month' | 'cc-exp-year';
+  editable?: boolean;
+  height?: number;
+  maxLength?: number;
+  multiline?: boolean;
+  numberOfLines?: number;
+  textAlignVertical?: 'top' | 'bottom' | 'center';
+  textAlign?: 'left' | 'right' | 'center';
+  textContentType?:
+    | 'none'
+    | 'username'
+    | 'password'
+    | 'emailAddress'
+    | 'name'
+    | 'telephoneNumber'
+    | 'streetAddressLine1'
+    | 'streetAddressLine2'
+    | 'postalCode'
+    | 'location'
+    | 'countryName';
+  autoComplete?:
+    | 'off'
+    | 'username'
+    | 'password'
+    | 'email'
+    | 'name'
+    | 'tel'
+    | 'street-address'
+    | 'postal-code'
+    | 'cc-number'
+    | 'cc-csc'
+    | 'cc-exp'
+    | 'cc-exp-month'
+    | 'cc-exp-year';
   error?: string;
   style?: StyleProp<ViewStyle>;
 }
@@ -24,8 +56,9 @@ interface InputProps {
 export const InputComponent: React.FC<InputProps> = ({
   label,
   value,
-  required = false,
   icon,
+  size = 'medium',
+  required = false,
   placeholder,
   onChangeText,
   secureTextEntry = false,
@@ -35,6 +68,13 @@ export const InputComponent: React.FC<InputProps> = ({
   autoCapitalize = 'none',
   returnKeyType = 'done',
   onSubmitEditing,
+  editable = true,
+  height,
+  maxLength,
+  multiline = false,
+  numberOfLines = 1,
+  textAlignVertical = 'center',
+  textAlign = 'left',
   textContentType,
   autoComplete,
   error,
@@ -45,7 +85,7 @@ export const InputComponent: React.FC<InputProps> = ({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      height: 50,
+      height: height || (size === 'small' ? 40 : size === 'medium' ? 50 : 60),
       padding: 12,
       backgroundColor: 'white',
       borderColor: error ? '#F87171' : '#D1D5DB',
@@ -55,7 +95,7 @@ export const InputComponent: React.FC<InputProps> = ({
   });
 
   return (
-    <View className="gap-2">
+    <View className="w-full gap-2">
       {label && (
         <Text className="text-sm font-inter-semibold text-gray-700">
           {label} {required && <Text className="text-red-500">*</Text>}
@@ -76,12 +116,18 @@ export const InputComponent: React.FC<InputProps> = ({
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
           keyboardType={keyboardType}
-          className="flex-1 text-base font-inter text-black"
-          style={{ height: 50 }}
           returnKeyType={returnKeyType}
           onSubmitEditing={onSubmitEditing}
+          editable={editable}
           textContentType={textContentType}
           autoComplete={autoComplete}
+          maxLength={maxLength}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          textAlignVertical={textAlignVertical}
+          textAlign={textAlign}
+          className="flex-1 font-inter text-black"
+          style={{ height: height || (size === 'small' ? 40 : size === 'medium' ? 50 : 60) }}
         />
         {showPasswordToggle && (
           <Pressable onPress={onTogglePassword} hitSlop={8}>
@@ -89,6 +135,11 @@ export const InputComponent: React.FC<InputProps> = ({
           </Pressable>
         )}
       </View>
+      {maxLength && (
+        <Text className="text-sm font-inter-semibold text-gray-500 text-right">
+          {value.length}/{maxLength} characters
+        </Text>
+      )}
       {error && <Text className="text-red-400 text-xs mt-1 font-inter">{error}</Text>}
     </View>
   );

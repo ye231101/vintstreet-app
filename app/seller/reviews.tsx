@@ -4,7 +4,16 @@ import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReviewsScreen() {
@@ -161,24 +170,24 @@ export default function ReviewsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
+      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
+          <Feather name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
 
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Reviews</Text>
+        <Text className="flex-1 text-lg font-inter-bold text-black">Reviews</Text>
       </View>
 
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1">
         {isLoading ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
             <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your reviews...</Text>
           </View>
         ) : error ? (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="alert-circle" color="#ff4444" size={64} />
             <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading reviews</Text>
             <TouchableOpacity onPress={loadReviews} className="bg-black rounded-lg py-3 px-6">
@@ -188,7 +197,7 @@ export default function ReviewsScreen() {
         ) : reviews.length > 0 ? (
           <>
             {/* Overall Rating Section */}
-            <View className="items-center py-6 bg-gray-50 border-b border-gray-200">
+            <View className="items-center py-6 border-b border-gray-200">
               <Text className="text-gray-900 text-5xl font-inter-bold mb-2">{averageRating}</Text>
 
               <View className="flex-row mb-2">{renderStars(averageRating, 24)}</View>
@@ -197,7 +206,7 @@ export default function ReviewsScreen() {
             </View>
 
             {/* Filter Buttons */}
-            <View className="flex-row px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <View className="flex-row px-4 py-3 border-b border-gray-200">
               <TouchableOpacity
                 onPress={() => setSortFilter('all')}
                 className={`border rounded py-2 px-4 mr-2 ${
@@ -243,7 +252,7 @@ export default function ReviewsScreen() {
             {/* Reviews List */}
             <ScrollView
               showsVerticalScrollIndicator={false}
-              refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadReviews} tintColor="#007AFF" />}
+              refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadReviews} />}
               contentContainerStyle={{ flexGrow: 1 }}
               className="p-4"
             >
@@ -258,7 +267,7 @@ export default function ReviewsScreen() {
                         style={{ backgroundColor: '#e5e7eb' }}
                       />
                     ) : (
-                      <View className="w-12 h-12 rounded-full bg-gray-200 mr-2 justify-center items-center">
+                      <View className="w-12 h-12 rounded-full bg-gray-200 mr-2 items-center justify-center">
                         <Feather name="user" color="#666" size={24} />
                       </View>
                     )}
@@ -280,7 +289,7 @@ export default function ReviewsScreen() {
                       {review.replies.map((reply) => (
                         <View key={reply.id} className="bg-blue-50 rounded-lg p-3 my-1">
                           <View className="flex-row items-center mb-2">
-                            <View className="w-5 h-5 rounded-full bg-blue-200 mr-2 justify-center items-center">
+                            <View className="w-5 h-5 rounded-full bg-blue-200 mr-2 items-center justify-center">
                               <Feather name="corner-down-right" size={12} color="#3b82f6" />
                             </View>
                             <Text className="text-sm font-inter-semibold text-gray-900">You replied</Text>
@@ -352,7 +361,7 @@ export default function ReviewsScreen() {
             </ScrollView>
           </>
         ) : (
-          <View className="flex-1 justify-center items-center p-4">
+          <View className="flex-1 items-center justify-center p-4">
             <Feather name="star" size={64} color="#666" />
             <Text className="text-gray-900 text-lg font-inter-bold mt-4 mb-2">No reviews yet</Text>
             <Text className="text-gray-600 text-sm font-inter-semibold text-center">
