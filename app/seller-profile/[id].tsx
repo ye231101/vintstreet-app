@@ -264,7 +264,29 @@ export default function SellerProfileScreen() {
     );
   }
 
-  const displayName = sellerProfile.shop_name || sellerProfile.full_name || sellerProfile.username;
+  const getPersonalNameDisplay = (fullName: string) => {
+    const trimmed = (fullName || '').trim();
+    if (!trimmed) return '';
+    const parts = trimmed.split(' ').filter(Boolean);
+    if (parts.length === 0) return '';
+    const firstName = parts[0];
+    const last = parts[parts.length - 1];
+    const initial = last.charAt(0).toUpperCase();
+    if (parts.length === 1) return firstName;
+    return `${firstName} ${initial}.`;
+  };
+
+  const displayName = (() => {
+    const pref = sellerProfile.display_name_format || 'shop_name';
+    if (pref === 'shop_name' && sellerProfile.shop_name) {
+      return sellerProfile.shop_name;
+    }
+    if (pref === 'personal_name' && sellerProfile.full_name) {
+      const personal = getPersonalNameDisplay(sellerProfile.full_name);
+      if (personal) return personal;
+    }
+    return sellerProfile.shop_name || sellerProfile.full_name || sellerProfile.username;
+  })();
 
   return (
     <SafeAreaView className="flex-1 bg-black">

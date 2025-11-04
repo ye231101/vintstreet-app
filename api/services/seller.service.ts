@@ -117,10 +117,9 @@ class SellerService {
       // Get user profile
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, email, phone, avatar_url')
+        .select('full_name, username, avatar_url, bio, created_at')
         .eq('user_id', sellerId)
         .single();
-
       // Get review stats
       const { data: reviews } = await supabase.from('reviews').select('rating').eq('seller_id', sellerId);
 
@@ -128,9 +127,40 @@ class SellerService {
       const averageRating = reviewCount > 0 ? reviews!.reduce((sum, r: any) => sum + r.rating, 0) / reviewCount : 0;
 
       const fullName = (profile as any)?.full_name || '';
+
+      // Fetch canonical seller profile for display preference (more reliable than view)
+      const { data: sellerCore } = await supabase
+        .from('seller_profiles')
+        .select('shop_name, display_name_format')
+        .eq('user_id', sellerId)
+        .single();
+
+      const displayNameFormat: 'shop_name' | 'personal_name' =
+        ((sellerCore as any)?.display_name_format as any) ||
+        ((sellerInfo as any)?.display_name_format as any) ||
+        'shop_name';
+      const shopName: string = (sellerCore as any)?.shop_name || (sellerInfo as any)?.shop_name || 'My Store';
+
+      const toPersonalName = (name: string) => {
+        const trimmed = (name || '').trim();
+        if (!trimmed) return '';
+        const parts = trimmed.split(' ').filter(Boolean);
+        if (parts.length === 0) return '';
+        const first = parts[0];
+        if (parts.length === 1) return first;
+        const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
+        return `${first} ${lastInitial}.`;
+      };
+
+      const personalName = toPersonalName(fullName);
+      const displayName =
+        displayNameFormat === 'personal_name' ? personalName || fullName || shopName : shopName || fullName;
+
       return {
-        storeName: (sellerInfo as any)?.shop_name || 'My Store',
+        storeName: shopName,
         fullName,
+        displayName,
+        displayNameFormat,
         rating: {
           rating: Math.round(averageRating * 10) / 10,
           count: reviewCount,

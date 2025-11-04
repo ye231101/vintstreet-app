@@ -74,7 +74,7 @@ export default function DashboardScreen() {
     try {
       // Determine period parameter for API call
       const periodParam = customDateRange ? 'custom' : selectedPeriod;
-      
+
       // Fetch all dashboard data in parallel
       const [reports, settings, listings, offers] = await Promise.all([
         sellerService.getDashboardReports(
@@ -86,7 +86,6 @@ export default function DashboardScreen() {
         listingsService.getSellerListings(user.id).catch(() => []),
         offersService.getOffers(user.id, 'seller').catch(() => []),
       ]);
-
       setReportsData(reports);
       setSellerSettings(settings);
 
@@ -123,11 +122,13 @@ export default function DashboardScreen() {
     if (period === 'custom') {
       // Set default dates (last 7 days) or use existing custom range
       const end = customDateRange?.end || new Date();
-      const start = customDateRange?.start || (() => {
-        const date = new Date();
-        date.setDate(date.getDate() - 7);
-        return date;
-      })();
+      const start =
+        customDateRange?.start ||
+        (() => {
+          const date = new Date();
+          date.setDate(date.getDate() - 7);
+          return date;
+        })();
       setTempStartDate(start);
       setTempEndDate(end);
       setPendingPeriod('custom');
@@ -296,6 +297,22 @@ export default function DashboardScreen() {
   const StoreProfileCard = () => {
     if (!sellerSettings) return null;
 
+    const getPersonalNameDisplay = (fullName: string) => {
+      const trimmed = (fullName || '').trim();
+      if (!trimmed) return '';
+      const parts = trimmed.split(' ').filter(Boolean);
+      if (parts.length === 0) return '';
+      const firstName = parts[0];
+      if (parts.length === 1) return firstName;
+      const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
+      return `${firstName} ${lastInitial}.`;
+    };
+
+    const displayTitle =
+      sellerSettings.displayNameFormat === 'shop_name'
+        ? sellerSettings.storeName
+        : getPersonalNameDisplay(sellerSettings.fullName) || sellerSettings.fullName || sellerSettings.storeName;
+
     return (
       <View className="bg-white rounded-xl p-4 shadow-sm">
         {/* Store Header */}
@@ -305,10 +322,7 @@ export default function DashboardScreen() {
           </View>
 
           <View className="flex-1">
-            <Text className="text-gray-900 text-xl font-inter-bold mb-1">{sellerSettings.storeName}</Text>
-            {sellerSettings.fullName && (
-              <Text className="text-gray-600 text-sm font-inter mb-1">{sellerSettings.fullName}</Text>
-            )}
+            <Text className="text-gray-900 text-xl font-inter-bold mb-1">{displayTitle}</Text>
             {sellerSettings.rating.count > 0 ? (
               <View className="flex-row items-center">
                 {renderStars(sellerSettings.rating.rating, 14)}
@@ -336,11 +350,6 @@ export default function DashboardScreen() {
             <Text className="text-gray-900 text-lg font-inter-bold">{reportsData?.summary?.completedOrders || 0}</Text>
             <Text className="text-gray-600 text-xs font-inter mt-1">Completed Orders</Text>
           </View>
-          <View className="w-px bg-gray-200 mx-2" />
-          <View className="flex-1 items-center">
-            <Text className="text-gray-900 text-lg font-inter-bold">{reportsData?.summary?.pageviews || 0}</Text>
-            <Text className="text-gray-600 text-xs font-inter mt-1">Page Views</Text>
-          </View>
         </View>
       </View>
     );
@@ -351,8 +360,7 @@ export default function DashboardScreen() {
 
     const summary = reportsData.summary;
     const activeOrders = summary.processingOrders + summary.pendingOrders;
-    const averageOrderValue =
-      summary.completedOrders > 0 ? summary.totalSales / summary.completedOrders : 0;
+    const averageOrderValue = summary.completedOrders > 0 ? summary.totalSales / summary.completedOrders : 0;
 
     return (
       <View className="bg-white rounded-xl p-4 shadow-sm">
@@ -383,9 +391,7 @@ export default function DashboardScreen() {
               <Text className="text-gray-600 text-sm font-inter">Average Order Value</Text>
               <Text className="text-gray-400 text-xs font-inter">Per completed order</Text>
             </View>
-            <Text className="text-gray-900 text-base font-inter-bold">
-              £{averageOrderValue.toFixed(2)}
-            </Text>
+            <Text className="text-gray-900 text-base font-inter-bold">£{averageOrderValue.toFixed(2)}</Text>
           </View>
 
           <View className="flex-row justify-between mb-3">
@@ -544,7 +550,9 @@ export default function DashboardScreen() {
               <StatsCard
                 title="Total Orders"
                 value={reportsData?.summary?.totalOrders?.toString() || '0'}
-                subtitle={`${(reportsData?.summary?.processingOrders || 0) + (reportsData?.summary?.pendingOrders || 0)} active`}
+                subtitle={`${
+                  (reportsData?.summary?.processingOrders || 0) + (reportsData?.summary?.pendingOrders || 0)
+                } active`}
                 icon="package"
                 iconColor="#007AFF"
               />
@@ -818,14 +826,10 @@ export default function DashboardScreen() {
                         <TouchableOpacity
                           key={option.value}
                           onPress={() => changePeriod(option.value)}
-                          className={`rounded-lg px-4 py-2.5 ${
-                            isSelected ? 'bg-blue-600' : 'bg-gray-100'
-                          }`}
+                          className={`rounded-lg px-4 py-2.5 ${isSelected ? 'bg-blue-600' : 'bg-gray-100'}`}
                         >
                           <Text
-                            className={`text-sm font-inter-semibold ${
-                              isSelected ? 'text-white' : 'text-gray-900'
-                            }`}
+                            className={`text-sm font-inter-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}
                           >
                             {option.label}
                           </Text>
