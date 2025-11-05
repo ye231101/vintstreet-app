@@ -258,7 +258,10 @@ export default function MessageDetailScreen() {
 
   const renderMessage = (message: Message) => (
     <View className={`${message.isSent ? 'items-end' : 'items-start'} my-1 mx-2`}>
-      <View className={`max-w-3/4 py-2 px-3 rounded-2xl shadow-sm ${message.isSent ? 'bg-black' : 'bg-gray-100'}`}>
+      <View
+        className={`py-2 px-3 rounded-2xl shadow-sm ${message.isSent ? 'bg-black' : 'bg-gray-100'}`}
+        style={{ maxWidth: '80%', flexShrink: 1 }}
+      >
         <Text className={`${message.isSent ? 'text-white' : 'text-black'} text-sm font-inter`}>{message.content}</Text>
       </View>
 

@@ -557,7 +557,7 @@ export default function AddressFormScreen() {
                 label="Address Line 2"
                 size="small"
                 required={false}
-                placeholder="Apartment, suite, unit, building, floor, etc. (optional)"
+                placeholder="Apt, suite, etc. (optional)"
                 onChangeText={(text) => setAddressLine2(text)}
               />
 
