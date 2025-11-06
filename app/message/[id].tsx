@@ -48,6 +48,7 @@ export default function MessageDetailScreen() {
   const [reportReason, setReportReason] = useState('');
   const [isReporting, setIsReporting] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  const [shouldScrollToUnread, setShouldScrollToUnread] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -55,6 +56,19 @@ export default function MessageDetailScreen() {
       loadMessages();
     }
   }, [user?.id, id]);
+
+  // Scroll to newest message after loading (when there are new/unread messages)
+  useEffect(() => {
+    if (shouldScrollToUnread && !isLoading && messages.length > 0) {
+      const scrollTimeout = setTimeout(() => {
+        // Scroll to the newest message (end of list) to show the latest messages
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+        setShouldScrollToUnread(false);
+      }, 600); // Delay to ensure all messages are rendered
+
+      return () => clearTimeout(scrollTimeout);
+    }
+  }, [shouldScrollToUnread, isLoading, messages.length]);
 
   const loadMessages = async () => {
     if (!user?.id || !id) return;
@@ -84,14 +98,17 @@ export default function MessageDetailScreen() {
 
         setMessages(displayMessages);
 
-        // Mark messages as read
-        const unreadMessageIds = conversation.messages
-          .filter((msg) => msg.recipient_id === user.id && msg.status === 'unread')
-          .map((msg) => msg.id);
+        // Mark messages as read and track first unread message
+        const unreadMessages = conversation.messages.filter(
+          (msg) => msg.recipient_id === user.id && msg.status === 'unread'
+        );
+        const unreadMessageIds = unreadMessages.map((msg) => msg.id);
 
         if (unreadMessageIds.length > 0) {
           await messagesService.markAsRead(unreadMessageIds);
         }
+        // Always scroll to newest message when opening conversation
+        setShouldScrollToUnread(true);
       } else {
         Alert.alert('Error', 'Conversation not found');
         router.back();
@@ -299,8 +316,14 @@ export default function MessageDetailScreen() {
 
       {/* Messages Area */}
       <ScrollView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
-        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+        onContentSizeChange={() => {
+          // Only auto-scroll to end if we're not in the initial load phase with unread messages
+          if (!shouldScrollToUnread) {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+          }
+        }}
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <View className="flex-1 py-4">

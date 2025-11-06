@@ -219,17 +219,17 @@ class MessagesService {
       const senderName = (senderProfile as any)?.full_name || (senderProfile as any)?.username || 'Someone';
 
       // Create notification asynchronously (don't await to avoid blocking)
-      notificationsService
-        .notifyNewMessage(
-          messageData.recipient_id,
-          senderName,
-          messageData.message.length > 100 ? messageData.message.substring(0, 100) + '...' : messageData.message,
-          {
-            message_id: (data as unknown as Message)?.id,
-            conversation_id: messageData.parent_message_id || messageData.subject,
-          }
-        )
-        .catch((err) => console.error('Error creating message notification:', err));
+      // notificationsService
+      //   .notifyNewMessage(
+      //     messageData.recipient_id,
+      //     senderName,
+      //     messageData.message.length > 100 ? messageData.message.substring(0, 100) + '...' : messageData.message,
+      //     {
+      //       message_id: (data as unknown as Message)?.id,
+      //       conversation_id: messageData.parent_message_id || messageData.subject,
+      //     }
+      //   )
+      //   .catch((err) => console.error('Error creating message notification:', err));
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
