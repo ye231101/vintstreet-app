@@ -86,7 +86,6 @@ export const InputComponent: React.FC<InputProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
       height: height || (size === 'small' ? 40 : size === 'medium' ? 50 : 60),
-      // height: 40,
       padding: 12,
       backgroundColor: 'white',
       borderColor: error ? '#F87171' : '#D1D5DB',
