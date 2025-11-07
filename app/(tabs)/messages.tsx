@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function MessagesScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -20,6 +21,15 @@ export default function MessagesScreen() {
       loadConversations();
     }
   }, [user?.id]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?.id) {
+        loadConversations();
+      }
+      return undefined;
+    }, [user?.id])
+  );
 
   const loadConversations = async () => {
     if (!user?.id) {

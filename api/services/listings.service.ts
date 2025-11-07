@@ -23,7 +23,11 @@ class ListingsService {
 
       // Apply search filter to count query
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
-        const searchPattern = `%${filters.searchKeyword.trim()}%`;
+        const escaped = filters.searchKeyword
+          .trim()
+          .replace(/\\/g, "\\\\")
+          .replace(/\"/g, '\\"');
+        const searchPattern = `%${escaped}%`;
         countQuery = countQuery.or(
           `product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`
         );
@@ -78,8 +82,14 @@ class ListingsService {
 
       // Apply search filter
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
-        const searchPattern = `%${filters.searchKeyword.trim()}%`;
-        query = query.or(`product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`);
+        const escaped = filters.searchKeyword
+          .trim()
+          .replace(/\\/g, "\\\\")
+          .replace(/\"/g, '\\"');
+        const searchPattern = `%${escaped}%`;
+        query = query.or(
+          `product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`
+        );
       }
 
       // Apply server-side filters
@@ -560,7 +570,13 @@ class ListingsService {
         )
         .eq('product_type', 'shop')
         .eq('status', 'published')
-        .or(`product_name.ilike."%${searchTerm}%",product_description.ilike."%${searchTerm}%"`);
+        .or(() => {
+          const escaped = searchTerm
+            .trim()
+            .replace(/\\/g, "\\\\")
+            .replace(/\"/g, '\\"');
+          return `product_name.ilike."%${escaped}%",product_description.ilike."%${escaped}%"`;
+        });
 
       // Apply price filter if provided
       if (priceFilter && priceFilter !== 'All Prices') {
