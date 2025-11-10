@@ -1,4 +1,4 @@
-import { categoriesService, Category, listingsService, Product } from '@/api';
+import { brandsService, categoriesService, Category, listingsService, Product } from '@/api';
 import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-modal';
 import FilterSortBar from '@/components/filter-sort-bar';
 import ProductCard from '@/components/product-card';
@@ -21,7 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DiscoveryScreen() {
   const router = useRouter();
-  const { category, brand, brandName } = useLocalSearchParams();
+  const { category, brand, brandName, subcategory, sub_subcategory } = useLocalSearchParams();
   const [searchText, setSearchText] = useState('');
   const [categoryPath, setCategoryPath] = useState<Category[]>([]);
   const [currentView, setCurrentView] = useState<'categories' | 'subcategories' | 'products'>('categories');
@@ -114,29 +114,148 @@ export default function DiscoveryScreen() {
   // Handle category parameter whenever this screen is focused (runs on each visit)
   useFocusEffect(
     useCallback(() => {
+      // Skip category navigation if brandName is provided (brand navigation will handle it)
+      if (brandName) {
+        return;
+      }
+      
       if (category && categories.length > 0) {
         const categoryName = decodeURIComponent(category as string);
-        const foundCategory = categoriesService.findCategoryBySlug(
-          categories,
-          categoryName.toLowerCase().replace(/\s+/g, '-')
-        );
+        const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
+        const foundCategory = categoriesService.findCategoryBySlug(categories, categorySlug);
+        
         if (foundCategory) {
+          // If subcategory and sub_subcategory are provided, navigate to the deepest level
+          if (subcategory && sub_subcategory) {
+            const subcategorySlug = decodeURIComponent(subcategory as string).toLowerCase().replace(/\s+/g, '-');
+            const subSubcategorySlug = decodeURIComponent(sub_subcategory as string).toLowerCase().replace(/\s+/g, '-');
+            
+            // Find the subcategory within the found category
+            const foundSubcategory = foundCategory.children.find((sub) => sub.slug === subcategorySlug);
+            if (foundSubcategory) {
+              // Find the sub_subcategory within the subcategory
+              const foundSubSubcategory = foundSubcategory.children.find((subSub) => subSub.slug === subSubcategorySlug);
+              if (foundSubSubcategory) {
+                // Navigate to the deepest category level
+                setCategoryPath([foundCategory, foundSubcategory, foundSubSubcategory]);
+                setCurrentView('products');
+                setCurrentPage(1);
+                loadProductsForCategory(foundSubSubcategory, currentSortBy);
+                return;
+              }
+            }
+          } else if (subcategory) {
+            // Only subcategory is provided
+            const subcategorySlug = decodeURIComponent(subcategory as string).toLowerCase().replace(/\s+/g, '-');
+            const foundSubcategory = foundCategory.children.find((sub) => sub.slug === subcategorySlug);
+            if (foundSubcategory) {
+              setCategoryPath([foundCategory, foundSubcategory]);
+              if (foundSubcategory.children.length > 0) {
+                setCurrentView('subcategories');
+              } else {
+                setCurrentView('products');
+                setCurrentPage(1);
+                loadProductsForCategory(foundSubcategory, currentSortBy);
+              }
+              return;
+            }
+          }
+          
+          // Default: navigate to the category level
           handleCategoryPress(foundCategory);
         }
       }
-    }, [category, categories])
+    }, [category, subcategory, sub_subcategory, categories, brandName])
   );
 
   // Handle brand parameter from navigation
   useEffect(() => {
-    if (brand && brandName) {
-      const decodedBrandId = decodeURIComponent(brand as string);
-      const decodedBrandName = decodeURIComponent(brandName as string);
-      setSelectedBrand({ id: decodedBrandId, name: decodedBrandName });
-      setCurrentView('products');
-      loadProductsForBrand(decodedBrandId, decodedBrandName);
+    const handleBrandNavigation = async () => {
+      // If brandName is provided, find the brand ID
+      if (brandName && !brand) {
+        try {
+          const decodedBrandName = decodeURIComponent(brandName as string);
+          // Search for the brand by name
+          const brands = await brandsService.getBrands({ is_active: true });
+          const foundBrand = brands.find((b) => b.name.toLowerCase() === decodedBrandName.toLowerCase());
+          
+          if (foundBrand) {
+            // If category is also provided, load products with both category and brand filters
+            if (category && categories.length > 0) {
+              const categoryName = decodeURIComponent(category as string);
+              const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
+              const foundCategory = categoriesService.findCategoryBySlug(categories, categorySlug);
+              
+              if (foundCategory) {
+                // Set category path and apply brand filter (don't set selectedBrand to show category view)
+                setCategoryPath([foundCategory]);
+                setCurrentView('products');
+                setCurrentPage(1);
+                setSelectedBrand(null); // Clear selected brand to show category view
+                
+                // Apply brand filter to the applied filters
+                const filtersWithBrand: AppliedFilters = {
+                  priceRanges: [],
+                  brands: [foundBrand.id],
+                };
+                setAppliedFilters(filtersWithBrand);
+                
+                // Load products for category with brand filter
+                await loadProductsForCategory(foundCategory, currentSortBy, filtersWithBrand);
+                return;
+              }
+            }
+            
+            // No category, just load products for brand
+            setSelectedBrand({ id: foundBrand.id, name: foundBrand.name });
+            setCurrentView('products');
+            loadProductsForBrand(foundBrand.id, foundBrand.name);
+          }
+        } catch (error) {
+          console.error('Error finding brand by name:', error);
+        }
+      } else if (brand && brandName) {
+        // Brand ID is provided directly
+        const decodedBrandId = decodeURIComponent(brand as string);
+        const decodedBrandName = decodeURIComponent(brandName as string);
+        
+        // If category is also provided, load products with both category and brand filters
+        if (category && categories.length > 0) {
+          const categoryName = decodeURIComponent(category as string);
+          const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
+          const foundCategory = categoriesService.findCategoryBySlug(categories, categorySlug);
+          
+          if (foundCategory) {
+            // Set category path and apply brand filter (don't set selectedBrand to show category view)
+            setCategoryPath([foundCategory]);
+            setCurrentView('products');
+            setCurrentPage(1);
+            setSelectedBrand(null); // Clear selected brand to show category view
+            
+            // Apply brand filter to the applied filters
+            const filtersWithBrand: AppliedFilters = {
+              priceRanges: [],
+              brands: [decodedBrandId],
+            };
+            setAppliedFilters(filtersWithBrand);
+            
+            // Load products for category with brand filter
+            await loadProductsForCategory(foundCategory, currentSortBy, filtersWithBrand);
+            return;
+          }
+        }
+        
+        // No category, just load products for brand
+        setSelectedBrand({ id: decodedBrandId, name: decodedBrandName });
+        setCurrentView('products');
+        loadProductsForBrand(decodedBrandId, decodedBrandName);
+      }
+    };
+
+    if (brandName || brand) {
+      handleBrandNavigation();
     }
-  }, [brand, brandName]);
+  }, [brand, brandName, category, categories]);
 
   const loadCategories = async () => {
     try {

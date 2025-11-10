@@ -1,5 +1,6 @@
 import { listingsService, Product } from '@/api';
 import Brand from '@/components/brand';
+import { MegaMenuNav } from '@/components/mega-menu-nav';
 import ProductCard from '@/components/product-card';
 import QuickLinks from '@/components/quick-links';
 import SearchBar from '@/components/search-bar';
@@ -116,6 +117,9 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 mb-14 bg-white">
       {/* Search Bar */}
       <SearchBar value={searchKeyword} onChangeText={(text) => setSearchKeyword(text)} onSearch={handleSearch} />
+
+      {/* Mega Menu Navigation */}
+      <MegaMenuNav />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
