@@ -1,6 +1,7 @@
 import { messagesService, Order, Product } from '@/api';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -100,7 +101,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        className="flex-1"
+        style={styles.container}
       >
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white rounded-t-2xl">

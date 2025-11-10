@@ -1,5 +1,6 @@
 import { authService, sellerService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -310,7 +311,7 @@ export default function SellerSetupScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 bg-gray-50">
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
         {/* Header */}
         <View className="bg-white p-4">
           <View className="flex-row items-center justify-between">

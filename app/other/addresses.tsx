@@ -83,7 +83,7 @@ export default function AddressesScreen() {
       </View>
 
       {/* Address Details */}
-      <View className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-3">
+      <View className="bg-white rounded-lg p-4 border border-gray-200 mb-3">
         <Text className="text-gray-900 text-sm font-inter-semibold mb-2">
           {address.first_name} {address.last_name}
         </Text>

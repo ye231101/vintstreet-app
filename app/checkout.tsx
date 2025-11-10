@@ -9,6 +9,7 @@ import {
 } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
+import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
@@ -655,7 +656,7 @@ export default function CheckoutScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        className="flex-1"
+        style={styles.container}
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
@@ -1126,37 +1127,34 @@ export default function CheckoutScreen() {
                 </View>
               </View>
             </View>
+
+            <TouchableOpacity
+              onPress={processCheckout}
+              disabled={checkoutLoading || !canProceedToCheckout()}
+              className={`rounded-2xl py-4 items-center ${
+                canProceedToCheckout() && !checkoutLoading ? 'bg-black' : 'bg-orange-500'
+              } ${checkoutLoading ? 'opacity-70' : ''}`}
+            >
+              {checkoutLoading ? (
+                <View className="flex-row items-center">
+                  <ActivityIndicator size="small" color="#fff" />
+                  <Text className="text-white text-base font-inter-bold ml-2">Processing Order...</Text>
+                </View>
+              ) : (
+                <>
+                  <Text className="text-white text-base font-inter-bold">
+                    {canProceedToCheckout() ? 'Complete Order' : 'Complete Required Fields'}
+                  </Text>
+                  {!canProceedToCheckout() && (
+                    <Text className="text-white text-xs font-inter-semibold mt-1 text-center">
+                      {getValidationMessage()}
+                    </Text>
+                  )}
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         </ScrollView>
-
-        {/* Bottom Action Button */}
-        <View className="p-4 bg-white border-t border-gray-200">
-          <TouchableOpacity
-            onPress={processCheckout}
-            disabled={checkoutLoading || !canProceedToCheckout()}
-            className={`rounded-2xl py-4 items-center ${
-              canProceedToCheckout() && !checkoutLoading ? 'bg-black' : 'bg-orange-500'
-            } ${checkoutLoading ? 'opacity-70' : ''}`}
-          >
-            {checkoutLoading ? (
-              <View className="flex-row items-center">
-                <ActivityIndicator size="small" color="#fff" />
-                <Text className="text-white text-base font-inter-bold ml-2">Processing Order...</Text>
-              </View>
-            ) : (
-              <>
-                <Text className="text-white text-base font-inter-bold">
-                  {canProceedToCheckout() ? 'Complete Order' : 'Complete Required Fields'}
-                </Text>
-                {!canProceedToCheckout() && (
-                  <Text className="text-white text-xs font-inter-semibold mt-1 text-center">
-                    {getValidationMessage()}
-                  </Text>
-                )}
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
 
         {/* Country Picker Modal */}
         <Modal

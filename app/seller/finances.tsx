@@ -1,6 +1,7 @@
 import { ordersService, stripeService } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
 import { useStripeConnect } from '@/hooks/use-stripe-connect';
+import { styles } from '@/styles';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -179,66 +180,70 @@ export default function FinancesScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
-      <View className="flex-row items-center p-4 bg-black border-b border-gray-700">
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text className="flex-1 ml-4 text-lg font-inter-bold text-white">Finances</Text>
-        <TouchableOpacity onPress={() => fetchBalance().catch(() => {})}>
-          <Feather name="refresh-cw" color="#fff" size={20} />
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView className="flex-1 bg-white">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        style={styles.container}
+      >
+        <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+            <Feather name="arrow-left" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text className="flex-1 text-lg font-inter-bold text-black">Finances</Text>
+          <TouchableOpacity onPress={() => fetchBalance().catch(() => {})}>
+            <Feather name="refresh-cw" color="#000" size={20} />
+          </TouchableOpacity>
+        </View>
 
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 p-4 bg-gray-50">
-          {!balance?.accountStatus.payouts_enabled ? (
-            <View className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4">
-              <Text className="text-yellow-900 text-sm font-inter">
-                Payouts are not enabled yet. Complete Stripe onboarding to enable withdrawals.
-              </Text>
-              <TouchableOpacity
-                onPress={() => connectAccount().catch((err) => Alert.alert('Failed', err?.message || 'Try again'))}
-                className="mt-2"
-              >
-                <Text className="text-blue-600 text-sm font-inter-bold">Complete Onboarding</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4">
-              <Text className="text-green-900 text-sm font-inter">
-                Your Stripe account is fully set up and ready to receive payments!
-              </Text>
-            </View>
-          )}
-
-          <View className="gap-3 mb-4">
-            <View className="flex-row gap-3">
-              <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
-                <Text className="text-gray-600 text-sm font-inter-semibold mb-2">Available Balance</Text>
-                <Text className="text-gray-900 text-2xl font-inter-bold">£{availableFromOrders.toFixed(2)}</Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View className="flex-1 p-4 bg-white">
+            {!balance?.accountStatus.payouts_enabled ? (
+              <View className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4">
+                <Text className="text-yellow-900 text-sm font-inter">
+                  Payouts are not enabled yet. Complete Stripe onboarding to enable withdrawals.
+                </Text>
+                <TouchableOpacity
+                  onPress={() => connectAccount().catch((err) => Alert.alert('Failed', err?.message || 'Try again'))}
+                  className="mt-2"
+                >
+                  <Text className="text-blue-600 text-sm font-inter-bold">Complete Onboarding</Text>
+                </TouchableOpacity>
               </View>
-              <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
-                <Text className="text-gray-600 text-sm font-inter-semibold mb-2">Clearing Balance</Text>
-                <Text className="text-gray-900 text-2xl font-inter-bold">£{clearingBalance.toFixed(2)}</Text>
-              </View>
-            </View>
-
-            <View className="flex-row gap-3">
-              <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
-                <Text className="text-gray-600 text-sm font-inter-semibold mb-2">Lifetime Earnings</Text>
-                <Text className="text-gray-900 text-2xl font-inter-bold">
-                  {balanceLoading ? 'Loading…' : `£${(balance?.totalEarnings || 0).toFixed(2)}`}
+            ) : (
+              <View className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4">
+                <Text className="text-green-900 text-sm font-inter">
+                  Your Stripe account is fully set up and ready to receive payments!
                 </Text>
               </View>
-              <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
-                <Text className="text-gray-600 text-sm font-inter-semibold mb-2">This Month</Text>
-                <Text className="text-gray-900 text-2xl font-inter-bold">£{monthlyEarnings.toFixed(2)}</Text>
+            )}
+
+            <View className="gap-3 mb-4">
+              <View className="flex-row gap-3">
+                <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
+                  <Text className="text-gray-600 text-sm font-inter-semibold mb-2">Available Balance</Text>
+                  <Text className="text-gray-900 text-2xl font-inter-bold">£{availableFromOrders.toFixed(2)}</Text>
+                </View>
+                <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
+                  <Text className="text-gray-600 text-sm font-inter-semibold mb-2">Clearing Balance</Text>
+                  <Text className="text-gray-900 text-2xl font-inter-bold">£{clearingBalance.toFixed(2)}</Text>
+                </View>
+              </View>
+
+              <View className="flex-row gap-3">
+                <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
+                  <Text className="text-gray-600 text-sm font-inter-semibold mb-2">Lifetime Earnings</Text>
+                  <Text className="text-gray-900 text-2xl font-inter-bold">
+                    {balanceLoading ? 'Loading…' : `£${(balance?.totalEarnings || 0).toFixed(2)}`}
+                  </Text>
+                </View>
+                <View className="bg-white rounded-xl p-4 flex-1 shadow-sm">
+                  <Text className="text-gray-600 text-sm font-inter-semibold mb-2">This Month</Text>
+                  <Text className="text-gray-900 text-2xl font-inter-bold">£{monthlyEarnings.toFixed(2)}</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
               <Text className="text-gray-900 text-lg font-inter-bold mb-3">Request Payout</Text>
               <View className="flex-row items-center gap-3">
@@ -268,86 +273,86 @@ export default function FinancesScreen() {
                 Available: £{availableFromOrders.toFixed(2)}
               </Text>
             </View>
-          </KeyboardAvoidingView>
 
-          <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
-            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Recent Transactions</Text>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : transactions && transactions.length > 0 ? (
-              transactions.slice(0, 5).map((t) => (
-                <View
-                  key={t.id}
-                  className="flex-row items-center justify-between py-3 border-b border-gray-200 last:border-0"
-                >
-                  <View>
-                    <Text className="text-gray-900 text-sm font-inter-semibold">Transaction #{t.id.slice(0, 8)}</Text>
-                    <Text className="text-gray-600 text-xs font-inter">
-                      {new Date(t.created_at).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  <View className="items-end">
-                    <Text className="text-gray-900 text-sm font-inter-bold">£{Number(t.seller_net).toFixed(2)}</Text>
-                    <Text className="text-gray-600 text-xs font-inter capitalize">{t.status}</Text>
-                  </View>
-                </View>
-              ))
-            ) : (
-              <Text className="text-gray-600 text-sm font-inter text-center py-2">No transactions yet</Text>
-            )}
-          </View>
-
-          <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
-            <Text className="text-gray-900 text-lg font-inter-bold mb-3">Payout History</Text>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : payouts && payouts.length > 0 ? (
-              payouts.map((p) => (
-                <View
-                  key={p.id}
-                  className="flex-row items-center justify-between py-3 border-b border-gray-200 last:border-0"
-                >
-                  <View>
-                    <Text className="text-gray-900 text-sm font-inter-semibold">Payout #{p.id.slice(0, 8)}</Text>
-                    <Text className="text-gray-600 text-xs font-inter">
-                      {new Date(p.requested_at).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  <View className="items-end">
-                    <Text className="text-gray-900 text-sm font-inter-bold">£{Number(p.amount).toFixed(2)}</Text>
-                    <Text className="text-gray-600 text-xs font-inter capitalize">{p.status}</Text>
-                  </View>
-                </View>
-              ))
-            ) : (
-              <Text className="text-gray-600 text-sm font-inter text-center py-2">No payouts requested yet</Text>
-            )}
-          </View>
-
-          {balance && (
             <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
-              <Text className="text-gray-900 text-lg font-inter-bold mb-3">Earnings Breakdown</Text>
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-gray-600 text-sm font-inter">Total Earnings</Text>
-                <Text className="text-gray-900 text-sm font-inter-bold">£{balance.totalEarnings.toFixed(2)}</Text>
-              </View>
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-gray-600 text-sm font-inter">Platform Fee (10%)</Text>
-                <Text className="text-red-600 text-sm font-inter-bold">
-                  -£{(balance.totalEarnings * 0.1).toFixed(2)}
-                </Text>
-              </View>
-              <View className="h-px bg-gray-200 my-2" />
-              <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 text-sm font-inter-bold">Net Earnings (After Fees)</Text>
-                <Text className="text-blue-600 text-sm font-inter-bold">
-                  £{(balance.totalEarnings * 0.9).toFixed(2)}
-                </Text>
-              </View>
+              <Text className="text-gray-900 text-lg font-inter-bold mb-3">Recent Transactions</Text>
+              {isLoading ? (
+                <ActivityIndicator />
+              ) : transactions && transactions.length > 0 ? (
+                transactions.slice(0, 5).map((t) => (
+                  <View
+                    key={t.id}
+                    className="flex-row items-center justify-between py-3 border-b border-gray-200 last:border-0"
+                  >
+                    <View>
+                      <Text className="text-gray-900 text-sm font-inter-semibold">Transaction #{t.id.slice(0, 8)}</Text>
+                      <Text className="text-gray-600 text-xs font-inter">
+                        {new Date(t.created_at).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View className="items-end">
+                      <Text className="text-gray-900 text-sm font-inter-bold">£{Number(t.seller_net).toFixed(2)}</Text>
+                      <Text className="text-gray-600 text-xs font-inter capitalize">{t.status}</Text>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <Text className="text-gray-600 text-sm font-inter text-center py-2">No transactions yet</Text>
+              )}
             </View>
-          )}
-        </View>
-      </ScrollView>
+
+            <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
+              <Text className="text-gray-900 text-lg font-inter-bold mb-3">Payout History</Text>
+              {isLoading ? (
+                <ActivityIndicator />
+              ) : payouts && payouts.length > 0 ? (
+                payouts.map((p) => (
+                  <View
+                    key={p.id}
+                    className="flex-row items-center justify-between py-3 border-b border-gray-200 last:border-0"
+                  >
+                    <View>
+                      <Text className="text-gray-900 text-sm font-inter-semibold">Payout #{p.id.slice(0, 8)}</Text>
+                      <Text className="text-gray-600 text-xs font-inter">
+                        {new Date(p.requested_at).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View className="items-end">
+                      <Text className="text-gray-900 text-sm font-inter-bold">£{Number(p.amount).toFixed(2)}</Text>
+                      <Text className="text-gray-600 text-xs font-inter capitalize">{p.status}</Text>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <Text className="text-gray-600 text-sm font-inter text-center py-2">No payouts requested yet</Text>
+              )}
+            </View>
+
+            {balance && (
+              <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
+                <Text className="text-gray-900 text-lg font-inter-bold mb-3">Earnings Breakdown</Text>
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-600 text-sm font-inter">Total Earnings</Text>
+                  <Text className="text-gray-900 text-sm font-inter-bold">£{balance.totalEarnings.toFixed(2)}</Text>
+                </View>
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-600 text-sm font-inter">Platform Fee (10%)</Text>
+                  <Text className="text-red-600 text-sm font-inter-bold">
+                    -£{(balance.totalEarnings * 0.1).toFixed(2)}
+                  </Text>
+                </View>
+                <View className="h-px bg-gray-200 my-2" />
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-gray-900 text-sm font-inter-bold">Net Earnings (After Fees)</Text>
+                  <Text className="text-blue-600 text-sm font-inter-bold">
+                    £{(balance.totalEarnings * 0.9).toFixed(2)}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
