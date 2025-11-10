@@ -1,5 +1,6 @@
 import { clearAgoraConfigCache, getAgoraConfig } from '@/api/config/agora';
 import { useEffect, useRef, useState } from 'react';
+import { PermissionsAndroid, Platform } from 'react-native';
 import RtcEngine, {
   ChannelProfileType,
   ClientRoleType,
@@ -43,6 +44,20 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
   const remoteUsersRef = useRef<Set<number>>(new Set());
   const uidRef = useRef<number | null>(null);
   const initializingRef = useRef(false);
+
+  // Request Android permissions
+  const getPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+        ]);
+      } catch (error) {
+        console.error('Error requesting permissions:', error);
+      }
+    }
+  };
 
   // Load Agora configuration
   useEffect(() => {
@@ -104,6 +119,11 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         console.log('Initializing Agora engine with config:', { appId: agoraConfig.appId });
         initializingRef.current = true;
 
+        // Request permissions for Android
+        if (Platform.OS === 'android') {
+          await getPermission();
+        }
+
         // Create Agora engine
         const engine = RtcEngine();
         await engine.initialize({ appId: agoraConfig.appId });
@@ -121,6 +141,23 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         // Enable audio
         await engine.enableAudio();
 
+        // Setup local video function (for host after joining)
+        const setupLocalVideo = async () => {
+          if (!isHost) return;
+          try {
+            console.log('Setting up local video...');
+            await engine.startPreview();
+            await engine.enableLocalVideo(true);
+            setState((prev) => ({
+              ...prev,
+              isVideoEnabled: true,
+            }));
+            console.log('Local video setup successfully');
+          } catch (error) {
+            console.error('Failed to setup local video:', error);
+          }
+        };
+
         // Set up event handlers
         const eventHandlers: IRtcEngineEventHandler = {
           onJoinChannelSuccess: (connection: RtcConnection, elapsed: number) => {
@@ -134,6 +171,10 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
               isConnected: true,
               configError: null,
             }));
+            // Setup local video for host after joining
+            if (isHost) {
+              setupLocalVideo();
+            }
           },
           onLeaveChannel: (connection: RtcConnection, stats: any) => {
             console.log('Left Agora channel:', { channel: connection.channelId, stats });
@@ -333,6 +374,27 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
     }
   };
 
+  const switchCamera = async () => {
+    if (!engineRef.current || !isHost) {
+      console.log('Cannot switch camera: engine not ready or not host', { hasEngine: !!engineRef.current, isHost });
+      return;
+    }
+
+    if (!state.isVideoEnabled) {
+      console.log('Cannot switch camera: video not enabled');
+      return;
+    }
+
+    try {
+      console.log('Switching camera...');
+      await engineRef.current.switchCamera();
+      console.log('Camera switched successfully');
+    } catch (error) {
+      console.error('Failed to switch camera:', error);
+      throw error;
+    }
+  };
+
   // Get remote video view component (React Native uses View component)
   const renderRemoteVideo = (uid: number) => {
     if (!engineRef.current) return null;
@@ -353,6 +415,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
     stopVideo,
     startAudio,
     stopAudio,
+    switchCamera,
     renderRemoteVideo,
     renderLocalVideo,
   };
