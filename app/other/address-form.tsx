@@ -1,6 +1,7 @@
 import { savedAddressesService } from '@/api';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
@@ -472,8 +473,8 @@ export default function AddressFormScreen() {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        style={styles.container}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}

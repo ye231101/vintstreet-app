@@ -1,5 +1,6 @@
 import { offersService, Product } from '@/api';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -89,7 +90,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({ isOpen, onClose,
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        className="flex-1"
+        style={styles.container}
       >
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white rounded-t-2xl">

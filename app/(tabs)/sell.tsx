@@ -2,6 +2,7 @@ import { attributesService, brandsService, listingsService, storageService } fro
 import { CategoryAttributesCard } from '@/components/category-attributes-card';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { AuthUtils } from '@/utils/auth-utils';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -871,7 +872,7 @@ export default function SellScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        className="flex-1"
+        style={styles.container}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -1363,7 +1364,7 @@ export default function SellScreen() {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-          className="flex-1"
+          style={styles.container}
         >
           <View className="flex-1 justify-end bg-black/50">
             <View className="max-h-4/5 rounded-t-2xl bg-white">

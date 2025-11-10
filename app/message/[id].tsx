@@ -1,6 +1,7 @@
 import { messagesService } from '@/api';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -292,67 +293,69 @@ export default function MessageDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Feather name="arrow-left" size={24} color="#000" />
-        </TouchableOpacity>
-
-        <View className="flex-1">
-          <Text className="text-lg font-inter-bold text-black">{conversationInfo?.subject || 'Loading...'}</Text>
-          <Text className="text-sm font-inter-semibold text-gray-400">
-            Conversation with {conversationInfo?.otherUserName || 'Loading...'}
-          </Text>
-        </View>
-
-        <TouchableOpacity onPress={() => setIsReportDialogOpen(true)} hitSlop={8}>
-          <Feather name="flag" size={20} color="#ef4444" />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={loadMessages}>
-          <Feather name="refresh-cw" size={20} color="#000" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Messages Area */}
-      <ScrollView
-        ref={scrollViewRef}
-        showsVerticalScrollIndicator={false}
-        onContentSizeChange={() => {
-          // Only auto-scroll to end if we're not in the initial load phase with unread messages
-          if (!shouldScrollToUnread) {
-            scrollViewRef.current?.scrollToEnd({ animated: true });
-          }
-        }}
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
-        <View className="flex-1 py-4">
-          {isLoading ? (
-            <View className="flex-1 items-center justify-center py-12">
-              <Text className="text-base font-inter-semibold text-gray-600">Loading messages...</Text>
-            </View>
-          ) : (
-            messageItems.map((item: MessageItem, index: number) => {
-              if ('type' in item && item.type === 'date') {
-                return (
-                  <React.Fragment key={`date-${item.date}-${index}`}>
-                    {renderDateHeader(item as DateHeader)}
-                  </React.Fragment>
-                );
-              } else {
-                const message = item as Message;
-                return <React.Fragment key={message.id}>{renderMessage(message)}</React.Fragment>;
-              }
-            })
-          )}
-        </View>
-      </ScrollView>
-
-      {/* Message Input - Fixed at bottom */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        style={styles.container}
       >
+        {/* Header */}
+        <View className="flex-row items-center gap-4 p-4 bg-white border-b border-gray-200">
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+            <Feather name="arrow-left" size={24} color="#000" />
+          </TouchableOpacity>
+
+          <View className="flex-1">
+            <Text className="text-lg font-inter-bold text-black">{conversationInfo?.subject || 'Loading...'}</Text>
+            <Text className="text-sm font-inter-semibold text-gray-400">
+              Conversation with {conversationInfo?.otherUserName || 'Loading...'}
+            </Text>
+          </View>
+
+          <TouchableOpacity onPress={() => setIsReportDialogOpen(true)} hitSlop={8}>
+            <Feather name="flag" size={20} color="#ef4444" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={loadMessages}>
+            <Feather name="refresh-cw" size={20} color="#000" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Messages Area */}
+        <ScrollView
+          ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => {
+            // Only auto-scroll to end if we're not in the initial load phase with unread messages
+            if (!shouldScrollToUnread) {
+              scrollViewRef.current?.scrollToEnd({ animated: true });
+            }
+          }}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <View className="flex-1 py-4">
+            {isLoading ? (
+              <View className="flex-1 items-center justify-center py-12">
+                <Text className="text-base font-inter-semibold text-gray-600">Loading messages...</Text>
+              </View>
+            ) : (
+              messageItems.map((item: MessageItem, index: number) => {
+                if ('type' in item && item.type === 'date') {
+                  return (
+                    <React.Fragment key={`date-${item.date}-${index}`}>
+                      {renderDateHeader(item as DateHeader)}
+                    </React.Fragment>
+                  );
+                } else {
+                  const message = item as Message;
+                  return <React.Fragment key={message.id}>{renderMessage(message)}</React.Fragment>;
+                }
+              })
+            )}
+          </View>
+        </ScrollView>
+
+        {/* Message Input - Fixed at bottom */}
+
         <View className="flex-row items-center gap-3 px-4 py-3 border-t border-gray-200">
           <View className="flex-1 flex-row items-center bg-gray-100 rounded-xl px-4 py-1" style={{ maxHeight: 250 }}>
             <TextInput

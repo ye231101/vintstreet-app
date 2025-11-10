@@ -1,17 +1,9 @@
 import { InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function IndexScreen() {
@@ -30,7 +22,7 @@ export default function IndexScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        className="flex-1"
+        style={styles.container}
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
@@ -38,14 +30,13 @@ export default function IndexScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
         >
           <View className="w-full max-w-lg flex-1 items-center justify-center gap-4 p-6 mx-auto">
-            <View className="w-full items-center">
-              <Image source={require('@/assets/images/splash-logo.png')} resizeMode="contain" className="w-40 h-40" />
-              <Text className="mt-4 text-2xl font-inter-bold text-center">Welcome to Vint Street</Text>
-              <Text className="mt-2 text-base font-inter-semibold text-gray-500 text-center">Sign in to continue</Text>
+            <View className="w-full items-center gap-2">
+              <Text className="text-2xl font-inter-bold text-black text-center">Welcome to Vint Street</Text>
+              <Text className="text-base font-inter-semibold text-gray-500 text-center">Sign in to continue</Text>
             </View>
 
             {error && (
-              <View className="w-full bg-red-50 border border-red-300 p-2.5 rounded-lg">
+              <View className="w-full p-2.5 rounded-lg bg-red-50 border border-red-300">
                 <Text className="font-inter text-red-700">{error}</Text>
               </View>
             )}

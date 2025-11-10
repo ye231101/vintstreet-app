@@ -2,6 +2,7 @@ import { storageService } from '@/api';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';
+import { styles } from '@/styles';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -213,7 +214,7 @@ export default function EditProfileScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        className="flex-1"
+        style={styles.container}
       >
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
           <View className="flex-1 gap-4 p-4">
@@ -332,7 +333,7 @@ export default function EditProfileScreen() {
               {/* Choose from Library Button */}
               <Pressable
                 onPress={handleChooseFromLibrary}
-                className="flex-row items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+                className="flex-row items-center gap-4 p-4 bg-white rounded-lg border border-gray-200"
               >
                 <View className="w-12 h-12 items-center justify-center bg-green-100 rounded-full">
                   <Feather name="image" size={24} color="#10B981" />
@@ -347,7 +348,7 @@ export default function EditProfileScreen() {
               {/* Take Photo Button */}
               <Pressable
                 onPress={handleTakePhoto}
-                className="flex-row items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+                className="flex-row items-center gap-4 p-4 bg-white rounded-lg border border-gray-200"
               >
                 <View className="w-12 h-12 items-center justify-center bg-blue-100 rounded-full">
                   <Feather name="camera" size={24} color="#3B82F6" />

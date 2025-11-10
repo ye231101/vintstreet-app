@@ -3,6 +3,7 @@ import { supabase } from '@/api/config/supabase';
 import LiveChat from '@/components/live-chat';
 import { useAgora } from '@/hooks/use-agora';
 import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -501,8 +502,8 @@ export default function StartStreamScreen() {
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        style={styles.container}
       >
         {/* Full Screen Video Container */}
         <View className="flex-1 bg-white relative">
