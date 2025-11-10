@@ -22,16 +22,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STREAM_CATEGORY_OPTIONS = [
-  { label: 'Fashion', value: 'Fashion' },
+  { label: 'Beauty', value: 'Beauty' },
+  { label: 'Books', value: 'Books' },
   { label: 'Electronics', value: 'Electronics' },
+  { label: 'Fashion', value: 'Fashion' },
+  { label: 'Food', value: 'Food' },
+  { label: 'Home', value: 'Home' },
+  { label: 'Sports', value: 'Sports' },
+  { label: 'Toys', value: 'Toys' },
   { label: 'Collectibles', value: 'Collectibles' },
   { label: 'Art', value: 'Art' },
   { label: 'Gaming', value: 'Gaming' },
   { label: 'Music', value: 'Music' },
-  { label: 'Sports', value: 'Sports' },
-  { label: 'Books', value: 'Books' },
-  { label: 'Home & Garden', value: 'Home & Garden' },
-  { label: 'Toys', value: 'Toys' },
   { label: 'Other', value: 'Other' },
 ];
 
@@ -118,6 +120,11 @@ export default function ScheduleStreamScreen() {
 
     if (!description.trim()) {
       showErrorToast('Please enter a stream description');
+      return;
+    }
+
+    if (!category.trim()) {
+      showErrorToast('Please select a category for your stream');
       return;
     }
 
@@ -391,37 +398,50 @@ export default function ScheduleStreamScreen() {
                 maxLength={500}
               />
 
-              {/* Stream Status & Time Until Start */}
-              <View className="flex-row items-center justify-between p-3 bg-gray-100 rounded-lg">
-                <View className="flex-row items-center gap-3">
-                  <View className="bg-blue-600 rounded-full px-3 py-1">
-                    <Text className="text-xs font-inter-bold text-white uppercase">SCHEDULED</Text>
-                  </View>
-                  {category && <Text className="text-sm font-inter-semibold text-gray-700">{category}</Text>}
-                </View>
-                <View className="flex-row items-center gap-1">
-                  <Feather name="clock" size={16} color="#8B5CF6" />
-                  <Text className="text-sm font-inter-semibold text-purple-600">
-                    {(() => {
-                      const now = new Date();
-                      const diffMs = now.getTime() - startTime.getTime();
-                      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                      const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+              {/* Category */}
+              <DropdownComponent
+                data={STREAM_CATEGORY_OPTIONS}
+                value={category}
+                label="Category"
+                required={true}
+                placeholder="Select a category for your stream"
+                onChange={(item) => setCategory(item.value)}
+                size="small"
+              />
 
-                      if (diffMs < 0) {
-                        return 'Started';
-                      } else if (diffHours < 1) {
-                        return `${diffMinutes}m`;
-                      } else if (diffHours < 24) {
-                        return `${diffHours}h`;
-                      } else {
-                        const diffDays = Math.floor(diffHours / 24);
-                        return `${diffDays}d`;
-                      }
-                    })()}
-                  </Text>
+              {/* Stream Status & Time Until Start */}
+              {edit && (
+                <View className="flex-row items-center justify-between p-3 bg-gray-100 rounded-lg">
+                  <View className="flex-row items-center gap-3">
+                    <View className="bg-blue-600 rounded-full px-3 py-1">
+                      <Text className="text-xs font-inter-bold text-white uppercase">SCHEDULED</Text>
+                    </View>
+                    {category && <Text className="text-sm font-inter-semibold text-gray-700">{category}</Text>}
+                  </View>
+                  <View className="flex-row items-center gap-1">
+                    <Feather name="clock" size={16} color="#8B5CF6" />
+                    <Text className="text-sm font-inter-semibold text-purple-600">
+                      {(() => {
+                        const now = new Date();
+                        const diffMs = now.getTime() - startTime.getTime();
+                        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                        if (diffMs < 0) {
+                          return 'Started';
+                        } else if (diffHours < 1) {
+                          return `${diffMinutes}m`;
+                        } else if (diffHours < 24) {
+                          return `${diffHours}h`;
+                        } else {
+                          const diffDays = Math.floor(diffHours / 24);
+                          return `${diffDays}d`;
+                        }
+                      })()}
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              )}
 
               {/* Thumbnail */}
               <View className="flex-1 gap-2">

@@ -4,9 +4,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -31,21 +32,6 @@ export default function StreamsScreen() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    if (user?.id) {
-      loadStreams();
-    }
-  }, [user?.id]);
-
-  // Update current time every second for countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   const loadStreams = async () => {
     if (!user?.id) {
       setError('User not authenticated');
@@ -66,6 +52,24 @@ export default function StreamsScreen() {
       setIsLoading(false);
     }
   };
+
+  // Refresh streams when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.id) {
+        loadStreams();
+      }
+    }, [user?.id])
+  );
+
+  // Update current time every second for countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -178,7 +182,7 @@ export default function StreamsScreen() {
           <Feather name="alert-circle" color="#ff4444" size={64} />
           <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading streams</Text>
           <TouchableOpacity onPress={loadStreams} className="bg-black rounded-lg py-3 px-6">
-            <Text className="text-base font-inter-bold text-black">Retry</Text>
+            <Text className="text-base font-inter-bold text-white">Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -204,15 +208,15 @@ export default function StreamsScreen() {
           <View className="flex-row gap-4">
             <TouchableOpacity
               onPress={() => router.push('/stream/schedule')}
-              className="flex-1 items-center justify-center p-4 bg-white border border-gray-300 rounded-lg"
+              className="flex-1 items-center justify-center py-3 bg-white border border-gray-300 rounded-lg"
             >
-              <Text className="text-black text-sm font-inter-bold">Desing my Show</Text>
+              <Text className="text-black text-base font-inter-bold">Desing my Show</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push('/stream/schedule')}
-              className="flex-1 items-center justify-center p-4 bg-black border border-gray-300 rounded-lg"
+              className="flex-1 items-center justify-center py-3 bg-black border border-gray-300 rounded-lg"
             >
-              <Text className="text-white text-sm font-inter-bold">Schedule</Text>
+              <Text className="text-white text-base font-inter-bold">Schedule</Text>
             </TouchableOpacity>
           </View>
 
@@ -353,20 +357,20 @@ export default function StreamsScreen() {
             </View>
 
             {upcomingStreams.length === 0 ? (
-              <View className="bg-white rounded-lg p-4 items-center">
+              <View className="items-center p-4 rounded-lg bg-white border border-gray-200">
                 <Feather name="video" size={48} color="#ccc" />
                 <Text className="text-gray-600 text-base font-inter-bold mt-3 mb-2">No upcoming streams</Text>
                 <TouchableOpacity
                   onPress={() => router.push('/stream/schedule')}
                   className="bg-black rounded-lg py-3 px-6 mt-3"
                 >
-                  <Text className="text-white text-sm font-inter-bold">Schedule New Stream</Text>
+                  <Text className="text-white text-base font-inter-bold">Schedule New Stream</Text>
                 </TouchableOpacity>
               </View>
             ) : (
               <View className="gap-3">
                 {(showAllUpcoming ? upcomingStreams.slice(1) : upcomingStreams.slice(1, 4)).map((stream) => (
-                  <View key={stream.id} className="bg-white rounded-lg p-4 shadow-sm">
+                  <View key={stream.id} className="p-4 rounded-lg bg-white border border-gray-200">
                     <View className="flex-row items-center justify-between mb-3">
                       <View className="flex-1">
                         <Text className="text-gray-900 text-base font-inter-bold mb-1">{stream.title}</Text>
@@ -512,7 +516,7 @@ export default function StreamsScreen() {
                   <TouchableOpacity
                     key={stream.id}
                     onPress={() => router.push(`/stream/${stream.id}` as any)}
-                    className="flex-row items-center gap-3 p-3 bg-white rounded-lg"
+                    className="flex-row items-center gap-3 p-3 bg-white rounded-lg border border-gray-200"
                   >
                     <View className="w-16 h-16 rounded-lg overflow-hidden">
                       <Image
@@ -562,7 +566,7 @@ export default function StreamsScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => router.push('/stream/schedule')}
-                className="bg-green-600 rounded-lg py-3 px-6"
+                className="bg-black rounded-lg py-3 px-6"
               >
                 <Text className="text-white text-base font-inter-bold">Schedule Your First Stream</Text>
               </TouchableOpacity>

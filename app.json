@@ -12,15 +12,18 @@
       "bundleIdentifier": "com.vintstreet.app",
       "buildNumber": "1.0.0",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"],
-        "ITSAppUsesNonExemptEncryption": false
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "This app needs access to your camera to take photos.",
+        "NSMicrophoneUsageDescription": "This app needs access to your microphone to record audio."
       },
       "supportsTablet": true
     },
     "android": {
       "package": "com.vintstreet.app",
       "versionCode": 1,
-      "versionName": "1.0.0",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -28,7 +31,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "output": "static",
@@ -41,11 +49,19 @@
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
-          "resizeMode": "cover",
+          "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
             "backgroundColor": "#000000"
           }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#000000",
+          "sounds": []
         }
       ],
       [
@@ -56,14 +72,6 @@
           "enableGooglePay": true,
           "enableApplePay": true
         }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/icon.png",
-          "color": "#000000",
-          "sounds": []
-        }
       ]
     ],
     "experiments": {
@@ -73,7 +81,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "95f03fb0-96c0-41f3-a63f-cf56d2d03950"
+        "projectId": "70b76b4e-a9c8-42e6-8e6d-459ced2be5d0"
       }
     }
   }

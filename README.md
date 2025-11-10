@@ -64,10 +64,42 @@ You can start developing by editing the files inside the **app** directory. This
    eas build --platform all
    ```
 
-You can also create preview builds for testing:
+You can also create builds for different environments:
 
+**Development builds** (for testing with development features):
 ```bash
+# Android
+eas build --platform android --profile development
+
+# iOS
+eas build --platform ios --profile development
+
+# Both platforms
+eas build --platform all --profile development
+```
+
+**Preview builds** (for testing before production):
+```bash
+# Android
 eas build --platform android --profile preview
+
+# iOS
+eas build --platform ios --profile preview
+
+# Both platforms
+eas build --platform all --profile preview
+```
+
+**Production builds** (for app store submission):
+```bash
+# Android
+eas build --platform android --profile production
+
+# iOS
+eas build --platform ios --profile production
+
+# Both platforms
+eas build --platform all --profile production
 ```
 
 Learn more about [EAS Build profiles](https://docs.expo.dev/build/eas-json/) and [submitting to app stores](https://docs.expo.dev/submit/introduction/).
