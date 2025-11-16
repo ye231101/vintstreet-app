@@ -23,10 +23,7 @@ class ListingsService {
 
       // Apply search filter to count query
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
-        const escaped = filters.searchKeyword
-          .trim()
-          .replace(/\\/g, "\\\\")
-          .replace(/\"/g, '\\"');
+        const escaped = filters.searchKeyword.trim().replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
         const searchPattern = `%${escaped}%`;
         countQuery = countQuery.or(
           `product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`
@@ -82,14 +79,9 @@ class ListingsService {
 
       // Apply search filter
       if (filters.searchKeyword && filters.searchKeyword.trim()) {
-        const escaped = filters.searchKeyword
-          .trim()
-          .replace(/\\/g, "\\\\")
-          .replace(/\"/g, '\\"');
+        const escaped = filters.searchKeyword.trim().replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
         const searchPattern = `%${escaped}%`;
-        query = query.or(
-          `product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`
-        );
+        query = query.or(`product_name.ilike."${searchPattern}",product_description.ilike."${searchPattern}"`);
       }
 
       // Apply server-side filters
@@ -570,13 +562,7 @@ class ListingsService {
         )
         .eq('product_type', 'shop')
         .eq('status', 'published')
-        .or(() => {
-          const escaped = searchTerm
-            .trim()
-            .replace(/\\/g, "\\\\")
-            .replace(/\"/g, '\\"');
-          return `product_name.ilike."%${escaped}%",product_description.ilike."%${escaped}%"`;
-        });
+        .or(`product_name.ilike."%${searchTerm.trim()}%",product_description.ilike."%${searchTerm.trim()}%"`);
 
       // Apply price filter if provided
       if (priceFilter && priceFilter !== 'All Prices') {
@@ -1263,12 +1249,20 @@ class ListingsService {
 
   /**
    * Get related products from the same category
-   * @param categoryId - The category ID to find related products for
-   * @param excludeId - The product ID to exclude from results
+   * @param productId - The product ID to exclude from results
    * @param limit - Maximum number of related products to return
    */
-  async getRelatedProducts(categoryId: string, excludeId: string, limit: number = 4): Promise<Product[]> {
+  async getRelatedProducts(productId: string, limit: number = 4): Promise<Product[]> {
     try {
+      // First, get the product to retrieve its category_id
+      const product = await this.getListingById(productId);
+
+      if (!product || !product.category_id) {
+        return [];
+      }
+
+      const categoryId = product.category_id;
+
       // Fetch related products from the same category
       const { data, error } = await supabase
         .from('listings')
@@ -1288,7 +1282,7 @@ class ListingsService {
         .eq('product_type', 'shop')
         .eq('status', 'published')
         .eq('category_id', categoryId)
-        .neq('id', excludeId)
+        .neq('id', productId)
         .limit(limit);
 
       if (error) throw error;
@@ -1381,10 +1375,7 @@ class ListingsService {
         return 0;
       }
 
-      const { data, error } = await supabase
-        .from('listings')
-        .insert(rows)
-        .select('id');
+      const { data, error } = await supabase.from('listings').insert(rows).select('id');
 
       if (error) {
         throw new Error(`Failed to bulk create products: ${error.message}`);

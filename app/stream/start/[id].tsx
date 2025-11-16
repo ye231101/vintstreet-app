@@ -119,10 +119,11 @@ export default function StartStreamScreen() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!user) {
-      router.replace('/(auth)' as any);
+      const currentPath = `/stream/start/${id}`;
+      router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}` as any);
       return;
     }
-  }, [user]);
+  }, [user, id]);
 
   // Load stream data
   useEffect(() => {
@@ -482,7 +483,7 @@ export default function StartStreamScreen() {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
       </SafeAreaView>
     );

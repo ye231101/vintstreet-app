@@ -98,7 +98,7 @@ export default function StreamScreen() {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading stream...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading stream...</Text>
         </View>
       </SafeAreaView>
     );
@@ -109,8 +109,8 @@ export default function StreamScreen() {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="my-4 text-lg font-inter-bold text-red-500">{error ? error : 'Stream not found'}</Text>
-          <TouchableOpacity onPress={() => router.back()} className="bg-black rounded-lg py-3 px-6">
+          <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">{error ? error : 'Stream not found'}</Text>
+          <TouchableOpacity onPress={() => router.back()} className="px-6 py-3 rounded-lg bg-black">
             <Text className="text-base font-inter-bold text-black">Go Back</Text>
           </TouchableOpacity>
         </View>

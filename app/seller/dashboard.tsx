@@ -6,15 +6,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Modal,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -438,7 +438,7 @@ export default function DashboardScreen() {
 
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your dashboard...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading your dashboard...</Text>
         </View>
       </SafeAreaView>
     );
@@ -457,8 +457,8 @@ export default function DashboardScreen() {
 
         <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading dashboard data</Text>
-          <TouchableOpacity onPress={loadDashboardData} className="bg-black rounded-lg py-3 px-6">
+          <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">Error loading dashboard data</Text>
+          <TouchableOpacity onPress={loadDashboardData} className="px-6 py-3 rounded-lg bg-black">
             <Text className="text-base font-inter-bold text-white">Retry</Text>
           </TouchableOpacity>
         </View>

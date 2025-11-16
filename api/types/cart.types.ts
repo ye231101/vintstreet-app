@@ -5,5 +5,5 @@ export interface CartItem {
   user_id: string;
   listing_id: string;
   created_at: string;
-  product?: Product;
+  product: Product;
 }

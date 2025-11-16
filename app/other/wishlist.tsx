@@ -1,33 +1,60 @@
 import { Product } from '@/api';
+import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Modal, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WishlistScreen() {
-  const { items: wishlist, removeItem, isLoading, refresh } = useWishlist();
-  const { addItem: addToCart, cart } = useCart();
+  const segments = useSegments();
+  const { isAuthenticated } = useAuth();
+  const { items: wishlist, removeItem, isLoading, refreshWishlist, clearWishlist } = useWishlist();
+  const { addItem: addToCart, items } = useCart();
   const [refreshing, setRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
   const [addingToCartId, setAddingToCartId] = useState<string | null>(null);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refresh();
+    await refreshWishlist();
     setRefreshing(false);
-  }, [refresh]);
+  }, [refreshWishlist]);
+
+  const handleRefreshWishlist = async () => {
+    if (isRefreshing) return;
+
+    setIsRefreshing(true);
+    try {
+      await refreshWishlist();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleClearWishlist = () => {
+    clearWishlist();
+    setShowClearModal(false);
+  };
 
   const handleRemoveFromWishlist = async (productId: string, productName: string) => {
     await removeItem(productId, productName);
   };
 
   const handleAddToCart = async (product: Product) => {
+    if (!isAuthenticated) {
+      const currentPath = '/' + segments.join('/');
+      router.push(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
     // Check if item is already in cart
-    const existingItem = cart.items.find((cartItem) => cartItem.product?.id === product.id);
+    const existingItem = items.find((item) => item.product?.id === product.id);
     if (existingItem) {
       return;
     }
@@ -48,7 +75,7 @@ export default function WishlistScreen() {
   const WishlistCard = ({ item }: { item: Product }) => {
     const hasDiscount = item.discounted_price && item.discounted_price < item.starting_price;
     const finalPrice = item.discounted_price || item.starting_price;
-    const isInCart = cart.items.some((cartItem) => cartItem.product?.id === item.id);
+    const isInCart = items.some((item) => item.product?.id === item.id);
 
     return (
       <TouchableOpacity
@@ -145,18 +172,24 @@ export default function WishlistScreen() {
 
         <Text className="flex-1 text-lg font-inter-bold text-black">My Wishlist</Text>
 
-        {wishlist.length > 0 && (
-          <View className="bg-white rounded-full px-3 py-1.5">
-            <Text className="text-black text-sm font-inter-bold">{wishlist.length}</Text>
-          </View>
-        )}
+        <TouchableOpacity onPress={() => setShowClearModal(true)} hitSlop={8}>
+          <Feather name="trash-2" color="#000" size={20} />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleRefreshWishlist} hitSlop={8}>
+          {isRefreshing ? (
+            <ActivityIndicator size="small" color="#000" />
+          ) : (
+            <Feather name="refresh-cw" color="#000" size={20} />
+          )}
+        </TouchableOpacity>
       </View>
 
       <View className="flex-1">
         {isLoading && !refreshing && wishlist.length === 0 ? (
           <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
-            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your wishlist...</Text>
+            <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading your wishlist...</Text>
           </View>
         ) : wishlist.length === 0 ? (
           <View className="flex-1 items-center justify-center p-4">
@@ -165,7 +198,7 @@ export default function WishlistScreen() {
             <Text className="text-gray-600 text-sm font-inter text-center mt-2 mb-6">
               Start adding items you love to your wishlist!
             </Text>
-            <TouchableOpacity onPress={() => router.push('/(tabs)')} className="bg-black rounded-lg py-3 px-6">
+            <TouchableOpacity onPress={() => router.push('/(tabs)')} className="px-6 py-3 rounded-lg bg-black">
               <Text className="text-white text-base font-inter-bold">Browse Products</Text>
             </TouchableOpacity>
           </View>
@@ -177,11 +210,36 @@ export default function WishlistScreen() {
             className="p-4"
           >
             {wishlist.map((item) => (
-              <WishlistCard key={item.id} item={item} />
+              <WishlistCard key={item.id} item={item.product} />
             ))}
           </ScrollView>
         )}
       </View>
+
+      <Modal visible={showClearModal} transparent animationType="fade" onRequestClose={() => setShowClearModal(false)}>
+        <View className="flex-1 bg-black/50 items-center justify-center p-5">
+          <View className="bg-white rounded-xl p-6 w-full max-w-sm">
+            <Text className="text-lg font-inter-bold text-black mb-4 text-center">Clear Wishlist</Text>
+            <Text className="text-base font-inter-semibold text-gray-600 mb-6 text-center">
+              Are you sure you want to remove all items from your wishlist?
+            </Text>
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                onPress={() => setShowClearModal(false)}
+                className="flex-1 bg-gray-100 rounded-lg py-3 mr-2 items-center"
+              >
+                <Text className="text-black text-base font-inter-bold">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleClearWishlist}
+                className="flex-1 bg-red-500 rounded-lg py-3 ml-2 items-center"
+              >
+                <Text className="text-white text-base font-inter-bold">Clear All</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

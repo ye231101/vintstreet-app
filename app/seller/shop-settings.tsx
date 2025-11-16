@@ -7,14 +7,14 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -177,7 +177,7 @@ export default function ShopSettingsScreen() {
 
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your shop settings...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading your shop settings...</Text>
         </View>
       </SafeAreaView>
     );

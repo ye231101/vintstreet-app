@@ -34,12 +34,11 @@ const ITEM_TYPE_OPTIONS = [
 
 export default function SellScreen() {
   const { productId } = useLocalSearchParams<{ productId?: string }>();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [salePrice, setSalePrice] = useState('');
-  const [brand, setBrand] = useState('');
   const [category, setCategory] = useState('');
   const [itemType, setItemType] = useState('single');
   const [enableOffers, setEnableOffers] = useState(true);
@@ -81,12 +80,15 @@ export default function SellScreen() {
   const [isMarketplaceListing, setIsMarketplaceListing] = useState(true);
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
-  const itemTypeOptions = [
-    { key: 'single', label: 'Single Item' },
-    { key: 'multi', label: 'Multi Item (with quantity)' },
-  ];
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setTimeout(() => {
+        const currentPath = productId ? `/(tabs)/sell?productId=${productId}` : '/(tabs)/sell';
+        router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+      }, 0);
+    }
+  }, [isAuthenticated, productId]);
 
-  // Load categories and brands on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -148,10 +150,6 @@ export default function SellScreen() {
         // Set brand
         if (product.brand_id) {
           setSelectedBrandId(product.brand_id);
-          const brandData = brands.find((b) => b.id === product.brand_id);
-          if (brandData) {
-            setBrand(brandData.name);
-          }
         }
 
         // Set categories
@@ -234,19 +232,6 @@ export default function SellScreen() {
       console.error('Error loading attributes:', error);
       setAttributes([]);
     }
-  };
-
-  // Reset category modal state
-  const resetCategoryModal = () => {
-    setCurrentCategoryLevel('category');
-    setSubcategories([]);
-    setSubSubcategories([]);
-    setSubSubSubcategories([]);
-    setSelectedSubcategoryId('');
-    setSelectedSubSubcategoryId('');
-    setSelectedSubSubSubcategoryId('');
-    setAttributes([]);
-    setDynamicAttributes({});
   };
 
   // Handle dynamic attribute changes
@@ -412,7 +397,10 @@ export default function SellScreen() {
         },
         {
           text: 'Log In',
-          onPress: () => router.replace('/(auth)'),
+          onPress: () => {
+            const currentPath = productId ? `/(tabs)/sell?productId=${productId}` : '/(tabs)/sell';
+            router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+          },
         },
       ]);
       return;
@@ -447,7 +435,8 @@ export default function SellScreen() {
               onPress: () => {
                 setIsUploadingImages(false);
                 // Navigate to login screen
-                router.replace('/(auth)');
+                const currentPath = productId ? `/(tabs)/sell?productId=${productId}` : '/(tabs)/sell';
+                router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
               },
             },
           ]
@@ -564,7 +553,8 @@ export default function SellScreen() {
               text: 'Log In',
               onPress: () => {
                 setIsSavingDraft(false);
-                router.replace('/(auth)');
+                const currentPath = productId ? `/(tabs)/sell?productId=${productId}` : '/(tabs)/sell';
+                router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
               },
             },
           ]
@@ -622,7 +612,6 @@ export default function SellScreen() {
       setDescription('');
       setPrice('');
       setSalePrice('');
-      setBrand('');
       setCategory('');
       setItemType('single');
       setEnableOffers(true);
@@ -680,7 +669,8 @@ export default function SellScreen() {
               text: 'Log In',
               onPress: () => {
                 setIsPublishing(false);
-                router.replace('/(auth)');
+                const currentPath = productId ? `/(tabs)/sell?productId=${productId}` : '/(tabs)/sell';
+                router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
               },
             },
           ]
@@ -744,7 +734,6 @@ export default function SellScreen() {
       setDescription('');
       setPrice('');
       setSalePrice('');
-      setBrand('');
       setCategory('');
       setItemType('single');
       setEnableOffers(true);
@@ -769,6 +758,10 @@ export default function SellScreen() {
       setIsPublishing(false);
     }
   };
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // Check if user is a buyer and show seller setup message
   if (user?.user_type === 'buyer') {
@@ -1403,7 +1396,6 @@ export default function SellScreen() {
                         key={brand.id}
                         onPress={() => {
                           setSelectedBrandId(brand.id);
-                          setBrand(brand.name);
                           setShowBrandModal(false);
                           setBrandSearchQuery('');
                         }}
@@ -1430,7 +1422,6 @@ export default function SellScreen() {
                   <TouchableOpacity
                     onPress={() => {
                       setSelectedBrandId('');
-                      setBrand('');
                       setBrandSearchQuery('');
                       setShowBrandModal(false);
                     }}

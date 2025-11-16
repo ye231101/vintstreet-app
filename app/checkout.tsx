@@ -10,6 +10,7 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { styles } from '@/styles';
+import { formatPrice } from '@/utils';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
@@ -102,7 +103,7 @@ const InputField = ({
 export default function CheckoutScreen() {
   const { sellerId, productIds } = useLocalSearchParams();
 
-  const { cart, isLoading, refreshCart, removeItem } = useCart();
+  const { items, isLoading, refreshCart, removeItem } = useCart();
   const { user } = useAuth();
   const [checkoutItems, setCheckoutItems] = useState<CartItem[]>([]);
   const [sellerInfo, setSellerInfo] = useState<any>(null);
@@ -196,7 +197,7 @@ export default function CheckoutScreen() {
     if (sellerId && productIds) {
       // Seller-based checkout with multiple products
       const productIdArray = (productIds as string).split(',');
-      const cartItems = cart.items.filter(
+      const cartItems = items.filter(
         (item) => productIdArray.includes(item.product?.id || '') && item.product?.seller_id === sellerId
       );
 
@@ -632,7 +633,7 @@ export default function CheckoutScreen() {
 
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your checkout...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading your checkout...</Text>
         </View>
       </SafeAreaView>
     );
@@ -997,12 +998,7 @@ export default function CheckoutScreen() {
                           </View>
                         </View>
                         <Text className="text-sm font-inter-bold text-gray-800">
-                          {option.price === 0
-                            ? 'Free'
-                            : `£${option.price.toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`}
+                          {option.price === 0 ? 'Free' : `£${formatPrice(option.price)}`}
                         </Text>
                       </TouchableOpacity>
                     ))}
@@ -1051,16 +1047,7 @@ export default function CheckoutScreen() {
                       {item.product?.product_name} x1
                     </Text>
                     <Text className="text-sm font-inter-semibold text-gray-800">
-                      £
-                      {item.product?.discounted_price !== null
-                        ? item.product?.discounted_price.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : item.product?.starting_price.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                      £{formatPrice(item.product?.discounted_price || item.product?.starting_price)}
                     </Text>
                   </View>
                 ))}
@@ -1075,18 +1062,15 @@ export default function CheckoutScreen() {
                   <Text className="text-sm font-inter-semibold text-gray-800">Subtotal</Text>
                   <Text className="text-sm font-inter-semibold text-gray-800">
                     £
-                    {checkoutItems
-                      .reduce((total, item) => {
+                    {formatPrice(
+                      checkoutItems.reduce((total, item) => {
                         const price =
                           item.product?.discounted_price !== null
                             ? item.product?.discounted_price || 0
                             : item.product?.starting_price || 0;
                         return total + price;
                       }, 0)
-                      .toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                    )}
                   </Text>
                 </View>
 

@@ -30,7 +30,7 @@ class CartService {
       }
 
       // Get all listing IDs
-      const listingIds = (cartData as any[]).map((item) => item.listing_id);
+      const listingIds = cartData.map((item: any) => item.listing_id);
 
       // Fetch listings with their details
       const { data: listingsData, error: listingsError } = await supabase
@@ -66,7 +66,7 @@ class CartService {
       const listingsMap = new Map((listingsData || []).map((listing: any) => [listing.id, listing]));
 
       // Fetch seller info for all listings
-      const sellerIds = [...new Set((listingsData || []).map((listing: any) => listing.seller_id).filter(Boolean))];
+      const sellerIds = [...new Set((listingsData || []).map((listing: any) => listing.seller_id))];
 
       let sellersMap = new Map();
       if (sellerIds.length > 0) {
@@ -75,24 +75,24 @@ class CartService {
       }
 
       // Transform the data to include product info and calculate subtotal
-      const cartItems = (cartData as any[])
-        .filter((item) => listingsMap.has(item.listing_id)) // Only include items with valid listings
-        .map((item) => {
+      return cartData
+        .filter((item: any) => listingsMap.has(item.listing_id)) // Only include items with valid listings
+        .map((item: any) => {
           const listing = listingsMap.get(item.listing_id);
-          const product = {
-            ...listing,
-            seller_info_view: sellersMap.get(listing.seller_id) || null,
-          };
+          if (!listing) return null;
+
           return {
             id: item.id,
             user_id: item.user_id,
             listing_id: item.listing_id,
             created_at: item.created_at,
-            product: product,
+            product: {
+              ...listing,
+              seller_info_view: sellersMap.get(listing.seller_id) || null,
+            },
           };
-        }) as CartItem[];
-
-      return cartItems;
+        })
+        .filter(Boolean) as CartItem[];
     } catch (error) {
       console.error('Error in getCart:', error);
       throw error;
@@ -105,22 +105,28 @@ class CartService {
    * @param listingId - The listing ID to add
    * @returns The created or updated cart item
    */
-  async addToCart(userId: string, listingId: string): Promise<CartItem> {
+  async addToCart(userId: string, listingId: string): Promise<void> {
     try {
-      const { data, error } = await supabase
+      // Check if item already exists in cart
+      const { data: existing } = await supabase
         .from('cart')
-        .insert({
-          user_id: userId,
-          listing_id: listingId,
-        })
-        .select()
+        .select('id')
+        .eq('user_id', userId)
+        .eq('listing_id', listingId)
         .single();
+
+      if (existing) {
+        return; // Already in wishlist
+      }
+
+      const { error } = await supabase.from('cart').insert({
+        user_id: userId,
+        listing_id: listingId,
+      });
 
       if (error) {
         throw new Error(`Failed to add item to cart: ${error.message}`);
       }
-
-      return data as unknown as CartItem;
     } catch (error) {
       console.error('Error in addToCart:', error);
       throw error;
@@ -146,7 +152,7 @@ class CartService {
   }
 
   /**
-   * Clear all items from user's cart
+   * Clear all cart items for a user
    * @param userId - The user's ID
    */
   async clearCart(userId: string): Promise<void> {

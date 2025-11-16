@@ -1,26 +1,39 @@
 import { supabase } from '../config/supabase';
-import { Product, WishlistItem } from '../types';
+import { WishlistItem } from '../types';
 
+/**
+ * Wishlist Service
+ * Handles all wishlist operations with Supabase
+ */
 class WishlistService {
   /**
    * Get all wishlist items for a user
    * @param userId - The user's ID
+   * @returns Array of wishlist items with listing details
    */
-  async getWishlistItems(userId: string): Promise<WishlistItem[]> {
+  async getWishlist(userId: string): Promise<WishlistItem[]> {
     try {
-      // First fetch wishlist items
-      const { data: wishlist, error: wishlistError } = await supabase
+      // First, get wishlist items
+      const { data: wishlistData, error: wishlistError } = await supabase
         .from('wishlist')
-        .select('id, listing_id, user_id, created_at')
+        .select('id, user_id, listing_id, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (wishlistError) throw wishlistError;
-      if (!wishlist || wishlist.length === 0) return [];
+      if (wishlistError) {
+        console.error('Error fetching wishlist:', wishlistError);
+        throw new Error(`Failed to fetch wishlist: ${wishlistError.message}`);
+      }
 
-      // Fetch listings for wishlist items
-      const listingIds = wishlist.map((item: any) => item.listing_id);
-      const { data: listings, error: listingsError } = await supabase
+      if (!wishlistData || wishlistData.length === 0) {
+        return [];
+      }
+
+      // Get all listing IDs
+      const listingIds = wishlistData.map((item: any) => item.listing_id);
+
+      // Fetch listings with their details
+      const { data: listingsData, error: listingsError } = await supabase
         .from('listings')
         .select(
           `
@@ -44,34 +57,44 @@ class WishlistService {
         )
         .in('id', listingIds);
 
-      if (listingsError) throw listingsError;
+      if (listingsError) {
+        console.error('Error fetching listings:', listingsError);
+        throw new Error(`Failed to fetch listings: ${listingsError.message}`);
+      }
 
-      // Fetch seller profiles
-      const sellerIds = [...new Set((listings || []).map((item: any) => item.seller_id))];
-      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+      // Create a map of listings by ID
+      const listingsMap = new Map((listingsData || []).map((listing: any) => [listing.id, listing]));
 
-      const sellersMap = new Map(sellers?.map((s: any) => [s.user_id, s]) || []);
-      const listingsMap = new Map((listings || []).map((l: any) => [l.id, l]));
+      // Fetch seller info for all listings
+      const sellerIds = [...new Set((listingsData || []).map((listing: any) => listing.seller_id))];
 
-      return wishlist
+      let sellersMap = new Map();
+      if (sellerIds.length > 0) {
+        const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+        sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      }
+
+      // Transform the data to include product info
+      return wishlistData
+        .filter((item: any) => listingsMap.has(item.listing_id)) // Only include items with valid listings
         .map((item: any) => {
           const listing = listingsMap.get(item.listing_id);
           if (!listing) return null;
 
           return {
             id: item.id,
-            listing_id: item.listing_id,
             user_id: item.user_id,
+            listing_id: item.listing_id,
             created_at: item.created_at,
-            listings: {
+            product: {
               ...listing,
               seller_info_view: sellersMap.get(listing.seller_id) || null,
-            } as Product,
+            },
           };
         })
         .filter(Boolean) as WishlistItem[];
     } catch (error) {
-      console.error('Error fetching wishlist items:', error);
+      console.error('Error in getWishlist:', error);
       throw error;
     }
   }
@@ -80,6 +103,7 @@ class WishlistService {
    * Add item to wishlist
    * @param userId - The user's ID
    * @param listingId - The listing ID to add
+   * @returns The created or updated wishlist item
    */
   async addToWishlist(userId: string, listingId: string): Promise<void> {
     try {
@@ -95,69 +119,35 @@ class WishlistService {
         return; // Already in wishlist
       }
 
-      const { error } = await supabase.from('wishlist').insert([{ user_id: userId, listing_id: listingId }]);
+      const { error } = await supabase.from('wishlist').insert({
+        user_id: userId,
+        listing_id: listingId,
+      });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(`Failed to add item to wishlist: ${error.message}`);
+      }
     } catch (error) {
-      console.error('Error adding to wishlist:', error);
+      console.error('Error in addToWishlist:', error);
       throw error;
     }
   }
 
   /**
    * Remove item from wishlist
-   * @param wishlistId - The wishlist item ID to remove
-   */
-  async removeFromWishlist(wishlistId: string): Promise<void> {
-    try {
-      const { error } = await supabase.from('wishlist').delete().eq('id', wishlistId);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Remove item from wishlist by listing ID
    * @param userId - The user's ID
    * @param listingId - The listing ID to remove
    */
-  async removeFromWishlistByListingId(userId: string, listingId: string): Promise<void> {
+  async removeFromWishlist(userId: string, listingId: string): Promise<void> {
     try {
       const { error } = await supabase.from('wishlist').delete().eq('user_id', userId).eq('listing_id', listingId);
 
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Check if item is in wishlist
-   * @param userId - The user's ID
-   * @param listingId - The listing ID to check
-   */
-  async isInWishlist(userId: string, listingId: string): Promise<boolean> {
-    try {
-      const { data, error } = await supabase
-        .from('wishlist')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('listing_id', listingId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is "not found" error, which is expected
-        throw error;
+      if (error) {
+        throw new Error(`Failed to remove item from wishlist: ${error.message}`);
       }
-
-      return !!data;
     } catch (error) {
-      console.error('Error checking wishlist:', error);
-      return false;
+      console.error('Error in removeFromWishlist:', error);
+      throw error;
     }
   }
 
@@ -169,9 +159,11 @@ class WishlistService {
     try {
       const { error } = await supabase.from('wishlist').delete().eq('user_id', userId);
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(`Failed to clear wishlist: ${error.message}`);
+      }
     } catch (error) {
-      console.error('Error clearing wishlist:', error);
+      console.error('Error in clearWishlist:', error);
       throw error;
     }
   }

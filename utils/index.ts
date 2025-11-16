@@ -20,6 +20,18 @@ export const validateEmail = (email: string) => {
 export const blurhash = 'L8AAaa_300IUxuRjRjt7004n~q%M';
 
 /**
+ * Format a price to 2 decimal places
+ * @param price - The price to format
+ * @returns string - formatted price
+ */
+export const formatPrice = (price: number = 0) => {
+  return price.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+/**
  * Export storage utilities
  */
 export { addRecentSearch, clearRecentSearches, getRecentSearches, removeRecentSearch } from './storage';

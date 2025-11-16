@@ -1,7 +1,8 @@
 import { listingsService } from '@/api';
+import { useAuth } from '@/hooks/use-auth';
 import { addRecentSearch, getRecentSearches, removeRecentSearch } from '@/utils';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 
@@ -19,6 +20,8 @@ interface Suggestion {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value, onChangeText, onSearch }) => {
+  const segments = useSegments();
+  const { isAuthenticated } = useAuth();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
@@ -140,6 +143,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
     onSearch?.(value || '');
   };
 
+  const handleCart = () => {
+    if (!isAuthenticated) {
+      const currentPath = '/' + segments.join('/');
+      router.push(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+    } else {
+      router.push('/cart');
+    }
+  };
+
   const getSuggestionIcon = (type: string) => {
     switch (type) {
       case 'product':
@@ -196,7 +208,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
             </Pressable>
           )}
         </View>
-        <Pressable onPress={() => router.push('/cart')} hitSlop={8}>
+        <Pressable onPress={handleCart} hitSlop={8}>
           <Feather name="shopping-bag" size={24} color="#000" />
         </Pressable>
       </View>
