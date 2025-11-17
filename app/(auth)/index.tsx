@@ -1,17 +1,104 @@
+import { authService } from '@/api';
 import { InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
+import { useAppDispatch } from '@/store/hooks';
+import { handleAuthStateChange } from '@/store/slices/authSlice';
 import { styles } from '@/styles';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { removeStorageValue, setStorageValue } from '@/utils/storage';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  AppState,
+  AppStateStatus,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function IndexScreen() {
   const router = useRouter();
-  const { login, loading, error } = useAuth();
+  const { redirect } = useLocalSearchParams<{ redirect?: string }>();
+
+  const appState = useRef(AppState.currentState);
+  const dispatch = useAppDispatch();
+  const { login, loading, error, isAuthenticated } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secure, setSecure] = useState(true);
+
+  // Listen to auth state changes (handles email confirmation links)
+  useEffect(() => {
+    const { data: authListener } = authService.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, 'Session:', !!session);
+
+      // Dispatch auth state change to Redux
+      dispatch(handleAuthStateChange({ event, session }));
+
+      if (event === 'SIGNED_IN' && session) {
+        const { user: currentUser } = await authService.getCurrentUser();
+        if (currentUser) {
+          await setStorageValue('TOKEN', session.access_token);
+          await setStorageValue('USER_DATA', JSON.stringify(currentUser));
+        }
+      } else if (event === 'SIGNED_OUT') {
+        await removeStorageValue('TOKEN');
+        await removeStorageValue('USER_DATA');
+        router.replace('/(tabs)');
+      } else if (event === 'USER_UPDATED' && session) {
+        // Handle email confirmation
+        const { user: currentUser } = await authService.getCurrentUser();
+        if (currentUser) {
+          await setStorageValue('TOKEN', session.access_token);
+          await setStorageValue('USER_DATA', JSON.stringify(currentUser));
+        }
+      }
+    });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, [dispatch, redirect, router]);
+
+  // Refresh session when app comes to foreground
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+      // When app transitions from background/inactive to active (foreground)
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // Check session validity by getting current user
+        if (isAuthenticated) {
+          const { user: currentUser } = await authService.getCurrentUser();
+          if (!currentUser) {
+            // Session expired, clear auth state
+            await removeStorageValue('TOKEN');
+            await removeStorageValue('USER_DATA');
+            dispatch(handleAuthStateChange({ event: 'SIGNED_OUT', session: null }));
+          }
+        }
+      }
+
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [dispatch, isAuthenticated]);
+
+  // Redirect after successful login (fallback)
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      const redirectPath = redirect || '/(tabs)';
+      router.replace(redirectPath as any);
+    }
+  }, [isAuthenticated, loading, redirect, router]);
 
   const onSubmit = async () => {
     await login(email, password);

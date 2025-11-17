@@ -1,16 +1,9 @@
 import { Product } from '@/api';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import {
-  selectCart,
-  selectCartError,
-  selectCartItemByProductId,
-  selectCartLoading,
-  selectIsCartEmpty,
-} from '@/store/selectors/cartSelectors';
+import { selectCartError, selectCartItems, selectCartLoading } from '@/store/selectors/cartSelectors';
 import {
   addToCartAsync,
   clearCartAsync,
-  clearError,
   fetchCart,
   removeFromCartAsync,
   resetCart,
@@ -21,14 +14,10 @@ import { useEffect } from 'react';
 export const useCart = () => {
   const dispatch = useAppDispatch();
 
-  // Get user ID from auth state
   const userId = useAppSelector((state) => state.auth.user?.id);
-
-  // Selectors
-  const cart = useAppSelector(selectCart);
+  const items = useAppSelector(selectCartItems);
   const isLoading = useAppSelector(selectCartLoading);
   const error = useAppSelector(selectCartError);
-  const isEmpty = useAppSelector(selectIsCartEmpty);
 
   // Fetch cart when user ID changes
   useEffect(() => {
@@ -40,7 +29,7 @@ export const useCart = () => {
     }
   }, [userId, dispatch]);
 
-  // Actions
+  // Add item to cart
   const addItem = async (product: Product) => {
     if (!userId) {
       dispatch(setError('Please sign in to add items to cart'));
@@ -49,6 +38,7 @@ export const useCart = () => {
     await dispatch(addToCartAsync({ userId, listingId: product.id }));
   };
 
+  // Remove item from cart
   const removeItem = async (itemId: string) => {
     if (!userId) {
       dispatch(setError('Please sign in to remove items from cart'));
@@ -57,7 +47,16 @@ export const useCart = () => {
     await dispatch(removeFromCartAsync({ userId, listingId: itemId }));
   };
 
-  const clearAll = async () => {
+  // Check if product is in cart
+  const isInCart = (productId?: string) => {
+    if (!productId) {
+      return false;
+    }
+    return items.some((cartItem) => cartItem.product?.id === productId);
+  };
+
+  // Clear cart
+  const clearCart = async () => {
     if (!userId) {
       dispatch(setError('Please sign in to clear cart'));
       return;
@@ -65,42 +64,23 @@ export const useCart = () => {
     await dispatch(clearCartAsync(userId));
   };
 
+  // Refresh cart
   const refreshCart = async () => {
-    if (userId) {
-      await dispatch(fetchCart(userId));
+    if (!userId) {
+      dispatch(setError('Please sign in to clear cart'));
+      return;
     }
-  };
-
-  const setCartError = (errorMessage: string | null) => {
-    dispatch(setError(errorMessage));
-  };
-
-  const clearCartError = () => {
-    dispatch(clearError());
-  };
-
-  // Utility functions
-  const getItemByProductId = (productId: string) => {
-    return useAppSelector(selectCartItemByProductId(productId));
+    await dispatch(fetchCart(userId));
   };
 
   return {
-    // State
-    cart,
+    items,
     isLoading,
     error,
-    isEmpty,
-    userId,
-
-    // Actions
     addItem,
     removeItem,
-    clearAll,
+    isInCart,
+    clearCart,
     refreshCart,
-    setCartError,
-    clearCartError,
-
-    // Utility functions
-    getItemByProductId,
   };
 };

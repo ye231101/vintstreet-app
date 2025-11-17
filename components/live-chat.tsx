@@ -1,10 +1,16 @@
 import { clearAgoraRTMConfigCache, getAgoraRTMConfig } from '@/api/config/agora';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
-// import { RtmClient } from 'agora-react-native-rtm';
+import RtmClient, { RtmAttribute, RtmMessage } from 'agora-react-native-rtm';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 interface ChatMessage {
   id: string;
@@ -47,9 +53,11 @@ const randomColor = (): string => {
 interface LiveChatProps {
   streamId: string;
   onClose?: () => void;
+  isVisible?: boolean;
+  onCleanup?: () => void;
 }
 
-const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
+const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatProps) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -59,7 +67,7 @@ const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
   // RTM related refs and state
   const [agoraRTMConfig, setAgoraRTMConfig] = useState<any>(null);
   const clientRef = useRef<any>(null);
-  const channelRef = useRef<any>(null);
+  const messageListenerRef = useRef<any>(null);
   const userColorRef = useRef<string>(randomColor());
   const userIdRef = useRef<string>(makeid(5));
   const currentUserRef = useRef<string>('');
@@ -111,155 +119,151 @@ const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
   }, [streamId]);
 
   // Initialize RTM client and join channel
-  // useEffect(() => {
-  //   const initRtm = async () => {
-  //     if (!agoraRTMConfig || !streamId) return;
+  useEffect(() => {
+    const initRtm = async () => {
+      if (!agoraRTMConfig || !streamId) return;
 
-  //     setIsLoading(true);
-  //     try {
-  //       // Generate username based on user info or random
-  //       const username = user?.email?.split('@')[0] || `User_${userIdRef.current}`;
-  //       currentUserRef.current = username;
+      setIsLoading(true);
+      try {
+        // Generate username based on user info or random
+        const username = user?.email?.split('@')[0] || `User_${userIdRef.current}`;
+        currentUserRef.current = username;
 
-  //       // Create RTM client with App ID using agora-react-native-rtm
-  //       const client = new RtmClient(agoraRTMConfig.appId, userIdRef.current);
-  //       clientRef.current = client;
+        // Create RTM client with App ID using agora-react-native-rtm
+        const client = new RtmClient();
+        clientRef.current = client;
 
-  //       // Login to RTM
-  //       await client.login({ token: agoraRTMConfig.token || undefined });
+        // Initialize the client with App ID
+        await client.createInstance(agoraRTMConfig.appId);
 
-  //       // Create stream channel and join
-  //       const channel = client.createStreamChannel(streamId);
-  //       channelRef.current = channel;
-  //       await channel.join();
+        // Login to RTM
+        await client.login({ uid: userIdRef.current, token: agoraRTMConfig.token || undefined });
 
-  //       // Set user attributes using storage API
-  //       try {
-  //         await client.storage.setUserMetadata([
-  //           { key: 'name', value: username },
-  //           { key: 'color', value: userColorRef.current },
-  //         ]);
-  //       } catch (attrError) {
-  //         console.warn('Failed to set user attributes:', attrError);
-  //       }
+        // Set user attributes
+        try {
+          await client.setLocalUserAttributesV2([
+            new RtmAttribute('name', username),
+            new RtmAttribute('color', userColorRef.current),
+          ]);
+        } catch (attrError) {
+          console.warn('Failed to set user attributes:', attrError);
+        }
 
-  //       // Join a default topic for messaging (stream channels use topics)
-  //       const topicName = 'messages';
-  //       try {
-  //         await channel.joinTopic(topicName);
-  //       } catch (topicError) {
-  //         console.warn('Failed to join topic, messages may not work:', topicError);
-  //       }
+        // Join channel
+        await client.joinChannel(streamId);
 
-  //       // Listen for channel messages
-  //       client.on('message', async (event: any) => {
-  //         try {
-  //           // Only process messages from our channel
-  //           if (event.channelName !== streamId) return;
+        // Listen for channel messages
+        const messageListener = client.addListener('ChannelMessageReceived', async (message, fromMember) => {
+          try {
+            const publisherId = fromMember.userId;
+            let userAttributes: any = {};
 
-  //           const publisherId = event.publisher;
-  //           let userAttributes: any = {};
+            // Get user attributes
+            try {
+              const attributes = await client.getUserAttributes(publisherId);
+              if (attributes && attributes.length > 0) {
+                attributes.forEach((attr) => {
+                  userAttributes[attr.key] = attr.value;
+                });
+              }
+            } catch (attrError) {
+              console.warn('Failed to get user attributes:', attrError);
+            }
 
-  //           // Get user attributes
-  //           try {
-  //             const metadata = await client.storage.getUserMetadata(publisherId);
-  //             if (metadata && metadata.items) {
-  //               metadata.items.forEach((item: any) => {
-  //                 userAttributes[item.key] = item.value;
-  //               });
-  //             }
-  //           } catch (attrError) {
-  //             console.warn('Failed to get user attributes:', attrError);
-  //           }
+            const messageText = message.text || '[Message]';
 
-  //           const messageText = typeof event.message === 'string'
-  //             ? event.message
-  //             : event.messageType === 'BINARY'
-  //             ? '[Binary message]'
-  //             : String(event.message);
+            const newMessage: ChatMessage = {
+              id: Date.now().toString() + publisherId,
+              username: userAttributes.name || `User_${publisherId}`,
+              message: messageText,
+              timestamp: new Date(message.serverReceivedTs || Date.now()),
+              type: 'message',
+              color: userAttributes.color || randomColor(),
+            };
+            setMessages((prev) => [...prev, newMessage]);
+          } catch (error) {
+            console.error('Error processing channel message:', error);
+            // Fallback message without user attributes
+            const publisherId = fromMember?.userId || 'unknown';
+            const messageText = message?.text || '[Message]';
 
-  //           const newMessage: ChatMessage = {
-  //             id: Date.now().toString() + publisherId,
-  //             username: userAttributes.name || `User_${publisherId}`,
-  //             message: messageText,
-  //             timestamp: new Date(event.publishTime || Date.now()),
-  //             type: 'message',
-  //             color: userAttributes.color || randomColor(),
-  //           };
-  //           setMessages((prev) => [...prev, newMessage]);
-  //         } catch (error) {
-  //           console.error('Error processing channel message:', error);
-  //           // Fallback message without user attributes
-  //           const eventAny = event as any;
-  //           const publisherId = eventAny.publisher || 'unknown';
-  //           const messageText = typeof eventAny.message === 'string'
-  //             ? eventAny.message
-  //             : String(eventAny.message || '');
+            const newMessage: ChatMessage = {
+              id: Date.now().toString() + publisherId,
+              username: `User_${publisherId}`,
+              message: messageText,
+              timestamp: new Date(),
+              type: 'message',
+              color: randomColor(),
+            };
+            setMessages((prev) => [...prev, newMessage]);
+          }
+        });
 
-  //           const newMessage: ChatMessage = {
-  //             id: Date.now().toString() + publisherId,
-  //             username: `User_${publisherId}`,
-  //             message: messageText,
-  //             timestamp: new Date(),
-  //             type: 'message',
-  //             color: randomColor(),
-  //           };
-  //           setMessages((prev) => [...prev, newMessage]);
-  //         }
-  //       });
+        // Store listener for cleanup
+        messageListenerRef.current = messageListener;
 
-  //       setIsConnected(true);
-  //       setIsLoading(false);
-  //       console.log('RTM initialized successfully for channel:', streamId);
-  //     } catch (error) {
-  //       console.error('Failed to initialize RTM:', error);
-  //       setIsLoading(false);
-  //       setIsConnected(false);
-  //     }
-  //   };
+        setIsConnected(true);
+        setIsLoading(false);
+        console.log('RTM initialized successfully for channel:', streamId);
+      } catch (error) {
+        console.error('Failed to initialize RTM:', error);
+        setIsLoading(false);
+        setIsConnected(false);
+      }
+    };
 
-  //   if (streamId && agoraRTMConfig) {
-  //     initRtm();
-  //   } else {
-  //     setIsLoading(false);
-  //     setIsConnected(false);
-  //   }
+    if (streamId && agoraRTMConfig) {
+      initRtm();
+    } else {
+      setIsLoading(false);
+      setIsConnected(false);
+    }
 
-  //   // Cleanup on unmount
-  //   return () => {
-  //     setIsLoading(false);
-  //     setIsConnected(false);
-  //     if (channelRef.current) {
-  //       try {
-  //         // Leave channel if method exists
-  //         if (typeof channelRef.current.leave === 'function') {
-  //           channelRef.current.leave();
-  //         }
-  //       } catch (error) {
-  //         console.error('Error during RTM channel cleanup:', error);
-  //       }
-  //     }
-  //     if (clientRef.current) {
-  //       try {
-  //         // Logout RTM client
-  //         if (typeof clientRef.current.logout === 'function') {
-  //           clientRef.current.logout();
-  //         }
-  //       } catch (error) {
-  //         console.error('Error during RTM client cleanup:', error);
-  //       }
-  //     }
-  //   };
-  // }, [streamId, user, agoraRTMConfig]);
+    // Cleanup function - exposed via ref for parent to call
+    const cleanup = async () => {
+      if (clientRef.current) {
+        try {
+          // Remove message listener
+          if (messageListenerRef.current) {
+            messageListenerRef.current.remove();
+            messageListenerRef.current = null;
+          }
+          // Leave channel
+          if (streamId) {
+            await clientRef.current.leaveChannel(streamId).catch((err: any) => {
+              console.error('Error leaving channel:', err);
+            });
+          }
+          // Logout RTM client
+          await clientRef.current.logout().catch((err: any) => {
+            console.error('Error during RTM logout:', err);
+          });
+          // Release client
+          await clientRef.current.release().catch((err: any) => {
+            console.error('Error during RTM release:', err);
+          });
+        } catch (error) {
+          console.error('Error during RTM client cleanup:', error);
+        }
+        clientRef.current = null;
+      }
+    };
+
+    // Cleanup on unmount - this will only run when component actually unmounts (leaving stream page)
+    return () => {
+      cleanup();
+    };
+  }, [streamId, user, agoraRTMConfig]);
 
   const sendMessage = async () => {
-    if (newMessage.trim() && isConnected && !isLoading && channelRef.current) {
+    if (newMessage.trim() && isConnected && !isLoading && clientRef.current && streamId) {
       try {
         // Send message through RTM channel
-        await channelRef.current.sendMessage({ text: newMessage });
+        const message = new RtmMessage(newMessage);
+        await clientRef.current.sendMessage(streamId, message, {});
 
         // Add message to local state for immediate feedback
-        const message: ChatMessage = {
+        const chatMessage: ChatMessage = {
           id: Date.now().toString(),
           username: currentUserRef.current,
           message: newMessage,
@@ -267,12 +271,12 @@ const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
           type: 'message',
           color: userColorRef.current,
         };
-        setMessages((prev) => [...prev, message]);
+        setMessages((prev) => [...prev, chatMessage]);
         setNewMessage('');
       } catch (error) {
         console.error('Failed to send message:', error);
         // Still add message locally even if RTM send fails
-        const message: ChatMessage = {
+        const chatMessage: ChatMessage = {
           id: Date.now().toString(),
           username: currentUserRef.current,
           message: newMessage,
@@ -280,7 +284,7 @@ const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
           type: 'message',
           color: userColorRef.current,
         };
-        setMessages((prev) => [...prev, message]);
+        setMessages((prev) => [...prev, chatMessage]);
         setNewMessage('');
       }
     }
@@ -302,25 +306,32 @@ const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View
+      className={`flex-1 bg-white ${isVisible ? '' : 'opacity-0 pointer-events-none'}`}
+      style={{ display: isVisible ? 'flex' : 'none' }}
+    >
       {/* Header */}
       <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
         <View className="flex-row items-center gap-2">
           <Text className="text-lg font-inter-bold text-gray-900">Live Chat</Text>
           <View
-            className={`w-2.5 h-2.5 rounded-full ${
+            className={`w-2 h-2 rounded-full ${
               isLoading ? 'bg-yellow-500' : isConnected ? 'bg-green-500' : 'bg-red-500'
             }`}
             style={isLoading ? { opacity: 0.5 } : {}}
           />
           {/* Status text */}
           <Text className="text-xs text-gray-500">
-            {isLoading ? 'Connecting...' : isConnected ? `${messages.length} messages` : 'Disconnected'}
+            {isLoading
+              ? 'Connecting...'
+              : isConnected
+              ? `${messages.length} message${messages.length !== 1 ? 's' : ''}`
+              : 'Disconnected'}
           </Text>
         </View>
         {onClose && (
-          <TouchableOpacity onPress={onClose} className="p-2 rounded-lg active:bg-gray-100">
-            <Feather name="x" size={22} color="#6b7280" />
+          <TouchableOpacity onPress={onClose} hitSlop={8}>
+            <Feather name="x" size={20} color="#000" />
           </TouchableOpacity>
         )}
       </View>
@@ -329,8 +340,13 @@ const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
       <ScrollView
         ref={scrollViewRef}
         className="flex-1"
-        contentContainerStyle={{ padding: 16, flexGrow: 1 }}
+        contentContainerStyle={{
+          padding: 16,
+          flexGrow: messages.length === 0 ? 1 : undefined,
+          paddingBottom: 0,
+        }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {messages.length > 0 ? (
           <View className="gap-3">
@@ -410,7 +426,7 @@ const LiveChat = ({ streamId, onClose }: LiveChatProps) => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -7,10 +7,7 @@ class ShippingService {
    */
   async getShippingProviders(): Promise<ShippingProvider[]> {
     try {
-      const { data, error } = await supabase
-        .from('shipping_providers')
-        .select('*')
-        .eq('is_active', true);
+      const { data, error } = await supabase.from('shipping_providers').select('*').eq('is_active', true);
 
       if (error) throw error;
       return (data as unknown as ShippingProvider[]) || [];
@@ -123,15 +120,7 @@ class ShippingService {
     try {
       const { data, error } = await supabase
         .from('shipping_options')
-        .select(
-          `
-          *,
-          shipping_providers (
-            name,
-            description
-          )
-        `
-        )
+        .select('*')
         .eq('seller_id', sellerId)
         .eq('is_active', true);
 

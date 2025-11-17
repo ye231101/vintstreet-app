@@ -5,14 +5,14 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -184,13 +184,13 @@ export default function ReviewsScreen() {
         {isLoading ? (
           <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
-            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading your reviews...</Text>
+            <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading your reviews...</Text>
           </View>
         ) : error ? (
           <View className="flex-1 items-center justify-center p-4">
             <Feather name="alert-circle" color="#ff4444" size={64} />
-            <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading reviews</Text>
-            <TouchableOpacity onPress={loadReviews} className="bg-black rounded-lg py-3 px-6">
+            <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">Error loading reviews</Text>
+            <TouchableOpacity onPress={loadReviews} className="px-6 py-3 rounded-lg bg-black">
               <Text className="text-base font-inter-bold text-white">Retry</Text>
             </TouchableOpacity>
           </View>

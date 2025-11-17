@@ -196,7 +196,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
       return (
         <View className="flex-1 items-center justify-center py-12">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
       );
     }

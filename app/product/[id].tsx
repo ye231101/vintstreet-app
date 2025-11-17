@@ -1,11 +1,10 @@
 import { attributesService, listingsService, Product } from '@/api';
 import { ContactModal } from '@/components/contact-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
+import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
-import { useAppSelector } from '@/store/hooks';
-import { selectCartItemByProductId } from '@/store/selectors/cartSelectors';
-import { blurhash } from '@/utils';
+import { blurhash, formatPrice } from '@/utils';
 import { showInfoToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -30,46 +29,45 @@ export default function ProductDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
-  const { addItem, cart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const { addItem, isInCart } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
+  // Product attributes
+  const [productAttributes, setProductAttributes] = useState<any[]>([]);
+  const [attributesLoading, setAttributesLoading] = useState(false);
+  // Related products
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [relatedProductsLoading, setRelatedProductsLoading] = useState(false);
+  // cart state
+  const isCarted = isInCart(product?.id);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [addingRelatedProductId, setAddingRelatedProductId] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'seller'>('description');
-  const { user } = useAppSelector((state) => state.auth);
+
+  // Image carousel state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Offer modal state
   const [isOfferOpen, setIsOfferOpen] = useState(false);
-  const [productAttributes, setProductAttributes] = useState<any[]>([]);
-  const [attributesLoading, setAttributesLoading] = useState(false);
-
   // Contact modal state
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
-  // Image carousel state
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const loadProduct = async () => {
+    if (!id) {
+      setError('Missing product id');
+      return;
+    }
 
-  // Related products state
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [relatedProductsLoading, setRelatedProductsLoading] = useState(false);
-
-  // Add to cart loading state
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [addingRelatedProductId, setAddingRelatedProductId] = useState<string | null>(null);
-  // Check if product is in cart
-  const cartItem = useAppSelector((state) => selectCartItemByProductId(id || '')(state));
-
-  const load = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      if (!id) {
-        setError('Missing product id');
-        return;
-      }
-      const data = await listingsService.getListingById(String(id));
-      setProduct(data);
+      const res = await listingsService.getListingById(String(id));
+      setProduct(res);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load product');
     } finally {
@@ -77,62 +75,77 @@ export default function ProductDetailScreen() {
     }
   };
 
+  const loadProductAttributes = async () => {
+    if (!id) {
+      setError('Missing product id');
+      return;
+    }
+
+    try {
+      setAttributesLoading(true);
+      const res = await attributesService.getProductAttributeValues(id);
+      setProductAttributes(res);
+    } catch (error) {
+      console.error('Error loading product attributes:', error);
+      setProductAttributes([]);
+    } finally {
+      setAttributesLoading(false);
+    }
+  };
+
+  const loadRelatedProducts = async () => {
+    if (!id) {
+      setError('Missing product id');
+      return;
+    }
+
+    try {
+      setRelatedProductsLoading(true);
+      const res = await listingsService.getRelatedProducts(id);
+      setRelatedProducts(res);
+    } catch (error) {
+      console.error('Error loading related products:', error);
+      setRelatedProducts([]);
+    } finally {
+      setRelatedProductsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    load();
-  }, [id]);
-
-  // Load product attributes
-  useEffect(() => {
-    const loadAttributes = async () => {
-      if (!id) return;
-
-      try {
-        setAttributesLoading(true);
-        const attributes = await attributesService.getProductAttributeValues(id);
-        setProductAttributes(attributes);
-      } catch (error) {
-        console.error('Error loading product attributes:', error);
-        setProductAttributes([]);
-      } finally {
-        setAttributesLoading(false);
-      }
-    };
-
-    loadAttributes();
-  }, [id]);
-
-  // Load related products
-  useEffect(() => {
-    const loadRelatedProducts = async () => {
-      if (!product?.category_id || !id) return;
-
-      try {
-        setRelatedProductsLoading(true);
-
-        const relatedProducts = await listingsService.getRelatedProducts(product.category_id, id, 4);
-        setRelatedProducts(relatedProducts);
-      } catch (error) {
-        console.error('Error loading related products:', error);
-        setRelatedProducts([]);
-      } finally {
-        setRelatedProductsLoading(false);
-      }
-    };
-
+    loadProduct();
+    loadProductAttributes();
     loadRelatedProducts();
-  }, [product?.category_id, id]);
+  }, [id]);
 
   // Keep header title in sync with product name (safe even when product is null)
   useLayoutEffect(() => {
     const headerTitle = product?.product_name || 'Product Detail';
-    // @ts-ignore - expo-router navigation supports setOptions
     navigation.setOptions?.({ title: headerTitle });
   }, [navigation, product]);
 
-  const handleAddToCart = async () => {
+  const redirectToLogin = () => {
+    const currentPath = `/product/${id}`;
+    router.push(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+  };
+
+  const handleCart = () => {
+    if (!isAuthenticated) {
+      redirectToLogin();
+      return;
+    }
+
+    router.push('/cart');
+  };
+
+  const handleAddToCart = async (product: Product) => {
+    if (!isAuthenticated) {
+      redirectToLogin();
+      return;
+    }
+
     try {
       setIsAddingToCart(true);
-      await addItem(product as Product);
+      await addItem(product);
     } catch (error) {
       console.error('Error adding to cart:', error);
     } finally {
@@ -140,16 +153,13 @@ export default function ProductDetailScreen() {
     }
   };
 
-  const handleViewShop = () => {
-    router.push(`/seller-profile/${product?.seller_id}` as any);
-  };
-
-  const handleContactSeller = () => {
-    if (!user?.id) {
-      showInfoToast('Please sign in to send messages');
+  const handleToggleWishlist = (product: Product) => {
+    if (!isAuthenticated) {
+      redirectToLogin();
       return;
     }
-    setIsContactModalOpen(true);
+
+    toggleItem(product);
   };
 
   const handleImageScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -158,8 +168,24 @@ export default function ProductDetailScreen() {
     setCurrentImageIndex(index);
   };
 
-  const handleToggleWishlist = () => {
-    toggleItem(product as Product);
+  const handleViewShop = () => {
+    router.push(`/seller-profile/${product?.seller_id}` as any);
+  };
+
+  const handleContactSeller = () => {
+    if (!isAuthenticated) {
+      showInfoToast('Please sign in to send messages');
+      return;
+    }
+    setIsContactModalOpen(true);
+  };
+
+  const handleMakeOffer = () => {
+    if (!isAuthenticated) {
+      showInfoToast('Please sign in to make an offer');
+      return;
+    }
+    setIsOfferOpen(true);
   };
 
   const formattedDate = (() => {
@@ -179,7 +205,7 @@ export default function ProductDetailScreen() {
     return (
       <SafeAreaView className="flex-1 items-center justify-center p-4 bg-white">
         <ActivityIndicator size="large" color="#000" />
-        <Text className="mt-3 text-sm font-inter-semibold text-gray-600">Loading product...</Text>
+        <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading product...</Text>
       </SafeAreaView>
     );
   }
@@ -188,8 +214,8 @@ export default function ProductDetailScreen() {
     return (
       <SafeAreaView className="flex-1 items-center justify-center p-4 bg-white">
         <Feather name="alert-circle" color="#ff4444" size={64} />
-        <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading product</Text>
-        <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+        <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">Error loading product</Text>
+        <TouchableOpacity onPress={loadProduct} className="px-6 py-3 rounded-lg bg-black">
           <Text className="text-base font-inter-bold text-white">Retry</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -200,8 +226,8 @@ export default function ProductDetailScreen() {
     return (
       <SafeAreaView className="flex-1 items-center justify-center p-4 bg-white">
         <Feather name="alert-circle" color="#ff4444" size={64} />
-        <Text className="my-4 text-lg font-inter-bold text-red-500">Product not found</Text>
-        <TouchableOpacity onPress={load} className="bg-black rounded-lg py-3 px-6">
+        <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">Product not found</Text>
+        <TouchableOpacity onPress={loadProduct} className="px-6 py-3 rounded-lg bg-black">
           <Text className="text-base font-inter-bold text-white">Retry</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -219,6 +245,10 @@ export default function ProductDetailScreen() {
         <Text numberOfLines={1} className="flex-1 text-lg font-inter-bold text-black">
           {product.product_name}
         </Text>
+
+        <Pressable onPress={() => handleCart()} hitSlop={8}>
+          <Feather name="shopping-bag" size={24} color="#000" />
+        </Pressable>
       </View>
 
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
@@ -277,8 +307,8 @@ export default function ProductDetailScreen() {
           )}
 
           <Pressable
-            onPress={handleToggleWishlist}
-            className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm"
+            onPress={() => handleToggleWishlist(product)}
+            className="absolute top-3 right-3 p-2 rounded-full bg-white shadow-sm"
           >
             <FontAwesome
               name={isInWishlist(product.id) ? 'heart' : 'heart-o'}
@@ -296,28 +326,28 @@ export default function ProductDetailScreen() {
               product.product_subcategories?.name ||
               product.product_sub_subcategories?.name ||
               product.product_sub_sub_subcategories?.name) && (
-              <View className="flex-row items-center flex-wrap gap-2 mb-2 ml-1">
+              <View className="flex-row flex-wrap items-center gap-2 mb-2">
                 {product.product_categories?.name && (
-                  <View className="bg-gray-200 px-3 py-1 rounded-full">
+                  <View className="px-3 py-1 rounded-full bg-gray-200">
                     <Text className="text-xs font-inter-semibold text-gray-800">{product.product_categories.name}</Text>
                   </View>
                 )}
                 {product.product_subcategories?.name && (
-                  <View className="bg-gray-200 px-3 py-1 rounded-full">
+                  <View className="px-3 py-1 rounded-full bg-gray-200">
                     <Text className="text-xs font-inter-semibold text-gray-800">
                       {product.product_subcategories.name}
                     </Text>
                   </View>
                 )}
                 {product.product_sub_subcategories?.name && (
-                  <View className="bg-gray-200 px-3 py-1 rounded-full">
+                  <View className="px-3 py-1 rounded-full bg-gray-200">
                     <Text className="text-xs font-inter-semibold text-gray-800">
                       {product.product_sub_subcategories.name}
                     </Text>
                   </View>
                 )}
                 {product.product_sub_sub_subcategories?.name && (
-                  <View className="bg-gray-200 px-3 py-1 rounded-full">
+                  <View className="px-3 py-1 rounded-full bg-gray-200">
                     <Text className="text-xs font-inter-semibold text-gray-800">
                       {product.product_sub_sub_subcategories.name}
                     </Text>
@@ -328,7 +358,7 @@ export default function ProductDetailScreen() {
 
             {/* Brand */}
             {product.brands?.name && (
-              <View className="flex-row items-center mb-3 ml-1">
+              <View className="flex-row items-center mb-2">
                 <View className="bg-black px-3 py-1 rounded-full">
                   <Text className="text-xs font-inter-semibold text-white">{product.brands.name}</Text>
                 </View>
@@ -341,33 +371,20 @@ export default function ProductDetailScreen() {
             <View className="flex-row items-center justify-between">
               <View className="px-1">
                 <Text className="text-2xl font-inter-bold text-black mr-2">
-                  £
-                  {product.discounted_price !== null
-                    ? product.discounted_price.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    : product.starting_price.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                  £{formatPrice(product.discounted_price || product.starting_price)}
                 </Text>
                 {product.discounted_price !== null && (
                   <Text className="text-base font-inter-semibold text-gray-400 line-through">
-                    £
-                    {product.starting_price.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    £{formatPrice(product.starting_price)}
                   </Text>
                 )}
               </View>
               <View className="flex-row items-center gap-2">
                 <TouchableOpacity
-                  onPress={handleAddToCart}
-                  disabled={!!cartItem || isAddingToCart}
+                  onPress={() => handleAddToCart(product)}
+                  disabled={!!isCarted || isAddingToCart}
                   className={`flex-row items-center px-4 py-2 rounded-lg ${
-                    cartItem ? 'bg-gray-100 border border-gray-200' : 'bg-black border border-black'
+                    isCarted ? 'bg-gray-100 border border-gray-200' : 'bg-black border border-black'
                   }`}
                 >
                   {isAddingToCart ? (
@@ -375,7 +392,7 @@ export default function ProductDetailScreen() {
                       <ActivityIndicator size="small" color="#fff" />
                       <Text className="text-base font-inter-semibold text-white">Adding...</Text>
                     </View>
-                  ) : cartItem ? (
+                  ) : isCarted ? (
                     <View className="flex-row items-center gap-2">
                       <Feather name="check" size={16} color="#000" />
                       <Text className="text-base font-inter-semibold text-black">Added to Cart</Text>
@@ -389,7 +406,7 @@ export default function ProductDetailScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   className="flex-row items-center px-4 py-2 rounded-lg bg-white border border-gray-200"
-                  onPress={() => setIsOfferOpen(true)}
+                  onPress={handleMakeOffer}
                 >
                   <Feather name="message-circle" size={16} color="#000" className="mr-2" />
                   <Text className="text-base font-inter-semibold text-black">Make Offer</Text>
@@ -560,14 +577,14 @@ export default function ProductDetailScreen() {
           {relatedProductsLoading ? (
             <View className="flex-1 items-center justify-center p-4">
               <ActivityIndicator size="large" color="#000" />
-              <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading related products...</Text>
+              <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading related products...</Text>
             </View>
           ) : relatedProducts.length > 0 ? (
             <View className="px-4">
               <Text className="my-4 text-xl font-inter-bold text-black">Related Products</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
                 {relatedProducts.map((relatedProduct: any) => {
-                  const isRelatedInCart = cart.items.some((cartItem) => cartItem.product?.id === relatedProduct.id);
+                  const isRelatedInCart = isInCart(relatedProduct.id);
                   return (
                     <Pressable
                       key={relatedProduct.id}
@@ -586,10 +603,7 @@ export default function ProductDetailScreen() {
 
                         {/* Wishlist Heart Icon */}
                         <Pressable
-                          onPress={(e) => {
-                            e.stopPropagation();
-                            toggleItem(relatedProduct as Product);
-                          }}
+                          onPress={() => handleToggleWishlist(relatedProduct)}
                           className="absolute top-2 right-2 bg-white p-1.5 rounded-full shadow-sm"
                         >
                           <FontAwesome
@@ -615,18 +629,14 @@ export default function ProductDetailScreen() {
                         {/* Price and Actions */}
                         <View className="flex-row items-center justify-between">
                           <Text className="text-base font-inter-bold text-black">
-                            £
-                            {(relatedProduct.discounted_price !== null
-                              ? relatedProduct.discounted_price
-                              : relatedProduct.starting_price
-                            ).toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                            £{formatPrice(relatedProduct.discounted_price || relatedProduct.starting_price)}
                           </Text>
                           <Pressable
-                            onPress={async (e) => {
-                              e.stopPropagation();
+                            onPress={async () => {
+                              if (!isAuthenticated) {
+                                redirectToLogin();
+                                return;
+                              }
                               if (isRelatedInCart) return;
                               try {
                                 setAddingRelatedProductId(relatedProduct.id);
@@ -639,15 +649,15 @@ export default function ProductDetailScreen() {
                             }}
                             disabled={addingRelatedProductId === relatedProduct.id || isRelatedInCart}
                             className={`${
-                              isRelatedInCart ? 'bg-gray-100 border border-gray-300' : 'bg-black'
-                            } p-1.5 rounded-lg`}
+                              isRelatedInCart ? 'bg-gray-100 border border-gray-300' : 'bg-white border border-gray-200'
+                            } rounded-lg w-10 h-10 items-center justify-center`}
                           >
                             {addingRelatedProductId === relatedProduct.id ? (
-                              <ActivityIndicator size="small" color={isRelatedInCart ? '#000' : '#fff'} />
+                              <ActivityIndicator size="small" color="#000" />
                             ) : isRelatedInCart ? (
-                              <Feather name="check" size={16} color="#000" />
+                              <Feather name="check" size={20} color="#000" />
                             ) : (
-                              <Feather name="plus" size={16} color="white" />
+                              <Feather name="shopping-cart" size={20} color="#000" />
                             )}
                           </Pressable>
                         </View>

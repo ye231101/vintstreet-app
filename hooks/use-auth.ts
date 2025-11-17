@@ -11,7 +11,7 @@ import {
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
-  const { isAuthenticated, user, loading, error, isInitialized } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, loading, error } = useAppSelector((state) => state.auth);
 
   const login = async (email: string, password: string) => {
     if (loading) return;
@@ -66,7 +66,6 @@ export const useAuth = () => {
     user,
     loading,
     error,
-    isInitialized,
     login,
     register,
     resetPassword: resetPasswordAction,

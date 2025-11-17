@@ -1,37 +1,30 @@
 import { CartItem, cartService } from '@/api';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { showErrorToast } from '@/utils/toast';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Cart {
   items: CartItem[];
-}
-
-export interface CartState {
-  cart: Cart;
   isLoading: boolean;
   error: string | null;
 }
 
-const initialCart: Cart = {
+const initialState: Cart = {
   items: [],
-};
-
-const initialState: CartState = {
-  cart: initialCart,
   isLoading: false,
   error: null,
 };
 
-// Async Thunks
+// Async thunk to fetch cart items
 export const fetchCart = createAsyncThunk('cart/fetchCart', async (userId: string, { rejectWithValue }) => {
   try {
     const cartItems = await cartService.getCart(userId);
     return cartItems;
-  } catch (error) {
-    return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch cart');
+  } catch (error: any) {
+    return rejectWithValue(error.message || 'Failed to fetch cart');
   }
 });
 
+// Async thunk to add item to cart
 export const addToCartAsync = createAsyncThunk(
   'cart/addToCart',
   async ({ userId, listingId }: { userId: string; listingId: string }, { rejectWithValue }) => {
@@ -39,12 +32,14 @@ export const addToCartAsync = createAsyncThunk(
       await cartService.addToCart(userId, listingId);
       const cartItems = await cartService.getCart(userId);
       return cartItems;
-    } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Failed to add item to cart');
+    } catch (error: any) {
+      showErrorToast('Failed to add item to cart');
+      return rejectWithValue(error.message || 'Failed to add item to cart');
     }
   }
 );
 
+// Async thunk to remove item from cart
 export const removeFromCartAsync = createAsyncThunk(
   'cart/removeFromCart',
   async ({ userId, listingId }: { userId: string; listingId: string }, { rejectWithValue }) => {
@@ -52,18 +47,21 @@ export const removeFromCartAsync = createAsyncThunk(
       await cartService.removeFromCart(userId, listingId);
       const cartItems = await cartService.getCart(userId);
       return cartItems;
-    } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Failed to remove item from cart');
+    } catch (error: any) {
+      showErrorToast('Failed to remove item from cart');
+      return rejectWithValue(error.message || 'Failed to remove item from cart');
     }
   }
 );
 
+// Async thunk to clear cart
 export const clearCartAsync = createAsyncThunk('cart/clearCart', async (userId: string, { rejectWithValue }) => {
   try {
     await cartService.clearCart(userId);
     return [];
-  } catch (error) {
-    return rejectWithValue(error instanceof Error ? error.message : 'Failed to clear cart');
+  } catch (error: any) {
+    showErrorToast('Failed to clear cart');
+    return rejectWithValue(error.message || 'Failed to clear cart');
   }
 });
 
@@ -86,24 +84,22 @@ const cartSlice = createSlice({
       state.error = null;
     },
 
-    // Reset cart to initial state (for logout)
+    // Reset cart to initial state
     resetCart: (state) => {
-      state.cart = initialCart;
+      state.items = [];
       state.isLoading = false;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
-    // Fetch Cart
+    // Fetch cart
     builder
       .addCase(fetchCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
-        state.cart = {
-          items: action.payload,
-        };
+        state.items = action.payload;
         state.isLoading = false;
         state.error = null;
       })
@@ -113,37 +109,30 @@ const cartSlice = createSlice({
         showErrorToast((action.payload as string) || 'Failed to fetch cart');
       });
 
-    // Add to Cart
+    // Add to cart
     builder
       .addCase(addToCartAsync.pending, (state) => {
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(addToCartAsync.fulfilled, (state, action) => {
-        state.cart = {
-          items: action.payload,
-        };
+        state.items = action.payload;
+        state.isLoading = false;
         state.error = null;
-
-        // Show success toast
-        const addedItem = action.payload[0];
-        if (addedItem && addedItem.product) {
-          showSuccessToast(`${addedItem.product.product_name} has been added to your cart.`);
-        }
       })
       .addCase(addToCartAsync.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload as string;
         showErrorToast((action.payload as string) || 'Failed to add item to cart');
       });
 
-    // Remove from Cart
+    // Remove from cart
     builder
       .addCase(removeFromCartAsync.pending, (state) => {
         state.error = null;
       })
       .addCase(removeFromCartAsync.fulfilled, (state, action) => {
-        state.cart = {
-          items: action.payload,
-        };
+        state.items = action.payload;
         state.error = null;
       })
       .addCase(removeFromCartAsync.rejected, (state, action) => {
@@ -151,16 +140,19 @@ const cartSlice = createSlice({
         showErrorToast((action.payload as string) || 'Failed to remove item from cart');
       });
 
-    // Clear Cart
+    // Clear cart
     builder
       .addCase(clearCartAsync.pending, (state) => {
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(clearCartAsync.fulfilled, (state) => {
-        state.cart = initialCart;
+        state.items = [];
+        state.isLoading = false;
         state.error = null;
       })
       .addCase(clearCartAsync.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload as string;
         showErrorToast((action.payload as string) || 'Failed to clear cart');
       });

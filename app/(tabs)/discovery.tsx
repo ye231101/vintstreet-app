@@ -118,23 +118,29 @@ export default function DiscoveryScreen() {
       if (brandName) {
         return;
       }
-      
+
       if (category && categories.length > 0) {
         const categoryName = decodeURIComponent(category as string);
         const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
         const foundCategory = categoriesService.findCategoryBySlug(categories, categorySlug);
-        
+
         if (foundCategory) {
           // If subcategory and sub_subcategory are provided, navigate to the deepest level
           if (subcategory && sub_subcategory) {
-            const subcategorySlug = decodeURIComponent(subcategory as string).toLowerCase().replace(/\s+/g, '-');
-            const subSubcategorySlug = decodeURIComponent(sub_subcategory as string).toLowerCase().replace(/\s+/g, '-');
-            
+            const subcategorySlug = decodeURIComponent(subcategory as string)
+              .toLowerCase()
+              .replace(/\s+/g, '-');
+            const subSubcategorySlug = decodeURIComponent(sub_subcategory as string)
+              .toLowerCase()
+              .replace(/\s+/g, '-');
+
             // Find the subcategory within the found category
             const foundSubcategory = foundCategory.children.find((sub) => sub.slug === subcategorySlug);
             if (foundSubcategory) {
               // Find the sub_subcategory within the subcategory
-              const foundSubSubcategory = foundSubcategory.children.find((subSub) => subSub.slug === subSubcategorySlug);
+              const foundSubSubcategory = foundSubcategory.children.find(
+                (subSub) => subSub.slug === subSubcategorySlug
+              );
               if (foundSubSubcategory) {
                 // Navigate to the deepest category level
                 setCategoryPath([foundCategory, foundSubcategory, foundSubSubcategory]);
@@ -146,7 +152,9 @@ export default function DiscoveryScreen() {
             }
           } else if (subcategory) {
             // Only subcategory is provided
-            const subcategorySlug = decodeURIComponent(subcategory as string).toLowerCase().replace(/\s+/g, '-');
+            const subcategorySlug = decodeURIComponent(subcategory as string)
+              .toLowerCase()
+              .replace(/\s+/g, '-');
             const foundSubcategory = foundCategory.children.find((sub) => sub.slug === subcategorySlug);
             if (foundSubcategory) {
               setCategoryPath([foundCategory, foundSubcategory]);
@@ -160,7 +168,7 @@ export default function DiscoveryScreen() {
               return;
             }
           }
-          
+
           // Default: navigate to the category level
           handleCategoryPress(foundCategory);
         }
@@ -178,34 +186,34 @@ export default function DiscoveryScreen() {
           // Search for the brand by name
           const brands = await brandsService.getBrands({ is_active: true });
           const foundBrand = brands.find((b) => b.name.toLowerCase() === decodedBrandName.toLowerCase());
-          
+
           if (foundBrand) {
             // If category is also provided, load products with both category and brand filters
             if (category && categories.length > 0) {
               const categoryName = decodeURIComponent(category as string);
               const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
               const foundCategory = categoriesService.findCategoryBySlug(categories, categorySlug);
-              
+
               if (foundCategory) {
                 // Set category path and apply brand filter (don't set selectedBrand to show category view)
                 setCategoryPath([foundCategory]);
                 setCurrentView('products');
                 setCurrentPage(1);
                 setSelectedBrand(null); // Clear selected brand to show category view
-                
+
                 // Apply brand filter to the applied filters
                 const filtersWithBrand: AppliedFilters = {
                   priceRanges: [],
                   brands: [foundBrand.id],
                 };
                 setAppliedFilters(filtersWithBrand);
-                
+
                 // Load products for category with brand filter
                 await loadProductsForCategory(foundCategory, currentSortBy, filtersWithBrand);
                 return;
               }
             }
-            
+
             // No category, just load products for brand
             setSelectedBrand({ id: foundBrand.id, name: foundBrand.name });
             setCurrentView('products');
@@ -218,33 +226,33 @@ export default function DiscoveryScreen() {
         // Brand ID is provided directly
         const decodedBrandId = decodeURIComponent(brand as string);
         const decodedBrandName = decodeURIComponent(brandName as string);
-        
+
         // If category is also provided, load products with both category and brand filters
         if (category && categories.length > 0) {
           const categoryName = decodeURIComponent(category as string);
           const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
           const foundCategory = categoriesService.findCategoryBySlug(categories, categorySlug);
-          
+
           if (foundCategory) {
             // Set category path and apply brand filter (don't set selectedBrand to show category view)
             setCategoryPath([foundCategory]);
             setCurrentView('products');
             setCurrentPage(1);
             setSelectedBrand(null); // Clear selected brand to show category view
-            
+
             // Apply brand filter to the applied filters
             const filtersWithBrand: AppliedFilters = {
               priceRanges: [],
               brands: [decodedBrandId],
             };
             setAppliedFilters(filtersWithBrand);
-            
+
             // Load products for category with brand filter
             await loadProductsForCategory(foundCategory, currentSortBy, filtersWithBrand);
             return;
           }
         }
-        
+
         // No category, just load products for brand
         setSelectedBrand({ id: decodedBrandId, name: decodedBrandName });
         setCurrentView('products');
@@ -839,7 +847,7 @@ export default function DiscoveryScreen() {
       return (
         <View className="flex-1 items-center justify-center p-2">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading categories</Text>
+          <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">Error loading categories</Text>
           <TouchableOpacity className="px-6 py-3 rounded-lg bg-black" onPress={loadCategories}>
             <Text className="text-base font-inter-bold text-white">Retry</Text>
           </TouchableOpacity>
@@ -905,7 +913,7 @@ export default function DiscoveryScreen() {
             ) : productsError ? (
               <View className="flex-1 items-center justify-center p-2">
                 <Feather name="alert-circle" color="#ff4444" size={64} />
-                <Text className="my-4 text-lg font-inter-bold text-red-500">{productsError}</Text>
+                <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">{productsError}</Text>
                 <TouchableOpacity
                   className="px-6 py-3 rounded-lg bg-black"
                   onPress={() => {

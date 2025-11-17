@@ -1,33 +1,28 @@
-import { Product, wishlistService } from '@/api';
+import { Product, WishlistItem, wishlistService } from '@/api';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface WishlistState {
-  items: Product[];
-  wishlistMap: Record<string, string>; // listingId -> wishlistId mapping
+  items: WishlistItem[];
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: WishlistState = {
   items: [],
-  wishlistMap: {},
   isLoading: false,
   error: null,
 };
 
 // Async thunk to fetch wishlist items
-export const fetchWishlist = createAsyncThunk(
-  'wishlist/fetchWishlist',
-  async (userId: string, { rejectWithValue }) => {
-    try {
-      const items = await wishlistService.getWishlistItems(userId);
-      return items;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch wishlist');
-    }
+export const fetchWishlist = createAsyncThunk('wishlist/fetchWishlist', async (userId: string, { rejectWithValue }) => {
+  try {
+    const items = await wishlistService.getWishlist(userId);
+    return items;
+  } catch (error: any) {
+    return rejectWithValue(error.message || 'Failed to fetch wishlist');
   }
-);
+});
 
 // Async thunk to add item to wishlist
 export const addToWishlistAsync = createAsyncThunk(
@@ -36,7 +31,7 @@ export const addToWishlistAsync = createAsyncThunk(
     try {
       await wishlistService.addToWishlist(userId, product.id);
       // Fetch updated wishlist to get the wishlist item ID
-      const items = await wishlistService.getWishlistItems(userId);
+      const items = await wishlistService.getWishlist(userId);
       showSuccessToast(`${product.product_name} added to wishlist`);
       return items;
     } catch (error: any) {
@@ -54,9 +49,10 @@ export const removeFromWishlistAsync = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      await wishlistService.removeFromWishlistByListingId(userId, listingId);
+      await wishlistService.removeFromWishlist(userId, listingId);
       showSuccessToast(`${productName || 'Item'} removed from wishlist`);
-      return listingId;
+      const wishlistItems = await wishlistService.getWishlist(userId);
+      return wishlistItems;
     } catch (error: any) {
       showErrorToast('Failed to remove from wishlist');
       return rejectWithValue(error.message || 'Failed to remove from wishlist');
@@ -70,15 +66,16 @@ export const toggleWishlistAsync = createAsyncThunk(
   async ({ userId, product }: { userId: string; product: Product }, { getState, rejectWithValue }) => {
     try {
       const state = getState() as { wishlist: WishlistState };
-      const isInWishlist = state.wishlist.wishlistMap[product.id];
+      const isInWishlist = state.wishlist.items.some((item) => item.listing_id === product.id);
 
       if (isInWishlist) {
-        await wishlistService.removeFromWishlistByListingId(userId, product.id);
+        await wishlistService.removeFromWishlist(userId, product.id);
+        const items = await wishlistService.getWishlist(userId);
         showSuccessToast(`${product.product_name} removed from wishlist`);
-        return { action: 'remove' as const, listingId: product.id };
+        return { action: 'remove' as const, items };
       } else {
         await wishlistService.addToWishlist(userId, product.id);
-        const items = await wishlistService.getWishlistItems(userId);
+        const items = await wishlistService.getWishlist(userId);
         showSuccessToast(`${product.product_name} added to wishlist`);
         return { action: 'add' as const, items };
       }
@@ -123,10 +120,10 @@ const wishlistSlice = createSlice({
       state.error = null;
     },
 
-    // Clear wishlist (local only)
-    clearWishlistLocal: (state) => {
+    // Reset wishlist to initial state
+    resetWishlist: (state) => {
       state.items = [];
-      state.wishlistMap = {};
+      state.isLoading = false;
       state.error = null;
     },
   },
@@ -138,16 +135,14 @@ const wishlistSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchWishlist.fulfilled, (state, action) => {
+        state.items = action.payload;
         state.isLoading = false;
-        state.items = action.payload.map((item) => item.listings);
-        state.wishlistMap = action.payload.reduce((acc, item) => {
-          acc[item.listing_id] = item.id;
-          return acc;
-        }, {} as Record<string, string>);
+        state.error = null;
       })
       .addCase(fetchWishlist.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+        showErrorToast((action.payload as string) || 'Failed to fetch wishlist');
       });
 
     // Add to wishlist
@@ -157,16 +152,14 @@ const wishlistSlice = createSlice({
         state.error = null;
       })
       .addCase(addToWishlistAsync.fulfilled, (state, action) => {
+        state.items = action.payload;
         state.isLoading = false;
-        state.items = action.payload.map((item) => item.listings);
-        state.wishlistMap = action.payload.reduce((acc, item) => {
-          acc[item.listing_id] = item.id;
-          return acc;
-        }, {} as Record<string, string>);
+        state.error = null;
       })
       .addCase(addToWishlistAsync.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+        showErrorToast((action.payload as string) || 'Failed to add to wishlist');
       });
 
     // Remove from wishlist
@@ -175,35 +168,30 @@ const wishlistSlice = createSlice({
         state.error = null;
       })
       .addCase(removeFromWishlistAsync.fulfilled, (state, action) => {
-        const listingId = action.payload;
-        state.items = state.items.filter((item) => item.id !== listingId);
-        delete state.wishlistMap[listingId];
+        state.items = action.payload;
+        state.error = null;
       })
       .addCase(removeFromWishlistAsync.rejected, (state, action) => {
         state.error = action.payload as string;
+        showErrorToast((action.payload as string) || 'Failed to remove from wishlist');
       });
 
     // Toggle wishlist
     builder
       .addCase(toggleWishlistAsync.pending, (state) => {
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(toggleWishlistAsync.fulfilled, (state, action) => {
-        if (action.payload.action === 'remove') {
-          const listingId = action.payload.listingId;
-          state.items = state.items.filter((item) => item.id !== listingId);
-          delete state.wishlistMap[listingId];
-        } else {
-          state.items = action.payload.items.map((item) => item.listings);
-          state.wishlistMap = action.payload.items.reduce((acc, item) => {
-            acc[item.listing_id] = item.id;
-            return acc;
-          }, {} as Record<string, string>);
-        }
+        state.items = action.payload.items;
+        state.isLoading = false;
+        state.error = null;
       })
       .addCase(toggleWishlistAsync.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload as string;
-      });
+        showErrorToast((action.payload as string) || 'Failed to toggle wishlist');
+      }); 
 
     // Clear wishlist
     builder
@@ -212,17 +200,18 @@ const wishlistSlice = createSlice({
         state.error = null;
       })
       .addCase(clearWishlistAsync.fulfilled, (state) => {
-        state.isLoading = false;
         state.items = [];
-        state.wishlistMap = {};
+        state.isLoading = false;
+        state.error = null;
       })
       .addCase(clearWishlistAsync.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+        showErrorToast((action.payload as string) || 'Failed to clear wishlist');
       });
   },
 });
 
-export const { setLoading, setError, clearError, clearWishlistLocal } = wishlistSlice.actions;
+export const { setLoading, setError, clearError, resetWishlist } = wishlistSlice.actions;
 
 export default wishlistSlice.reducer;

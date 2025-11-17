@@ -119,10 +119,11 @@ export default function StartStreamScreen() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!user) {
-      router.replace('/(auth)' as any);
+      const currentPath = `/stream/start/${id}`;
+      router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}` as any);
       return;
     }
-  }, [user]);
+  }, [user, id]);
 
   // Load stream data
   useEffect(() => {
@@ -482,7 +483,7 @@ export default function StartStreamScreen() {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
       </SafeAreaView>
     );
@@ -500,12 +501,8 @@ export default function StartStreamScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        style={styles.container}
-      >
-        {/* Full Screen Video Container */}
+      {/* Full Screen Video Container */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
         <View className="flex-1 bg-white relative">
           {/* Video Player - Full Screen */}
           <View className="absolute inset-0 w-full h-full">
@@ -578,38 +575,36 @@ export default function StartStreamScreen() {
 
           {/* Top Overlay - Live Indicator & Viewers */}
           <View className="absolute top-0 left-0 right-0">
-            <SafeAreaView edges={['top']}>
-              <View className="flex-row items-center justify-between gap-2 px-5 py-4">
-                <View className="flex-row items-center gap-2">
-                  {isLive && (
-                    <View className="flex-row items-center gap-2 px-4 py-2 rounded-full bg-red-500 border border-red-500">
-                      <View className="w-2.5 h-2.5 rounded-full bg-white" />
-                      <Text className="text-sm font-inter-bold text-white tracking-wider uppercase">LIVE</Text>
-                    </View>
-                  )}
-                  {isLive && (
-                    <View className="flex-row items-center gap-2 px-4 py-2 rounded-full bg-black/20 border border-black/30">
-                      <Feather name="users" size={16} color="#fff" />
-                      <Text className="text-sm font-inter-semibold text-white">{viewerCount}</Text>
-                    </View>
-                  )}
-                </View>
-                <View className="flex-row items-center gap-2">
-                  <TouchableOpacity
-                    onPress={handleShareStream}
-                    className="p-3 rounded-xl shadow-xl bg-gray-100 border border-gray-200 active:bg-gray-200"
-                  >
-                    <Feather name="share-2" size={16} color="#000" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setShowControls(!showControls)}
-                    className="p-3 rounded-xl shadow-xl bg-gray-100 border border-gray-200 active:bg-gray-200"
-                  >
-                    <Feather name="settings" size={16} color="#000" />
-                  </TouchableOpacity>
-                </View>
+            <View className="flex-row items-center justify-between gap-2 p-4">
+              <View className="flex-row items-center gap-2">
+                {isLive && (
+                  <View className="flex-row items-center gap-2 px-4 py-2 rounded-full bg-red-500 border border-red-500">
+                    <View className="w-2.5 h-2.5 rounded-full bg-white" />
+                    <Text className="text-sm font-inter-bold text-white tracking-wider uppercase">LIVE</Text>
+                  </View>
+                )}
+                {isLive && (
+                  <View className="flex-row items-center gap-2 px-4 py-2 rounded-full bg-black/20 border border-black/30">
+                    <Feather name="users" size={16} color="#fff" />
+                    <Text className="text-sm font-inter-semibold text-white">{viewerCount}</Text>
+                  </View>
+                )}
               </View>
-            </SafeAreaView>
+              <View className="flex-row items-center gap-2">
+                <TouchableOpacity
+                  onPress={handleShareStream}
+                  className="p-3 rounded-xl shadow-xl bg-gray-100 border border-gray-200 active:bg-gray-200"
+                >
+                  <Feather name="share-2" size={16} color="#000" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setShowControls(!showControls)}
+                  className="p-3 rounded-xl shadow-xl bg-gray-100 border border-gray-200 active:bg-gray-200"
+                >
+                  <Feather name="settings" size={16} color="#000" />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           {/* Auction/Buying Overlay - Bottom Center - Enhanced Design */}
@@ -693,12 +688,14 @@ export default function StartStreamScreen() {
             </View>
           )}
 
-          {/* Chat Overlay - Right Side (Collapsible) - Enhanced Design */}
-          {showChat && (
-            <View className="absolute right-0 top-0 bottom-0 w-full z-20">
-              <LiveChat streamId={currentStreamId} onClose={() => setShowChat(false)} />
-            </View>
-          )}
+          {/* Chat Overlay - Full Screen - Enhanced Design */}
+          {/* Keep LiveChat mounted to maintain RTM connection */}
+          <View
+            className={`absolute inset-0 z-20 ${showChat ? '' : 'pointer-events-none'}`}
+            style={{ display: showChat ? 'flex' : 'none' }}
+          >
+            <LiveChat streamId={currentStreamId} onClose={() => setShowChat(false)} isVisible={showChat} />
+          </View>
 
           {/* Bottom Controls Overlay - Enhanced Design */}
           <View className="absolute bottom-0 left-0 right-0 z-10">
@@ -758,9 +755,11 @@ export default function StartStreamScreen() {
             </View>
           </View>
         </View>
+      </KeyboardAvoidingView>
 
-        {/* Stream Controls Drawer Modal - Enhanced Design */}
-        <Modal visible={showControls} animationType="slide" transparent onRequestClose={() => setShowControls(false)}>
+      {/* Stream Controls Drawer Modal - Enhanced Design */}
+      <Modal visible={showControls} animationType="slide" transparent onRequestClose={() => setShowControls(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
           <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowControls(false)}>
             <Pressable className="bg-white rounded-t-2xl max-h-[90%]" onPress={(e) => e.stopPropagation()}>
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
@@ -1015,15 +1014,17 @@ export default function StartStreamScreen() {
               </ScrollView>
             </Pressable>
           </Pressable>
-        </Modal>
+        </KeyboardAvoidingView>
+      </Modal>
 
-        {/* Show Features Modal - Enhanced Design */}
-        <Modal
-          visible={showFeaturesModal}
-          animationType="slide"
-          transparent
-          onRequestClose={() => setShowFeaturesModal(false)}
-        >
+      {/* Show Features Modal - Enhanced Design */}
+      <Modal
+        visible={showFeaturesModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowFeaturesModal(false)}
+      >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
           <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowFeaturesModal(false)}>
             <Pressable className="bg-white rounded-t-2xl max-h-[60%]" onPress={(e) => e.stopPropagation()}>
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
@@ -1094,15 +1095,17 @@ export default function StartStreamScreen() {
               </ScrollView>
             </Pressable>
           </Pressable>
-        </Modal>
+        </KeyboardAvoidingView>
+      </Modal>
 
-        {/* Price Settings Modal - Enhanced Design */}
-        <Modal
-          visible={showPriceSettings}
-          animationType="slide"
-          transparent
-          onRequestClose={() => setShowPriceSettings(false)}
-        >
+      {/* Price Settings Modal - Enhanced Design */}
+      <Modal
+        visible={showPriceSettings}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowPriceSettings(false)}
+      >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
           <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowPriceSettings(false)}>
             <Pressable className="bg-white rounded-t-2xl max-h-[60%]" onPress={(e) => e.stopPropagation()}>
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
@@ -1150,15 +1153,17 @@ export default function StartStreamScreen() {
               </ScrollView>
             </Pressable>
           </Pressable>
-        </Modal>
+        </KeyboardAvoidingView>
+      </Modal>
 
-        {/* Duration Settings Modal - Enhanced Design */}
-        <Modal
-          visible={showDurationSettings}
-          animationType="slide"
-          transparent
-          onRequestClose={() => setShowDurationSettings(false)}
-        >
+      {/* Duration Settings Modal - Enhanced Design */}
+      <Modal
+        visible={showDurationSettings}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowDurationSettings(false)}
+      >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
           <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowDurationSettings(false)}>
             <Pressable className="bg-white rounded-t-2xl max-h-[60%]" onPress={(e) => e.stopPropagation()}>
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
@@ -1208,8 +1213,8 @@ export default function StartStreamScreen() {
               </ScrollView>
             </Pressable>
           </Pressable>
-        </Modal>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }

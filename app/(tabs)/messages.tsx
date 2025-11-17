@@ -2,19 +2,29 @@ import { Conversation, messagesService } from '@/api';
 import SearchBar from '@/components/search-bar';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { router, useSegments } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
 
 export default function MessagesScreen() {
+  const { isAuthenticated, user } = useAuth();
+  const segments = useSegments();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setTimeout(() => {
+        const currentPath = '/' + segments.join('/');
+        router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+      }, 0);
+    }
+  }, [isAuthenticated, segments]);
 
   useEffect(() => {
     if (user?.id) {
@@ -23,7 +33,7 @@ export default function MessagesScreen() {
   }, [user?.id]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       if (user?.id) {
         loadConversations();
       }
@@ -100,6 +110,10 @@ export default function MessagesScreen() {
     return userName.includes(searchLower) || subject.includes(searchLower) || lastMessage.includes(searchLower);
   });
 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <SafeAreaView className="flex-1 mb-14 bg-white">
       {/* Header with Search */}
@@ -109,13 +123,13 @@ export default function MessagesScreen() {
       {isLoading ? (
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading conversations...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading conversations...</Text>
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading conversations</Text>
-          <TouchableOpacity onPress={loadConversations} className="bg-black rounded-lg py-3 px-6">
+          <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">Error loading conversations</Text>
+          <TouchableOpacity onPress={loadConversations} className="px-6 py-3 rounded-lg bg-black">
             <Text className="text-base font-inter-bold text-white">Retry</Text>
           </TouchableOpacity>
         </View>

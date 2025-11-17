@@ -162,7 +162,7 @@ export default function StreamsScreen() {
 
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#000" />
-          <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading streams...</Text>
+          <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading streams...</Text>
         </View>
       </SafeAreaView>
     );
@@ -180,8 +180,8 @@ export default function StreamsScreen() {
 
         <View className="flex-1 items-center justify-center p-4">
           <Feather name="alert-circle" color="#ff4444" size={64} />
-          <Text className="my-4 text-lg font-inter-bold text-red-500">Error loading streams</Text>
-          <TouchableOpacity onPress={loadStreams} className="bg-black rounded-lg py-3 px-6">
+          <Text className="mt-2 mb-4 text-lg font-inter-bold text-red-500">Error loading streams</Text>
+          <TouchableOpacity onPress={loadStreams} className="px-6 py-3 rounded-lg bg-black">
             <Text className="text-base font-inter-bold text-white">Retry</Text>
           </TouchableOpacity>
         </View>
@@ -362,7 +362,7 @@ export default function StreamsScreen() {
                 <Text className="text-gray-600 text-base font-inter-bold mt-3 mb-2">No upcoming streams</Text>
                 <TouchableOpacity
                   onPress={() => router.push('/stream/schedule')}
-                  className="bg-black rounded-lg py-3 px-6 mt-3"
+                  className="px-6 py-3 rounded-lg bg-black mt-3"
                 >
                   <Text className="text-white text-base font-inter-bold">Schedule New Stream</Text>
                 </TouchableOpacity>
@@ -566,7 +566,7 @@ export default function StreamsScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => router.push('/stream/schedule')}
-                className="bg-black rounded-lg py-3 px-6"
+                className="px-6 py-3 rounded-lg bg-black"
               >
                 <Text className="text-white text-base font-inter-bold">Schedule Your First Stream</Text>
               </TouchableOpacity>

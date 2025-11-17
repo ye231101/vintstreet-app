@@ -132,7 +132,7 @@ export default function AddressesScreen() {
         <View className="flex-1">
           <View className="flex-1 items-center justify-center p-4">
             <ActivityIndicator size="large" color="#000" />
-            <Text className="mt-3 text-base font-inter-bold text-gray-600">Loading addresses...</Text>
+            <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading addresses...</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -164,7 +164,7 @@ export default function AddressesScreen() {
               <Text className="text-gray-600 text-sm font-inter text-center mb-6">
                 Add your first address to make checkout faster
               </Text>
-              <TouchableOpacity onPress={addAddress} className="bg-black rounded-lg py-3 px-6 flex-row items-center">
+              <TouchableOpacity onPress={addAddress} className="px-6 py-3 rounded-lg bg-black flex-row items-center">
                 <Feather name="plus" size={18} color="#fff" />
                 <Text className="ml-2 text-white text-base font-inter-bold">Add Address</Text>
               </TouchableOpacity>
