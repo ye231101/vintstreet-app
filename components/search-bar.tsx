@@ -1,10 +1,20 @@
-import { listingsService } from '@/api';
+import { AlgoliaBrand, AlgoliaCategory, AlgoliaProduct, AlgoliaQuerySuggestion } from '@/api';
+import {
+  brandsIndex,
+  brandsQuerySuggestionsIndex,
+  categoriesIndex,
+  categoriesQuerySuggestionsIndex,
+  productsIndex,
+  productsQuerySuggestionsIndex,
+  searchClient,
+} from '@/api/config/algolia';
 import { useAuth } from '@/hooks/use-auth';
 import { addRecentSearch, getRecentSearches, removeRecentSearch } from '@/utils';
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router, useSegments } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Keyboard, Pressable, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, SectionList, Text, TextInput, View } from 'react-native';
 
 export interface SearchBarProps {
   placeholder?: string;
@@ -13,17 +23,34 @@ export interface SearchBarProps {
   onSearch?: (text: string) => void;
 }
 
-interface Suggestion {
-  type: 'product' | 'brand' | 'recent';
+interface SuggestionItem {
+  type: 'product' | 'brand' | 'category' | 'recent' | 'query_suggestion';
   value: string;
   id?: string;
+  data?: AlgoliaProduct | AlgoliaBrand | AlgoliaCategory | AlgoliaQuerySuggestion;
+  imageUrl?: string;
+  description?: string;
 }
+
+interface SuggestionSection {
+  title: string;
+  data: SuggestionItem[];
+  type: 'recent' | 'brands' | 'categories' | 'products' | 'query_suggestions';
+}
+
+// Helper function to highlight text
+const highlightText = (text: string, query: string): string => {
+  if (!text || !query) return text;
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedQuery})`, 'gi');
+  return text.replace(regex, '**$1**'); // Mark for highlighting
+};
 
 const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value, onChangeText, onSearch }) => {
   const segments = useSegments();
   const { isAuthenticated } = useAuth();
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<SuggestionSection[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -31,17 +58,136 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
   const loadRecentSearches = useCallback(async () => {
     try {
       const recentSearches = await getRecentSearches();
-      const recentSuggestions: Suggestion[] = recentSearches.map((search) => ({
-        type: 'recent',
-        value: search,
-      }));
-      setSuggestions(recentSuggestions);
+      if (recentSearches.length > 0) {
+        const recentSuggestions: SuggestionItem[] = recentSearches.slice(0, 5).map((search) => ({
+          type: 'recent',
+          value: search,
+        }));
+        setSuggestions([
+          {
+            title: 'Recent Searches',
+            data: recentSuggestions,
+            type: 'recent',
+          },
+        ]);
+      } else {
+        setSuggestions([]);
+      }
     } catch (error) {
       console.error('Error loading recent searches:', error);
     }
   }, []);
 
-  // Fetch suggestions from API
+  // Search Algolia indices
+  const searchAlgolia = useCallback(async (query: string) => {
+    if (!searchClient || !query || query.trim().length < 2) {
+      return {
+        brands: [],
+        categories: [],
+        products: [],
+        querySuggestions: [],
+      };
+    }
+
+    const searchQuery = query.trim();
+    const results = {
+      brands: [] as AlgoliaBrand[],
+      categories: [] as AlgoliaCategory[],
+      products: [] as AlgoliaProduct[],
+      querySuggestions: [] as AlgoliaQuerySuggestion[],
+    };
+
+    try {
+      // Search brands
+      const brandsResponse = await searchClient.searchSingleIndex({
+        indexName: brandsIndex.indexName,
+        searchParams: {
+          query: searchQuery,
+          hitsPerPage: 5,
+          filters: 'is_active:true',
+        },
+      });
+      if (brandsResponse.hits) {
+        results.brands = brandsResponse.hits as AlgoliaBrand[];
+      }
+
+      // Search categories
+      const categoriesResponse = await searchClient.searchSingleIndex({
+        indexName: categoriesIndex.indexName,
+        searchParams: {
+          query: searchQuery,
+          hitsPerPage: 5,
+          filters: 'is_active:true',
+        },
+      });
+      if (categoriesResponse.hits) {
+        results.categories = categoriesResponse.hits as AlgoliaCategory[];
+      }
+
+      // Search products
+      const productsResponse = await searchClient.searchSingleIndex({
+        indexName: productsIndex.indexName,
+        searchParams: {
+          query: searchQuery,
+          hitsPerPage: 5,
+          filters: 'status:published',
+        },
+      });
+      if (productsResponse.hits) {
+        results.products = productsResponse.hits as AlgoliaProduct[];
+      }
+
+      // Get query suggestions (only if query exists)
+      if (searchQuery.length >= 2) {
+        try {
+          // Try brands query suggestions
+          const brandsQSResponse = await searchClient.searchSingleIndex({
+            indexName: brandsQuerySuggestionsIndex.indexName,
+            searchParams: {
+              query: searchQuery,
+              hitsPerPage: 3,
+            },
+          });
+          if (brandsQSResponse.hits) {
+            results.querySuggestions.push(...(brandsQSResponse.hits as AlgoliaQuerySuggestion[]));
+          }
+
+          // Try categories query suggestions
+          const categoriesQSResponse = await searchClient.searchSingleIndex({
+            indexName: categoriesQuerySuggestionsIndex.indexName,
+            searchParams: {
+              query: searchQuery,
+              hitsPerPage: 3,
+            },
+          });
+          if (categoriesQSResponse.hits) {
+            results.querySuggestions.push(...(categoriesQSResponse.hits as AlgoliaQuerySuggestion[]));
+          }
+
+          // Try products query suggestions
+          const productsQSResponse = await searchClient.searchSingleIndex({
+            indexName: productsQuerySuggestionsIndex.indexName,
+            searchParams: {
+              query: searchQuery,
+              hitsPerPage: 3,
+            },
+          });
+          if (productsQSResponse.hits) {
+            results.querySuggestions.push(...(productsQSResponse.hits as AlgoliaQuerySuggestion[]));
+          }
+        } catch (error) {
+          // Query suggestions are optional, so we don't fail if they're not configured
+          console.log('Query suggestions not available:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error searching Algolia:', error);
+    }
+
+    return results;
+  }, []);
+
+  // Fetch suggestions from Algolia
   const fetchSuggestions = useCallback(
     async (searchTerm: string) => {
       if (!searchTerm || searchTerm.trim().length < 2) {
@@ -51,9 +197,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
 
       try {
         setIsLoadingSuggestions(true);
-        const apiSuggestions = await listingsService.getSearchSuggestions(searchTerm.trim(), 20);
 
-        // Also get recent searches that match
+        // Get recent searches that match
         const recentSearches = await getRecentSearches();
         const matchingRecent = recentSearches
           .filter((search) => search.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -63,9 +208,95 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
             value: search,
           }));
 
-        // Combine recent and API suggestions, prioritizing recent
-        const combinedSuggestions = [...matchingRecent, ...apiSuggestions].slice(0, 20);
-        setSuggestions(combinedSuggestions);
+        // Search Algolia
+        const algoliaResults = await searchAlgolia(searchTerm);
+
+        // Build sections
+        const sections: SuggestionSection[] = [];
+
+        // Recent searches section
+        if (matchingRecent.length > 0) {
+          sections.push({
+            title: 'Recent Searches',
+            data: matchingRecent,
+            type: 'recent',
+          });
+        }
+
+        // Query suggestions section
+        if (algoliaResults.querySuggestions.length > 0) {
+          const uniqueQueries = new Set<string>();
+          const querySuggestions: SuggestionItem[] = [];
+          for (const suggestion of algoliaResults.querySuggestions) {
+            if (suggestion.query && !uniqueQueries.has(suggestion.query.toLowerCase())) {
+              uniqueQueries.add(suggestion.query.toLowerCase());
+              querySuggestions.push({
+                type: 'query_suggestion',
+                value: suggestion.query,
+                data: suggestion,
+              });
+              if (querySuggestions.length >= 5) break;
+            }
+          }
+          if (querySuggestions.length > 0) {
+            sections.push({
+              title: 'Suggestions',
+              data: querySuggestions,
+              type: 'query_suggestions',
+            });
+          }
+        }
+
+        // Brands section
+        if (algoliaResults.brands.length > 0) {
+          sections.push({
+            title: 'Brands',
+            data: algoliaResults.brands.map((brand) => ({
+              type: 'brand' as const,
+              value: brand.name,
+              id: brand.objectID,
+              data: brand,
+              imageUrl: brand.logo_url,
+              description: brand.description,
+            })),
+            type: 'brands',
+          });
+        }
+
+        // Categories section
+        if (algoliaResults.categories.length > 0) {
+          sections.push({
+            title: 'Categories',
+            data: algoliaResults.categories.map((category) => ({
+              type: 'category' as const,
+              value: category.name,
+              id: category.objectID,
+              data: category,
+              description: category.category_path_names
+                ? category.category_path_names.slice(0, -1).join(' > ')
+                : category.description,
+            })),
+            type: 'categories',
+          });
+        }
+
+        // Products section
+        if (algoliaResults.products.length > 0) {
+          sections.push({
+            title: 'Products',
+            data: algoliaResults.products.map((product) => ({
+              type: 'product' as const,
+              value: product.product_name,
+              id: product.objectID,
+              data: product,
+              imageUrl: product.product_image,
+              description: product.product_description,
+            })),
+            type: 'products',
+          });
+        }
+
+        setSuggestions(sections);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
         setSuggestions([]);
@@ -73,7 +304,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
         setIsLoadingSuggestions(false);
       }
     },
-    [loadRecentSearches]
+    [loadRecentSearches, searchAlgolia]
   );
 
   // Debounced search suggestions
@@ -103,20 +334,35 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
   };
 
   const handleBlur = () => {
-    setShowSuggestions(false);
-    Keyboard.dismiss();
+    // Delay to allow press events to fire
+    setTimeout(() => {
+      setShowSuggestions(false);
+      Keyboard.dismiss();
+    }, 150);
   };
 
-  const handleSuggestionPress = async (suggestion: Suggestion) => {
-    onChangeText?.(suggestion.value);
+  const handleSuggestionPress = async (item: SuggestionItem) => {
+    const searchValue = item.value;
+    onChangeText?.(searchValue);
     setShowSuggestions(false);
     Keyboard.dismiss();
 
     // Add to recent searches
-    await addRecentSearch(suggestion.value);
+    await addRecentSearch(searchValue);
 
-    // Trigger search
-    onSearch?.(suggestion.value);
+    // Navigate based on type
+    if (item.type === 'brand' && item.data) {
+      const brand = item.data as AlgoliaBrand;
+      router.push(`/(tabs)/discovery?brandName=${encodeURIComponent(brand.name.toLowerCase())}` as any);
+    } else if (item.type === 'category' && item.data) {
+      const category = item.data as AlgoliaCategory;
+      router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as any);
+    } else if (item.type === 'product' && item.data) {
+      const product = item.data as AlgoliaProduct;
+      router.push(`/product/${product.objectID}` as any);
+    } else {
+      router.push(`/(tabs)/discovery?search=${encodeURIComponent(searchValue)}` as any);
+    }
   };
 
   const handleRemoveRecent = async (searchTerm: string, event: any) => {
@@ -158,30 +404,78 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
         return 'package';
       case 'brand':
         return 'tag';
+      case 'category':
+        return 'grid';
       case 'recent':
         return 'clock';
+      case 'query_suggestion':
+        return 'search';
       default:
         return 'search';
     }
   };
 
-  const renderSuggestion = ({ item }: { item: Suggestion }) => (
-    <Pressable
-      className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 active:bg-gray-50"
-      onPress={() => handleSuggestionPress(item)}
-    >
-      <View className="flex-1 flex-row items-center">
-        <Feather name={getSuggestionIcon(item.type)} size={18} color="#666" />
-        <Text className="ml-3 text-base font-inter-medium text-gray-900 flex-1" numberOfLines={1}>
-          {item.value}
-        </Text>
+  const renderSuggestionItem = ({ item }: { item: SuggestionItem }) => {
+    const highlightedValue = highlightText(item.value, value || '');
+    const parts = highlightedValue.split('**');
+    const displayText = parts.map((part, index) => {
+      if (index % 2 === 1) {
+        // This is the highlighted part
+        return (
+          <Text key={index} className="font-bold bg-yellow-200">
+            {part}
+          </Text>
+        );
+      }
+      return <Text key={index}>{part}</Text>;
+    });
+
+    return (
+      <Pressable
+        className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 active:bg-gray-50"
+        onPress={() => handleSuggestionPress(item)}
+      >
+        <View className="flex-1 flex-row items-center">
+          {item.imageUrl ? (
+            <View className="w-10 h-10 rounded overflow-hidden">
+              <Image
+                source={{ uri: item.imageUrl }}
+                contentFit="cover"
+                transition={1000}
+                style={{ width: '100%', height: '100%' }}
+              />
+            </View>
+          ) : (
+            <View className="w-10 h-10 items-center justify-center rounded overflow-hidden bg-gray-200">
+              <Feather name={getSuggestionIcon(item.type)} size={18} color="#666" />
+            </View>
+          )}
+          <View className="flex-1 ml-4">
+            <Text className="text-base font-inter-medium text-gray-900" numberOfLines={1}>
+              {displayText}
+            </Text>
+            {item.description && (
+              <Text className="text-sm text-gray-500 mt-1" numberOfLines={1}>
+                {item.description}
+              </Text>
+            )}
+          </View>
+        </View>
+        {item.type === 'recent' && (
+          <Pressable onPress={(e) => handleRemoveRecent(item.value, e)} className="p-1">
+            <Feather name="x" size={16} color="#999" />
+          </Pressable>
+        )}
+      </Pressable>
+    );
+  };
+
+  const renderSectionHeader = ({ section }: { section: SuggestionSection }) => (
+    <View className="w-full py-2 bg-primary/5 border-b border-gray-200">
+      <View className="flex-row items-center gap-2 px-3">
+        <Text className="text-base font-semibold text-primary uppercase">{section.title}</Text>
       </View>
-      {item.type === 'recent' && (
-        <Pressable onPress={(e) => handleRemoveRecent(item.value, e)} className="p-1">
-          <Feather name="x" size={16} color="#999" />
-        </Pressable>
-      )}
-    </Pressable>
+    </View>
   );
 
   return (
@@ -240,10 +534,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
             overflow: 'hidden',
           }}
         >
-          <FlatList
-            data={suggestions}
+          <SectionList
+            sections={suggestions}
             keyExtractor={(item, index) => `${item.type}-${item.value}-${index}`}
-            renderItem={renderSuggestion}
+            renderItem={renderSuggestionItem}
+            renderSectionHeader={renderSectionHeader}
             keyboardShouldPersistTaps="handled"
             nestedScrollEnabled={true}
             scrollEnabled={true}

@@ -21,7 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DiscoveryScreen() {
   const router = useRouter();
-  const { category, brand, brandName, subcategory, sub_subcategory } = useLocalSearchParams();
+  const { category, brand, brandName, subcategory, sub_subcategory, search } = useLocalSearchParams();
   const [searchText, setSearchText] = useState('');
   const [categoryPath, setCategoryPath] = useState<Category[]>([]);
   const [currentView, setCurrentView] = useState<'categories' | 'subcategories' | 'products'>('categories');
@@ -96,6 +96,14 @@ export default function DiscoveryScreen() {
 
     loadInitialData();
   }, []);
+
+  useEffect(() => {
+    if (search && typeof search === 'string' && search.trim()) {
+      setSearchText(search.trim());
+      setShowSearchResults(true);
+      setCurrentPage(1);
+    }
+  }, [search]);
 
   // When page changes, reload the visible data for the current context
   useEffect(() => {
