@@ -1,6 +1,7 @@
 import { CartItem, ShippingOption, shippingService } from '@/api';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash, formatPrice } from '@/utils';
+import { getStorageValue, setStorageValue } from '@/utils/storage';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -8,14 +9,61 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const COUNTRIES = [
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'FI', name: 'Finland' },
+];
+
 export default function CartScreen() {
   const { items, isLoading, error, removeItem, clearCart, refreshCart } = useCart();
+
+  const [shippingCountry, setShippingCountry] = useState<string>('');
+  const [showCountryDialog, setShowCountryDialog] = useState(false);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
   const [shippingOptions, setShippingOptions] = useState<Record<string, ShippingOption[]>>({});
   const [selectedShipping, setSelectedShipping] = useState<Record<string, string>>({});
   const [shippingLoading, setShippingLoading] = useState(false);
+
+  useEffect(() => {
+    const loadShippingCountry = async () => {
+      try {
+        const savedCountry = await getStorageValue('SHIPPING_COUNTRY');
+        if (savedCountry) {
+          setShippingCountry(savedCountry);
+        } else {
+          setShowCountryDialog(true);
+        }
+      } catch (error) {
+        console.error('Error loading shipping country:', error);
+      }
+    };
+    loadShippingCountry();
+  }, []);
+
+  const handleCountryChange = async (countryCode: string) => {
+    setShippingCountry(countryCode);
+    try {
+      await setStorageValue('SHIPPING_COUNTRY', countryCode);
+    } catch (error) {
+      console.error('Error saving shipping country:', error);
+    }
+    setShowCountryDialog(false);
+  };
 
   const handleRefreshCart = async () => {
     if (isRefreshing) return;
@@ -354,6 +402,29 @@ export default function CartScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <View className="flex-1 gap-4 p-4">
+          {/* Shipping Destination Banner */}
+          {items && items.length > 0 && (
+            <View className="p-4 border border-gray-200 bg-gray-50 rounded-lg">
+              <View className="flex-row items-center justify-between gap-4">
+                <View className="flex-row items-center gap-3 flex-1">
+                  <Feather name="check-circle" size={20} color="#16a34a" />
+                  <View className="flex-1">
+                    <Text className="text-sm font-inter-semibold text-gray-600">Shipping to</Text>
+                    <Text className="text-base font-inter-bold text-gray-900">
+                      {COUNTRIES.find((country) => country.code === shippingCountry)?.name || 'Select a country'}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setShowCountryDialog(true)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white"
+                >
+                  <Text className="text-sm font-inter-bold text-gray-700">Change</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
           {Object.entries(sellerGroups).map(([sellerId, sellerData]) => (
             <SellerGroupSection
               key={sellerId}
@@ -365,9 +436,42 @@ export default function CartScreen() {
         </View>
       </ScrollView>
 
+      {/* Shipping Country Selection Modal */}
+      <Modal
+        visible={showCountryDialog}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCountryDialog(false)}
+      >
+        <View className="flex-1 bg-black/50 items-center justify-center p-4">
+          <View className="bg-white rounded-xl p-4 w-full max-w-sm">
+            <Text className="text-lg font-inter-bold text-black mb-2 text-center">Select Shipping Destination</Text>
+            <Text className="text-sm font-inter-semibold text-gray-600 mb-4 text-center">
+              Please select your shipping country to see available shipping options
+            </Text>
+            <ScrollView className="max-h-96">
+              <View className="flex-col gap-2">
+                {COUNTRIES.map((country) => (
+                  <TouchableOpacity
+                    key={country.code}
+                    onPress={() => handleCountryChange(country.code)}
+                    className={`flex-row items-center justify-between p-4 border rounded-lg ${
+                      shippingCountry === country.code ? 'border-black bg-black/10' : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <Text className="text-base font-inter-semibold text-gray-800">{country.name}</Text>
+                    {shippingCountry === country.code && <Feather name="check" size={20} color="#000" />}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       <Modal visible={showClearModal} transparent animationType="fade" onRequestClose={() => setShowClearModal(false)}>
-        <View className="flex-1 bg-black/50 items-center justify-center p-5">
-          <View className="bg-white rounded-xl p-6 w-full max-w-sm">
+        <View className="flex-1 bg-black/50 items-center justify-center p-4">
+          <View className="bg-white rounded-xl p-4 w-full max-w-sm">
             <Text className="text-lg font-inter-bold text-black mb-4 text-center">Clear Cart</Text>
             <Text className="text-base font-inter-semibold text-gray-600 mb-6 text-center">
               Are you sure you want to remove all items from your cart?

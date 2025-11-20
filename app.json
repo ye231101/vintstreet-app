@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Vint Street",
-    "slug": "vint-street-app",
+    "slug": "vintstreet-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,6 +11,7 @@
     "ios": {
       "bundleIdentifier": "com.vintstreet.app",
       "buildNumber": "1.0.0",
+      "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
@@ -18,14 +19,13 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "This app needs access to your camera to take photos.",
         "NSMicrophoneUsageDescription": "This app needs access to your microphone to record audio."
-      },
-      "supportsTablet": true
+      }
     },
     "android": {
       "package": "com.vintstreet.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -81,7 +81,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "70b76b4e-a9c8-42e6-8e6d-459ced2be5d0"
+        "projectId": "2c53d584-0f55-4b07-a56d-8b58c74a98e4"
       }
     }
   }
