@@ -120,7 +120,7 @@ class ShippingService {
     try {
       const { data, error } = await supabase
         .from('shipping_options')
-        .select('*')
+        .select('*, shipping_providers(name, description, display_order)')
         .eq('seller_id', sellerId)
         .eq('is_active', true);
 
@@ -129,6 +129,52 @@ class ShippingService {
     } catch (error) {
       console.error('Error fetching seller shipping options for buyer:', error);
       throw new Error('Failed to fetch shipping options');
+    }
+  }
+
+  /**
+   * Generate shipping label for an order
+   * @param orderId - The order ID
+   * @param shippingAddress - The shipping address data
+   * @param shippingOptionId - The selected shipping option ID
+   */
+  async generateShippingLabel(
+    orderId: string,
+    shippingAddress: {
+      first_name: string;
+      last_name: string;
+      address_line1: string;
+      address_line2?: string;
+      city: string;
+      state?: string;
+      postal_code: string;
+      country: string;
+      phone?: string;
+      email?: string;
+    },
+    shippingOptionId: string
+  ): Promise<{ success: boolean; labelId?: string; trackingNumber?: string; error?: string }> {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-shipping-label', {
+        body: {
+          orderId: orderId,
+          shippingAddress: shippingAddress,
+          shippingOptionId: shippingOptionId,
+        },
+      });
+
+      if (error) {
+        console.error('Error generating shipping label:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, ...data };
+    } catch (error) {
+      console.error('Error generating shipping label:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to generate shipping label',
+      };
     }
   }
 }
