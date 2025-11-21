@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash, formatPrice } from '@/utils';
+import { addRecentlyViewedProduct } from '@/utils/storage';
 import { showInfoToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -68,6 +69,11 @@ export default function ProductDetailScreen() {
       setError(null);
       const res = await listingsService.getListingById(String(id));
       setProduct(res);
+
+      // Add product to recently viewed
+      if (res?.id) {
+        await addRecentlyViewedProduct(res.id);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load product');
     } finally {

@@ -4,13 +4,16 @@ import { MegaMenuNav } from '@/components/mega-menu-nav';
 import ProductCard from '@/components/product-card';
 import QuickLinks from '@/components/quick-links';
 import SearchBar from '@/components/search-bar';
+import ShopBannerCarousel from '@/components/shop-banner-carousel';
 import TopCategory from '@/components/top-category';
 import { styles } from '@/styles';
+import { getStorageJSON } from '@/utils/storage';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
@@ -22,6 +25,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const { width: screenWidth } = Dimensions.get('window');
+
 export default function HomeScreen() {
   const PRODUCTS_PER_PAGE = 10;
   const [products, setProducts] = useState<Product[]>([]);
@@ -32,6 +37,10 @@ export default function HomeScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageInput, setPageInput] = useState('1');
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
+  const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
+  const [recentlyViewedProducts, setRecentlyViewedProducts] = useState<Product[]>([]);
+  const [isLoadingRecentlyViewed, setIsLoadingRecentlyViewed] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -43,6 +52,13 @@ export default function HomeScreen() {
       fetchProducts();
     }
   }, [searchKeyword]);
+
+  // Refresh recently viewed and recommended products when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchRecommendedProducts();
+    }, [])
+  );
 
   const fetchProducts = async (keyword?: string) => {
     try {
@@ -81,7 +97,7 @@ export default function HomeScreen() {
       setRefreshing(true);
       setCurrentPage(1);
       setError(null);
-      await fetchProducts();
+      await Promise.all([fetchProducts(), fetchRecommendedProducts()]);
     } catch (err) {
       console.error('Error refreshing:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh products');
@@ -123,6 +139,42 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchRecommendedProducts = async () => {
+    try {
+      setIsLoadingRecentlyViewed(true);
+      setIsLoadingRecommended(true);
+
+      // Get recently viewed products from AsyncStorage
+      const recentlyViewedIds = await getStorageJSON('RECENTLY_VIEWED_PRODUCTS');
+      if (!recentlyViewedIds || !Array.isArray(recentlyViewedIds) || recentlyViewedIds.length === 0) {
+        setRecentlyViewedProducts([]);
+        setRecommendedProducts([]);
+        return;
+      }
+
+      // Fetch recently viewed products by their IDs
+      const recentlyViewedIdsSlice = recentlyViewedIds.slice(0, 4);
+      const recentlyViewed = await listingsService.getProductsByIds(recentlyViewedIdsSlice);
+      setRecentlyViewedProducts(recentlyViewed);
+
+      if (recentlyViewed.length === 0) {
+        setRecommendedProducts([]);
+        return;
+      }
+
+      // Fetch recommended products based on recently viewed
+      const recommended = await listingsService.getRecommendedProducts(recentlyViewed, 8);
+      setRecommendedProducts(recommended);
+    } catch (err) {
+      console.error('Error loading recommended products:', err);
+      setRecentlyViewedProducts([]);
+      setRecommendedProducts([]);
+    } finally {
+      setIsLoadingRecentlyViewed(false);
+      setIsLoadingRecommended(false);
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 mb-14 bg-white">
       {/* Search Bar */}
@@ -143,6 +195,9 @@ export default function HomeScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
         >
           <View className="flex-1 gap-6 py-4">
+            {/* Shop Banner Carousel */}
+            <ShopBannerCarousel />
+
             {/* Quick Links Section */}
             <View className="gap-2 px-2">
               <Text className="text-sm font-inter-bold text-black">QUICK LINKS</Text>
@@ -160,6 +215,58 @@ export default function HomeScreen() {
               <Text className="text-sm font-inter-bold text-black">BRANDS YOU MAY LIKE</Text>
               <Brand />
             </View>
+
+            {/* Recently Viewed Products Section */}
+            {recentlyViewedProducts.length > 0 && (
+              <View className="gap-2 px-2">
+                <Text className="text-sm font-inter-bold text-black">RECENTLY VIEWED</Text>
+                {isLoadingRecentlyViewed ? (
+                  <View className="flex-row items-center justify-center py-4">
+                    <ActivityIndicator size="small" color="#000" />
+                    <Text className="ml-2 text-sm font-inter-medium text-gray-600">Loading recently viewed...</Text>
+                  </View>
+                ) : (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View className="flex-row gap-2">
+                      {recentlyViewedProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          onPress={() => router.push(`/product/${product.id}`)}
+                          width={(screenWidth / 5) * 2}
+                        />
+                      ))}
+                    </View>
+                  </ScrollView>
+                )}
+              </View>
+            )}
+
+            {/* Recommended Products Section */}
+            {recommendedProducts.length > 0 && (
+              <View className="gap-2 px-2">
+                <Text className="text-sm font-inter-bold text-black">WE THINK YOU'LL LIKE</Text>
+                {isLoadingRecommended ? (
+                  <View className="flex-row items-center justify-center py-4">
+                    <ActivityIndicator size="small" color="#000" />
+                    <Text className="ml-2 text-sm font-inter-medium text-gray-600">Loading recommendations...</Text>
+                  </View>
+                ) : (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View className="flex-row gap-2">
+                      {recommendedProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          onPress={() => router.push(`/product/${product.id}`)}
+                          width={(screenWidth / 5) * 2}
+                        />
+                      ))}
+                    </View>
+                  </ScrollView>
+                )}
+              </View>
+            )}
 
             {/* All Listings Section */}
             <View className="gap-2 px-2">
@@ -196,12 +303,9 @@ export default function HomeScreen() {
                 </View>
               )}
 
-              {/* Pagination Controls - Always visible */}
               {totalPages > 1 && (
                 <View className="mt-4">
-                  {/* Pagination Buttons */}
                   <View className="flex-row items-center justify-center gap-2">
-                    {/* Prev Arrow */}
                     <TouchableOpacity
                       onPress={goToPrevPage}
                       disabled={currentPage === 1 || isLoading}
@@ -212,7 +316,6 @@ export default function HomeScreen() {
                       </Text>
                     </TouchableOpacity>
 
-                    {/* Current Page Input / Total Pages */}
                     <View className="flex-row items-center gap-2">
                       <TextInput
                         value={pageInput}
@@ -228,7 +331,6 @@ export default function HomeScreen() {
                       <Text className="text-base font-inter-medium text-black">{totalPages}</Text>
                     </View>
 
-                    {/* Next Arrow */}
                     <TouchableOpacity
                       onPress={goToNextPage}
                       disabled={currentPage === totalPages || isLoading}
