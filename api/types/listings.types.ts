@@ -7,12 +7,14 @@ export interface Product {
   product_images: string[];
   product_description: string | null;
   seller_id: string;
+  stream_id?: string;
   category_id: string | null;
   subcategory_id: string | null;
   sub_subcategory_id: string | null;
   sub_sub_subcategory_id: string | null;
   brand_id: string | null;
   stock_quantity: number | null;
+  auction_type: 'marketplace' | 'timed';
   status: 'draft' | 'published' | 'private';
   created_at: string;
   product_categories: {

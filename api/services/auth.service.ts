@@ -519,7 +519,10 @@ class AuthService {
    * @param newPassword - New password to set
    * @returns Response with success status
    */
-  async updatePassword(currentPassword: string, newPassword: string): Promise<{ error: string | null; success: boolean }> {
+  async updatePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ error: string | null; success: boolean }> {
     try {
       // Get current user
       const {

@@ -1,4 +1,5 @@
-import { Stream, streamsService } from '@/api';
+import { streamsService } from '@/api/services';
+import { Stream } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';

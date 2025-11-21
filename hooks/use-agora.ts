@@ -1,4 +1,4 @@
-import { clearAgoraConfigCache, getAgoraConfig } from '@/api/config/agora';
+import { clearAgoraConfigCache, getAgoraConfig } from '@/api/config';
 import { useEffect, useRef, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import RtcEngine, {

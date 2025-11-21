@@ -1,4 +1,5 @@
-import { Product, WishlistItem, wishlistService } from '@/api';
+import { wishlistService } from '@/api/services';
+import { Product, WishlistItem } from '@/api/types';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -191,7 +192,7 @@ const wishlistSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
         showErrorToast((action.payload as string) || 'Failed to toggle wishlist');
-      }); 
+      });
 
     // Clear wishlist
     builder

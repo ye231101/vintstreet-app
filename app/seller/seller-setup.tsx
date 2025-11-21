@@ -1,4 +1,4 @@
-import { authService, sellerService } from '@/api';
+import { authService, sellerService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
 import { showToast } from '@/utils/toast';
@@ -315,10 +315,10 @@ export default function SellerSetupScreen() {
         {/* Header */}
         <View className="bg-white p-4">
           <View className="flex-row items-center justify-between">
-            <Pressable onPress={handleBack} className="p-2">
+            <Pressable onPress={handleBack} hitSlop={8}>
               <Feather name="arrow-left" size={24} color="#000" />
             </Pressable>
-            <Pressable onPress={handleClose} className="p-2">
+            <Pressable onPress={handleClose} hitSlop={8}>
               <Feather name="x" size={24} color="#000" />
             </Pressable>
           </View>

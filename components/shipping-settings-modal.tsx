@@ -1,18 +1,21 @@
-import { ShippingAddress, ShippingProvider, shippingService } from '@/api';
+import { shippingService } from '@/api/services';
+import { ShippingAddress, ShippingProvider } from '@/api/types';
 import { DropdownComponent, InputComponent } from '@/components/common';
+import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
-  Pressable,
+  Platform,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ShippingSettingsModalProps {
   isOpen: boolean;
@@ -182,7 +185,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
   const renderContent = () => {
     if (!userId) {
       return (
-        <View className="flex-1 items-center justify-center py-12">
+        <View className="flex-1 items-center justify-center p-12">
           <Feather name="user-x" size={48} color="#EF4444" />
           <Text className="text-gray-900 text-lg font-inter-semibold mt-4 mb-2">Authentication Required</Text>
           <Text className="text-gray-600 text-sm font-inter-semibold text-center">
@@ -194,7 +197,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
 
     if (isLoading) {
       return (
-        <View className="flex-1 items-center justify-center py-12">
+        <View className="flex-1 items-center justify-center p-12">
           <ActivityIndicator size="large" color="#000" />
           <Text className="mt-2 text-base font-inter-bold text-gray-600">Loading...</Text>
         </View>
@@ -202,7 +205,11 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
     }
 
     return (
-      <>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        style={styles.container}
+      >
         {/* Shipping Address Section */}
         <View className="bg-white rounded-xl border border-gray-200 mb-6">
           {!isEditingAddress ? (
@@ -228,7 +235,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
             </View>
           ) : (
             <View className="p-4">
-              <Text className="text-lg font-inter-semibold text-gray-900 mb-4">Shipping From</Text>
+              <Text className="text-lg font-inter-semibold text-gray-900">Shipping From</Text>
 
               <View className="flex-col gap-4">
                 <View className="flex-row gap-2">
@@ -291,14 +298,14 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
         </View>
 
         {/* Shipping Providers Section */}
-        <View className="mb-6">
+        <View>
           <Text className="text-lg font-inter-semibold text-gray-900 mb-2">Shipping Providers</Text>
           <Text className="text-sm font-inter-semibold text-gray-600 mb-4">
             Select providers and set delivery timeframe
           </Text>
 
           {/* Provider Cards */}
-          <View className="flex-col gap-3 mb-6">
+          <View className="flex-col gap-3 mb-8">
             {providers.map((provider) => (
               <TouchableOpacity
                 key={provider.id}
@@ -353,48 +360,44 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
             </View>
           </View>
         </View>
-      </>
+      </KeyboardAvoidingView>
     );
   };
 
   const data = [{ id: 'content' }];
-  const screenHeight = Dimensions.get('window').height;
-  const modalHeight = screenHeight * 0.7;
 
   return (
     <Modal visible={isOpen} transparent animationType="slide" onRequestClose={handleClose}>
-      <Pressable className="flex-1 bg-black/50">
-        <View className="flex-1" />
-        <View className="bg-white w-full rounded-t-2xl" style={{ height: modalHeight }}>
-          {/* Fixed Header */}
-          <View className="p-6 border-b border-gray-200">
-            <View className="flex-row items-center justify-between mb-2">
-              <View>
-                <Text className="text-xl font-inter-bold text-gray-900">Shipping Settings</Text>
-                <Text className="text-sm font-inter-semibold text-gray-600 mt-1">
-                  Manage your shipping address and delivery options
-                </Text>
-              </View>
-              <Pressable onPress={handleClose} className="p-1">
-                <Feather name="x" size={24} color="#666" />
-              </Pressable>
+      <View className="flex-1 justify-end bg-black/50">
+        <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
+          {/* Header */}
+          <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+            <View className="gap-1">
+              <Text className="text-xl font-inter-bold text-gray-900">Shipping Settings</Text>
+              <Text className="text-sm font-inter-semibold text-gray-600">
+                Manage your shipping address and delivery options
+              </Text>
             </View>
+            <TouchableOpacity onPress={handleClose} hitSlop={8}>
+              <Feather name="x" size={24} color="#000" />
+            </TouchableOpacity>
           </View>
 
           {/* Scrollable Content */}
+
           <FlatList
             data={data}
             keyExtractor={(item) => item.id}
-            renderItem={() => <View className="flex-1 p-6">{renderContent()}</View>}
+            renderItem={() => <View className="flex-1 p-4">{renderContent()}</View>}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ flexGrow: 1 }}
           />
 
           {/* Fixed Footer */}
-          <View className="p-6 border-t border-gray-200">
+          <View className="p-4 border-t border-gray-200">
             <View className="flex-row gap-3">
-              <TouchableOpacity onPress={handleClose} className="flex-1 border border-gray-300 rounded-lg py-3">
+              <TouchableOpacity onPress={handleClose} className="flex-1 border border-gray-300 rounded-lg p-4">
                 <Text className="text-center text-sm font-inter-semibold text-gray-800">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -406,7 +409,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
                   !deliveryTimeframe.min ||
                   !deliveryTimeframe.max
                 }
-                className={`flex-1 rounded-lg py-3 ${
+                className={`flex-1 rounded-lg p-4 ${
                   !userId ||
                   isSavingSettings ||
                   selectedProviders.size === 0 ||
@@ -422,8 +425,8 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
               </TouchableOpacity>
             </View>
           </View>
-        </View>
-      </Pressable>
+        </SafeAreaView>
+      </View>
     </Modal>
   );
 };

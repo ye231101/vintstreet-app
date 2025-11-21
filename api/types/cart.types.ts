@@ -1,4 +1,4 @@
-import { Product } from "./listings.types";
+import { Product } from './listings.types';
 
 export interface CartItem {
   id: string;

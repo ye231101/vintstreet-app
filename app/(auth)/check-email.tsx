@@ -1,4 +1,4 @@
-import { authService } from '@/api';
+import { authService } from '@/api/services';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';

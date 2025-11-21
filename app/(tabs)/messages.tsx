@@ -1,11 +1,12 @@
-import { Conversation, messagesService } from '@/api';
+import { messagesService } from '@/api/services';
+import { Conversation } from '@/api/types';
 import SearchBar from '@/components/search-bar';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router, useSegments } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MessagesScreen() {
@@ -16,15 +17,6 @@ export default function MessagesScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setTimeout(() => {
-        const currentPath = '/' + segments.join('/');
-        router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
-      }, 0);
-    }
-  }, [isAuthenticated, segments]);
 
   useEffect(() => {
     if (user?.id) {
@@ -111,7 +103,41 @@ export default function MessagesScreen() {
   });
 
   if (!isAuthenticated) {
-    return null;
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+          <View className="flex-1 items-center justify-center px-6 py-12">
+            <View className="items-center mb-8">
+              <View className="w-24 h-24 items-center justify-center mb-6 rounded-full bg-gray-100">
+                <Feather name="message-circle" size={48} color="#9CA3AF" />
+              </View>
+              <Text className="text-base font-inter-semibold text-gray-500 text-center max-w-sm">
+                Please sign in to view and send messages
+              </Text>
+            </View>
+
+            <View className="w-full max-w-sm gap-4">
+              <Pressable
+                onPress={() => {
+                  const currentPath = '/' + segments.join('/');
+                  router.push(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+                }}
+                className="w-full h-14 items-center justify-center rounded-lg bg-black"
+              >
+                <Text className="text-base font-inter-bold text-white">Sign In</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => router.push('/(auth)/register')}
+                className="w-full h-14 items-center justify-center rounded-lg border-2 border-gray-300 bg-white"
+              >
+                <Text className="text-base font-inter-bold text-black">Create Account</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
   }
 
   return (

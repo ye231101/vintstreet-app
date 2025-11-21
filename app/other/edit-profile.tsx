@@ -1,4 +1,4 @@
-import { storageService } from '@/api';
+import { storageService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';
@@ -320,8 +320,8 @@ export default function EditProfileScreen() {
         animationType="fade"
         onRequestClose={() => setShowPhotoOptions(false)}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-2xl">
+        <View className="flex-1 justify-end bg-black/50">
+          <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
             <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-xl font-inter-bold text-black">Change Photo</Text>
               <TouchableOpacity onPress={() => setShowPhotoOptions(false)} hitSlop={8}>
@@ -360,7 +360,7 @@ export default function EditProfileScreen() {
                 <Feather name="chevron-right" size={20} color="#9CA3AF" />
               </Pressable>
             </View>
-          </View>
+          </SafeAreaView>
         </View>
       </Modal>
     </SafeAreaView>

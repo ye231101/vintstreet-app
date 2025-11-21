@@ -1,4 +1,5 @@
-import { listingsService, Product } from '@/api';
+import { listingsService } from '@/api/services';
+import { Product } from '@/api/types';
 import Brand from '@/components/brand';
 import { MegaMenuNav } from '@/components/mega-menu-nav';
 import ProductCard from '@/components/product-card';

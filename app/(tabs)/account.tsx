@@ -4,7 +4,7 @@ import { blurhash } from '@/utils';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useSegments } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,15 +24,6 @@ export default function AccountScreen() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setTimeout(() => {
-        const currentPath = '/' + segments.join('/');
-        router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
-      }, 0);
-    }
-  }, [isAuthenticated, segments]);
 
   const handleLogout = async () => {
     await logout();
@@ -109,7 +100,41 @@ export default function AccountScreen() {
   };
 
   if (!isAuthenticated) {
-    return null;
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+          <View className="flex-1 items-center justify-center px-6 py-12">
+            <View className="items-center mb-8">
+              <View className="w-24 h-24 items-center justify-center mb-6 rounded-full bg-gray-100">
+                <Feather name="user" size={48} color="#9CA3AF" />
+              </View>
+              <Text className="text-base font-inter-semibold text-gray-500 text-center max-w-sm">
+                Please sign in to access your account and manage your profile
+              </Text>
+            </View>
+
+            <View className="w-full max-w-sm gap-4">
+              <Pressable
+                onPress={() => {
+                  const currentPath = '/' + segments.join('/');
+                  router.push(`/(auth)?redirect=${encodeURIComponent(currentPath)}`);
+                }}
+                className="w-full h-14 items-center justify-center rounded-lg bg-black"
+              >
+                <Text className="text-base font-inter-bold text-white">Sign In</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => router.push('/(auth)/register')}
+                className="w-full h-14 items-center justify-center rounded-lg border-2 border-gray-300 bg-white"
+              >
+                <Text className="text-base font-inter-bold text-black">Create Account</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
   }
 
   return (

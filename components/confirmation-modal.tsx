@@ -48,7 +48,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               <Text className="text-lg font-inter-bold text-gray-900 ml-3">{title}</Text>
             </View>
             <TouchableOpacity onPress={onClose} hitSlop={8}>
-              <Feather name="x" size={24} color="#666" />
+              <Feather name="x" size={24} color="#000" />
             </TouchableOpacity>
           </View>
 

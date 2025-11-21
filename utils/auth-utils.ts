@@ -1,4 +1,4 @@
-import { authService } from '@/api';
+import { authService } from '@/api/services';
 import { getStorageValue, removeStorageValue } from '@/utils/storage';
 
 /**

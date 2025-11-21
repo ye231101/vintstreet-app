@@ -1,16 +1,9 @@
-import { clearAgoraRTMConfigCache, getAgoraRTMConfig } from '@/api/config/agora';
+import { clearAgoraRTMConfigCache, getAgoraRTMConfig } from '@/api/config';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import RtmClient, { RtmAttribute, RtmMessage } from 'agora-react-native-rtm';
 import { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface ChatMessage {
   id: string;

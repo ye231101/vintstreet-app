@@ -204,7 +204,13 @@ class ReviewsService {
    * @param comment - The review comment
    * @param orderId - Optional order ID associated with the review
    */
-  async createReview(sellerId: string, buyerId: string, rating: number, comment: string, orderId?: string): Promise<Review> {
+  async createReview(
+    sellerId: string,
+    buyerId: string,
+    rating: number,
+    comment: string,
+    orderId?: string
+  ): Promise<Review> {
     try {
       const { data, error } = await supabase
         .from('reviews')

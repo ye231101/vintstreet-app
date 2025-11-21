@@ -1,4 +1,4 @@
-import { savedAddressesService } from '@/api';
+import { savedAddressesService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';

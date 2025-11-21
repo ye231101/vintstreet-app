@@ -1,4 +1,3 @@
-import { AlgoliaBrand, AlgoliaCategory, AlgoliaProduct, AlgoliaQuerySuggestion } from '@/api';
 import {
   brandsIndex,
   brandsQuerySuggestionsIndex,
@@ -7,7 +6,8 @@ import {
   productsIndex,
   productsQuerySuggestionsIndex,
   searchClient,
-} from '@/api/config/algolia';
+} from '@/api/config';
+import { AlgoliaBrand, AlgoliaCategory, AlgoliaProduct, AlgoliaQuerySuggestion } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { addRecentSearch, getRecentSearches, removeRecentSearch } from '@/utils';
 import { Feather } from '@expo/vector-icons';

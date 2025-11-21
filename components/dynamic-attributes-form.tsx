@@ -1,7 +1,8 @@
-import { Attribute, AttributeOption } from '@/api';
+import { Attribute, AttributeOption } from '@/api/types';
 import Feather from '@expo/vector-icons/Feather';
 import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface DynamicAttributesFormProps {
   attributes: Attribute[];
@@ -157,26 +158,26 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
           setSelectedAttribute(null);
         }}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-2xl pt-5 px-5 pb-5 max-h-4/5">
+        <View className="flex-1 justify-end bg-black/50">
+          <SafeAreaView edges={['bottom']} className="max-h-4/5 rounded-t-2xl bg-white">
             {/* Header */}
-            <View className="flex-row items-center justify-between mb-5">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-lg font-inter-bold text-black">{selectedAttribute.name}</Text>
               <TouchableOpacity
                 onPress={() => {
                   setShowAttributeModal(false);
                   setSelectedAttribute(null);
                 }}
-                className="w-6 h-6 items-center justify-center"
+                hitSlop={8}
               >
-                <Feather name="x" size={20} color="#000" />
+                <Feather name="x" size={24} color="#000" />
               </TouchableOpacity>
             </View>
 
             {/* Options List */}
             <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
               {options.length === 0 ? (
-                <View className="py-8 items-center">
+                <View className="items-center p-8">
                   <Text className="text-sm font-inter-semibold text-gray-500">No options available</Text>
                 </View>
               ) : (
@@ -188,7 +189,7 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
                   return (
                     <TouchableOpacity
                       key={option.id}
-                      className={`p-4 border-b border-gray-100 flex-row items-center justify-between ${
+                      className={`flex-row items-center justify-between p-4 border-b border-gray-200  ${
                         isSelected ? 'bg-gray-100' : 'bg-transparent'
                       }`}
                       onPress={() => handleOptionSelect(option)}
@@ -203,17 +204,19 @@ export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({
 
             {/* Done Button for Multi-select */}
             {isMultiSelect && (
-              <TouchableOpacity
-                className="mt-4 bg-black rounded-lg py-3 items-center"
-                onPress={() => {
-                  setShowAttributeModal(false);
-                  setSelectedAttribute(null);
-                }}
-              >
-                <Text className="text-base font-inter-semibold text-white">Done</Text>
-              </TouchableOpacity>
+              <View className="p-4">
+                <TouchableOpacity
+                  className="items-center justify-center p-4 rounded-lg bg-black"
+                  onPress={() => {
+                    setShowAttributeModal(false);
+                    setSelectedAttribute(null);
+                  }}
+                >
+                  <Text className="text-base font-inter-semibold text-white">Done</Text>
+                </TouchableOpacity>
+              </View>
             )}
-          </View>
+          </SafeAreaView>
         </View>
       </Modal>
     );

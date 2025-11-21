@@ -1,4 +1,5 @@
-import { Offer, offersService, Product } from '@/api';
+import { offersService } from '@/api/services';
+import { Offer, Product } from '@/api/types';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';

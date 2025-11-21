@@ -1,4 +1,4 @@
-import { ordersService, stripeService } from '@/api';
+import { ordersService, stripeService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { useStripeConnect } from '@/hooks/use-stripe-connect';
 import { styles } from '@/styles';

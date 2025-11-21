@@ -1,5 +1,6 @@
-import { Stream, streamsService } from '@/api';
-import { supabase } from '@/api/config/supabase';
+import { supabase } from '@/api/config';
+import { streamsService } from '@/api/services';
+import { Stream } from '@/api/types';
 import LiveChat from '@/components/live-chat';
 import { useAgora } from '@/hooks/use-agora';
 import { useAuth } from '@/hooks/use-auth';
@@ -115,15 +116,6 @@ export default function StartStreamScreen() {
     userId: user?.id,
     isHost: true,
   });
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!user) {
-      const currentPath = `/stream/start/${id}`;
-      router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}` as any);
-      return;
-    }
-  }, [user, id]);
 
   // Load stream data
   useEffect(() => {
@@ -760,12 +752,12 @@ export default function StartStreamScreen() {
       {/* Stream Controls Drawer Modal - Enhanced Design */}
       <Modal visible={showControls} animationType="slide" transparent onRequestClose={() => setShowControls(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-          <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowControls(false)}>
-            <Pressable className="bg-white rounded-t-2xl max-h-[90%]" onPress={(e) => e.stopPropagation()}>
+          <Pressable className="flex-1 justify-end bg-black/50" onPress={() => setShowControls(false)}>
+            <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-xl font-inter-bold text-gray-900">Stream Controls</Text>
-                  <TouchableOpacity onPress={() => setShowControls(false)}>
+                  <TouchableOpacity onPress={() => setShowControls(false)} hitSlop={8}>
                     <Feather name="x" size={24} color="#000" />
                   </TouchableOpacity>
                 </View>
@@ -1012,7 +1004,7 @@ export default function StartStreamScreen() {
                   </View>
                 </View>
               </ScrollView>
-            </Pressable>
+            </SafeAreaView>
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
@@ -1025,12 +1017,12 @@ export default function StartStreamScreen() {
         onRequestClose={() => setShowFeaturesModal(false)}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-          <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowFeaturesModal(false)}>
-            <Pressable className="bg-white rounded-t-2xl max-h-[60%]" onPress={(e) => e.stopPropagation()}>
+          <Pressable className="flex-1 justify-end bg-black/50" onPress={() => setShowFeaturesModal(false)}>
+            <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-lg font-inter-bold text-gray-900">Select Show Features</Text>
-                  <TouchableOpacity onPress={() => setShowFeaturesModal(false)}>
+                  <TouchableOpacity onPress={() => setShowFeaturesModal(false)} hitSlop={8}>
                     <Feather name="x" size={24} color="#000" />
                   </TouchableOpacity>
                 </View>
@@ -1084,7 +1076,7 @@ export default function StartStreamScreen() {
                     </View>
                   ))}
                   {allFeatures.length === 0 && (
-                    <View className="py-16 items-center">
+                    <View className="p-16 items-center">
                       <View className="w-20 h-20 items-center justify-center mb-4 rounded-full bg-gray-100">
                         <Feather name="package" size={28} color="#9ca3af" />
                       </View>
@@ -1093,7 +1085,7 @@ export default function StartStreamScreen() {
                   )}
                 </View>
               </ScrollView>
-            </Pressable>
+            </SafeAreaView>
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
@@ -1106,12 +1098,12 @@ export default function StartStreamScreen() {
         onRequestClose={() => setShowPriceSettings(false)}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-          <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowPriceSettings(false)}>
-            <Pressable className="bg-white rounded-t-2xl max-h-[60%]" onPress={(e) => e.stopPropagation()}>
+          <Pressable className="flex-1 justify-end bg-black/50" onPress={() => setShowPriceSettings(false)}>
+            <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-lg font-inter-bold text-gray-900">Customize Price Buttons</Text>
-                  <TouchableOpacity onPress={() => setShowPriceSettings(false)}>
+                  <TouchableOpacity onPress={() => setShowPriceSettings(false)} hitSlop={8}>
                     <Feather name="x" size={24} color="#000" />
                   </TouchableOpacity>
                 </View>
@@ -1151,7 +1143,7 @@ export default function StartStreamScreen() {
                   </TouchableOpacity>
                 </View>
               </ScrollView>
-            </Pressable>
+            </SafeAreaView>
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
@@ -1164,12 +1156,12 @@ export default function StartStreamScreen() {
         onRequestClose={() => setShowDurationSettings(false)}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-          <Pressable className="flex-1 justify-end bg-black/60" onPress={() => setShowDurationSettings(false)}>
-            <Pressable className="bg-white rounded-t-2xl max-h-[60%]" onPress={(e) => e.stopPropagation()}>
+          <Pressable className="flex-1 justify-end bg-black/50" onPress={() => setShowDurationSettings(false)}>
+            <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
               <View className="flex-col gap-2 p-4 border-b border-gray-200">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-lg font-inter-bold text-gray-900">Customize Duration Buttons</Text>
-                  <TouchableOpacity onPress={() => setShowDurationSettings(false)}>
+                  <TouchableOpacity onPress={() => setShowDurationSettings(false)} hitSlop={8}>
                     <Feather name="x" size={24} color="#000" />
                   </TouchableOpacity>
                 </View>
@@ -1211,7 +1203,7 @@ export default function StartStreamScreen() {
                   </TouchableOpacity>
                 </View>
               </ScrollView>
-            </Pressable>
+            </SafeAreaView>
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>

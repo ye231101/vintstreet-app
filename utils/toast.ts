@@ -6,10 +6,7 @@ export const setToastRef = (ref: ToastType) => {
   toastRef = ref;
 };
 
-export const showToast = (
-  message: string,
-  type: 'normal' | 'success' | 'danger' | 'warning' = 'success'
-) => {
+export const showToast = (message: string, type: 'normal' | 'success' | 'danger' | 'warning' = 'success') => {
   if (toastRef) {
     toastRef.show(message, {
       type,
@@ -35,4 +32,3 @@ export const showWarningToast = (message: string) => {
 export const showInfoToast = (message: string) => {
   showToast(message, 'normal');
 };
-

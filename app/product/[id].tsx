@@ -1,4 +1,6 @@
-import { attributesService, listingsService, Product } from '@/api';
+import { attributesService, listingsService } from '@/api/services';
+import { Product } from '@/api/types';
+import { AuctionDisplay } from '@/components/auction-display';
 import { ContactModal } from '@/components/contact-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useAuth } from '@/hooks/use-auth';
@@ -194,6 +196,9 @@ export default function ProductDetailScreen() {
     setIsOfferOpen(true);
   };
 
+  // Check if product is an auction
+  const isAuction = product?.auction_type === 'timed';
+
   const formattedDate = (() => {
     try {
       if (!product?.created_at) return '';
@@ -372,54 +377,58 @@ export default function ProductDetailScreen() {
             )}
           </View>
 
-          {/* Price and actions */}
-          <View className="px-4">
-            <View className="flex-row items-center justify-between">
-              <View className="px-1">
-                <Text className="text-2xl font-inter-bold text-black mr-2">
-                  £{formatPrice(product.discounted_price || product.starting_price)}
-                </Text>
-                {product.discounted_price !== null && (
-                  <Text className="text-base font-inter-semibold text-gray-400 line-through">
-                    £{formatPrice(product.starting_price)}
+          {/* Price and actions - Show auction display for auctions, otherwise show regular price */}
+          {isAuction ? (
+            <AuctionDisplay productId={product.id} />
+          ) : (
+            <View className="px-4">
+              <View className="flex-row items-center justify-between">
+                <View className="px-1">
+                  <Text className="text-2xl font-inter-bold text-black mr-2">
+                    £{formatPrice(product.discounted_price || product.starting_price)}
                   </Text>
-                )}
-              </View>
-              <View className="flex-row items-center gap-2">
-                <TouchableOpacity
-                  onPress={() => handleAddToCart(product)}
-                  disabled={!!isCarted || isAddingToCart}
-                  className={`flex-row items-center px-4 py-2 rounded-lg ${
-                    isCarted ? 'bg-gray-100 border border-gray-200' : 'bg-black border border-black'
-                  }`}
-                >
-                  {isAddingToCart ? (
-                    <View className="flex-row items-center gap-2">
-                      <ActivityIndicator size="small" color="#fff" />
-                      <Text className="text-base font-inter-semibold text-white">Adding...</Text>
-                    </View>
-                  ) : isCarted ? (
-                    <View className="flex-row items-center gap-2">
-                      <Feather name="check" size={16} color="#000" />
-                      <Text className="text-base font-inter-semibold text-black">Added to Cart</Text>
-                    </View>
-                  ) : (
-                    <View className="flex-row items-center gap-2">
-                      <Feather name="shopping-cart" size={16} color="white" />
-                      <Text className="text-base font-inter-semibold text-white">Add to Cart</Text>
-                    </View>
+                  {product.discounted_price !== null && (
+                    <Text className="text-base font-inter-semibold text-gray-400 line-through">
+                      £{formatPrice(product.starting_price)}
+                    </Text>
                   )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  className="flex-row items-center px-4 py-2 rounded-lg bg-white border border-gray-200"
-                  onPress={handleMakeOffer}
-                >
-                  <Feather name="message-circle" size={16} color="#000" className="mr-2" />
-                  <Text className="text-base font-inter-semibold text-black">Make Offer</Text>
-                </TouchableOpacity>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <TouchableOpacity
+                    onPress={() => handleAddToCart(product)}
+                    disabled={!!isCarted || isAddingToCart}
+                    className={`flex-row items-center px-4 py-2 rounded-lg ${
+                      isCarted ? 'bg-gray-100 border border-gray-200' : 'bg-black border border-black'
+                    }`}
+                  >
+                    {isAddingToCart ? (
+                      <View className="flex-row items-center gap-2">
+                        <ActivityIndicator size="small" color="#fff" />
+                        <Text className="text-base font-inter-semibold text-white">Adding...</Text>
+                      </View>
+                    ) : isCarted ? (
+                      <View className="flex-row items-center gap-2">
+                        <Feather name="check" size={16} color="#000" />
+                        <Text className="text-base font-inter-semibold text-black">Added to Cart</Text>
+                      </View>
+                    ) : (
+                      <View className="flex-row items-center gap-2">
+                        <Feather name="shopping-cart" size={16} color="white" />
+                        <Text className="text-base font-inter-semibold text-white">Add to Cart</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="flex-row items-center px-4 py-2 rounded-lg bg-white border border-gray-200"
+                    onPress={handleMakeOffer}
+                  >
+                    <Feather name="message-circle" size={16} color="#000" className="mr-2" />
+                    <Text className="text-base font-inter-semibold text-black">Make Offer</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
+          )}
 
           {/* Tabs */}
           <View className="px-4">

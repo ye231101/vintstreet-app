@@ -1,4 +1,4 @@
-import { authService } from '@/api';
+import { authService } from '@/api/services';
 import { InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { useAppDispatch } from '@/store/hooks';

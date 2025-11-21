@@ -1,4 +1,5 @@
-import { offersService, Product } from '@/api';
+import { offersService } from '@/api/services';
+import { Product } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
@@ -15,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { InputComponent } from './common/input';
 
 interface MakeOfferModalProps {
@@ -92,8 +94,8 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({ isOpen, onClose,
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         style={styles.container}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-2xl">
+        <View className="flex-1 justify-end bg-black/50">
+          <SafeAreaView edges={['bottom']} className="w-full max-h-[80%] rounded-t-2xl bg-white">
             {/* Header */}
             <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <View className="flex-row items-center gap-2">
@@ -211,7 +213,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({ isOpen, onClose,
                 </View>
               </View>
             </ScrollView>
-          </View>
+          </SafeAreaView>
         </View>
       </KeyboardAvoidingView>
     </Modal>

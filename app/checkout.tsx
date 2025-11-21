@@ -1,16 +1,7 @@
-import {
-  buyerService,
-  CartItem,
-  ordersService,
-  SavedAddress,
-  savedAddressesService,
-  ShippingBand,
-  ShippingOption,
-  ShippingProviderPrice,
-  shippingService,
-  stripeService,
-  supabase,
-} from '@/api';
+import { supabase } from '@/api/config';
+import { buyerService, ordersService, savedAddressesService, shippingService, stripeService } from '@/api/services';
+import { CartItem, SavedAddress, ShippingBand, ShippingOption, ShippingProviderPrice } from '@/api/types';
+import { DropdownComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { styles } from '@/styles';
@@ -23,7 +14,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   ScrollView,
   Text,
@@ -143,42 +133,32 @@ export default function CheckoutScreen() {
   const [useSavedAddress, setUseSavedAddress] = useState<boolean>(true);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
 
-  const [countries] = useState([
-    { code: 'GB', name: 'United Kingdom' },
-    { code: 'US', name: 'United States' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'AU', name: 'Australia' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'FR', name: 'France' },
-    { code: 'ES', name: 'Spain' },
-    { code: 'IT', name: 'Italy' },
-    { code: 'NL', name: 'Netherlands' },
-    { code: 'BE', name: 'Belgium' },
-    { code: 'IE', name: 'Ireland' },
-    { code: 'DK', name: 'Denmark' },
-    { code: 'SE', name: 'Sweden' },
-    { code: 'NO', name: 'Norway' },
-    { code: 'FI', name: 'Finland' },
-    { code: 'PL', name: 'Poland' },
-    { code: 'CZ', name: 'Czech Republic' },
-    { code: 'AT', name: 'Austria' },
-    { code: 'CH', name: 'Switzerland' },
-    { code: 'PT', name: 'Portugal' },
-  ]);
-
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [countrySearch, setCountrySearch] = useState('');
+  const COUNTRY_OPTIONS = [
+    { label: 'United Kingdom', value: 'GB' },
+    { label: 'United States', value: 'US' },
+    { label: 'Canada', value: 'CA' },
+    { label: 'Australia', value: 'AU' },
+    { label: 'Germany', value: 'DE' },
+    { label: 'France', value: 'FR' },
+    { label: 'Spain', value: 'ES' },
+    { label: 'Italy', value: 'IT' },
+    { label: 'Netherlands', value: 'NL' },
+    { label: 'Belgium', value: 'BE' },
+    { label: 'Ireland', value: 'IE' },
+    { label: 'Denmark', value: 'DK' },
+    { label: 'Sweden', value: 'SE' },
+    { label: 'Norway', value: 'NO' },
+    { label: 'Finland', value: 'FI' },
+    { label: 'Poland', value: 'PL' },
+    { label: 'Czech Republic', value: 'CZ' },
+    { label: 'Austria', value: 'AT' },
+    { label: 'Switzerland', value: 'CH' },
+    { label: 'Portugal', value: 'PT' },
+  ];
 
   // Mapbox address autocomplete
   const [addressResults, setAddressResults] = useState<any[]>([]);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
-
-  // Filter countries based on search
-  const filteredCountries = countries.filter(
-    (country) =>
-      country.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
-      country.code.toLowerCase().includes(countrySearch.toLowerCase())
-  );
 
   useEffect(() => {
     loadCheckoutData();
@@ -592,7 +572,7 @@ export default function CheckoutScreen() {
 
       // Get shipping details either from selected address or form
       let finalShippingDetails = shippingInformation;
-      
+
       if (useSavedAddress && selectedAddressId) {
         const selectedAddress = savedAddresses.find((addr) => addr.id === selectedAddressId);
         if (selectedAddress) {
@@ -611,7 +591,13 @@ export default function CheckoutScreen() {
       }
 
       // Validation
-      if (!finalShippingDetails.firstName || !finalShippingDetails.lastName || !finalShippingDetails.address1 || !finalShippingDetails.city || !finalShippingDetails.country) {
+      if (
+        !finalShippingDetails.firstName ||
+        !finalShippingDetails.lastName ||
+        !finalShippingDetails.address1 ||
+        !finalShippingDetails.city ||
+        !finalShippingDetails.country
+      ) {
         showErrorToast('Please fill in all required shipping fields');
         setCheckoutLoading(false);
         return;
@@ -678,9 +664,8 @@ export default function CheckoutScreen() {
           buyer_id: user.id,
           seller_id: item.product.seller_id,
           stream_id: 'marketplace-order',
-          order_amount: item.product.discounted_price !== null 
-            ? item.product.discounted_price 
-            : item.product.starting_price || 0,
+          order_amount:
+            item.product.discounted_price !== null ? item.product.discounted_price : item.product.starting_price || 0,
           quantity: 1,
           status: 'pending',
           delivery_status: 'processing',
@@ -691,7 +676,9 @@ export default function CheckoutScreen() {
           seller_id: order.seller_id ?? '',
           product_name: item.product?.product_name ?? 'Product',
           seller_name:
-            item.product?.seller_info_view?.shop_name ?? item.product?.seller_info_view?.display_name_format ?? 'Seller',
+            item.product?.seller_info_view?.shop_name ??
+            item.product?.seller_info_view?.display_name_format ??
+            'Seller',
           price: order.order_amount ?? 0,
           quantity: 1,
         });
@@ -700,7 +687,7 @@ export default function CheckoutScreen() {
       // Generate shipping labels for all orders before proceeding to checkout
       setIsGeneratingLabels(true);
       showSuccessToast('Generating shipping labels...');
-      
+
       // Prepare shipping address data
       const shippingAddressData = {
         first_name: finalShippingDetails.firstName,
@@ -723,7 +710,7 @@ export default function CheckoutScreen() {
           shippingAddressData,
           selectedShippingMethod
         );
-        
+
         if (!labelResult || !labelResult.success) {
           // If label generation fails, stop the checkout process
           showErrorToast('Failed to generate shipping label for order. Please try again.');
@@ -1076,18 +1063,15 @@ export default function CheckoutScreen() {
                     </View>
 
                     <View className="mb-4">
-                      <Text className="mb-2 text-sm font-inter-bold text-gray-800">
-                        Country <Text className="text-red-500">*</Text>
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => setShowCountryPicker(true)}
-                        className="flex-row items-center px-3 py-3 rounded-lg bg-white border border-gray-200"
-                      >
-                        <Text className="flex-1 text-base font-inter-semibold text-gray-800">
-                          {countries.find((c) => c.code === shippingInformation.country)?.name || 'Select Country'}
-                        </Text>
-                        <Feather name="chevron-down" color="#666" size={20} />
-                      </TouchableOpacity>
+                      <DropdownComponent
+                        label="Country"
+                        data={COUNTRY_OPTIONS}
+                        value={shippingInformation.country}
+                        placeholder="Select Country"
+                        required
+                        onChange={(item) => updateShippingAddress('country', item.value)}
+                        error={shippingInformationErrors.country}
+                      />
                       <Text className="mt-1 text-xs font-inter-semibold text-gray-600">
                         Changing country may affect shipping costs.
                       </Text>
@@ -1357,97 +1341,6 @@ export default function CheckoutScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-
-        {/* Country Picker Modal */}
-        <Modal
-          visible={showCountryPicker}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setShowCountryPicker(false)}
-        >
-          <View className="flex-1 justify-end bg-black/50">
-            <View className="bg-white rounded-t-2xl max-h-96">
-              <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-                <Text className="text-lg font-inter-bold text-gray-800">Select Country</Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    setShowCountryPicker(false);
-                    setCountrySearch('');
-                  }}
-                >
-                  <Feather name="x" color="#666" size={24} />
-                </TouchableOpacity>
-              </View>
-
-              {/* Search Input */}
-              <View className="px-4 py-3 border-b border-gray-200">
-                <View className="flex-row items-center px-3 rounded-lg bg-gray-100">
-                  <Feather name="search" color="#666" size={16} />
-                  <TextInput
-                    value={countrySearch}
-                    onChangeText={setCountrySearch}
-                    placeholder="Search countries..."
-                    className="flex-1 py-2 px-2 text-base font-inter"
-                    autoCapitalize="none"
-                  />
-                  {countrySearch.length > 0 && (
-                    <TouchableOpacity onPress={() => setCountrySearch('')}>
-                      <Feather name="x" color="#666" size={16} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-
-              <ScrollView className="max-h-80">
-                {filteredCountries.length > 0 ? (
-                  filteredCountries.map((country, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        updateShippingAddress('country', country.code);
-                        setShowCountryPicker(false);
-                        setCountrySearch('');
-                      }}
-                      className={`p-4 border-b border-gray-100 ${
-                        shippingInformation.country === country.code ? 'bg-blue-50' : 'bg-white'
-                      }`}
-                    >
-                      <View className="flex-row items-center justify-between">
-                        <View className="flex-1">
-                          <Text
-                            className={`text-base font-inter-semibold ${
-                              shippingInformation.country === country.code
-                                ? 'text-blue-600 font-inter-bold'
-                                : 'text-gray-800'
-                            }`}
-                          >
-                            {country.name}
-                          </Text>
-                          <Text
-                            className={`text-sm font-inter-semibold ${
-                              shippingInformation.country === country.code ? 'text-blue-500' : 'text-gray-500'
-                            }`}
-                          >
-                            {country.code}
-                          </Text>
-                        </View>
-                        {shippingInformation.country === country.code && (
-                          <Feather name="check" color="#007AFF" size={20} />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-                  ))
-                ) : (
-                  <View className="p-8 items-center">
-                    <Feather name="search" color="#999" size={32} />
-                    <Text className="text-gray-500 font-inter-semibold mt-2">No countries found</Text>
-                    <Text className="text-gray-400 font-inter-semibold text-sm mt-1">Try a different search term</Text>
-                  </View>
-                )}
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
