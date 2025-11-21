@@ -69,6 +69,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -151,6 +152,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -290,6 +292,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -355,6 +358,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -410,6 +414,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          auction_type,
           status,
           created_at,
           stock_quantity,
@@ -473,6 +478,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -555,6 +561,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -626,6 +633,7 @@ class ListingsService {
     sub_subcategory_id?: string | null;
     sub_sub_subcategory_id?: string | null;
     stock_quantity?: number | null;
+    auction_type?: 'marketplace' | 'timed';
     status?: 'draft' | 'published' | 'private';
     moderation_status?: string;
     moderation_reason?: string | null;
@@ -649,6 +657,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -699,6 +708,7 @@ class ListingsService {
       sub_subcategory_id?: string | null;
       sub_sub_subcategory_id?: string | null;
       stock_quantity?: number | null;
+      auction_type?: 'marketplace' | 'timed';
       status?: 'draft' | 'published' | 'private';
       moderation_status?: string;
       moderation_reason?: string | null;
@@ -724,6 +734,7 @@ class ListingsService {
           sub_sub_subcategory_id,
           brand_id,
           stock_quantity,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -1164,6 +1175,7 @@ class ListingsService {
         sub_sub_subcategory_id: apiListing.sub_sub_subcategory_id,
         brand_id: apiListing.brand_id,
         stock_quantity: apiListing.stock_quantity,
+        auction_type: apiListing.auction_type,
         status: apiListing.status as 'draft' | 'published' | 'private',
         created_at: apiListing.created_at,
         product_categories: apiListing.product_categories,
@@ -1276,6 +1288,7 @@ class ListingsService {
           product_images,
           seller_id,
           category_id,
+          auction_type,
           product_categories(id, name)
         `
         )
@@ -1338,6 +1351,7 @@ class ListingsService {
           status,
           created_at,
           stock_quantity,
+          auction_type,
           product_categories(id, name)
         `
         )
@@ -1414,6 +1428,7 @@ class ListingsService {
           sub_subcategory_id,
           sub_sub_subcategory_id,
           brand_id,
+          auction_type,
           status,
           created_at,
           product_categories(id, name)
@@ -1483,6 +1498,7 @@ class ListingsService {
       sub_sub_subcategory_id?: string | null;
       brand_id?: string | null;
       stock_quantity?: number | null;
+      auction_type?: 'marketplace' | 'timed';
       status?: 'draft' | 'published' | 'private';
     }>
   ): Promise<number> {
@@ -1520,6 +1536,7 @@ class ListingsService {
             sub_sub_subcategory_id: row.sub_sub_subcategory_id ?? null,
             brand_id: row.brand_id ?? null,
             stock_quantity: stockQty,
+            auction_type: row.auction_type ?? 'marketplace',
           };
         });
 

@@ -36,6 +36,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="auctions"
+        options={{
+          title: 'Auctions',
+          tabBarIcon: ({ color }) => <Feather name="video" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="sell"
         options={{
           title: 'Sell',
