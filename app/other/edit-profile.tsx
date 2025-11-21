@@ -1,4 +1,4 @@
-import { storageService } from '@/api';
+import { storageService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { updateProfile as updateProfileAction } from '@/store/slices/authSlice';

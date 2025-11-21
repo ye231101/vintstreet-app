@@ -1,4 +1,5 @@
-import { ShippingAddress, ShippingProvider, shippingService } from '@/api';
+import { shippingService } from '@/api/services';
+import { ShippingAddress, ShippingProvider } from '@/api/types';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';

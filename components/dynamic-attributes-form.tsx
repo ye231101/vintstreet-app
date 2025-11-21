@@ -1,4 +1,4 @@
-import { Attribute, AttributeOption } from '@/api';
+import { Attribute, AttributeOption } from '@/api/types';
 import Feather from '@expo/vector-icons/Feather';
 import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';

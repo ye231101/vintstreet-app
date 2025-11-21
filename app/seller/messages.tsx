@@ -1,4 +1,5 @@
-import { Conversation, messagesService } from '@/api';
+import { messagesService } from '@/api/services';
+import { Conversation } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';

@@ -1,4 +1,4 @@
-import { Product } from '@/api';
+import { Product } from '@/api/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectWishlistError, selectWishlistItems, selectWishlistLoading } from '@/store/selectors/wishlistSelectors';
 import {

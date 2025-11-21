@@ -57,7 +57,11 @@ class CategoriesService {
       }
 
       const toSlug = (name: string | undefined) =>
-        (name || '').toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+        (name || '')
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-');
 
       const mapLeaf = (row: any): Category => ({
         id: String(row.id),
@@ -122,22 +126,20 @@ class CategoriesService {
   /**
    * Fetch active stream categories from Supabase
    */
-  async getStreamCategories(): Promise<{
-    id: string;
-    name: string;
-    description: string;
-    icon: string;
-    is_active: boolean;
-  }[]> {
-    const { data, error } = await supabase
-      .from('stream_categories')
-      .select('*')
-      .eq('is_active', true)
-      .order('name');
+  async getStreamCategories(): Promise<
+    {
+      id: string;
+      name: string;
+      description: string;
+      icon: string;
+      is_active: boolean;
+    }[]
+  > {
+    const { data, error } = await supabase.from('stream_categories').select('*').eq('is_active', true).order('name');
     if (error) {
       throw new Error(`Failed to fetch stream categories: ${error.message}`);
     }
-    return (data as any[]) as any;
+    return data as any[] as any;
   }
 
   /**

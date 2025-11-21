@@ -1,4 +1,5 @@
-import { Conversation, messagesService } from '@/api';
+import { messagesService } from '@/api/services';
+import { Conversation } from '@/api/types';
 import SearchBar from '@/components/search-bar';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';

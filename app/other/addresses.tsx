@@ -1,4 +1,5 @@
-import { SavedAddress, savedAddressesService } from '@/api';
+import { savedAddressesService } from '@/api/services';
+import { SavedAddress } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
@@ -25,7 +26,7 @@ export default function AddressesScreen() {
 
     try {
       const data = await savedAddressesService.list(user.id);
-      setAddresses(data as SavedAddress[] || []);
+      setAddresses((data as SavedAddress[]) || []);
     } catch (err: any) {
       console.error('Error loading addresses:', err);
       showErrorToast(err.message || 'Error loading addresses');

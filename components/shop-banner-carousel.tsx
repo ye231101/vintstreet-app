@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config/supabase';
+import { supabase } from '@/api/config';
 import { blurhash } from '@/utils';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';

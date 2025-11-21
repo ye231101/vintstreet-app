@@ -1,4 +1,4 @@
-import { attributesService, brandsService, listingsService, storageService } from '@/api';
+import { attributesService, brandsService, listingsService, storageService } from '@/api/services';
 import { CategoryAttributesCard } from '@/components/category-attributes-card';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';

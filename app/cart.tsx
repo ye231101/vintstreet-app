@@ -1,4 +1,6 @@
-import { CartItem, ShippingBand, ShippingOption, ShippingProviderPrice, shippingService, supabase } from '@/api';
+import { supabase } from '@/api/config';
+import { shippingService } from '@/api/services';
+import { CartItem, ShippingBand, ShippingOption, ShippingProviderPrice } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash, formatPrice } from '@/utils';
@@ -524,7 +526,7 @@ export default function CartScreen() {
             <SellerGroupSection
               key={sellerId}
               sellerId={sellerId}
-              sellerData={sellerData}
+              sellerData={sellerData as { sellerInfo: any; items: CartItem[] }}
               onRemove={(productId) => handleRemoveItem(productId)}
             />
           ))}

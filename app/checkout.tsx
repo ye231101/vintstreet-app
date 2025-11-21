@@ -1,16 +1,6 @@
-import {
-  buyerService,
-  CartItem,
-  ordersService,
-  SavedAddress,
-  savedAddressesService,
-  ShippingBand,
-  ShippingOption,
-  ShippingProviderPrice,
-  shippingService,
-  stripeService,
-  supabase,
-} from '@/api';
+import { supabase } from '@/api/config';
+import { buyerService, ordersService, savedAddressesService, shippingService, stripeService } from '@/api/services';
+import { CartItem, SavedAddress, ShippingBand, ShippingOption, ShippingProviderPrice } from '@/api/types';
 import { DropdownComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';

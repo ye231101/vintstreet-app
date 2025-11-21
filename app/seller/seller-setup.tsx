@@ -1,4 +1,4 @@
-import { authService, sellerService } from '@/api';
+import { authService, sellerService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
 import { showToast } from '@/utils/toast';

@@ -1,4 +1,5 @@
-import { DashboardReports, listingsService, offersService, sellerService, SellerSettings } from '@/api';
+import { listingsService, offersService, sellerService } from '@/api/services';
+import { DashboardReports, SellerSettings } from '@/api/types';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { Feather, FontAwesome } from '@expo/vector-icons';

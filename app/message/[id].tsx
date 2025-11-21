@@ -1,4 +1,4 @@
-import { messagesService } from '@/api';
+import { messagesService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';

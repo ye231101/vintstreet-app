@@ -1,4 +1,5 @@
-import { listingsService, Product } from '@/api';
+import { listingsService } from '@/api/services';
+import { Product } from '@/api/types';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
@@ -133,7 +134,11 @@ export default function ListingsScreen() {
         'application/octet-stream',
         '*/*',
       ];
-      const res = await DocumentPicker.getDocumentAsync({ type: csvMimeTypes as any, copyToCacheDirectory: true, multiple: false });
+      const res = await DocumentPicker.getDocumentAsync({
+        type: csvMimeTypes as any,
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
       if (res.canceled || !res.assets || res.assets.length === 0) {
         return;
       }
@@ -143,8 +148,7 @@ export default function ListingsScreen() {
       const name = asset.name || '';
 
       const looksCsv =
-        name.toLowerCase().endsWith('.csv') ||
-        /csv|comma\-separated\-values|vnd\.ms\-excel/i.test(mime || '');
+        name.toLowerCase().endsWith('.csv') || /csv|comma\-separated\-values|vnd\.ms\-excel/i.test(mime || '');
       if (!looksCsv) {
         showErrorToast('Please select a CSV file');
         return;
@@ -232,7 +236,9 @@ export default function ListingsScreen() {
         } as any;
       });
 
-      const valid = normalized.filter((n) => n.product_name && (n.starting_price === null || !Number.isNaN(n.starting_price)));
+      const valid = normalized.filter(
+        (n) => n.product_name && (n.starting_price === null || !Number.isNaN(n.starting_price))
+      );
       if (valid.length === 0) {
         showErrorToast('CSV has no valid rows');
         return;

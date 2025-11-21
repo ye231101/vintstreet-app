@@ -1,4 +1,4 @@
-import { stripeService } from '@/api/services/stripe.service';
+import { stripeService } from '@/api/services';
 import { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { useAuth } from './use-auth';

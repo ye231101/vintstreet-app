@@ -1,14 +1,5 @@
-import {
-  authService,
-  listingsService,
-  Product,
-  Review,
-  reviewsService,
-  ReviewStats,
-  sellerService,
-  Stream,
-  streamsService,
-} from '@/api';
+import { authService, listingsService, reviewsService, sellerService, streamsService } from '@/api/services';
+import { Product, Review, ReviewStats, Stream } from '@/api/types';
 import { ContactModal } from '@/components/contact-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash, formatPrice } from '@/utils';

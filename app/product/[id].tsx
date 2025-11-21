@@ -1,4 +1,5 @@
-import { attributesService, listingsService, Product } from '@/api';
+import { attributesService, listingsService } from '@/api/services';
+import { Product } from '@/api/types';
 import { ContactModal } from '@/components/contact-modal';
 import { MakeOfferModal } from '@/components/make-offer-modal';
 import { useAuth } from '@/hooks/use-auth';

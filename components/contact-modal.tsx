@@ -1,4 +1,5 @@
-import { messagesService, Order, Product } from '@/api';
+import { messagesService } from '@/api/services';
+import { Order, Product } from '@/api/types';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';

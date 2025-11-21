@@ -1,4 +1,4 @@
-import { authService, sellerService } from '@/api';
+import { authService, sellerService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
@@ -7,14 +7,14 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

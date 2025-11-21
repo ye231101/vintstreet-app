@@ -1,4 +1,4 @@
-import { Product } from '@/api';
+import { Product } from '@/api/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectCartError, selectCartItems, selectCartLoading } from '@/store/selectors/cartSelectors';
 import {

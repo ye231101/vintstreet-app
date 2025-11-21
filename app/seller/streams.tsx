@@ -1,4 +1,5 @@
-import { Stream, streamsService } from '@/api';
+import { streamsService } from '@/api/services';
+import { Stream } from '@/api/types';
 import { ConfirmationModal } from '@/components/confirmation-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';

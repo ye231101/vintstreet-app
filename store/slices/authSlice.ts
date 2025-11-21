@@ -1,5 +1,5 @@
-import type { AuthUser } from '@/api';
-import { authService } from '@/api';
+import { authService } from '@/api/services';
+import { AuthUser } from '@/api/types';
 import { removeStorageValue, setStorageValue } from '@/utils/storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 

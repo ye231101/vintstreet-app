@@ -1,5 +1,6 @@
-import { Stream, streamsService } from '@/api';
-import { supabase } from '@/api/config/supabase';
+import { supabase } from '@/api/config';
+import { streamsService } from '@/api/services';
+import { Stream } from '@/api/types';
 import LiveChat from '@/components/live-chat';
 import { useAgora } from '@/hooks/use-agora';
 import { useAuth } from '@/hooks/use-auth';

@@ -1,4 +1,4 @@
-import { authService } from '@/api';
+import { authService } from '@/api/services';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';

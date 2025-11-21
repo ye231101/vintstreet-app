@@ -12,9 +12,8 @@ if (!ALGOLIA_APP_ID || !ALGOLIA_SEARCH_API_KEY) {
 }
 
 // Create Algolia search client
-export const searchClient = ALGOLIA_APP_ID && ALGOLIA_SEARCH_API_KEY
-  ? algoliasearch(ALGOLIA_APP_ID, ALGOLIA_SEARCH_API_KEY)
-  : null;
+export const searchClient =
+  ALGOLIA_APP_ID && ALGOLIA_SEARCH_API_KEY ? algoliasearch(ALGOLIA_APP_ID, ALGOLIA_SEARCH_API_KEY) : null;
 
 // Index names - update these to match your Algolia indices
 export const productsIndex = {
@@ -40,4 +39,3 @@ export const categoriesQuerySuggestionsIndex = {
 export const productsQuerySuggestionsIndex = {
   indexName: process.env.EXPO_PUBLIC_ALGOLIA_PRODUCTS_QUERY_SUGGESTIONS_INDEX || 'products_query_suggestions',
 };
-

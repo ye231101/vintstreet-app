@@ -77,9 +77,7 @@ export const DropdownComponent: React.FC<DropdownProps> = ({
       <Dropdown
         data={data}
         renderLeftIcon={() => (
-          <Text className="mr-3">
-            {icon ? <Feather name={icon as any} size={24} color="black" /> : null}
-          </Text>
+          <Text className="mr-3">{icon ? <Feather name={icon as any} size={24} color="black" /> : null}</Text>
         )}
         labelField="label"
         valueField="value"

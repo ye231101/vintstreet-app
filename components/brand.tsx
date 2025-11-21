@@ -1,4 +1,4 @@
-import { brandsService } from '@/api';
+import { brandsService } from '@/api/services';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';

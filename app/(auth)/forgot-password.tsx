@@ -4,15 +4,7 @@ import { styles } from '@/styles';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ForgotPasswordScreen() {
@@ -76,7 +68,10 @@ export default function ForgotPasswordScreen() {
               Please check your inbox and spam folder. Click the link in the email to reset your password.
             </Text>
 
-            <Pressable onPress={() => router.push('/(auth)')} className="w-full h-14 items-center justify-center rounded-lg bg-black">
+            <Pressable
+              onPress={() => router.push('/(auth)')}
+              className="w-full h-14 items-center justify-center rounded-lg bg-black"
+            >
               <Text className="text-base font-inter-bold text-white">Return to Login</Text>
             </Pressable>
           </View>

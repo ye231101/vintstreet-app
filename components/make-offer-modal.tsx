@@ -1,4 +1,5 @@
-import { offersService, Product } from '@/api';
+import { offersService } from '@/api/services';
+import { Product } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';

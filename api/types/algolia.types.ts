@@ -54,4 +54,3 @@ export interface AlgoliaSearchResult<T> {
   query: string;
   params: string;
 }
-

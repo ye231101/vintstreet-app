@@ -1,4 +1,5 @@
-import { CreateStreamData, storageService, streamsService } from '@/api';
+import { storageService, streamsService } from '@/api/services';
+import { CreateStreamData } from '@/api/types';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';

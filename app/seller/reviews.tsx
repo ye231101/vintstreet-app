@@ -1,18 +1,19 @@
-import { Review, reviewsService } from '@/api';
+import { reviewsService } from '@/api/services';
+import { Review } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Image,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

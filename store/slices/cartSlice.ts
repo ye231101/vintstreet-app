@@ -1,4 +1,5 @@
-import { CartItem, cartService } from '@/api';
+import { cartService } from '@/api/services';
+import { CartItem } from '@/api/types';
 import { showErrorToast } from '@/utils/toast';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 

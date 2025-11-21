@@ -1,4 +1,5 @@
-import { Order, ordersService } from '@/api';
+import { ordersService } from '@/api/services';
+import { Order } from '@/api/types';
 import { DropdownComponent } from '@/components/common';
 import { ContactModal } from '@/components/contact-modal';
 import { blurhash } from '@/utils';

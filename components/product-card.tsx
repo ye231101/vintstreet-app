@@ -1,4 +1,4 @@
-import { Product } from '@/api';
+import { Product } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
