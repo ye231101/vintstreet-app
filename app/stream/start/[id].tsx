@@ -116,15 +116,6 @@ export default function StartStreamScreen() {
     isHost: true,
   });
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!user) {
-      const currentPath = `/stream/start/${id}`;
-      router.replace(`/(auth)?redirect=${encodeURIComponent(currentPath)}` as any);
-      return;
-    }
-  }, [user, id]);
-
   // Load stream data
   useEffect(() => {
     if (id) {
