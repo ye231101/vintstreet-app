@@ -1310,6 +1310,158 @@ class ListingsService {
   }
 
   /**
+   * Get products by their IDs
+   * @param productIds - Array of product IDs
+   * @returns Array of products
+   */
+  async getProductsByIds(productIds: string[]): Promise<Product[]> {
+    try {
+      if (productIds.length === 0) return [];
+
+      const { data, error } = await supabase
+        .from('listings')
+        .select(
+          `
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_images,
+          product_description,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          stock_quantity,
+          product_categories(id, name)
+        `
+        )
+        .in('id', productIds)
+        .eq('status', 'published');
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      // Fetch seller info for all products
+      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
+      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+
+      return (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: sellersMap.get(product.seller_id) || null,
+      })) as Product[];
+    } catch (error) {
+      console.error('Error fetching products by IDs:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get recommended products based on recently viewed items
+   * @param recentlyViewedProducts - Array of recently viewed products
+   * @param limit - Maximum number of recommended products to return
+   * @returns Array of recommended products
+   */
+  async getRecommendedProducts(recentlyViewedProducts: Product[], limit: number = 8): Promise<Product[]> {
+    try {
+      if (recentlyViewedProducts.length === 0) return [];
+
+      // Extract unique brands, categories, and price ranges from recently viewed
+      const brandIds = [...new Set(recentlyViewedProducts.map((p) => p.brand_id).filter(Boolean))];
+      const categoryIds = [...new Set(recentlyViewedProducts.map((p) => p.sub_sub_subcategory_id).filter(Boolean))];
+      const viewedProductIds = recentlyViewedProducts.map((p) => p.id);
+
+      // Calculate average price
+      const avgPrice =
+        recentlyViewedProducts.reduce((sum, p) => sum + (p.discounted_price || p.starting_price), 0) /
+        recentlyViewedProducts.length;
+
+      const minPrice = avgPrice * 0.5;
+      const maxPrice = avgPrice * 1.5;
+
+      // Get non-suspended sellers
+      const { data: nonSuspendedSellers } = await supabase
+        .from('seller_profiles')
+        .select('user_id')
+        .eq('is_suspended', false);
+
+      const nonSuspendedSellerIds = nonSuspendedSellers?.map((s: any) => s.user_id) || [];
+
+      // Build query for similar products
+      let query = supabase
+        .from('listings')
+        .select(
+          `
+          id,
+          product_name,
+          starting_price,
+          discounted_price,
+          product_image,
+          product_images,
+          seller_id,
+          category_id,
+          subcategory_id,
+          sub_subcategory_id,
+          sub_sub_subcategory_id,
+          brand_id,
+          status,
+          created_at,
+          product_categories(id, name)
+        `
+        )
+        .eq('status', 'published')
+        .in('seller_id', nonSuspendedSellerIds)
+        .not('id', 'in', `(${viewedProductIds.join(',')})`)
+        .gte('starting_price', minPrice)
+        .lte('starting_price', maxPrice);
+
+      // Add brand or category filters
+      if (brandIds.length > 0 || categoryIds.length > 0) {
+        const conditions = [];
+        if (brandIds.length > 0) {
+          conditions.push(`brand_id.in.(${brandIds.join(',')})`);
+        }
+        if (categoryIds.length > 0) {
+          conditions.push(`sub_sub_subcategory_id.in.(${categoryIds.join(',')})`);
+        }
+        query = query.or(conditions.join(','));
+      }
+
+      const { data, error } = await query.limit(limit);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      // Fetch seller info for recommended products
+      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
+      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+
+      return (data || []).map((product: any) => ({
+        ...product,
+        seller_info_view: sellersMap.get(product.seller_id) || null,
+      })) as Product[];
+    } catch (error) {
+      console.error('Error fetching recommended products:', error);
+      return [];
+    }
+  }
+
+  /**
    * Bulk create product listings
    * @param sellerId - The seller's user ID
    * @param items - Array of product rows to insert

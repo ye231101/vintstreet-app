@@ -1,3 +1,4 @@
+export * from './algolia.types';
 export * from './attributes.types';
 export * from './auth.types';
 export * from './brands.types';

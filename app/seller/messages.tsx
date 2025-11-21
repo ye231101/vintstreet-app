@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -22,7 +22,7 @@ export default function MessagesScreen() {
   }, [user?.id]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       if (user?.id) {
         loadConversations();
       }
