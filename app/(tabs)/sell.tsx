@@ -1360,16 +1360,12 @@ export default function SellScreen() {
           style={styles.container}
         >
           <View className="flex-1 justify-end bg-black/50">
-            <View className="max-h-4/5 rounded-t-2xl bg-white">
+            <SafeAreaView edges={['bottom']} className="w-full rounded-t-2xl bg-white">
               {/* Header */}
               <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
                 <Text className="text-lg font-inter-bold text-black">Select Brand</Text>
-                <TouchableOpacity
-                  onPress={() => setShowBrandModal(false)}
-                  hitSlop={8}
-                  className="items-center justify-center"
-                >
-                  <Feather name="x" size={20} color="#000" />
+                <TouchableOpacity onPress={() => setShowBrandModal(false)} hitSlop={8}>
+                  <Feather name="x" size={24} color="#000" />
                 </TouchableOpacity>
               </View>
 
@@ -1384,10 +1380,10 @@ export default function SellScreen() {
               </View>
 
               {/* Brand List */}
-              <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="px-4">
                   {filteredBrands.length === 0 ? (
-                    <View className="items-center justify-center py-8">
+                    <View className="items-center justify-center p-8">
                       <Text className="text-sm font-inter-semibold text-gray-500">No brands found</Text>
                     </View>
                   ) : (
@@ -1399,15 +1395,15 @@ export default function SellScreen() {
                           setShowBrandModal(false);
                           setBrandSearchQuery('');
                         }}
-                        className={`flex-row items-center justify-between px-3 py-3 rounded-lg ${
+                        className={`flex-row items-center justify-between p-4 rounded-lg ${
                           selectedBrandId === brand.id ? 'bg-gray-100' : 'bg-transparent'
                         }`}
                       >
-                        <View className="flex-1 flex-row items-center">
+                        <View className="flex-1 flex-row items-center gap-4">
                           {brand.logo_url && (
-                            <Image source={{ uri: brand.logo_url }} className="w-6 h-6 mr-3" resizeMode="contain" />
+                            <Image source={{ uri: brand.logo_url }} className="w-6 h-6" resizeMode="contain" />
                           )}
-                          <Text className="text-sm font-inter-semibold text-black flex-1">{brand.name}</Text>
+                          <Text className="flex-1 text-sm font-inter-semibold text-black">{brand.name}</Text>
                         </View>
                         {selectedBrandId === brand.id && <Feather name="check" size={16} color="#000" />}
                       </TouchableOpacity>
@@ -1425,13 +1421,13 @@ export default function SellScreen() {
                       setBrandSearchQuery('');
                       setShowBrandModal(false);
                     }}
-                    className="items-center justify-center py-3 px-4 rounded-lg bg-gray-200"
+                    className="items-center justify-center p-4 rounded-lg bg-gray-200"
                   >
                     <Text className="text-sm font-inter-semibold text-black">Clear Selection</Text>
                   </TouchableOpacity>
                 </View>
               )}
-            </View>
+            </SafeAreaView>
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -1440,11 +1436,11 @@ export default function SellScreen() {
       <Modal
         visible={showCategoryModal}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setShowCategoryModal(false)}
       >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="max-h-4/5 rounded-t-2xl bg-white">
+        <View className="flex-1 items-center justify-center p-4 bg-black/50">
+          <View className="w-full h-3/5 rounded-2xl bg-white">
             {/* Header */}
             <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <View className="flex-row items-center gap-3">
@@ -1477,141 +1473,137 @@ export default function SellScreen() {
                 </Text>
               </View>
 
-              <TouchableOpacity
-                onPress={() => setShowCategoryModal(false)}
-                hitSlop={8}
-                className="items-center justify-center"
-              >
-                <Feather name="x" size={20} color="#000" />
+              <TouchableOpacity onPress={() => setShowCategoryModal(false)} hitSlop={8}>
+                <Feather name="x" size={24} color="#000" />
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} className="max-h-80">
-              <View className="px-4">
-                {currentCategoryLevel === 'category' &&
-                  (categories.length === 0 ? (
-                    <View className="items-center justify-center py-8">
-                      <Text className="text-sm font-inter-semibold text-gray-500">No categories available</Text>
-                    </View>
-                  ) : (
-                    categories.map((category) => (
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+              {currentCategoryLevel === 'category' &&
+                (categories.length === 0 ? (
+                  <View className="items-center justify-center p-8">
+                    <Text className="text-sm font-inter-semibold text-gray-500">No categories available</Text>
+                  </View>
+                ) : (
+                  categories.map((category) => (
+                    <View key={category.id} className="border-b border-gray-200">
                       <TouchableOpacity
-                        key={category.id}
                         onPress={async () => {
                           setSelectedCategoryId(category.id);
                           setCategory(category.name);
                           await loadSubcategories(category.id);
                           setCurrentCategoryLevel('subcategory');
                         }}
-                        className="flex-row items-center justify-between py-3"
+                        className="flex-row items-center justify-between p-4"
                       >
                         <Text className="text-base font-inter-semibold text-black">{category.name}</Text>
                         <Feather name="chevron-right" size={16} color="#999" />
                       </TouchableOpacity>
-                    ))
-                  ))}
-
-                {currentCategoryLevel === 'subcategory' &&
-                  (subcategories.length === 0 ? (
-                    <View className="items-center justify-center py-8 gap-4">
-                      <Text className="text-sm font-inter-semibold text-gray-500">No subcategories available</Text>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setCurrentCategoryLevel('subSubcategory');
-                        }}
-                        className="px-6 py-3 rounded-lg bg-black"
-                      >
-                        <Text className="text-base font-inter-semibold text-white">
-                          Continue with {categories.find((c) => c.id === selectedCategoryId)?.name || 'Category'}
-                        </Text>
-                      </TouchableOpacity>
                     </View>
-                  ) : (
-                    subcategories.map((subcategory) => (
+                  ))
+                ))}
+
+              {currentCategoryLevel === 'subcategory' &&
+                (subcategories.length === 0 ? (
+                  <View className="items-center justify-center p-8 gap-4">
+                    <Text className="text-sm font-inter-semibold text-gray-500">No subcategories available</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCurrentCategoryLevel('subSubcategory');
+                      }}
+                      className="px-6 py-3 rounded-lg bg-black"
+                    >
+                      <Text className="text-base font-inter-semibold text-white">
+                        Continue with {categories.find((c) => c.id === selectedCategoryId)?.name || 'Category'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  subcategories.map((subcategory) => (
+                    <View key={subcategory.id} className="border-b border-gray-200">
                       <TouchableOpacity
-                        key={subcategory.id}
                         onPress={async () => {
                           setSelectedSubcategoryId(subcategory.id);
                           await loadSubSubcategories(subcategory.id);
                           await loadAttributes(subcategory.id);
                           setCurrentCategoryLevel('subSubcategory');
                         }}
-                        className="flex-row items-center justify-between py-3"
+                        className="flex-row items-center justify-between p-4"
                       >
                         <Text className="text-base font-inter-semibold text-black">{subcategory.name}</Text>
                         <Feather name="chevron-right" size={16} color="#999" />
                       </TouchableOpacity>
-                    ))
-                  ))}
-
-                {currentCategoryLevel === 'subSubcategory' &&
-                  (subSubcategories.length === 0 ? (
-                    <View className="items-center justify-center py-8 gap-4">
-                      <Text className="text-sm font-inter-semibold text-gray-500">No types available</Text>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setCurrentCategoryLevel('subSubSubcategory');
-                        }}
-                        className="px-6 py-3 rounded-lg bg-black"
-                      >
-                        <Text className="text-base font-inter-semibold text-white">
-                          Continue with{' '}
-                          {subcategories.find((s) => s.id === selectedSubcategoryId)?.name || 'Subcategory'}
-                        </Text>
-                      </TouchableOpacity>
                     </View>
-                  ) : (
-                    subSubcategories.map((subSubcategory) => (
+                  ))
+                ))}
+
+              {currentCategoryLevel === 'subSubcategory' &&
+                (subSubcategories.length === 0 ? (
+                  <View className="items-center justify-center p-8 gap-4">
+                    <Text className="text-sm font-inter-semibold text-gray-500">No types available</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCurrentCategoryLevel('subSubSubcategory');
+                      }}
+                      className="px-6 py-3 rounded-lg bg-black"
+                    >
+                      <Text className="text-base font-inter-semibold text-white">
+                        Continue with {subcategories.find((s) => s.id === selectedSubcategoryId)?.name || 'Subcategory'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  subSubcategories.map((subSubcategory) => (
+                    <View key={subSubcategory.id} className="border-b border-gray-200">
                       <TouchableOpacity
-                        key={subSubcategory.id}
                         onPress={async () => {
                           setSelectedSubSubcategoryId(subSubcategory.id);
                           await loadSubSubSubcategories(subSubcategory.id);
                           await loadAttributes(selectedSubcategoryId, subSubcategory.id);
                           setCurrentCategoryLevel('subSubSubcategory');
                         }}
-                        className="flex-row items-center justify-between py-3"
+                        className="flex-row items-center justify-between p-4"
                       >
                         <Text className="text-base font-inter-semibold text-black">{subSubcategory.name}</Text>
                         <Feather name="chevron-right" size={16} color="#999" />
                       </TouchableOpacity>
-                    ))
-                  ))}
-
-                {currentCategoryLevel === 'subSubSubcategory' &&
-                  (subSubSubcategories.length === 0 ? (
-                    <View className="items-center justify-center py-8 gap-4">
-                      <Text className="text-sm font-inter-semibold text-gray-500">No specific types available</Text>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setShowCategoryModal(false);
-                        }}
-                        className="px-6 py-3 rounded-lg bg-black"
-                      >
-                        <Text className="text-base font-inter-semibold text-white">
-                          Use{' '}
-                          {subSubcategories.find((s) => s.id === selectedSubSubcategoryId)?.name || 'Sub-subcategory'}
-                        </Text>
-                      </TouchableOpacity>
                     </View>
-                  ) : (
-                    subSubSubcategories.map((subSubSubcategory) => (
+                  ))
+                ))}
+
+              {currentCategoryLevel === 'subSubSubcategory' &&
+                (subSubSubcategories.length === 0 ? (
+                  <View className="items-center justify-center p-8 gap-4">
+                    <Text className="text-sm font-inter-semibold text-gray-500">No specific types available</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setShowCategoryModal(false);
+                      }}
+                      className="px-6 py-3 rounded-lg bg-black"
+                    >
+                      <Text className="text-base font-inter-semibold text-white">
+                        Use {subSubcategories.find((s) => s.id === selectedSubSubcategoryId)?.name || 'Sub-subcategory'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  subSubSubcategories.map((subSubSubcategory) => (
+                    <View key={subSubSubcategory.id} className="border-b border-gray-200">
                       <TouchableOpacity
-                        key={subSubSubcategory.id}
                         onPress={() => {
                           setSelectedSubSubSubcategoryId(subSubSubcategory.id);
                           setShowCategoryModal(false);
                         }}
-                        className="flex-row items-center justify-between py-3"
+                        className="flex-row items-center justify-between p-4"
                       >
                         <Text className="text-base font-inter-semibold text-black">{subSubSubcategory.name}</Text>
                         {selectedSubSubSubcategoryId === subSubSubcategory.id && (
                           <Feather name="check" size={16} color="#999" />
                         )}
                       </TouchableOpacity>
-                    ))
-                  ))}
-              </View>
+                    </View>
+                  ))
+                ))}
             </ScrollView>
           </View>
         </View>
@@ -1624,16 +1616,13 @@ export default function SellScreen() {
         animationType="slide"
         onRequestClose={() => setShowImagePickerModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="rounded-t-2xl bg-white">
+        <View className="flex-1 justify-end bg-black/50">
+          <SafeAreaView edges={['bottom']} className="rounded-t-2xl bg-white">
             {/* Header */}
             <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-lg font-inter-bold text-black">Add Product Images</Text>
-              <TouchableOpacity
-                onPress={() => setShowImagePickerModal(false)}
-                className="items-center justify-center w-6 h-6"
-              >
-                <Feather name="x" size={20} color="#000" />
+              <TouchableOpacity onPress={() => setShowImagePickerModal(false)} hitSlop={8}>
+                <Feather name="x" size={24} color="#000" />
               </TouchableOpacity>
             </View>
 
@@ -1688,7 +1677,7 @@ export default function SellScreen() {
                 <Feather name="chevron-right" size={20} color="#999" />
               </TouchableOpacity>
             </View>
-          </View>
+          </SafeAreaView>
         </View>
       </Modal>
     </SafeAreaView>

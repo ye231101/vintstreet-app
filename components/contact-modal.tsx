@@ -13,8 +13,9 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ContactModalProps {
   visible: boolean;
@@ -104,7 +105,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
         style={styles.container}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-2xl">
+          <SafeAreaView edges={['bottom']} className="w-full rounded-t-2xl bg-white">
             {/* Header */}
             <View className="flex-col gap-2 p-4 border-b border-gray-200">
               <View className="flex-row items-center justify-between">
@@ -188,7 +189,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
                 </View>
               </View>
             </ScrollView>
-          </View>
+          </SafeAreaView>
         </View>
       </KeyboardAvoidingView>
     </Modal>

@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export interface FilterOption {
   label: string;
@@ -130,23 +131,19 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/50 justify-end" onPress={onClose}>
-        <Pressable
-          className="bg-white rounded-t-2xl"
-          style={{ height: '75%', maxHeight: 600 }}
-          onPress={(e) => e.stopPropagation()}
-        >
+      <View className="flex-1 justify-end bg-black/50">
+        <SafeAreaView edges={['bottom']} className="h-3/5 w-full rounded-t-2xl bg-white">
           {/* Header */}
           <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200">
-            <View className="flex-row items-center flex-1">
-              <Pressable onPress={onClose} className="mr-4">
+            <View className="flex-1 flex-row items-center gap-4">
+              <TouchableOpacity onPress={onClose} hitSlop={8}>
                 <Feather name="x" size={24} color="#000" />
-              </Pressable>
+              </TouchableOpacity>
               <Text className="text-xl font-inter-bold text-black">Filters</Text>
             </View>
-            <Pressable onPress={handleClearAll}>
+            <TouchableOpacity onPress={handleClearAll} hitSlop={8}>
               <Text className="text-base font-inter-semibold text-black">Clear all</Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
 
           {/* Content */}
@@ -195,15 +192,15 @@ const FilterModal: React.FC<FilterModalProps> = ({
           </View>
 
           {/* Apply Button */}
-          <View className="px-5 py-4 border-t border-gray-200">
-            <Pressable onPress={handleApply} className="bg-black rounded-lg py-4 items-center">
+          <View className="p-4 border-t border-gray-200">
+            <TouchableOpacity onPress={handleApply} className="bg-black rounded-lg p-4 items-center">
               <Text className="text-white text-base font-inter-bold">
                 Apply Filters {getTotalFiltersCount() > 0 ? `(${getTotalFiltersCount()})` : ''}
               </Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
-        </Pressable>
-      </Pressable>
+        </SafeAreaView>
+      </View>
     </Modal>
   );
 };

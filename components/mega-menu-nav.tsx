@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ProductSubSubSubcategory {
   id: string;
@@ -549,7 +550,9 @@ export const MegaMenuNav = () => {
                   }}
                   className="active:opacity-70"
                 >
-                  <Text className="text-sm font-inter-bold text-gray-900 uppercase tracking-wide">{subcategory.name}</Text>
+                  <Text className="text-sm font-inter-bold text-gray-900 uppercase tracking-wide">
+                    {subcategory.name}
+                  </Text>
                 </Pressable>
                 {subcategory.product_sub_subcategories && subcategory.product_sub_subcategories.length > 0 && (
                   <View>
@@ -825,25 +828,20 @@ export const MegaMenuNav = () => {
           setActiveCategory(null);
         }}
       >
-        <Pressable
-          className="flex-1 justify-end bg-black/60"
-          onPress={() => {
-            setShowMenu(false);
-            setActiveCategory(null);
-          }}
-        >
-          <Pressable className="h-4/5 bg-white rounded-t-2xl" onPress={(e) => e.stopPropagation()}>
+        <View className="flex-1 justify-end bg-black/50">
+          <SafeAreaView edges={['bottom']} className="w-full h-4/5 rounded-t-2xl bg-white">
             {/* Header */}
             <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-xl font-inter-bold text-gray-900">{activeCategoryData?.name || 'Categories'}</Text>
-              <Pressable
+              <TouchableOpacity
                 onPress={() => {
                   setShowMenu(false);
                   setActiveCategory(null);
                 }}
+                hitSlop={8}
               >
                 <Feather name="x" size={24} color="#000" />
-              </Pressable>
+              </TouchableOpacity>
             </View>
 
             {/* Content */}
@@ -887,8 +885,8 @@ export const MegaMenuNav = () => {
                 </View>
               )}
             </View>
-          </Pressable>
-        </Pressable>
+          </SafeAreaView>
+        </View>
       </Modal>
     </>
   );

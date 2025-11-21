@@ -6,15 +6,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Modal,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Modal,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -802,148 +802,148 @@ export default function DashboardScreen() {
         animationType="slide"
         onRequestClose={() => setIsDateModalOpen(false)}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl p-6 max-h-[80%]">
-            <View className="flex-row items-center justify-between mb-6">
+        <View className="flex-1 justify-end bg-black/50">
+          <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-gray-900 text-xl font-inter-bold">Select Time Period</Text>
-              <TouchableOpacity onPress={() => setIsDateModalOpen(false)}>
-                <Feather name="x" size={24} color="#666" />
+              <TouchableOpacity onPress={() => setIsDateModalOpen(false)} hitSlop={8}>
+                <Feather name="x" size={24} color="#000" />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              {/* Quick Period Options */}
-              <View className="mb-6">
-                <Text className="text-gray-600 text-sm font-inter-semibold mb-3">Quick Select</Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {periodOptions
-                    .filter((option) => option.value !== 'custom')
-                    .map((option) => {
-                      const isSelected = pendingPeriod
-                        ? pendingPeriod === option.value
-                        : selectedPeriod === option.value && !customDateRange;
-                      return (
-                        <TouchableOpacity
-                          key={option.value}
-                          onPress={() => changePeriod(option.value)}
-                          className={`rounded-lg px-4 py-2.5 ${isSelected ? 'bg-blue-600' : 'bg-gray-100'}`}
-                        >
-                          <Text
-                            className={`text-sm font-inter-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}
+              <View className="gap-4 p-4">
+                {/* Quick Period Options */}
+                <View>
+                  <Text className="text-gray-600 text-sm font-inter-semibold mb-3">Quick Select</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {periodOptions
+                      .filter((option) => option.value !== 'custom')
+                      .map((option) => {
+                        const isSelected = pendingPeriod
+                          ? pendingPeriod === option.value
+                          : selectedPeriod === option.value && !customDateRange;
+                        return (
+                          <TouchableOpacity
+                            key={option.value}
+                            onPress={() => changePeriod(option.value)}
+                            className={`rounded-lg px-4 py-2.5 ${isSelected ? 'bg-blue-600' : 'bg-gray-100'}`}
                           >
-                            {option.label}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
+                            <Text
+                              className={`text-sm font-inter-semibold ${isSelected ? 'text-white' : 'text-gray-900'}`}
+                            >
+                              {option.label}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                  </View>
                 </View>
-              </View>
 
-              {/* Custom Date Range */}
-              <View className="mb-6">
-                <Text className="text-gray-600 text-sm font-inter-semibold mb-3">Custom Date Range</Text>
-                <View className="bg-gray-50 rounded-lg p-4">
-                  {/* Start Date */}
-                  <View className="mb-4">
-                    <Text className="text-gray-700 text-sm font-inter-semibold mb-2">Start Date</Text>
-                    <TouchableOpacity
-                      onPress={() => setShowStartDatePicker(true)}
-                      className="bg-white rounded-lg p-3 flex-row items-center justify-between border border-gray-200"
-                    >
-                      <Text className="text-gray-900 text-base font-inter">
-                        {tempStartDate.toLocaleDateString('en-GB', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </Text>
-                      <Feather name="calendar" size={20} color="#666" />
-                    </TouchableOpacity>
-                    {showStartDatePicker && (
-                      <DateTimePicker
-                        value={tempStartDate}
-                        mode="date"
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={(event, selectedDate) => {
-                          if (Platform.OS === 'android') {
-                            setShowStartDatePicker(false);
-                          }
-                          if (event.type === 'set' && selectedDate) {
-                            setTempStartDate(selectedDate);
-                            if (Platform.OS === 'ios') {
+                {/* Custom Date Range */}
+                <View>
+                  <Text className="text-gray-600 text-sm font-inter-semibold mb-3">Custom Date Range</Text>
+                  <View className="bg-gray-50 rounded-lg p-4">
+                    {/* Start Date */}
+                    <View className="mb-4">
+                      <Text className="text-gray-700 text-sm font-inter-semibold mb-2">Start Date</Text>
+                      <TouchableOpacity
+                        onPress={() => setShowStartDatePicker(true)}
+                        className="bg-white rounded-lg p-3 flex-row items-center justify-between border border-gray-200"
+                      >
+                        <Text className="text-gray-900 text-base font-inter">
+                          {tempStartDate.toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </Text>
+                        <Feather name="calendar" size={20} color="#666" />
+                      </TouchableOpacity>
+                      {showStartDatePicker && (
+                        <DateTimePicker
+                          value={tempStartDate}
+                          mode="date"
+                          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                          onChange={(event, selectedDate) => {
+                            if (Platform.OS === 'android') {
                               setShowStartDatePicker(false);
                             }
-                          } else if (event.type === 'dismissed') {
-                            setShowStartDatePicker(false);
-                          }
-                        }}
-                        maximumDate={tempEndDate}
-                      />
-                    )}
-                  </View>
+                            if (event.type === 'set' && selectedDate) {
+                              setTempStartDate(selectedDate);
+                              if (Platform.OS === 'ios') {
+                                setShowStartDatePicker(false);
+                              }
+                            } else if (event.type === 'dismissed') {
+                              setShowStartDatePicker(false);
+                            }
+                          }}
+                          maximumDate={tempEndDate}
+                        />
+                      )}
+                    </View>
 
-                  {/* End Date */}
-                  <View>
-                    <Text className="text-gray-700 text-sm font-inter-semibold mb-2">End Date</Text>
-                    <TouchableOpacity
-                      onPress={() => setShowEndDatePicker(true)}
-                      className="bg-white rounded-lg p-3 flex-row items-center justify-between border border-gray-200"
-                    >
-                      <Text className="text-gray-900 text-base font-inter">
-                        {tempEndDate.toLocaleDateString('en-GB', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </Text>
-                      <Feather name="calendar" size={20} color="#666" />
-                    </TouchableOpacity>
-                    {showEndDatePicker && (
-                      <DateTimePicker
-                        value={tempEndDate}
-                        mode="date"
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={(event, selectedDate) => {
-                          if (Platform.OS === 'android') {
-                            setShowEndDatePicker(false);
-                          }
-                          if (event.type === 'set' && selectedDate) {
-                            setTempEndDate(selectedDate);
-                            if (Platform.OS === 'ios') {
+                    {/* End Date */}
+                    <View>
+                      <Text className="text-gray-700 text-sm font-inter-semibold mb-2">End Date</Text>
+                      <TouchableOpacity
+                        onPress={() => setShowEndDatePicker(true)}
+                        className="bg-white rounded-lg p-3 flex-row items-center justify-between border border-gray-200"
+                      >
+                        <Text className="text-gray-900 text-base font-inter">
+                          {tempEndDate.toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </Text>
+                        <Feather name="calendar" size={20} color="#666" />
+                      </TouchableOpacity>
+                      {showEndDatePicker && (
+                        <DateTimePicker
+                          value={tempEndDate}
+                          mode="date"
+                          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                          onChange={(event, selectedDate) => {
+                            if (Platform.OS === 'android') {
                               setShowEndDatePicker(false);
                             }
-                          } else if (event.type === 'dismissed') {
-                            setShowEndDatePicker(false);
-                          }
-                        }}
-                        minimumDate={tempStartDate}
-                        maximumDate={new Date()}
-                      />
-                    )}
+                            if (event.type === 'set' && selectedDate) {
+                              setTempEndDate(selectedDate);
+                              if (Platform.OS === 'ios') {
+                                setShowEndDatePicker(false);
+                              }
+                            } else if (event.type === 'dismissed') {
+                              setShowEndDatePicker(false);
+                            }
+                          }}
+                          minimumDate={tempStartDate}
+                          maximumDate={new Date()}
+                        />
+                      )}
+                    </View>
                   </View>
                 </View>
-              </View>
 
-              {/* Action Buttons */}
-              <View className="flex-row gap-3">
-                <TouchableOpacity
-                  onPress={cancelPeriodChange}
-                  className="flex-1 bg-gray-100 rounded-lg py-3 items-center"
-                >
-                  <Text className="text-gray-900 text-base font-inter-semibold">Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={applyPeriodChange}
-                  className="flex-1 bg-black rounded-lg py-3 items-center"
-                  disabled={!pendingPeriod}
-                >
-                  <Text className={`text-base font-inter-semibold ${pendingPeriod ? 'text-white' : 'text-gray-400'}`}>
-                    Apply
-                  </Text>
-                </TouchableOpacity>
+                {/* Action Buttons */}
+                <View className="flex-row gap-2">
+                  <TouchableOpacity
+                    onPress={cancelPeriodChange}
+                    className="flex-1 bg-gray-100 rounded-lg py-3 items-center"
+                  >
+                    <Text className="text-gray-900 text-base font-inter-semibold">Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={applyPeriodChange}
+                    className="flex-1 bg-black rounded-lg py-3 items-center"
+                    disabled={!pendingPeriod}
+                  >
+                    <Text className="text-base font-inter-semibold text-white">Apply</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </ScrollView>
-          </View>
+          </SafeAreaView>
         </View>
       </Modal>
     </SafeAreaView>

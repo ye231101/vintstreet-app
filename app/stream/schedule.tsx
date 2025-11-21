@@ -9,16 +9,16 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -614,16 +614,13 @@ export default function ScheduleStreamScreen() {
         animationType="slide"
         onRequestClose={() => setShowImagePickerModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="rounded-t-2xl bg-white">
+        <View className="flex-1 justify-end bg-black/50">
+          <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
             {/* Header */}
             <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
               <Text className="text-lg font-inter-bold text-black">Add Stream Thumbnail</Text>
-              <TouchableOpacity
-                onPress={() => setShowImagePickerModal(false)}
-                className="items-center justify-center w-6 h-6"
-              >
-                <Feather name="x" size={20} color="#000" />
+              <TouchableOpacity onPress={() => setShowImagePickerModal(false)} hitSlop={8}>
+                <Feather name="x" size={24} color="#000" />
               </TouchableOpacity>
             </View>
 
@@ -668,7 +665,7 @@ export default function ScheduleStreamScreen() {
                 <Feather name="chevron-right" size={20} color="#999" />
               </TouchableOpacity>
             </View>
-          </View>
+          </SafeAreaView>
         </View>
       </Modal>
     </SafeAreaView>

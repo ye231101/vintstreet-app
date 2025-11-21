@@ -7,6 +7,7 @@ import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface OrderDetailsModalProps {
   visible: boolean;
@@ -146,8 +147,8 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-2xl max-h-[90%]">
+      <View className="flex-1 justify-end bg-black/50">
+        <SafeAreaView edges={['bottom']} className="max-h-[80%] w-full rounded-t-2xl bg-white">
           {/* Header */}
           <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-200">
             <View className="flex-1">
@@ -157,7 +158,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
               </Text>
             </View>
             <TouchableOpacity onPress={onClose} hitSlop={8}>
-              <Feather name="x" size={24} color="#666" />
+              <Feather name="x" size={24} color="#000" />
             </TouchableOpacity>
           </View>
 
@@ -316,7 +317,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
               <Text className="text-base font-inter-bold text-gray-900">Message Buyer</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </SafeAreaView>
       </View>
 
       <ContactModal
