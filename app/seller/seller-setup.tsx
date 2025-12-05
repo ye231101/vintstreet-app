@@ -119,7 +119,7 @@ export default function SellerSetupScreen() {
           shop_name: shopName.trim(),
         };
       } catch (err) {
-        console.log('Could not store preferences:', err);
+        console.error('Could not store preferences:', err);
       }
 
       // Refresh user profile to get updated user_type

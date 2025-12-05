@@ -1,5 +1,12 @@
 import { supabase } from '../config/supabase';
-import { SellerShippingOptions, ShippingAddress, ShippingOption, ShippingProvider } from '../types';
+import {
+  SellerShippingOptions,
+  ShippingAddress,
+  ShippingBand,
+  ShippingOption,
+  ShippingProvider,
+  ShippingProviderPrice,
+} from '../types';
 
 class ShippingService {
   /**
@@ -129,6 +136,40 @@ class ShippingService {
     } catch (error) {
       console.error('Error fetching seller shipping options for buyer:', error);
       throw new Error('Failed to fetch shipping options');
+    }
+  }
+
+  /**
+   * Get all active shipping bands
+   */
+  async getShippingBands(): Promise<ShippingBand[]> {
+    try {
+      const { data, error } = await supabase
+        .from('shipping_bands')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+
+      if (error) throw error;
+      return (data as unknown as ShippingBand[]) || [];
+    } catch (error) {
+      console.error('Error fetching shipping bands:', error);
+      throw new Error('Failed to fetch shipping bands');
+    }
+  }
+
+  /**
+   * Get all shipping provider prices
+   */
+  async getShippingProviderPrices(): Promise<ShippingProviderPrice[]> {
+    try {
+      const { data, error } = await supabase.from('shipping_provider_prices').select('*');
+
+      if (error) throw error;
+      return (data as unknown as ShippingProviderPrice[]) || [];
+    } catch (error) {
+      console.error('Error fetching shipping provider prices:', error);
+      throw new Error('Failed to fetch shipping provider prices');
     }
   }
 

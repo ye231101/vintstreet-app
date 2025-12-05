@@ -10,20 +10,15 @@ export default function PaymentSuccessScreen() {
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'failed' | 'pending'>('pending');
 
   useEffect(() => {
-    console.log('[PAYMENT_SUCCESS] Component mounted with session_id:', session_id);
-
     // In a real implementation, you would verify the payment status
     // with your backend or Stripe webhook
     if (session_id) {
-      console.log('[PAYMENT_SUCCESS] Processing payment verification for session:', session_id);
       // Simulate payment verification
       setTimeout(() => {
-        console.log('[PAYMENT_SUCCESS] Payment verification completed - success');
         setPaymentStatus('success');
         setLoading(false);
       }, 2000);
     } else {
-      console.log('[PAYMENT_SUCCESS] No session_id provided - showing failed state');
       setPaymentStatus('failed');
       setLoading(false);
     }

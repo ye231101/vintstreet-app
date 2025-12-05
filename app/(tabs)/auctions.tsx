@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config';
+import { listingsService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash, formatPrice } from '@/utils';
@@ -177,10 +177,7 @@ const AuctionCard: React.FC<{ auction: AuctionProduct }> = ({ auction }) => {
             transition={1000}
           />
         ) : (
-          <View
-            className="bg-gray-100 items-center justify-center"
-            style={{ width: cardWidth, height: cardHeight }}
-          >
+          <View className="bg-gray-100 items-center justify-center" style={{ width: cardWidth, height: cardHeight }}>
             <Text className="text-gray-400 text-sm">No image</Text>
           </View>
         )}
@@ -189,7 +186,11 @@ const AuctionCard: React.FC<{ auction: AuctionProduct }> = ({ auction }) => {
           onPress={handleWishlistToggle}
           className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-sm"
         >
-          <FontAwesome name={isProductInWishlist ? 'heart' : 'heart-o'} size={18} color={isProductInWishlist ? '#ef4444' : 'black'} />
+          <FontAwesome
+            name={isProductInWishlist ? 'heart' : 'heart-o'}
+            size={18}
+            color={isProductInWishlist ? '#ef4444' : 'black'}
+          />
         </Pressable>
 
         {auctionData && (
@@ -243,80 +244,21 @@ export default function AuctionsScreen() {
         setError(null);
       }
 
-      let query = supabase
-        .from('listings')
-        .select(
-          `
-          id,
-          slug,
-          product_name,
-          starting_price,
-          product_image,
-          product_description,
-          seller_id,
-          status,
-          created_at,
-          auction_type,
-          auctions!inner(
-            id,
-            current_bid,
-            starting_bid,
-            end_time,
-            status,
-            bid_count,
-            reserve_price,
-            reserve_met
-          )
-        `,
-          { count: 'exact' }
-        )
-        .eq('auction_type', 'timed')
-        .eq('status', 'published')
-        .eq('product_type', 'shop')
-        .eq('archived', false)
-        .eq('auctions.status', 'active');
-
-      // Apply sorting
-      if (sortBy === 'ending_soon') {
-        query = query.order('end_time', { foreignTable: 'auctions', ascending: true });
-      } else if (sortBy === 'newest') {
-        query = query.order('created_at', { ascending: false });
-      } else if (sortBy === 'price_low') {
-        query = query.order('starting_price', { ascending: true });
-      } else if (sortBy === 'price_high') {
-        query = query.order('starting_price', { ascending: false });
-      }
-
-      const { data: productsData, error: productsError, count } = await query.range(
-        page * PRODUCTS_PER_PAGE,
-        (page + 1) * PRODUCTS_PER_PAGE - 1
+      const { products: productsWithSellers, total } = await listingsService.getAuctions(
+        page,
+        PRODUCTS_PER_PAGE,
+        sortBy
       );
 
-      if (productsError) throw productsError;
-
-      // Fetch seller information separately
-      const sellerIds = [...new Set((productsData || []).map((p: any) => p.seller_id))];
-      const { data: sellers } = await supabase
-        .from('seller_info_view')
-        .select('*')
-        .in('user_id', sellerIds);
-
-      const sellersMap = new Map(sellers?.map((s: any) => [s.user_id, s]));
-
-      const productsWithSellers = (productsData || []).map((product: any) => ({
-        ...product,
-        seller_info_view: sellersMap.get(product.seller_id) || null,
-      })) as AuctionProduct[];
-
       if (reset) {
-        setProducts(productsWithSellers);
+        setProducts(productsWithSellers as AuctionProduct[]);
       } else {
-        setProducts((prev) => [...prev, ...productsWithSellers]);
+        setProducts((prev) => [...prev, ...(productsWithSellers as AuctionProduct[])]);
       }
 
       const totalLoaded = (page + 1) * PRODUCTS_PER_PAGE;
-      setTotalCount(count || 0);
-      setHasMore(totalLoaded < (count || 0));
+      setTotalCount(total);
+      setHasMore(totalLoaded < total);
       setCurrentPage(page);
     } catch (err) {
       console.error('Error fetching auctions:', err);

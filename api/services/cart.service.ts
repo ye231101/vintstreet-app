@@ -37,23 +37,23 @@ class CartService {
         .from('listings')
         .select(
           `
-          id,
-          product_name,
-          starting_price,
-          discounted_price,
-          product_image,
-          product_images,
-          product_description,
-          seller_id,
-          category_id,
-          subcategory_id,
-          sub_subcategory_id,
-          sub_sub_subcategory_id,
-          brand_id,
-          status,
-          created_at,
-          product_categories(id, name)
-        `
+            id,
+            product_name,
+            starting_price,
+            discounted_price,
+            product_image,
+            product_images,
+            product_description,
+            seller_id,
+            category_id,
+            subcategory_id,
+            sub_subcategory_id,
+            sub_sub_subcategory_id,
+            brand_id,
+            status,
+            created_at,
+            product_categories(id, name)
+          `
         )
         .in('id', listingIds);
 

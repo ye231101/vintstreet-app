@@ -68,7 +68,7 @@ export default function CheckEmailScreen() {
           setCheckingStatus(false);
         }
       } catch (error) {
-        console.log('Error checking email confirmation:', error);
+        console.error('Error checking email confirmation:', error);
       } finally {
         if (attemptCount < MAX_ATTEMPTS) {
           setCheckingStatus(attemptCount % 2 === 0); // Blink the indicator

@@ -38,13 +38,13 @@ export function useNotifications(enabled: boolean = true) {
 
     // Listen for notifications received while app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('📬 Notification received:', notification);
+      console.info('📬 Notification received:', notification);
       setNotification(notification);
     });
 
     // Listen for user tapping on or interacting with a notification
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log('📱 Notification tapped:', response);
+      console.info('📱 Notification tapped:', response);
       handleNotificationResponse(response);
     });
 
@@ -92,7 +92,6 @@ async function registerForPushNotificationsAsync() {
 
     try {
       const pushTokenString = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-      console.log('✅ Push token obtained:', pushTokenString);
       return pushTokenString;
     } catch (e: unknown) {
       console.error('❌ Error getting push token:', e);
@@ -108,21 +107,17 @@ async function savePushTokenToProfile(token: string) {
   try {
     const { user } = await authService.getCurrentUser();
     if (!user) {
-      console.log('⚠️ No user found, skipping push token save');
       return null;
     }
 
     // Check if token is already saved
     if (user.expo_push_token === token) {
-      console.log('✅ Push token already saved');
       return null;
     }
 
     const { error } = await authService.updateProfile({ expo_push_token: token });
     if (error) {
       console.error('❌ Error saving push token:', error);
-    } else {
-      console.log('✅ Push token saved to profile');
     }
   } catch (error) {
     console.error('❌ Error in savePushTokenToProfile:', error);
@@ -169,8 +164,6 @@ function handleNotificationResponse(response: Notifications.NotificationResponse
       }
 
       default: {
-        // Default navigation - could go to notifications screen
-        console.log('📱 Unknown notification type:', type);
         break;
       }
     }

@@ -212,6 +212,337 @@ class CategoriesService {
         this.filterCategories(category.children, searchTerm).length > 0
     );
   }
+
+  /**
+   * Get mega menu custom lists
+   */
+  async getMegaMenuCustomLists(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('mega_menu_custom_lists')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return (data || []) as any[];
+    } catch (error) {
+      console.error('Error fetching mega menu custom lists:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get mega menu custom list items
+   */
+  async getMegaMenuCustomListItems(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('mega_menu_custom_list_items')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+
+      // Fetch categories in parallel to build URLs for category-based items
+      const [l1Data, l2Data, l3Data, l4Data] = await Promise.all([
+        supabase.from('product_categories').select('id, slug, name').eq('is_active', true),
+        supabase.from('product_subcategories').select('id, slug, category_id, name').eq('is_active', true),
+        supabase.from('product_sub_subcategories').select('id, slug, subcategory_id, name').eq('is_active', true),
+        supabase
+          .from('product_sub_sub_subcategories')
+          .select('id, slug, sub_subcategory_id, name')
+          .eq('is_active', true),
+      ]);
+
+      const l1Map = new Map((l1Data.data || []).map((c: any) => [c.id, c]));
+      const l2Map = new Map((l2Data.data || []).map((c: any) => [c.id, c]));
+      const l3Map = new Map((l3Data.data || []).map((c: any) => [c.id, c]));
+      const l4Map = new Map((l4Data.data || []).map((c: any) => [c.id, c]));
+
+      // Enhance items with generated URLs and dynamic display names for category-based items
+      return ((data || []) as any[]).map((item: any) => {
+        if (item.url) {
+          return { ...item, display_name: item.name };
+        }
+
+        let display_name = item.name;
+        if (item.category_id && item.category_level) {
+          let url = '/(tabs)/discovery';
+
+          if (item.category_level === 4) {
+            const l4 = l4Map.get(item.category_id);
+            if (l4) {
+              display_name = l4.name || display_name;
+              const l3 = l3Map.get(l4.sub_subcategory_id);
+              if (l3) {
+                const l2 = l2Map.get(l3.subcategory_id);
+                if (l2) {
+                  const l1 = l1Map.get(l2.category_id);
+                  if (l1) {
+                    url = `/(tabs)/discovery?category=${l1.slug}&subcategory=${l2.slug}&sub_subcategory=${l3.slug}&sub_sub_subcategory=${l4.slug}`;
+                  }
+                }
+              }
+            }
+          } else if (item.category_level === 3) {
+            const l3 = l3Map.get(item.category_id);
+            if (l3) {
+              display_name = l3.name || display_name;
+              const l2 = l2Map.get(l3.subcategory_id);
+              if (l2) {
+                const l1 = l1Map.get(l2.category_id);
+                if (l1) {
+                  url = `/(tabs)/discovery?category=${l1.slug}&subcategory=${l2.slug}&sub_subcategory=${l3.slug}`;
+                }
+              }
+            }
+          } else if (item.category_level === 2) {
+            const l2 = l2Map.get(item.category_id);
+            if (l2) {
+              display_name = l2.name || display_name;
+              const l1 = l1Map.get(l2.category_id);
+              if (l1) {
+                url = `/(tabs)/discovery?category=${l1.slug}&subcategory=${l2.slug}`;
+              }
+            }
+          } else if (item.category_level === 1) {
+            const l1 = l1Map.get(item.category_id);
+            if (l1) {
+              display_name = l1.name || display_name;
+              url = `/(tabs)/discovery?category=${l1.slug}`;
+            }
+          }
+
+          return { ...item, url, display_name };
+        }
+
+        return { ...item, display_name };
+      });
+    } catch (error) {
+      console.error('Error fetching mega menu custom list items:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get mega menu categories with all related data (brands, trending, best sellers, layouts, images, etc.)
+   */
+  async getMegaMenuCategories(): Promise<any[]> {
+    try {
+      const [
+        cats,
+        subs,
+        subSubs,
+        subSubSubs,
+        categoryBrands,
+        trending,
+        bestSellers,
+        luxuryBrands,
+        layouts,
+        customLists,
+        customItems,
+        menuImages,
+      ] = await Promise.all([
+        supabase
+          .from('product_categories')
+          .select('id, name, slug, icon')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true }),
+        supabase
+          .from('product_subcategories')
+          .select('id, name, slug, category_id, show_in_mega_menu')
+          .eq('is_active', true),
+        supabase
+          .from('product_sub_subcategories')
+          .select('id, name, slug, subcategory_id, show_in_mega_menu')
+          .eq('is_active', true),
+        supabase
+          .from('product_sub_sub_subcategories')
+          .select('id, name, slug, sub_subcategory_id')
+          .eq('is_active', true),
+        supabase
+          .from('mega_menu_category_brands')
+          .select('category_id, brand_id, brands(id, name)')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true }),
+        supabase
+          .from('mega_menu_trending_items')
+          .select('category_id, item_level, subcategory_id, sub_subcategory_id, sub_sub_subcategory_id')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true }),
+        supabase
+          .from('mega_menu_best_sellers')
+          .select('category_id, item_level, subcategory_id, sub_subcategory_id, sub_sub_subcategory_id')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true }),
+        supabase
+          .from('mega_menu_luxury_brands')
+          .select('category_id, brand_id, brands(id, name)')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true }),
+        supabase.from('mega_menu_layouts').select('*').eq('is_active', true),
+        supabase
+          .from('mega_menu_custom_lists')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true }),
+        supabase
+          .from('mega_menu_custom_list_items')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true }),
+        supabase.from('mega_menu_images').select('*').eq('is_active', true).order('display_order', { ascending: true }),
+      ]);
+
+      if (cats.error) throw cats.error;
+
+      // Build maps for quick lookup
+      const l2Map = new Map((subs.data || []).map((s: any) => [s.id, s]));
+      const l3Map = new Map((subSubs.data || []).map((ss: any) => [ss.id, ss]));
+      const l4Map = new Map((subSubSubs.data || []).map((sss: any) => [sss.id, sss]));
+
+      // Build hierarchy client-side for optimal performance
+      return ((cats.data || []) as any[]).map((cat: any) => {
+        const layout = (layouts.data || []).find((l: any) => l.category_id === cat.id);
+        const images = (menuImages.data || []).filter((img: any) => {
+          const layoutMatch = (layouts.data || []).find((l: any) => l.category_id === cat.id);
+          return layoutMatch && img.layout_id === (layoutMatch as any).id;
+        });
+
+        return {
+          ...cat,
+          layout,
+          images,
+          brands: (categoryBrands.data || [])
+            .filter((cb: any) => cb.category_id === cat.id)
+            .map((cb: any) => ({
+              brand_id: cb.brand_id,
+              brands: cb.brands,
+            })),
+          trending: (trending.data || [])
+            .filter((t: any) => t.category_id === cat.id)
+            .map((t: any) => {
+              const level = t.item_level;
+              let itemData: any = { id: '', name: '', path: '' };
+
+              if (level === 2) {
+                const l2 = l2Map.get(t.subcategory_id);
+                itemData = {
+                  id: t.subcategory_id,
+                  name: l2?.name,
+                  path: l2 ? `/(tabs)/discovery?category=${cat.slug}&subcategory=${l2.slug}` : undefined,
+                };
+              } else if (level === 3) {
+                const l3 = l3Map.get(t.sub_subcategory_id);
+                const l2 = l3 ? l2Map.get(l3.subcategory_id) : undefined;
+                itemData = {
+                  id: t.sub_subcategory_id,
+                  name: l3?.name,
+                  path:
+                    l2 && l3
+                      ? `/(tabs)/discovery?category=${cat.slug}&subcategory=${l2.slug}&sub_subcategory=${l3.slug}`
+                      : undefined,
+                };
+              } else if (level === 4) {
+                const l4 = l4Map.get(t.sub_sub_subcategory_id);
+                const l3 = l4 ? l3Map.get(l4.sub_subcategory_id) : undefined;
+                const l2 = l3 ? l2Map.get(l3.subcategory_id) : undefined;
+                itemData = {
+                  id: t.sub_sub_subcategory_id,
+                  name: l4?.name,
+                  path:
+                    l2 && l3 && l4
+                      ? `/(tabs)/discovery?category=${cat.slug}&subcategory=${l2.slug}&sub_subcategory=${l3.slug}&sub_sub_subcategory=${l4.slug}`
+                      : undefined,
+                };
+              }
+
+              return itemData;
+            }),
+          bestSellers: (bestSellers.data || [])
+            .filter((bs: any) => bs.category_id === cat.id)
+            .map((bs: any) => {
+              const level = bs.item_level;
+              let itemData: any = { id: '', name: '', path: '' };
+
+              if (level === 2) {
+                const l2 = l2Map.get(bs.subcategory_id);
+                itemData = {
+                  id: bs.subcategory_id,
+                  name: l2?.name,
+                  path: l2 ? `/(tabs)/discovery?category=${cat.slug}&subcategory=${l2.slug}` : undefined,
+                };
+              } else if (level === 3) {
+                const l3 = l3Map.get(bs.sub_subcategory_id);
+                const l2 = l3 ? l2Map.get(l3.subcategory_id) : undefined;
+                itemData = {
+                  id: bs.sub_subcategory_id,
+                  name: l3?.name,
+                  path:
+                    l2 && l3
+                      ? `/(tabs)/discovery?category=${cat.slug}&subcategory=${l2.slug}&sub_subcategory=${l3.slug}`
+                      : undefined,
+                };
+              } else if (level === 4) {
+                const l4 = l4Map.get(bs.sub_sub_subcategory_id);
+                const l3 = l4 ? l3Map.get(l4.sub_subcategory_id) : undefined;
+                const l2 = l3 ? l2Map.get(l3.subcategory_id) : undefined;
+                itemData = {
+                  id: bs.sub_sub_subcategory_id,
+                  name: l4?.name,
+                  path:
+                    l2 && l3 && l4
+                      ? `/(tabs)/discovery?category=${cat.slug}&subcategory=${l2.slug}&sub_subcategory=${l3.slug}&sub_sub_subcategory=${l4.slug}`
+                      : undefined,
+                };
+              }
+
+              return itemData;
+            }),
+          luxuryBrands: (luxuryBrands.data || [])
+            .filter((lb: any) => lb.category_id === cat.id)
+            .map((lb: any) => ({
+              brand_id: lb.brand_id,
+              brands: lb.brands,
+            })),
+          customLists: (customLists.data || [])
+            .filter((cl: any) => cl.category_id === cat.id)
+            .map((cl: any) => ({
+              id: cl.id,
+              name: cl.name,
+              system_name: cl.system_name,
+              list_type: cl.list_type,
+              items: (customItems.data || [])
+                .filter((item: any) => item.list_id === cl.id)
+                .map((item: any) => ({
+                  id: item.id,
+                  name: item.name,
+                  url: item.url,
+                  display_name: item.display_name,
+                })),
+            })),
+          product_subcategories: (subs.data || [])
+            .filter((sub: any) => sub.category_id === cat.id)
+            .map((sub: any) => ({
+              ...sub,
+              product_sub_subcategories: (subSubs.data || [])
+                .filter((subSub: any) => subSub.subcategory_id === sub.id)
+                .map((subSub: any) => ({
+                  ...subSub,
+                  product_sub_sub_subcategories: (subSubSubs.data || []).filter(
+                    (subSubSub: any) => subSubSub.sub_subcategory_id === subSub.id
+                  ),
+                })),
+            })),
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching mega menu categories:', error);
+      throw error;
+    }
+  }
 }
 
 export const categoriesService = new CategoriesService();

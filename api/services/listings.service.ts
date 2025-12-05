@@ -1556,6 +1556,248 @@ class ListingsService {
       throw error;
     }
   }
+
+  /**
+   * Get auction listings with pagination and sorting
+   * @param page - Current page number (0-indexed)
+   * @param pageSize - Number of products per page
+   * @param sortBy - Sort option: 'ending_soon' | 'newest' | 'price_low' | 'price_high'
+   * @returns Object with products, total count, and pagination info
+   */
+  async getAuctions(
+    page: number = 0,
+    pageSize: number = 20,
+    sortBy: 'ending_soon' | 'newest' | 'price_low' | 'price_high' = 'ending_soon'
+  ): Promise<{ products: any[]; total: number }> {
+    try {
+      let query = supabase
+        .from('listings')
+        .select(
+          `
+            id,
+            slug,
+            product_name,
+            starting_price,
+            product_image,
+            product_description,
+            seller_id,
+            status,
+            created_at,
+            auction_type,
+            auctions!inner(
+              id,
+              current_bid,
+              starting_bid,
+              end_time,
+              status,
+              bid_count,
+              reserve_price,
+              reserve_met
+            )
+          `,
+          { count: 'exact' }
+        )
+        .eq('auction_type', 'timed')
+        .eq('status', 'published')
+        .eq('product_type', 'shop')
+        .eq('archived', false)
+        .eq('auctions.status', 'active');
+
+      // Apply sorting
+      if (sortBy === 'ending_soon') {
+        query = query.order('end_time', { foreignTable: 'auctions', ascending: true });
+      } else if (sortBy === 'newest') {
+        query = query.order('created_at', { ascending: false });
+      } else if (sortBy === 'price_low') {
+        query = query.order('starting_price', { ascending: true });
+      } else if (sortBy === 'price_high') {
+        query = query.order('starting_price', { ascending: false });
+      }
+
+      const {
+        data: productsData,
+        error: productsError,
+        count,
+      } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+
+      if (productsError) throw productsError;
+
+      // Fetch seller information separately
+      const sellerIds = [...new Set((productsData || []).map((p: any) => p.seller_id))];
+      const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
+
+      const sellersMap = new Map(sellers?.map((s: any) => [s.user_id, s]));
+
+      const productsWithSellers = (productsData || []).map((product: any) => ({
+        ...product,
+        seller_info_view: sellersMap.get(product.seller_id) || null,
+      }));
+
+      return {
+        products: productsWithSellers,
+        total: count || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching auctions:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create an auction listing for a stream
+   * @param auctionData - Auction listing data
+   * @returns Created listing
+   */
+  async createAuctionListing(auctionData: {
+    seller_id: string;
+    stream_id: string;
+    product_name: string;
+    product_description: string;
+    starting_price: number;
+    current_bid: number;
+    auction_end_time: string;
+  }): Promise<any> {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .insert({
+          seller_id: auctionData.seller_id,
+          stream_id: auctionData.stream_id,
+          product_name: auctionData.product_name,
+          product_description: auctionData.product_description,
+          starting_price: auctionData.starting_price,
+          current_bid: auctionData.current_bid,
+          is_active: true,
+          auction_end_time: auctionData.auction_end_time,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating auction listing:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * End an auction by updating the listing
+   * @param listingId - The listing ID to update
+   */
+  async endAuction(listingId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({
+          is_active: false,
+          auction_end_time: null,
+        })
+        .eq('id', listingId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error ending auction:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get auction data for a specific listing
+   * @param listingId - The listing ID
+   * @returns Auction data or null if not found
+   */
+  async getAuctionByListingId(listingId: string): Promise<any | null> {
+    try {
+      const { data, error } = await supabase
+        .from('auctions')
+        .select('*')
+        .eq('listing_id', listingId)
+        .eq('status', 'active')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "not found" error, which is okay
+        throw error;
+      }
+
+      return data ? (data as any) : null;
+    } catch (error) {
+      console.error('Error fetching auction:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get bids for an auction
+   * @param auctionId - The auction ID
+   * @returns Array of bids
+   */
+  async getBidsForAuction(auctionId: string): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('bids')
+        .select('*')
+        .eq('auction_id', auctionId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return (data as any[]) || [];
+    } catch (error) {
+      console.error('Error fetching bids:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Place a proxy bid on an auction
+   * @param auctionId - The auction ID
+   * @param maxBidAmount - Maximum bid amount
+   * @returns Result with success status, current bid, and if user is leading
+   */
+  async placeProxyBid(
+    auctionId: string,
+    maxBidAmount: number
+  ): Promise<{
+    success: boolean;
+    currentBid: number;
+    isLeading: boolean;
+    error?: string;
+  }> {
+    try {
+      const { data, error } = await supabase.functions.invoke('place-proxy-bid', {
+        body: {
+          auctionId: auctionId,
+          maxBidAmount: maxBidAmount,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data && data.success) {
+        return {
+          success: true,
+          currentBid: data.currentBid,
+          isLeading: data.isLeading,
+        };
+      } else {
+        return {
+          success: false,
+          currentBid: 0,
+          isLeading: false,
+          error: (data && data.error) || 'Failed to place bid',
+        };
+      }
+    } catch (error) {
+      console.error('Error placing proxy bid:', error);
+      return {
+        success: false,
+        currentBid: 0,
+        isLeading: false,
+        error: error instanceof Error ? error.message : 'Failed to place bid',
+      };
+    }
+  }
 }
 
 export const listingsService = new ListingsService();

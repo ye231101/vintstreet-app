@@ -65,7 +65,6 @@ export default function RootLayout() {
     if (fontsLoaded) {
       (async () => {
         await SplashScreen.hideAsync();
-        console.log('✅ Fonts loaded and splash hidden');
       })();
     }
   }, [fontsLoaded]);

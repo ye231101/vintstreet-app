@@ -275,6 +275,61 @@ class OrdersService {
   }
 
   /**
+   * Get recent sales for a stream
+   * @param streamId - The stream ID
+   * @param limit - Maximum number of sales to return
+   * @returns Array of sales with listing information
+   */
+  async getRecentSalesForStream(
+    streamId: string,
+    limit: number = 10
+  ): Promise<
+    Array<{
+      id: string;
+      itemName: string;
+      price: number;
+      soldAt: Date;
+    }>
+  > {
+    try {
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id, order_amount, created_at, listing_id')
+        .eq('stream_id', streamId)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (ordersError) throw ordersError;
+
+      if (!orders || orders.length === 0) {
+        return [];
+      }
+
+      const listingIds = orders.map((order: any) => order.listing_id).filter(Boolean);
+      const { data: listings, error: listingsError } = await supabase
+        .from('listings')
+        .select('id, product_name')
+        .in('id', listingIds);
+
+      if (listingsError) throw listingsError;
+
+      return orders.map((order: any, index: number) => {
+        const listing = (listings as any)?.find((l: any) => l.id === order.listing_id);
+        return {
+          id: order.id,
+          itemName: listing?.product_name || `Item ${index + 1}`,
+          price: Number(order.order_amount),
+          soldAt: new Date(order.created_at),
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching recent sales for stream:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get status configuration for display
    * @param status - Order status
    */

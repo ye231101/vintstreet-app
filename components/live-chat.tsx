@@ -83,12 +83,10 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        console.log('Loading Agora RTM configuration...');
         const config = await getAgoraRTMConfig({
           channelName: streamId,
           uid: userIdRef.current,
         });
-        console.log('Agora RTM config loaded:', { appId: config.appId, hasToken: !!config.token });
 
         // Validate App ID format on frontend
         if (!config.appId || !/^[a-f0-9]{32}$/i.test(config.appId)) {
@@ -197,7 +195,6 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
 
         setIsConnected(true);
         setIsLoading(false);
-        console.log('RTM initialized successfully for channel:', streamId);
       } catch (error) {
         console.error('Failed to initialize RTM:', error);
         setIsLoading(false);

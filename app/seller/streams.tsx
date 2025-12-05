@@ -211,7 +211,7 @@ export default function StreamsScreen() {
               onPress={() => router.push('/stream/schedule')}
               className="flex-1 items-center justify-center py-3 bg-white border border-gray-300 rounded-lg"
             >
-              <Text className="text-black text-base font-inter-bold">Desing my Show</Text>
+              <Text className="text-black text-base font-inter-bold">Design my Show</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push('/stream/schedule')}

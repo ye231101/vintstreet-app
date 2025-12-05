@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.vintstreet.app",
-      "buildNumber": "1.0.0",
+      "buildNumber": "1",
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [
@@ -81,7 +81,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "2c53d584-0f55-4b07-a56d-8b58c74a98e4"
+        "projectId": "29349cba-bcae-4246-8f20-b07f602f22a1"
       }
     }
   }

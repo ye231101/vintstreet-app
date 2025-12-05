@@ -35,7 +35,7 @@ export default function IndexScreen() {
   // Listen to auth state changes (handles email confirmation links)
   useEffect(() => {
     const { data: authListener } = authService.onAuthStateChange(async (event, session) => {
-      console.log('Auth event:', event, 'Session:', !!session);
+      console.info('Auth event:', event, 'Session:', !!session);
 
       // Dispatch auth state change to Redux
       dispatch(handleAuthStateChange({ event, session }));

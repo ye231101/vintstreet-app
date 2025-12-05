@@ -177,7 +177,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
           }
         } catch (error) {
           // Query suggestions are optional, so we don't fail if they're not configured
-          console.log('Query suggestions not available:', error);
+          console.error('Query suggestions not available:', error);
         }
       }
     } catch (error) {

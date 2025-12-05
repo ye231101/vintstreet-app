@@ -67,7 +67,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
 
     const loadConfig = async () => {
       try {
-        console.log('Loading Agora configuration...');
         if (uidRef.current == null) {
           uidRef.current = userId ? parseInt(userId) : Math.floor(Math.random() * 10000);
         }
@@ -76,7 +75,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
           uid: uidRef.current!,
           role: isHost ? 'host' : 'audience',
         });
-        console.log('Agora config loaded:', { appId: config.appId, hasToken: !!config.token });
 
         // Validate App ID format on frontend
         if (!config.appId || !/^[a-f0-9]{32}$/i.test(config.appId)) {
@@ -105,18 +103,15 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
 
   useEffect(() => {
     if (!channelName || !agoraConfig || !state.configLoaded) {
-      console.log('Waiting for channel name and Agora config...', { channelName, configLoaded: state.configLoaded });
       return;
     }
 
     if (engineRef.current || initializingRef.current) {
-      console.log('Agora engine already exists or initializing, skipping...');
       return;
     }
 
     const initializeAgora = async () => {
       try {
-        console.log('Initializing Agora engine with config:', { appId: agoraConfig.appId });
         initializingRef.current = true;
 
         // Request permissions for Android
@@ -145,14 +140,12 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         const setupLocalVideo = async () => {
           if (!isHost) return;
           try {
-            console.log('Setting up local video...');
             await engine.startPreview();
             await engine.enableLocalVideo(true);
             setState((prev) => ({
               ...prev,
               isVideoEnabled: true,
             }));
-            console.log('Local video setup successfully');
           } catch (error) {
             console.error('Failed to setup local video:', error);
           }
@@ -161,11 +154,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         // Set up event handlers
         const eventHandlers: IRtcEngineEventHandler = {
           onJoinChannelSuccess: (connection: RtcConnection, elapsed: number) => {
-            console.log('Successfully joined Agora channel:', {
-              channel: connection.channelId,
-              uid: connection.localUid,
-              elapsed,
-            });
             setState((prev) => ({
               ...prev,
               isConnected: true,
@@ -177,7 +165,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
             }
           },
           onLeaveChannel: (connection: RtcConnection, stats: any) => {
-            console.log('Left Agora channel:', { channel: connection.channelId, stats });
             setState((prev) => ({
               ...prev,
               isConnected: false,
@@ -193,7 +180,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
             }));
           },
           onUserJoined: (connection: RtcConnection, remoteUid: number, elapsed: number) => {
-            console.log('Remote user joined:', { remoteUid, elapsed });
             remoteUsersRef.current.add(remoteUid);
             setState((prev) => ({
               ...prev,
@@ -201,7 +187,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
             }));
           },
           onUserOffline: (connection: RtcConnection, remoteUid: number, reason: UserOfflineReasonType) => {
-            console.log('Remote user offline:', { remoteUid, reason });
             remoteUsersRef.current.delete(remoteUid);
             setState((prev) => ({
               ...prev,
@@ -214,18 +199,14 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
             state: RemoteVideoState,
             reason: RemoteVideoStateReason,
             elapsed: number
-          ) => {
-            console.log('Remote video state changed:', { remoteUid, state, reason, elapsed });
-          },
+          ) => {},
           onRemoteAudioStateChanged: (
             connection: RtcConnection,
             remoteUid: number,
             state: RemoteAudioState,
             reason: RemoteAudioStateReason,
             elapsed: number
-          ) => {
-            console.log('Remote audio state changed:', { remoteUid, state, reason, elapsed });
-          },
+          ) => {},
         };
 
         // Register event handlers
@@ -234,27 +215,13 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         // Join channel
         const uid = uidRef.current ?? (userId ? parseInt(userId) : Math.floor(Math.random() * 10000));
         if (uidRef.current == null) uidRef.current = uid;
-        console.log('Joining Agora channel:', {
-          channelName,
-          uid,
-          appId: agoraConfig.appId,
-          tokenPresent: !!agoraConfig.token,
-        });
 
         try {
           await engine.joinChannel(agoraConfig.token || '', channelName, uid, {
             clientRoleType: isHost ? ClientRoleType.ClientRoleBroadcaster : ClientRoleType.ClientRoleAudience,
           });
-          console.log('Successfully joined Agora channel:', channelName);
         } catch (joinError: any) {
           console.error('Failed to join Agora channel:', joinError);
-          // If the error is about gateway server, log more details
-          if (joinError.code === 'CAN_NOT_GET_GATEWAY_SERVER') {
-            console.error('Gateway server error - this usually indicates:');
-            console.error('1. Invalid App ID');
-            console.error('2. Token configuration mismatch');
-            console.error('3. Network connectivity issues');
-          }
           throw joinError;
         }
       } catch (error) {
@@ -273,7 +240,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
     // Cleanup function
     return () => {
       if (engineRef.current) {
-        console.log('Cleaning up Agora engine...');
         try {
           engineRef.current.leaveChannel();
           engineRef.current.removeAllListeners();
@@ -290,17 +256,14 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
 
   const startVideo = async () => {
     if (!engineRef.current || !isHost) {
-      console.log('Cannot start video: engine not ready or not host', { hasEngine: !!engineRef.current, isHost });
       return;
     }
 
     if (!state.isConnected) {
-      console.log('Cannot start video: not connected to channel yet');
       throw new Error('Not connected to channel yet. Please wait for connection.');
     }
 
     try {
-      console.log('Starting camera...');
       await engineRef.current.startPreview();
       await engineRef.current.enableLocalVideo(true);
 
@@ -308,8 +271,6 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         ...prev,
         isVideoEnabled: true,
       }));
-
-      console.log('Video started successfully');
     } catch (error) {
       console.error('Failed to start video:', error);
       throw error;
@@ -334,25 +295,20 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
 
   const startAudio = async () => {
     if (!engineRef.current || !isHost) {
-      console.log('Cannot start audio: engine not ready or not host', { hasEngine: !!engineRef.current, isHost });
       return;
     }
 
     if (!state.isConnected) {
-      console.log('Cannot start audio: not connected to channel yet');
       throw new Error('Not connected to channel yet. Please wait for connection.');
     }
 
     try {
-      console.log('Starting microphone...');
       await engineRef.current.enableLocalAudio(true);
 
       setState((prev) => ({
         ...prev,
         isAudioEnabled: true,
       }));
-
-      console.log('Audio started successfully');
     } catch (error) {
       console.error('Failed to start audio:', error);
       throw error;
@@ -376,19 +332,15 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
 
   const switchCamera = async () => {
     if (!engineRef.current || !isHost) {
-      console.log('Cannot switch camera: engine not ready or not host', { hasEngine: !!engineRef.current, isHost });
       return;
     }
 
     if (!state.isVideoEnabled) {
-      console.log('Cannot switch camera: video not enabled');
       return;
     }
 
     try {
-      console.log('Switching camera...');
       await engineRef.current.switchCamera();
-      console.log('Camera switched successfully');
     } catch (error) {
       console.error('Failed to switch camera:', error);
       throw error;

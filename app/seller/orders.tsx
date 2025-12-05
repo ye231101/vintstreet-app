@@ -179,7 +179,7 @@ export default function OrdersScreen() {
             UTI: 'com.microsoft.excel.xlsx',
           });
         } catch (shareError) {
-          console.log('Share cancelled or failed:', shareError);
+          console.error('Share cancelled or failed:', shareError);
           // User cancelled or error occurred
           Alert.alert(
             'File Saved',

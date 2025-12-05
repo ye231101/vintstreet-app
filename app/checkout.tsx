@@ -1,4 +1,3 @@
-import { supabase } from '@/api/config';
 import { buyerService, ordersService, savedAddressesService, shippingService, stripeService } from '@/api/services';
 import { CartItem, SavedAddress, ShippingBand, ShippingOption, ShippingProviderPrice } from '@/api/types';
 import { DropdownComponent } from '@/components/common';
@@ -169,20 +168,12 @@ export default function CheckoutScreen() {
     const fetchShippingData = async () => {
       try {
         // Fetch shipping bands
-        const { data: bands, error: bandsError } = await supabase
-          .from('shipping_bands')
-          .select('*')
-          .eq('is_active', true)
-          .order('display_order');
-
-        if (bandsError) throw bandsError;
-        setShippingBands((bands as unknown as ShippingBand[]) || []);
+        const bands = await shippingService.getShippingBands();
+        setShippingBands(bands);
 
         // Fetch provider prices
-        const { data: prices, error: pricesError } = await supabase.from('shipping_provider_prices').select('*');
-
-        if (pricesError) throw pricesError;
-        setShippingProviderPrices((prices as unknown as ShippingProviderPrice[]) || []);
+        const prices = await shippingService.getShippingProviderPrices();
+        setShippingProviderPrices(prices);
       } catch (error) {
         console.error('Error fetching shipping data:', error);
       }

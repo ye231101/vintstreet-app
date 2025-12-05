@@ -92,8 +92,6 @@ class StripeService {
     shippingCost: number;
   }) {
     try {
-      console.log('[STRIPE] Creating checkout session for orders:', orderData.orders.length);
-
       // Validate order data
       if (!orderData.orders || orderData.orders.length === 0) {
         throw new Error('No orders provided');
@@ -111,9 +109,6 @@ class StripeService {
         }
       }
 
-      console.log('[STRIPE] Order data validated successfully');
-      console.log('[STRIPE] Sending data to edge function:', JSON.stringify(orderData, null, 2));
-
       // Check authentication status
       const {
         data: { user },
@@ -123,7 +118,6 @@ class StripeService {
         console.error('[STRIPE] Authentication error:', authError);
         throw new Error('User not authenticated');
       }
-      console.log('[STRIPE] User authenticated:', user.id);
 
       const { data, error } = await supabase.functions.invoke('create-checkout-split', {
         body: {
@@ -132,8 +126,6 @@ class StripeService {
           shippingCost: orderData.shippingCost,
         },
       });
-
-      console.log('[STRIPE] Edge function response:', { data, error });
 
       if (error) {
         console.error('[STRIPE] Edge function error details:', {
@@ -158,7 +150,6 @@ class StripeService {
         throw new Error('No checkout URL returned from server');
       }
 
-      console.log('[STRIPE] Checkout session created successfully');
       return data;
     } catch (error) {
       console.error('[STRIPE] Error creating checkout session:', error);

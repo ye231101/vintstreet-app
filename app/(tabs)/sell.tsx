@@ -307,10 +307,8 @@ export default function SellScreen() {
           isPrimary: productImages.length === 0 && index === 0, // First image is primary if no images exist
         }));
 
-        console.log('Adding new images:', newImageData);
         setProductImages((prev) => {
           const updated = [...prev, ...newImageData];
-          console.log('Total images now:', updated.length);
           return updated;
         });
         setShowImagePickerModal(false);
@@ -1017,11 +1015,11 @@ export default function SellScreen() {
                                 }}
                                 resizeMode="cover"
                                 onError={(error) => {
-                                  console.log('Image load error:', error.nativeEvent.error);
-                                  console.log('Image URI:', item.uri);
+                                  console.error('Image load error:', error.nativeEvent.error);
+                                  console.error('Image URI:', item.uri);
                                 }}
                                 onLoad={() => {
-                                  console.log('Image loaded successfully:', item.key);
+                                  console.info('Image loaded successfully:', item.key);
                                 }}
                               />
 

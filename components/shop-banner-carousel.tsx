@@ -1,4 +1,4 @@
-import { supabase } from '@/api/config';
+import { bannersService } from '@/api/services';
 import { blurhash } from '@/utils';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -101,26 +101,8 @@ export default function ShopBannerCarousel() {
   const fetchBanners = async () => {
     try {
       setIsLoading(true);
-      // Try to fetch from shop_banners table, or fallback to a similar table
-      const { data, error } = await supabase
-        .from('shop_banners')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true })
-        .limit(10);
-
-      if (error) {
-        console.error('Error fetching shop banners:', error);
-        // If table doesn't exist, use empty array
-        setBanners([]);
-        return;
-      }
-
-      if (data && Array.isArray(data)) {
-        setBanners(data as unknown as ShopBanner[]);
-      } else {
-        setBanners([]);
-      }
+      const data = await bannersService.getShopBanners(10);
+      setBanners(data);
     } catch (error) {
       console.error('Error fetching shop banners:', error);
       setBanners([]);
@@ -204,9 +186,6 @@ export default function ShopBannerCarousel() {
       } else if (banner.link_url.startsWith('/')) {
         // Internal route
         router.push(banner.link_url as any);
-      } else {
-        // External URL - you might want to use Linking.openURL here
-        console.log('External URL:', banner.link_url);
       }
     }
   };
