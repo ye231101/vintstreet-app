@@ -3,6 +3,7 @@ import { Product } from '@/api/types';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -49,7 +50,7 @@ export default function ListingsScreen() {
       const fetchedProducts = await listingsService.getListingsByStatus(user.id, activeTab);
       setProducts(fetchedProducts);
     } catch (err) {
-      console.error('Error loading products:', err);
+      logger.error('Error loading products:', err);
       setError(err instanceof Error ? err.message : 'Error loading products');
     } finally {
       setIsLoading(false);
@@ -248,7 +249,7 @@ export default function ListingsScreen() {
       showSuccessToast(`Created ${createdCount} products`);
       await loadProducts();
     } catch (e) {
-      console.error(e);
+      logger.error('Bulk upload failed:', e);
       showErrorToast('Bulk upload failed');
     } finally {
       setIsBulkUploading(false);

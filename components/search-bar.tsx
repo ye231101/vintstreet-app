@@ -10,6 +10,7 @@ import {
 import { AlgoliaBrand, AlgoliaCategory, AlgoliaProduct, AlgoliaQuerySuggestion } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { addRecentSearch, getRecentSearches, removeRecentSearch } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useSegments } from 'expo-router';
@@ -74,7 +75,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
         setSuggestions([]);
       }
     } catch (error) {
-      console.error('Error loading recent searches:', error);
+      logger.error('Error loading recent searches:', error);
     }
   }, []);
 
@@ -177,11 +178,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
           }
         } catch (error) {
           // Query suggestions are optional, so we don't fail if they're not configured
-          console.error('Query suggestions not available:', error);
+          logger.error('Query suggestions not available:', error);
         }
       }
     } catch (error) {
-      console.error('Error searching Algolia:', error);
+      logger.error('Error searching Algolia:', error);
     }
 
     return results;
@@ -298,7 +299,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
 
         setSuggestions(sections);
       } catch (error) {
-        console.error('Error fetching suggestions:', error);
+        logger.error('Error fetching suggestions:', error);
         setSuggestions([]);
       } finally {
         setIsLoadingSuggestions(false);

@@ -3,6 +3,7 @@ import { CreateStreamData } from '@/api/types';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -102,7 +103,7 @@ export default function ScheduleStreamScreen() {
         setThumbnail(stream.thumbnail || '');
       }
     } catch (error) {
-      console.error('Error loading stream:', error);
+      logger.error('Error loading stream:', error);
       showErrorToast('Failed to load stream');
     } finally {
       setIsLoading(false);
@@ -156,7 +157,7 @@ export default function ScheduleStreamScreen() {
 
       router.back();
     } catch (error) {
-      console.error('Error saving stream:', error);
+      logger.error('Error saving stream:', error);
       showErrorToast(isEditMode ? 'Failed to update stream' : 'Failed to schedule stream');
     } finally {
       setIsSaving(false);
@@ -241,7 +242,7 @@ export default function ScheduleStreamScreen() {
         await uploadThumbnail(asset.uri);
       }
     } catch (error) {
-      console.error('Error picking image:', error);
+      logger.error('Error picking image:', error);
       showErrorToast('Failed to pick image from gallery. Please try again.');
     }
   };
@@ -276,7 +277,7 @@ export default function ScheduleStreamScreen() {
         await uploadThumbnail(result.assets[0].uri);
       }
     } catch (error) {
-      console.error('Error taking photo:', error);
+      logger.error('Error taking photo:', error);
       showErrorToast('Failed to take photo. Please try again.');
     }
   };
@@ -311,7 +312,7 @@ export default function ScheduleStreamScreen() {
         showErrorToast(result.error || 'Failed to upload thumbnail');
       }
     } catch (error) {
-      console.error('Error uploading thumbnail:', error);
+      logger.error('Error uploading thumbnail:', error);
       showErrorToast('Failed to upload thumbnail. Please check your internet connection and try again.');
     } finally {
       setIsUploadingThumbnail(false);

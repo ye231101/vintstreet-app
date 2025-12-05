@@ -3,6 +3,7 @@ import { Order, Product } from '@/api/types';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -78,7 +79,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
       setSubject('');
       setMessage('');
     } catch (error: any) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending message:', error);
       const errorMessage = error?.message || 'Failed to send message. Please try again.';
       Alert.alert('Error', errorMessage);
     } finally {

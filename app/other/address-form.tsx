@@ -2,6 +2,7 @@ import { savedAddressesService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
@@ -111,7 +112,7 @@ const AddressAutocompleteField = ({
 
       setResults(sortedResults.slice(0, 5));
     } catch (error) {
-      console.error('Error fetching places:', error);
+      logger.error('Error fetching places:', error);
       setResults([]);
     } finally {
       setIsSearching(false);
@@ -227,7 +228,7 @@ export default function AddressFormScreen() {
         setIsDefault(addressData.is_default);
       }
     } catch (error: any) {
-      console.error('Error loading address:', error);
+      logger.error('Error loading address:', error);
       showErrorToast(error.message || 'Failed to load address');
       router.back();
     } finally {
@@ -435,7 +436,7 @@ export default function AddressFormScreen() {
         router.back();
       }, 500);
     } catch (error: any) {
-      console.error('Error saving address:', error);
+      logger.error('Error saving address:', error);
       showErrorToast(error.message || 'Failed to save address');
     } finally {
       setIsSaving(false);

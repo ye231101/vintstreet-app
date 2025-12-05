@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Order } from '../types';
 
@@ -72,7 +73,7 @@ class OrdersService {
       // Transform API data to match the UI interface
       return this.transformOrdersData(ordersWithListings);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      logger.error('Error fetching orders', error);
       throw error;
     }
   }
@@ -157,7 +158,7 @@ class OrdersService {
 
       return this.transformOrdersData(ordersWithListings);
     } catch (error) {
-      console.error('Error fetching orders by status:', error);
+      logger.error('Error fetching orders by status', error);
       throw error;
     }
   }
@@ -175,7 +176,7 @@ class OrdersService {
         throw new Error(`Failed to update order status: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
+      logger.error('Error updating order status', error);
       throw error;
     }
   }
@@ -193,7 +194,7 @@ class OrdersService {
         throw new Error(`Failed to update tracking number: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error updating tracking number:', error);
+      logger.error('Error updating tracking number', error);
       throw error;
     }
   }
@@ -235,7 +236,7 @@ class OrdersService {
 
       return data as unknown as Order;
     } catch (error) {
-      console.error('Error creating order:', error);
+      logger.error('Error creating order', error);
       throw error;
     }
   }
@@ -324,7 +325,7 @@ class OrdersService {
         };
       });
     } catch (error) {
-      console.error('Error fetching recent sales for stream:', error);
+      logger.error('Error fetching recent sales for stream', error);
       throw error;
     }
   }

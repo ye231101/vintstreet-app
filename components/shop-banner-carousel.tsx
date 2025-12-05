@@ -1,5 +1,6 @@
 import { bannersService } from '@/api/services';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -104,7 +105,7 @@ export default function ShopBannerCarousel() {
       const data = await bannersService.getShopBanners(10);
       setBanners(data);
     } catch (error) {
-      console.error('Error fetching shop banners:', error);
+      logger.error('Error fetching shop banners:', error);
       setBanners([]);
     } finally {
       setIsLoading(false);

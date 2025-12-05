@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash, formatPrice } from '@/utils';
+import { logger } from '@/utils/logger';
 import { addRecentlyViewedProduct } from '@/utils/storage';
 import { showInfoToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
@@ -94,7 +95,7 @@ export default function ProductDetailScreen() {
       const res = await attributesService.getProductAttributeValues(id);
       setProductAttributes(res);
     } catch (error) {
-      console.error('Error loading product attributes:', error);
+      logger.error('Error loading product attributes:', error);
       setProductAttributes([]);
     } finally {
       setAttributesLoading(false);
@@ -112,7 +113,7 @@ export default function ProductDetailScreen() {
       const res = await listingsService.getRelatedProducts(id);
       setRelatedProducts(res);
     } catch (error) {
-      console.error('Error loading related products:', error);
+      logger.error('Error loading related products:', error);
       setRelatedProducts([]);
     } finally {
       setRelatedProductsLoading(false);
@@ -155,7 +156,7 @@ export default function ProductDetailScreen() {
       setIsAddingToCart(true);
       await addItem(product);
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      logger.error('Error adding to cart:', error);
     } finally {
       setIsAddingToCart(false);
     }
@@ -657,7 +658,7 @@ export default function ProductDetailScreen() {
                                 setAddingRelatedProductId(relatedProduct.id);
                                 await addItem(relatedProduct);
                               } catch (error) {
-                                console.error('Error adding to cart:', error);
+                                logger.error('Error adding to cart:', error);
                               } finally {
                                 setAddingRelatedProductId(null);
                               }

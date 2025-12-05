@@ -4,6 +4,7 @@ import { DropdownComponent, InputComponent } from '@/components/common';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
 import { AuthUtils } from '@/utils/auth-utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -90,7 +91,7 @@ export default function SellScreen() {
         setCategories(categoriesData);
         setBrands(brandsData);
       } catch (error) {
-        console.error('Error loading categories and brands:', error);
+        logger.error('Error loading categories and brands:', error);
       }
     };
 
@@ -173,7 +174,7 @@ export default function SellScreen() {
           }
         }
       } catch (error) {
-        console.error('Error loading product data:', error);
+        logger.error('Error loading product data:', error);
         showErrorToast('Failed to load product data');
       }
     };
@@ -190,7 +191,7 @@ export default function SellScreen() {
       const subcategoriesData = await listingsService.getSubcategories(categoryId);
       setSubcategories(subcategoriesData);
     } catch (error) {
-      console.error('Error loading subcategories:', error);
+      logger.error('Error loading subcategories:', error);
     }
   };
 
@@ -200,7 +201,7 @@ export default function SellScreen() {
       const subSubcategoriesData = await listingsService.getSubSubcategories(subcategoryId);
       setSubSubcategories(subSubcategoriesData);
     } catch (error) {
-      console.error('Error loading sub-subcategories:', error);
+      logger.error('Error loading sub-subcategories:', error);
     }
   };
 
@@ -210,7 +211,7 @@ export default function SellScreen() {
       const subSubSubcategoriesData = await listingsService.getSubSubSubcategories(subSubcategoryId);
       setSubSubSubcategories(subSubSubcategoriesData);
     } catch (error) {
-      console.error('Error loading sub-sub-subcategories:', error);
+      logger.error('Error loading sub-sub-subcategories:', error);
     }
   };
 
@@ -220,7 +221,7 @@ export default function SellScreen() {
       const attributesData = await attributesService.getAttributes(subcategoryId, subSubcategoryId);
       setAttributes(attributesData);
     } catch (error) {
-      console.error('Error loading attributes:', error);
+      logger.error('Error loading attributes:', error);
       setAttributes([]);
     }
   };
@@ -317,7 +318,7 @@ export default function SellScreen() {
         await uploadImagesToStorage(newImageData);
       }
     } catch (error) {
-      console.error('Error picking images:', error);
+      logger.error('Error picking images:', error);
       showErrorToast('Failed to pick images from gallery. Please try again.');
     }
   };
@@ -367,7 +368,7 @@ export default function SellScreen() {
         await uploadImagesToStorage(newImageData);
       }
     } catch (error) {
-      console.error('Error taking photo:', error);
+      logger.error('Error taking photo:', error);
       showErrorToast('Failed to take photo. Please try again.');
     }
   };
@@ -455,7 +456,7 @@ export default function SellScreen() {
           const progress = Math.round(((i + 1) / imageData.length) * 100);
           setUploadProgress(progress);
         } catch (error) {
-          console.error(`Error uploading image ${i + 1}:`, error);
+          logger.error(`Error uploading image ${i + 1}:`, error);
           errors.push(`Image ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
@@ -472,7 +473,7 @@ export default function SellScreen() {
         showErrorToast('All uploads failed. Please try again.');
       }
     } catch (error) {
-      console.error('Upload error:', error);
+      logger.error('Upload error:', error);
       showErrorToast('Failed to upload images. Please check your internet connection.');
     } finally {
       setIsUploadingImages(false);
@@ -503,7 +504,7 @@ export default function SellScreen() {
       try {
         await storageService.deleteImage(imageToRemove.uploadedUrl);
       } catch (error) {
-        console.error('Error deleting image from storage:', error);
+        logger.error('Error deleting image from storage:', error);
         // Don't show error to user as the image is already removed from UI
       }
     }
@@ -619,7 +620,7 @@ export default function SellScreen() {
       setCurrentCategoryLevel('category');
       setIsMarketplaceListing(true);
     } catch (error) {
-      console.error('Error saving draft:', error);
+      logger.error('Error saving draft:', error);
       showErrorToast('Failed to save draft. Please try again.');
     } finally {
       setIsSavingDraft(false);
@@ -741,7 +742,7 @@ export default function SellScreen() {
       setCurrentCategoryLevel('category');
       setIsMarketplaceListing(true);
     } catch (error) {
-      console.error('Error publishing product:', error);
+      logger.error('Error publishing product:', error);
       showErrorToast('Failed to publish product. Please try again.');
     } finally {
       setIsPublishing(false);
@@ -1015,11 +1016,11 @@ export default function SellScreen() {
                                 }}
                                 resizeMode="cover"
                                 onError={(error) => {
-                                  console.error('Image load error:', error.nativeEvent.error);
-                                  console.error('Image URI:', item.uri);
+                                  logger.error('Image load error:', error.nativeEvent.error);
+                                  logger.error('Image URI:', item.uri);
                                 }}
                                 onLoad={() => {
-                                  console.info('Image loaded successfully:', item.key);
+                                  logger.info('Image loaded successfully:', item.key);
                                 }}
                               />
 

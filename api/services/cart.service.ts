@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { CartItem } from '../types';
 
@@ -21,7 +22,7 @@ class CartService {
         .order('created_at', { ascending: false });
 
       if (cartError) {
-        console.error('Error fetching cart:', cartError);
+        logger.error('Error fetching cart', cartError);
         throw new Error(`Failed to fetch cart: ${cartError.message}`);
       }
 
@@ -58,7 +59,7 @@ class CartService {
         .in('id', listingIds);
 
       if (listingsError) {
-        console.error('Error fetching listings:', listingsError);
+        logger.error('Error fetching listings', listingsError);
         throw new Error(`Failed to fetch listings: ${listingsError.message}`);
       }
 
@@ -94,7 +95,7 @@ class CartService {
         })
         .filter(Boolean) as CartItem[];
     } catch (error) {
-      console.error('Error in getCart:', error);
+      logger.error('Error in getCart', error);
       throw error;
     }
   }
@@ -128,7 +129,7 @@ class CartService {
         throw new Error(`Failed to add item to cart: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in addToCart:', error);
+      logger.error('Error in addToCart', error);
       throw error;
     }
   }
@@ -146,7 +147,7 @@ class CartService {
         throw new Error(`Failed to remove item from cart: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in removeFromCart:', error);
+      logger.error('Error in removeFromCart', error);
       throw error;
     }
   }
@@ -163,7 +164,7 @@ class CartService {
         throw new Error(`Failed to clear cart: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in clearCart:', error);
+      logger.error('Error in clearCart', error);
       throw error;
     }
   }

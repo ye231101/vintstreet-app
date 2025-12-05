@@ -1,4 +1,5 @@
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,7 +19,7 @@ export default function GetInformedScreen() {
     try {
       await Linking.openURL(url);
     } catch (error) {
-      console.error('Error opening URL:', error);
+      logger.error('Error opening URL:', error);
     }
   };
 

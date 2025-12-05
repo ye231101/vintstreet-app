@@ -1,4 +1,5 @@
 import { authService } from '@/api/services';
+import { logger } from '@/utils/logger';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -38,13 +39,13 @@ export function useNotifications(enabled: boolean = true) {
 
     // Listen for notifications received while app is foregrounded
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.info('📬 Notification received:', notification);
+      logger.info('📬 Notification received', notification);
       setNotification(notification);
     });
 
     // Listen for user tapping on or interacting with a notification
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.info('📱 Notification tapped:', response);
+      logger.info('📱 Notification tapped', response);
       handleNotificationResponse(response);
     });
 
@@ -80,13 +81,13 @@ async function registerForPushNotificationsAsync() {
     }
 
     if (finalStatus !== 'granted') {
-      console.warn('❌ Failed to get push token for push notification!');
+      logger.warn('❌ Failed to get push token for push notification!');
       return null;
     }
 
     const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
     if (!projectId) {
-      console.warn('❌ Project ID not found');
+      logger.warn('❌ Project ID not found');
       return null;
     }
 
@@ -94,11 +95,11 @@ async function registerForPushNotificationsAsync() {
       const pushTokenString = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
       return pushTokenString;
     } catch (e: unknown) {
-      console.error('❌ Error getting push token:', e);
+      logger.error('❌ Error getting push token', e);
       return null;
     }
   } else {
-    console.warn('❌ Push notifications are not supported on this device');
+    logger.warn('❌ Push notifications are not supported on this device');
     return null;
   }
 }
@@ -117,10 +118,10 @@ async function savePushTokenToProfile(token: string) {
 
     const { error } = await authService.updateProfile({ expo_push_token: token });
     if (error) {
-      console.error('❌ Error saving push token:', error);
+      logger.error('❌ Error saving push token', error);
     }
   } catch (error) {
-    console.error('❌ Error in savePushTokenToProfile:', error);
+    logger.error('❌ Error in savePushTokenToProfile', error);
   }
 }
 
@@ -168,6 +169,6 @@ function handleNotificationResponse(response: Notifications.NotificationResponse
       }
     }
   } catch (error) {
-    console.error('❌ Error navigating from notification:', error);
+    logger.error('❌ Error navigating from notification', error);
   }
 }

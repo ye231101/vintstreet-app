@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { WishlistItem } from '../types';
 
@@ -21,7 +22,7 @@ class WishlistService {
         .order('created_at', { ascending: false });
 
       if (wishlistError) {
-        console.error('Error fetching wishlist:', wishlistError);
+        logger.error('Error fetching wishlist:', wishlistError);
         throw new Error(`Failed to fetch wishlist: ${wishlistError.message}`);
       }
 
@@ -58,7 +59,7 @@ class WishlistService {
         .in('id', listingIds);
 
       if (listingsError) {
-        console.error('Error fetching listings:', listingsError);
+        logger.error('Error fetching listings:', listingsError);
         throw new Error(`Failed to fetch listings: ${listingsError.message}`);
       }
 
@@ -94,7 +95,7 @@ class WishlistService {
         })
         .filter(Boolean) as WishlistItem[];
     } catch (error) {
-      console.error('Error in getWishlist:', error);
+      logger.error('Error in getWishlist:', error);
       throw error;
     }
   }
@@ -128,7 +129,7 @@ class WishlistService {
         throw new Error(`Failed to add item to wishlist: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in addToWishlist:', error);
+      logger.error('Error in addToWishlist:', error);
       throw error;
     }
   }
@@ -146,7 +147,7 @@ class WishlistService {
         throw new Error(`Failed to remove item from wishlist: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in removeFromWishlist:', error);
+      logger.error('Error in removeFromWishlist:', error);
       throw error;
     }
   }
@@ -163,7 +164,7 @@ class WishlistService {
         throw new Error(`Failed to clear wishlist: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in clearWishlist:', error);
+      logger.error('Error in clearWishlist:', error);
       throw error;
     }
   }

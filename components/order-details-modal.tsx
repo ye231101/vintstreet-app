@@ -3,6 +3,7 @@ import { Order } from '@/api/types';
 import { DropdownComponent } from '@/components/common';
 import { ContactModal } from '@/components/contact-modal';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -61,7 +62,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
       onOrderUpdated();
       onClose();
     } catch (error: any) {
-      console.error('Error updating status:', error);
+      logger.error('Error updating status:', error);
       showErrorToast('Failed to update order status');
       // Revert to previous status on error
       setSelectedStatus(order.delivery_status || 'processing');
@@ -82,7 +83,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
       showSuccessToast('Tracking number saved successfully');
       onOrderUpdated();
     } catch (error) {
-      console.error('Error saving tracking number:', error);
+      logger.error('Error saving tracking number:', error);
       showErrorToast('Failed to save tracking number');
     } finally {
       setIsSavingTracking(false);

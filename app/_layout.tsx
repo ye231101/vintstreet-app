@@ -55,7 +55,6 @@ export default function RootLayout() {
   // If fonts failed to load, at least hide splash
   useEffect(() => {
     if (fontError) {
-      console.warn('❌ Font loading error:', fontError);
       SplashScreen.hideAsync();
     }
   }, [fontError]);

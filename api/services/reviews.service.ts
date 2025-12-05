@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Review, ReviewReply, ReviewResponse, ReviewStats } from '../types';
 
@@ -62,7 +63,7 @@ class ReviewsService {
       // Transform API data to match the UI interface
       return this.transformReviewsData((reviewsWithProfiles as unknown as ReviewResponse[]) || []);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      logger.error('Error fetching reviews:', error);
       throw error;
     }
   }
@@ -93,7 +94,7 @@ class ReviewsService {
         totalSales,
       };
     } catch (error) {
-      console.error('Error fetching review stats:', error);
+      logger.error('Error fetching review stats:', error);
       throw error;
     }
   }
@@ -165,7 +166,7 @@ class ReviewsService {
 
       return this.transformReviewsData((reviewsWithProfiles as unknown as ReviewResponse[]) || []);
     } catch (error) {
-      console.error('Error fetching sorted reviews:', error);
+      logger.error('Error fetching sorted reviews:', error);
       throw error;
     }
   }
@@ -243,7 +244,7 @@ class ReviewsService {
 
       return this.transformReviewsData([reviewData as unknown as ReviewResponse])[0];
     } catch (error) {
-      console.error('Error creating review:', error);
+      logger.error('Error creating review:', error);
       throw error;
     }
   }
@@ -272,7 +273,7 @@ class ReviewsService {
 
       return data as unknown as ReviewReply;
     } catch (error) {
-      console.error('Error posting reply:', error);
+      logger.error('Error posting reply:', error);
       throw error;
     }
   }

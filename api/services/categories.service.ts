@@ -3,6 +3,7 @@
  * Service for fetching and managing category data
  */
 
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Category } from '../types';
 
@@ -118,7 +119,7 @@ class CategoriesService {
 
       return categories;
     } catch (error) {
-      console.error('CategoriesService - Error fetching categories from Supabase:', error);
+      logger.error('CategoriesService - Error fetching categories from Supabase:', error);
       throw error;
     }
   }
@@ -227,7 +228,7 @@ class CategoriesService {
       if (error) throw error;
       return (data || []) as any[];
     } catch (error) {
-      console.error('Error fetching mega menu custom lists:', error);
+      logger.error('Error fetching mega menu custom lists:', error);
       throw error;
     }
   }
@@ -321,7 +322,7 @@ class CategoriesService {
         return { ...item, display_name };
       });
     } catch (error) {
-      console.error('Error fetching mega menu custom list items:', error);
+      logger.error('Error fetching mega menu custom list items:', error);
       throw error;
     }
   }
@@ -539,7 +540,7 @@ class CategoriesService {
         };
       });
     } catch (error) {
-      console.error('Error fetching mega menu categories:', error);
+      logger.error('Error fetching mega menu categories:', error);
       throw error;
     }
   }

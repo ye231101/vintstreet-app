@@ -1,4 +1,5 @@
 import { clearAgoraConfigCache, getAgoraConfig } from '@/api/config';
+import { logger } from '@/utils/logger';
 import { useEffect, useRef, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import RtcEngine, {
@@ -54,7 +55,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
           PermissionsAndroid.PERMISSIONS.CAMERA,
         ]);
       } catch (error) {
-        console.error('Error requesting permissions:', error);
+        logger.error('Error requesting permissions:', error);
       }
     }
   };
@@ -84,7 +85,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         setAgoraConfig(config);
         setState((prev) => ({ ...prev, configLoaded: true, configError: null }));
       } catch (error) {
-        console.error('Failed to load Agora config:', error);
+        logger.error('Failed to load Agora config:', error);
         setState((prev) => ({
           ...prev,
           configLoaded: false,
@@ -147,7 +148,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
               isVideoEnabled: true,
             }));
           } catch (error) {
-            console.error('Failed to setup local video:', error);
+            logger.error('Failed to setup local video:', error);
           }
         };
 
@@ -173,7 +174,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
             }));
           },
           onError: (err: number, msg: string) => {
-            console.error('Agora engine error:', { err, msg });
+            logger.error('Agora engine error:', { err, msg });
             setState((prev) => ({
               ...prev,
               configError: `Agora error ${err}: ${msg}`,
@@ -221,11 +222,11 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
             clientRoleType: isHost ? ClientRoleType.ClientRoleBroadcaster : ClientRoleType.ClientRoleAudience,
           });
         } catch (joinError: any) {
-          console.error('Failed to join Agora channel:', joinError);
+          logger.error('Failed to join Agora channel:', joinError);
           throw joinError;
         }
       } catch (error) {
-        console.error('Failed to initialize Agora:', error);
+        logger.error('Failed to initialize Agora:', error);
         setState((prev) => ({
           ...prev,
           configError: error instanceof Error ? error.message : 'Failed to initialize Agora',
@@ -245,7 +246,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
           engineRef.current.removeAllListeners();
           engineRef.current.release();
         } catch (error) {
-          console.error('Error during Agora cleanup:', error);
+          logger.error('Error during Agora cleanup:', error);
         }
         engineRef.current = null;
       }
@@ -272,7 +273,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         isVideoEnabled: true,
       }));
     } catch (error) {
-      console.error('Failed to start video:', error);
+      logger.error('Failed to start video:', error);
       throw error;
     }
   };
@@ -289,7 +290,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         isVideoEnabled: false,
       }));
     } catch (error) {
-      console.error('Failed to stop video:', error);
+      logger.error('Failed to stop video:', error);
     }
   };
 
@@ -310,7 +311,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         isAudioEnabled: true,
       }));
     } catch (error) {
-      console.error('Failed to start audio:', error);
+      logger.error('Failed to start audio:', error);
       throw error;
     }
   };
@@ -326,7 +327,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
         isAudioEnabled: false,
       }));
     } catch (error) {
-      console.error('Failed to stop audio:', error);
+      logger.error('Failed to stop audio:', error);
     }
   };
 
@@ -342,7 +343,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
     try {
       await engineRef.current.switchCamera();
     } catch (error) {
-      console.error('Failed to switch camera:', error);
+      logger.error('Failed to switch camera:', error);
       throw error;
     }
   };

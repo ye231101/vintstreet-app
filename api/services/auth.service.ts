@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import {
   AuthResponse,
@@ -461,7 +462,7 @@ class AuthService {
         throw new Error(`Failed to follow user: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error following user:', error);
+      logger.error('Error following user', error);
       throw error;
     }
   }
@@ -483,7 +484,7 @@ class AuthService {
         throw new Error(`Failed to unfollow user: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error unfollowing user:', error);
+      logger.error('Error unfollowing user', error);
       throw error;
     }
   }
@@ -508,7 +509,7 @@ class AuthService {
 
       return !!data;
     } catch (error) {
-      console.error('Error checking follow status:', error);
+      logger.error('Error checking follow status', error);
       throw error;
     }
   }

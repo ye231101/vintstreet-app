@@ -1,4 +1,5 @@
 import { authService } from '@/api/services';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -68,7 +69,7 @@ export default function CheckEmailScreen() {
           setCheckingStatus(false);
         }
       } catch (error) {
-        console.error('Error checking email confirmation:', error);
+        logger.error('Error checking email confirmation:', error);
       } finally {
         if (attemptCount < MAX_ATTEMPTS) {
           setCheckingStatus(attemptCount % 2 === 0); // Blink the indicator

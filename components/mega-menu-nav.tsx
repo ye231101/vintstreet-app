@@ -1,4 +1,5 @@
 import { categoriesService } from '@/api/services';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -111,7 +112,7 @@ export const MegaMenuNav = () => {
       const data = await categoriesService.getMegaMenuCustomLists();
       setAllCustomLists(data as unknown as CustomList[]);
     } catch (error) {
-      console.error('Error fetching custom lists:', error);
+      logger.error('Error fetching custom lists:', error);
     }
   };
 
@@ -120,7 +121,7 @@ export const MegaMenuNav = () => {
       const data = await categoriesService.getMegaMenuCustomListItems();
       setAllCustomItems(data as CustomListItem[]);
     } catch (error) {
-      console.error('Error fetching custom items:', error);
+      logger.error('Error fetching custom items:', error);
     }
   };
 
@@ -130,7 +131,7 @@ export const MegaMenuNav = () => {
       const categoriesData = await categoriesService.getMegaMenuCategories();
       setCategories(categoriesData as ProductCategory[]);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      logger.error('Error fetching categories:', error);
     } finally {
       setIsLoading(false);
     }

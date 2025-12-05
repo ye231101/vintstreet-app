@@ -1,6 +1,7 @@
 import { reviewsService } from '@/api/services';
 import { Review } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -56,7 +57,7 @@ export default function ReviewsScreen() {
       setAverageRating(stats.averageRating);
       setTotalSales(stats.totalSales);
     } catch (err) {
-      console.error('Error loading reviews:', err);
+      logger.error('Error loading reviews:', err);
       setError(err instanceof Error ? err.message : 'Error loading reviews');
     } finally {
       setIsLoading(false);
@@ -142,7 +143,7 @@ export default function ReviewsScreen() {
 
       showSuccessToast('Reply posted successfully!');
     } catch (err) {
-      console.error('Error posting reply:', err);
+      logger.error('Error posting reply:', err);
       showErrorToast('Failed to post reply. Please try again.');
     } finally {
       setIsSubmittingReply((prev) => ({ ...prev, [reviewId]: false }));

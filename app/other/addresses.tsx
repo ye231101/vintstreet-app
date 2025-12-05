@@ -1,6 +1,7 @@
 import { savedAddressesService } from '@/api/services';
 import { SavedAddress } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -28,7 +29,7 @@ export default function AddressesScreen() {
       const data = await savedAddressesService.list(user.id);
       setAddresses((data as SavedAddress[]) || []);
     } catch (err: any) {
-      console.error('Error loading addresses:', err);
+      logger.error('Error loading addresses:', err);
       showErrorToast(err.message || 'Error loading addresses');
     } finally {
       setIsLoading(false);
@@ -58,7 +59,7 @@ export default function AddressesScreen() {
             showSuccessToast('Address deleted successfully');
             loadAddresses();
           } catch (err: any) {
-            console.error('Error deleting address:', err);
+            logger.error('Error deleting address:', err);
             showErrorToast(err.message || 'Failed to delete address');
           }
         },

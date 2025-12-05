@@ -2,6 +2,7 @@ import { offersService } from '@/api/services';
 import { Offer } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -45,7 +46,7 @@ export default function OffersScreen() {
       const fetchedOffers = await offersService.getOffers(user.id, 'seller');
       setOffers(fetchedOffers);
     } catch (err) {
-      console.error('Error loading offers:', err);
+      logger.error('Error loading offers:', err);
       setError(err instanceof Error ? err.message : 'Error loading offers');
     } finally {
       setIsLoading(false);

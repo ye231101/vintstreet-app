@@ -2,6 +2,7 @@ import { listingsService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash, formatPrice } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast } from '@/utils/toast';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -261,7 +262,7 @@ export default function AuctionsScreen() {
       setHasMore(totalLoaded < total);
       setCurrentPage(page);
     } catch (err) {
-      console.error('Error fetching auctions:', err);
+      logger.error('Error fetching auctions:', err);
       setError(err instanceof Error ? err.message : 'Failed to load auctions');
       showErrorToast('Failed to load auctions');
     } finally {

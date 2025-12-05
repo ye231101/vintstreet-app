@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 
 interface ShopBanner {
@@ -27,18 +28,17 @@ class BannersService {
         .limit(limit);
 
       if (error) {
-        console.error('Error fetching shop banners:', error);
+        logger.error('Error fetching shop banners:', error);
         // If table doesn't exist, return empty array
         return [];
       }
 
       return (data || []) as unknown as ShopBanner[];
     } catch (error) {
-      console.error('Error fetching shop banners:', error);
+      logger.error('Error fetching shop banners:', error);
       return [];
     }
   }
 }
 
 export const bannersService = new BannersService();
-

@@ -72,7 +72,8 @@
           "enableGooglePay": true,
           "enableApplePay": true
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { styles } from '@/styles';
 import { formatPrice } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast, showWarningToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
@@ -175,7 +176,7 @@ export default function CheckoutScreen() {
         const prices = await shippingService.getShippingProviderPrices();
         setShippingProviderPrices(prices);
       } catch (error) {
-        console.error('Error fetching shipping data:', error);
+        logger.error('Error fetching shipping data', error);
       }
     };
 
@@ -252,7 +253,7 @@ export default function CheckoutScreen() {
         setSelectedShippingMethod(options[0].id);
       }
     } catch (error) {
-      console.error('Error fetching shipping options:', error);
+      logger.error('Error fetching shipping options', error);
       setShippingMethods([]);
     } finally {
       setShippingLoading(false);
@@ -290,7 +291,7 @@ export default function CheckoutScreen() {
         setUseSavedAddress(false);
       }
     } catch (err) {
-      console.error('Error loading saved addresses:', err);
+      logger.error('Error loading saved addresses', err);
       setSavedAddresses([]);
       setUseSavedAddress(false);
     } finally {
@@ -626,7 +627,7 @@ export default function CheckoutScreen() {
             is_default: savedAddresses.length === 0,
           });
         } catch (error) {
-          console.error('Error saving shipping info:', error);
+          logger.error('Error saving shipping info', error);
           // Continue with checkout even if saving fails
         }
       }
@@ -741,7 +742,7 @@ export default function CheckoutScreen() {
         showErrorToast('Failed to set up payment. Please try again.');
       }
     } catch (error) {
-      console.error('Checkout error:', error);
+      logger.error('Checkout error', error);
       showErrorToast(
         error instanceof Error ? error.message : 'An error occurred while processing your order. Please try again.'
       );

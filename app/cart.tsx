@@ -3,6 +3,7 @@ import { CartItem, ShippingBand, ShippingOption, ShippingProviderPrice } from '@
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash, formatPrice } from '@/utils';
+import { logger } from '@/utils/logger';
 import { getStorageValue, setStorageValue } from '@/utils/storage';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -53,7 +54,7 @@ export default function CartScreen() {
           setShowCountryDialog(true);
         }
       } catch (error) {
-        console.error('Error loading shipping country:', error);
+        logger.error('Error loading shipping country:', error);
       }
     };
     loadShippingCountry();
@@ -64,7 +65,7 @@ export default function CartScreen() {
     try {
       await setStorageValue('SHIPPING_COUNTRY', countryCode);
     } catch (error) {
-      console.error('Error saving shipping country:', error);
+      logger.error('Error saving shipping country:', error);
     }
     setShowCountryDialog(false);
   };
@@ -111,7 +112,7 @@ export default function CartScreen() {
             selected[sellerId] = sellerOptions[0].id;
           }
         } catch (error) {
-          console.error(`Error fetching shipping options for seller ${sellerId}:`, error);
+          logger.error(`Error fetching shipping options for seller ${sellerId}:`, error);
           options[sellerId] = [];
         }
       }
@@ -119,7 +120,7 @@ export default function CartScreen() {
       setShippingOptions(options);
       setSelectedShipping(selected);
     } catch (error) {
-      console.error('Error fetching shipping options:', error);
+      logger.error('Error fetching shipping options:', error);
     } finally {
       setShippingLoading(false);
     }
@@ -137,7 +138,7 @@ export default function CartScreen() {
         const prices = await shippingService.getShippingProviderPrices();
         setShippingProviderPrices(prices);
       } catch (error) {
-        console.error('Error fetching shipping data:', error);
+        logger.error('Error fetching shipping data:', error);
       }
     };
 

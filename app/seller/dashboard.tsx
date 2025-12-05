@@ -2,6 +2,7 @@ import { listingsService, offersService, sellerService } from '@/api/services';
 import { DashboardReports, SellerSettings } from '@/api/types';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
@@ -112,7 +113,7 @@ export default function DashboardScreen() {
         total: offers.length,
       });
     } catch (err: any) {
-      console.error('Error loading dashboard data:', err);
+      logger.error('Error loading dashboard data:', err);
       setError(err?.message || 'Error loading dashboard data');
     } finally {
       setIsLoading(false);

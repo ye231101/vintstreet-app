@@ -1,4 +1,5 @@
 import { stripeService } from '@/api/services';
+import { logger } from '@/utils/logger';
 import { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { useAuth } from './use-auth';
@@ -38,7 +39,7 @@ export function useStripeConnect() {
         setConnected(false);
       }
     } catch (err) {
-      console.error('Error checking Stripe connection:', err);
+      logger.error('Error checking Stripe connection:', err);
       setConnected(false);
     }
   };
@@ -60,7 +61,7 @@ export function useStripeConnect() {
         }
       }
     } catch (err: any) {
-      console.error('Error connecting Stripe account:', err);
+      logger.error('Error connecting Stripe account:', err);
       throw new Error(err?.message || 'Failed to connect Stripe account');
     } finally {
       setLoading(false);
@@ -80,7 +81,7 @@ export function useStripeConnect() {
         );
       }
     } catch (err: any) {
-      console.error('Error fetching balance:', err);
+      logger.error('Error fetching balance:', err);
       if (!String(err?.message || '').includes('No Stripe account found')) {
         // Surface other errors to caller
         throw new Error(err?.message || 'Failed to fetch balance');

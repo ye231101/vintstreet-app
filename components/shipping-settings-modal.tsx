@@ -2,6 +2,7 @@ import { shippingService } from '@/api/services';
 import { ShippingAddress, ShippingProvider } from '@/api/types';
 import { DropdownComponent, InputComponent } from '@/components/common';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
@@ -83,7 +84,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
         });
       }
     } catch (error) {
-      console.error('Error loading shipping data:', error);
+      logger.error('Error loading shipping data:', error);
       showErrorToast('Failed to load shipping settings');
     } finally {
       setIsLoading(false);
@@ -119,7 +120,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
       showSuccessToast('Shipping address updated');
       setIsEditingAddress(false);
     } catch (error) {
-      console.error('Error saving address:', error);
+      logger.error('Error saving address:', error);
       showErrorToast('Failed to save shipping address');
     } finally {
       setIsSavingAddress(false);
@@ -151,7 +152,7 @@ export const ShippingSettingsModal: React.FC<ShippingSettingsModalProps> = ({ is
       showSuccessToast('Shipping settings saved');
       onClose();
     } catch (error) {
-      console.error('Error saving settings:', error);
+      logger.error('Error saving settings:', error);
       showErrorToast('Failed to save shipping settings');
     } finally {
       setIsSavingSettings(false);

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { Linking } from 'react-native';
 import { supabase } from '../config/supabase';
 
@@ -100,11 +101,11 @@ class StripeService {
       // Validate each order has required fields
       for (const order of orderData.orders) {
         if (!order.id || !order.seller_id || !order.product_name || !order.seller_name) {
-          console.error('[STRIPE] Invalid order data:', order);
+          logger.error('[STRIPE] Invalid order data: missing required fields');
           throw new Error('Invalid order data: missing required fields');
         }
         if (order.price <= 0 || order.quantity <= 0) {
-          console.error('[STRIPE] Invalid order pricing:', order);
+          logger.error('[STRIPE] Invalid order data: price and quantity must be positive');
           throw new Error('Invalid order data: price and quantity must be positive');
         }
       }
@@ -115,7 +116,7 @@ class StripeService {
         error: authError,
       } = await supabase.auth.getUser();
       if (authError || !user) {
-        console.error('[STRIPE] Authentication error:', authError);
+        logger.error('[STRIPE] Authentication error', authError);
         throw new Error('User not authenticated');
       }
 
@@ -128,31 +129,24 @@ class StripeService {
       });
 
       if (error) {
-        console.error('[STRIPE] Edge function error details:', {
-          message: error.message,
-          name: error.name,
-          stack: error.stack,
-          context: error.context,
-        });
+        logger.error('[STRIPE] Edge function error', error);
 
         // Try to get more specific error information
         if (error.message.includes('non-2xx status code')) {
-          throw new Error(
-            `Edge function failed with status error. Check server logs for details. Original error: ${error.message}`
-          );
+          throw new Error('Edge function failed with status error. Check server logs for details.');
         }
 
         throw new Error(`Failed to create checkout session: ${error.message}`);
       }
 
       if (!data?.url) {
-        console.error('[STRIPE] No URL in response data:', data);
+        logger.error('[STRIPE] No URL in response data');
         throw new Error('No checkout URL returned from server');
       }
 
       return data;
     } catch (error) {
-      console.error('[STRIPE] Error creating checkout session:', error);
+      logger.error('[STRIPE] Error creating checkout session', error);
       throw error;
     }
   }
@@ -172,7 +166,7 @@ class StripeService {
       await Linking.openURL(checkoutUrl);
       return { success: true };
     } catch (error) {
-      console.error('[STRIPE] Error opening checkout:', error);
+      logger.error('[STRIPE] Error opening checkout', error);
       throw error;
     }
   }
@@ -201,7 +195,7 @@ class StripeService {
 
       return { success: true, checkoutUrl: checkoutData.url };
     } catch (error) {
-      console.error('[STRIPE] Error processing payment:', error);
+      logger.error('[STRIPE] Error processing payment', error);
       throw error;
     }
   }

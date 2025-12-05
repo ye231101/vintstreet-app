@@ -3,6 +3,7 @@ import { Stream } from '@/api/types';
 import { ConfirmationModal } from '@/components/confirmation-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -47,7 +48,7 @@ export default function StreamsScreen() {
       const data = await streamsService.getSellerStreams(user.id);
       setStreams(data);
     } catch (err) {
-      console.error('Error loading streams:', err);
+      logger.error('Error loading streams:', err);
       setError(err instanceof Error ? err.message : 'Error loading streams');
     } finally {
       setIsLoading(false);
@@ -96,7 +97,7 @@ export default function StreamsScreen() {
       loadStreams();
       setEndStreamModal({ visible: false, streamId: null });
     } catch (error) {
-      console.error('Error ending stream:', error);
+      logger.error('Error ending stream:', error);
       showErrorToast('Failed to end stream');
     } finally {
       setIsProcessing(false);
@@ -113,7 +114,7 @@ export default function StreamsScreen() {
       loadStreams();
       setCancelStreamModal({ visible: false, streamId: null });
     } catch (error) {
-      console.error('Error cancelling stream:', error);
+      logger.error('Error cancelling stream:', error);
       showErrorToast('Failed to cancel stream');
     } finally {
       setIsProcessing(false);

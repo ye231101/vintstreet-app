@@ -1,6 +1,7 @@
 import { authService, sellerService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -119,7 +120,7 @@ export default function SellerSetupScreen() {
           shop_name: shopName.trim(),
         };
       } catch (err) {
-        console.error('Could not store preferences:', err);
+        logger.error('Could not store preferences:', err);
       }
 
       // Refresh user profile to get updated user_type
@@ -130,7 +131,7 @@ export default function SellerSetupScreen() {
       // Navigate to seller dashboard
       router.replace('/account');
     } catch (error) {
-      console.error('Error setting up seller account:', error);
+      logger.error('Error setting up seller account:', error);
       showToast(error instanceof Error ? error.message : 'Failed to setup seller account', 'danger');
     } finally {
       setLoading(false);

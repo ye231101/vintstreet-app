@@ -1,5 +1,6 @@
 import { clearAgoraRTMConfigCache, getAgoraRTMConfig } from '@/api/config';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import RtmClient, { RtmAttribute, RtmMessage } from 'agora-react-native-rtm';
 import { useEffect, useRef, useState } from 'react';
@@ -95,7 +96,7 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
 
         setAgoraRTMConfig(config);
       } catch (error) {
-        console.error('Failed to load Agora RTM config:', error);
+        logger.error('Failed to load Agora RTM config', error);
         setIsLoading(false);
         setIsConnected(false);
       }
@@ -137,7 +138,7 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
             new RtmAttribute('color', userColorRef.current),
           ]);
         } catch (attrError) {
-          console.warn('Failed to set user attributes:', attrError);
+          logger.warn('Failed to set user attributes', attrError);
         }
 
         // Join channel
@@ -158,7 +159,7 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
                 });
               }
             } catch (attrError) {
-              console.warn('Failed to get user attributes:', attrError);
+              logger.warn('Failed to get user attributes', attrError);
             }
 
             const messageText = message.text || '[Message]';
@@ -173,7 +174,7 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
             };
             setMessages((prev) => [...prev, newMessage]);
           } catch (error) {
-            console.error('Error processing channel message:', error);
+            logger.error('Error processing channel message', error);
             // Fallback message without user attributes
             const publisherId = fromMember?.userId || 'unknown';
             const messageText = message?.text || '[Message]';
@@ -196,7 +197,7 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
         setIsConnected(true);
         setIsLoading(false);
       } catch (error) {
-        console.error('Failed to initialize RTM:', error);
+        logger.error('Failed to initialize RTM', error);
         setIsLoading(false);
         setIsConnected(false);
       }
@@ -221,19 +222,19 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
           // Leave channel
           if (streamId) {
             await clientRef.current.leaveChannel(streamId).catch((err: any) => {
-              console.error('Error leaving channel:', err);
+              logger.error('Error leaving channel', err);
             });
           }
           // Logout RTM client
           await clientRef.current.logout().catch((err: any) => {
-            console.error('Error during RTM logout:', err);
+            logger.error('Error during RTM logout', err);
           });
           // Release client
           await clientRef.current.release().catch((err: any) => {
-            console.error('Error during RTM release:', err);
+            logger.error('Error during RTM release', err);
           });
         } catch (error) {
-          console.error('Error during RTM client cleanup:', error);
+          logger.error('Error during RTM client cleanup', error);
         }
         clientRef.current = null;
       }
@@ -264,7 +265,7 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
         setMessages((prev) => [...prev, chatMessage]);
         setNewMessage('');
       } catch (error) {
-        console.error('Failed to send message:', error);
+        logger.error('Failed to send message', error);
         // Still add message locally even if RTM send fails
         const chatMessage: ChatMessage = {
           id: Date.now().toString(),

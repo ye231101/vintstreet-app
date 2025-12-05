@@ -1,6 +1,7 @@
 import { messagesService } from '@/api/services';
 import { Conversation } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
@@ -46,7 +47,7 @@ export default function MessagesScreen() {
       const fetchedConversations = await messagesService.getReceivedMessages(user.id);
       setConversations(fetchedConversations);
     } catch (err) {
-      console.error('Error loading messages:', err);
+      logger.error('Error loading messages:', err);
       setError(err instanceof Error ? err.message : 'Error loading messages');
     } finally {
       setIsLoading(false);

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { InfiniteQueryResult, ListingsFilters, Product } from '../types';
 
@@ -124,7 +125,7 @@ class ListingsService {
         total: count || 0,
       };
     } catch (error) {
-      console.error('Error fetching listings infinite:', error);
+      logger.error('Error fetching listings infinite:', error);
       throw error;
     }
   }
@@ -179,7 +180,7 @@ class ListingsService {
 
       return productsWithSellers;
     } catch (error) {
-      console.error('Error fetching listings:', error);
+      logger.error('Error fetching listings:', error);
       throw error;
     }
   }
@@ -315,7 +316,7 @@ class ListingsService {
 
       return productsWithSeller;
     } catch (error) {
-      console.error('Error fetching seller listings:', error);
+      logger.error('Error fetching seller listings:', error);
       throw error;
     }
   }
@@ -387,7 +388,7 @@ class ListingsService {
         total: count || 0,
       };
     } catch (error) {
-      console.error('Error fetching seller listings infinite:', error);
+      logger.error('Error fetching seller listings infinite:', error);
       throw error;
     }
   }
@@ -448,7 +449,7 @@ class ListingsService {
 
       return productWithSeller;
     } catch (error) {
-      console.error('Error fetching listing by id:', error);
+      logger.error('Error fetching listing by id:', error);
       throw error;
     }
   }
@@ -512,7 +513,7 @@ class ListingsService {
 
       return productsWithSeller;
     } catch (error) {
-      console.error('Error fetching listings by status:', error);
+      logger.error('Error fetching listings by status:', error);
       throw error;
     }
   }
@@ -530,7 +531,7 @@ class ListingsService {
         throw new Error(`Failed to update listing status: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error updating listing status:', error);
+      logger.error('Error updating listing status:', error);
       throw error;
     }
   }
@@ -608,7 +609,7 @@ class ListingsService {
 
       return productsWithSellers;
     } catch (error) {
-      console.error('Error searching listings:', error);
+      logger.error('Error searching listings:', error);
       throw error;
     }
   }
@@ -683,7 +684,7 @@ class ListingsService {
 
       return productWithSeller;
     } catch (error) {
-      console.error('Error creating product:', error);
+      logger.error('Error creating product:', error);
       throw error;
     }
   }
@@ -760,7 +761,7 @@ class ListingsService {
 
       return productWithSeller;
     } catch (error) {
-      console.error('Error updating product:', error);
+      logger.error('Error updating product:', error);
       throw error;
     }
   }
@@ -777,7 +778,7 @@ class ListingsService {
         throw new Error(`Failed to delete product: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
+      logger.error('Error deleting product:', error);
       throw error;
     }
   }
@@ -799,7 +800,7 @@ class ListingsService {
 
       return (data as any) || [];
     } catch (error) {
-      console.error('Error fetching product categories:', error);
+      logger.error('Error fetching product categories:', error);
       throw error;
     }
   }
@@ -823,7 +824,7 @@ class ListingsService {
 
       return (data as any) || [];
     } catch (error) {
-      console.error('Error fetching subcategories:', error);
+      logger.error('Error fetching subcategories:', error);
       throw error;
     }
   }
@@ -849,7 +850,7 @@ class ListingsService {
 
       return (data as any) || [];
     } catch (error) {
-      console.error('Error fetching sub-subcategories:', error);
+      logger.error('Error fetching sub-subcategories:', error);
       throw error;
     }
   }
@@ -875,7 +876,7 @@ class ListingsService {
 
       return (data as any) || [];
     } catch (error) {
-      console.error('Error fetching sub-sub-subcategories:', error);
+      logger.error('Error fetching sub-sub-subcategories:', error);
       throw error;
     }
   }
@@ -925,7 +926,7 @@ class ListingsService {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching available brands:', error);
+        logger.error('Error fetching available brands:', error);
         return [];
       }
 
@@ -948,7 +949,7 @@ class ListingsService {
       // Return sorted by name
       return Array.from(brandsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
-      console.error('Error fetching available brands:', error);
+      logger.error('Error fetching available brands:', error);
       return [];
     }
   }
@@ -980,7 +981,7 @@ class ListingsService {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching price range counts:', error);
+        logger.error('Error fetching price range counts:', error);
         return {
           'Under £50.00': 0,
           '£50.00 - £100.00': 0,
@@ -1012,7 +1013,7 @@ class ListingsService {
 
       return counts;
     } catch (error) {
-      console.error('Error fetching price range counts:', error);
+      logger.error('Error fetching price range counts:', error);
       return {
         'Under £50.00': 0,
         '£50.00 - £100.00': 0,
@@ -1058,7 +1059,7 @@ class ListingsService {
         .in('product_id', productIds);
 
       if (attributeError) {
-        console.error('Error fetching attribute values:', attributeError);
+        logger.error('Error fetching attribute values:', attributeError);
         return new Map<string, number>();
       }
 
@@ -1088,7 +1089,7 @@ class ListingsService {
 
       return sizeCounts;
     } catch (error) {
-      console.error('Error fetching size counts:', error);
+      logger.error('Error fetching size counts:', error);
       return new Map<string, number>();
     }
   }
@@ -1110,7 +1111,7 @@ class ListingsService {
         .eq('attribute_id', sizeAttributeId);
 
       if (error) {
-        console.error('Error fetching products by sizes:', error);
+        logger.error('Error fetching products by sizes:', error);
         return [];
       }
 
@@ -1142,7 +1143,7 @@ class ListingsService {
 
       return Array.from(productIds);
     } catch (error) {
-      console.error('Error getting products by sizes:', error);
+      logger.error('Error getting products by sizes:', error);
       return [];
     }
   }
@@ -1254,7 +1255,7 @@ class ListingsService {
 
       return suggestions.slice(0, limit);
     } catch (error) {
-      console.error('Error fetching search suggestions:', error);
+      logger.error('Error fetching search suggestions:', error);
       return [];
     }
   }
@@ -1317,7 +1318,7 @@ class ListingsService {
 
       return productsWithSellers;
     } catch (error) {
-      console.error('Error fetching related products:', error);
+      logger.error('Error fetching related products:', error);
       throw new Error('Failed to fetch related products');
     }
   }
@@ -1375,7 +1376,7 @@ class ListingsService {
         seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
     } catch (error) {
-      console.error('Error fetching products by IDs:', error);
+      logger.error('Error fetching products by IDs:', error);
       return [];
     }
   }
@@ -1471,7 +1472,7 @@ class ListingsService {
         seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
     } catch (error) {
-      console.error('Error fetching recommended products:', error);
+      logger.error('Error fetching recommended products:', error);
       return [];
     }
   }
@@ -1552,7 +1553,7 @@ class ListingsService {
 
       return (data?.length as number) || 0;
     } catch (error) {
-      console.error('Error in bulkCreateProducts:', error);
+      logger.error('Error in bulkCreateProducts:', error);
       throw error;
     }
   }
@@ -1638,7 +1639,7 @@ class ListingsService {
         total: count || 0,
       };
     } catch (error) {
-      console.error('Error fetching auctions:', error);
+      logger.error('Error fetching auctions:', error);
       throw error;
     }
   }
@@ -1676,7 +1677,7 @@ class ListingsService {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creating auction listing:', error);
+      logger.error('Error creating auction listing:', error);
       throw error;
     }
   }
@@ -1697,7 +1698,7 @@ class ListingsService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error ending auction:', error);
+      logger.error('Error ending auction:', error);
       throw error;
     }
   }
@@ -1723,7 +1724,7 @@ class ListingsService {
 
       return data ? (data as any) : null;
     } catch (error) {
-      console.error('Error fetching auction:', error);
+      logger.error('Error fetching auction:', error);
       throw error;
     }
   }
@@ -1744,7 +1745,7 @@ class ListingsService {
       if (error) throw error;
       return (data as any[]) || [];
     } catch (error) {
-      console.error('Error fetching bids:', error);
+      logger.error('Error fetching bids:', error);
       throw error;
     }
   }
@@ -1789,7 +1790,7 @@ class ListingsService {
         };
       }
     } catch (error) {
-      console.error('Error placing proxy bid:', error);
+      logger.error('Error placing proxy bid:', error);
       return {
         success: false,
         currentBid: 0,

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Attribute } from '../types';
 
@@ -15,17 +16,17 @@ class AttributesService {
           .from('attribute_sub_subcategories')
           .select(
             `
-            attribute_id,
-            attributes (
-              *,
-              attribute_options (
-                id,
-                value,
-                is_active,
-                display_order
+              attribute_id,
+              attributes (
+                *,
+                attribute_options (
+                  id,
+                  value,
+                  is_active,
+                  display_order
+                )
               )
-            )
-          `
+            `
           )
           .eq('sub_subcategory_id', subSubcategoryId);
 
@@ -72,7 +73,7 @@ class AttributesService {
 
       return attributesData;
     } catch (error) {
-      console.error('Error fetching attributes:', error);
+      logger.error('Error fetching attributes:', error);
       throw error;
     }
   }
@@ -126,7 +127,7 @@ class AttributesService {
       const { error } = await supabase.from('product_attribute_values').insert(attributeValues);
 
       if (error) {
-        console.error('Error saving attributes:', error);
+        logger.error('Error saving attributes:', error);
         throw error;
       }
     }
@@ -146,7 +147,7 @@ class AttributesService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error loading product attributes:', error);
+      logger.error('Error loading product attributes:', error);
       throw new Error('Failed to fetch product attributes');
     }
   }

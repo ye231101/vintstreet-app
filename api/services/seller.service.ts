@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { DashboardReports, SellerProfile, SellerSettings } from '../types';
 
@@ -72,7 +73,7 @@ class SellerService {
 
         pageviews = (listings?.length || 0) * 50; // Rough estimate
       } catch (e) {
-        console.warn('Could not fetch pageviews:', e);
+        logger.warn('Could not fetch pageviews:', e);
       }
 
       return {
@@ -92,7 +93,7 @@ class SellerService {
         },
       };
     } catch (error) {
-      console.error('Error fetching dashboard reports:', error);
+      logger.error('Error fetching dashboard reports:', error);
       throw error;
     }
   }
@@ -167,7 +168,7 @@ class SellerService {
         },
       };
     } catch (error) {
-      console.error('Error fetching seller settings:', error);
+      logger.error('Error fetching seller settings:', error);
       throw error;
     }
   }
@@ -217,7 +218,7 @@ class SellerService {
 
       return data as unknown as SellerProfile | null;
     } catch (error) {
-      console.error('Error fetching seller profile:', error);
+      logger.error('Error fetching seller profile:', error);
       throw new Error('Failed to fetch seller profile');
     }
   }
@@ -266,7 +267,7 @@ class SellerService {
         return data as unknown as SellerProfile;
       }
     } catch (error) {
-      console.error('Error saving seller profile:', error);
+      logger.error('Error saving seller profile:', error);
       throw new Error('Failed to save seller profile');
     }
   }
@@ -297,7 +298,7 @@ class SellerService {
         .single();
 
       if (userError && userError.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', userError);
+        logger.error('Error fetching user profile:', userError);
       }
 
       return {
@@ -305,7 +306,7 @@ class SellerService {
         userProfile: userProfile ? (userProfile as any) : null,
       };
     } catch (error) {
-      console.error('Error fetching complete seller profile:', error);
+      logger.error('Error fetching complete seller profile:', error);
       throw new Error('Failed to fetch complete seller profile');
     }
   }

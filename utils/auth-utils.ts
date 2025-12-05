@@ -1,4 +1,6 @@
 import { authService } from '@/api/services';
+import { logger } from '@/utils/logger';
+import { removeSecureValue } from '@/utils/secure-storage';
 import { getStorageValue, removeStorageValue } from '@/utils/storage';
 
 /**
@@ -52,7 +54,7 @@ export class AuthUtils {
                   }
                 }
               } catch (storageError) {
-                console.error('Failed to restore from storage:', storageError);
+                logger.error('Failed to restore from storage', storageError);
               }
             }
           }
@@ -60,7 +62,7 @@ export class AuthUtils {
 
         retryCount++;
       } catch (error) {
-        console.error(`Auth check attempt ${retryCount + 1} failed:`, error);
+        logger.error(`Auth check attempt ${retryCount + 1} failed`, error);
         retryCount++;
       }
     }
@@ -107,10 +109,12 @@ export class AuthUtils {
       await authService.signOut();
 
       // Clear stored data
-      await removeStorageValue('TOKEN');
+      // Remove token from secure storage
+      await removeSecureValue('TOKEN');
+      // Remove user data from regular storage
       await removeStorageValue('USER_DATA');
     } catch (error) {
-      console.error('Error during force re-authentication:', error);
+      logger.error('Error during force re-authentication', error);
     }
   }
 

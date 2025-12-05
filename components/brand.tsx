@@ -1,4 +1,5 @@
 import { brandsService } from '@/api/services';
+import { logger } from '@/utils/logger';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -92,7 +93,7 @@ export default function Brand() {
 
         setBrandsWithIds(updatedBrands);
       } catch (error) {
-        console.error('Error fetching brand IDs:', error);
+        logger.error('Error fetching brand IDs:', error);
         // Keep using brands without database IDs if fetch fails
       }
     };

@@ -5,6 +5,7 @@ import LiveChat from '@/components/live-chat';
 import { useAgora } from '@/hooks/use-agora';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -144,7 +145,7 @@ export default function StartStreamScreen() {
 
       setStream(data);
     } catch (error) {
-      console.error('Error loading stream:', error);
+      logger.error('Error loading stream:', error);
       showErrorToast('Failed to load stream');
       router.back();
     } finally {
@@ -161,7 +162,7 @@ export default function StartStreamScreen() {
         const salesData = await ordersService.getRecentSalesForStream(currentStreamId, 10);
         setRecentSales(salesData);
       } catch (error) {
-        console.error('Error fetching recent sales:', error);
+        logger.error('Error fetching recent sales:', error);
       }
     };
 
@@ -228,7 +229,7 @@ export default function StartStreamScreen() {
 
       showSuccessToast('Auction ended successfully');
     } catch (error) {
-      console.error('Error ending auction:', error);
+      logger.error('Error ending auction:', error);
       showErrorToast('Failed to end auction');
     }
   };
@@ -251,7 +252,7 @@ export default function StartStreamScreen() {
 
       showSuccessToast('Stream started! You are now LIVE');
     } catch (error) {
-      console.error('Error starting stream:', error);
+      logger.error('Error starting stream:', error);
       showErrorToast('Failed to start stream. Please check your camera and microphone permissions');
     }
   };
@@ -273,7 +274,7 @@ export default function StartStreamScreen() {
             showSuccessToast('Stream ended successfully');
             router.back();
           } catch (error) {
-            console.error('Error stopping stream:', error);
+            logger.error('Error stopping stream:', error);
             showErrorToast('Failed to stop stream');
           }
         },
@@ -340,7 +341,7 @@ export default function StartStreamScreen() {
 
       showSuccessToast(`Auction started! ${auctionDuration}-second auction is now live`);
     } catch (error) {
-      console.error('Error starting auction:', error);
+      logger.error('Error starting auction:', error);
       showErrorToast('Failed to start auction');
     }
   };

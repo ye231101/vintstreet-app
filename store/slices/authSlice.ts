@@ -1,5 +1,7 @@
 import { authService } from '@/api/services';
 import { AuthUser } from '@/api/types';
+import { logger } from '@/utils/logger';
+import { removeSecureValue, setSecureValue } from '@/utils/secure-storage';
 import { removeStorageValue, setStorageValue } from '@/utils/storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -40,8 +42,10 @@ export const loginUser = createAsyncThunk(
       throw new Error(authError || 'Login failed');
     }
 
+    // Store user data in regular storage (non-sensitive)
     await setStorageValue(KEY_USER_DATA, JSON.stringify(authUser));
-    await setStorageValue(KEY_TOKEN, session.access_token);
+    // Store token in secure storage (encrypted)
+    await setSecureValue(KEY_TOKEN, session.access_token);
 
     return { user: authUser, session };
   }
@@ -72,8 +76,10 @@ export const registerUser = createAsyncThunk(
 
     // If session exists, store in secure storage
     if (session) {
+      // Store user data in regular storage (non-sensitive)
       await setStorageValue(KEY_USER_DATA, JSON.stringify(authUser));
-      await setStorageValue(KEY_TOKEN, session.access_token);
+      // Store token in secure storage (encrypted)
+      await setSecureValue(KEY_TOKEN, session.access_token);
     }
 
     return { user: authUser, session, requiresVerification: !session };
@@ -143,13 +149,15 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
     const { error: signOutError } = await authService.signOut();
 
     if (signOutError) {
-      console.error('Supabase sign out error:', signOutError);
+      logger.error('Supabase sign out error', signOutError);
       // Continue with local cleanup even if server signout fails
     }
   } catch (error) {
-    console.error('Logout error:', error);
+    logger.error('Logout error', error);
   } finally {
-    await removeStorageValue(KEY_TOKEN);
+    // Remove token from secure storage
+    await removeSecureValue(KEY_TOKEN);
+    // Remove user data from regular storage
     await removeStorageValue(KEY_USER_DATA);
   }
 });

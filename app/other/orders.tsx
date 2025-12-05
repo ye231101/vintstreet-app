@@ -3,6 +3,7 @@ import { Order } from '@/api/types';
 import { ContactModal } from '@/components/contact-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -48,7 +49,7 @@ export default function OrdersScreen() {
       const fetchedOrders = await ordersService.getOrders(user.id, 'buyer');
       setOrders(fetchedOrders);
     } catch (err) {
-      console.error('Error loading orders:', err);
+      logger.error('Error loading orders', err);
       setError(err instanceof Error ? err.message : 'Error loading orders');
     } finally {
       setIsLoading(false);

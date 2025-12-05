@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { algoliasearch } from 'algoliasearch';
 
 // Get environment variables
@@ -6,7 +7,7 @@ const ALGOLIA_SEARCH_API_KEY = process.env.EXPO_PUBLIC_ALGOLIA_SEARCH_API_KEY;
 
 // Validate environment variables
 if (!ALGOLIA_APP_ID || !ALGOLIA_SEARCH_API_KEY) {
-  console.error(
+  logger.error(
     'Missing Algolia environment variables. Please check your .env file. Algolia search will not work without these.'
   );
 }

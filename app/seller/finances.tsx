@@ -2,6 +2,7 @@ import { ordersService, stripeService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { useStripeConnect } from '@/hooks/use-stripe-connect';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -75,7 +76,7 @@ export default function FinancesScreen() {
         setTransactions((txList as unknown as Transaction[]) || []);
         setPayouts((payoutList as unknown as Payout[]) || []);
       } catch (err) {
-        console.error('Error loading finance data:', err);
+        logger.error('Error loading finance data:', err);
       } finally {
         setIsLoading(false);
       }

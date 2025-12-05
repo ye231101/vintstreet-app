@@ -2,6 +2,7 @@ import { streamsService } from '@/api/services';
 import { Stream } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -53,7 +54,7 @@ export default function StreamScreen() {
       }
       setStream(data);
     } catch (err) {
-      console.error('Error loading stream:', err);
+      logger.error('Error loading stream:', err);
       setError(err instanceof Error ? err.message : 'Error loading stream');
     } finally {
       setIsLoading(false);
@@ -74,7 +75,7 @@ export default function StreamScreen() {
             showSuccessToast('Stream ended successfully');
             router.back();
           } catch (error) {
-            console.error('Error ending stream:', error);
+            logger.error('Error ending stream:', error);
             showErrorToast('Failed to end stream');
           }
         },
