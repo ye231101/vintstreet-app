@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { CreateStreamData, Stream, UpdateStreamData } from '../types';
 
@@ -16,7 +17,7 @@ class StreamsService {
       if (error) throw error;
       return data as unknown as unknown as Stream[];
     } catch (error) {
-      console.error('Error fetching seller streams:', error);
+      logger.error('Error fetching seller streams:', error);
       throw error;
     }
   }
@@ -31,7 +32,7 @@ class StreamsService {
       if (error) throw error;
       return data as unknown as unknown as Stream | null;
     } catch (error) {
-      console.error('Error fetching stream:', error);
+      logger.error('Error fetching stream:', error);
       throw error;
     }
   }
@@ -50,7 +51,7 @@ class StreamsService {
       if (error) throw error;
       return data as unknown as unknown as Stream[];
     } catch (error) {
-      console.error('Error fetching live streams:', error);
+      logger.error('Error fetching live streams:', error);
       throw error;
     }
   }
@@ -76,7 +77,7 @@ class StreamsService {
       if (error) throw error;
       return data as unknown as unknown as Stream[];
     } catch (error) {
-      console.error('Error fetching upcoming streams:', error);
+      logger.error('Error fetching upcoming streams:', error);
       throw error;
     }
   }
@@ -100,7 +101,7 @@ class StreamsService {
       if (error) throw error;
       return data as unknown as unknown as Stream;
     } catch (error) {
-      console.error('Error creating stream:', error);
+      logger.error('Error creating stream:', error);
       throw error;
     }
   }
@@ -123,7 +124,7 @@ class StreamsService {
       if (error) throw error;
       return data as unknown as unknown as Stream;
     } catch (error) {
-      console.error('Error updating stream:', error);
+      logger.error('Error updating stream:', error);
       throw error;
     }
   }
@@ -137,7 +138,7 @@ class StreamsService {
         status: 'live',
       });
     } catch (error) {
-      console.error('Error starting stream:', error);
+      logger.error('Error starting stream:', error);
       throw error;
     }
   }
@@ -152,7 +153,7 @@ class StreamsService {
         end_time: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Error ending stream:', error);
+      logger.error('Error ending stream:', error);
       throw error;
     }
   }
@@ -166,7 +167,7 @@ class StreamsService {
         status: 'cancelled',
       });
     } catch (error) {
-      console.error('Error cancelling stream:', error);
+      logger.error('Error cancelling stream:', error);
       throw error;
     }
   }
@@ -180,7 +181,7 @@ class StreamsService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error deleting stream:', error);
+      logger.error('Error deleting stream:', error);
       throw error;
     }
   }
@@ -207,7 +208,7 @@ class StreamsService {
 
       if (updateError) throw updateError;
     } catch (error) {
-      console.error('Error incrementing viewer count:', error);
+      logger.error('Error incrementing viewer count:', error);
       throw error;
     }
   }
@@ -234,7 +235,7 @@ class StreamsService {
 
       if (updateError) throw updateError;
     } catch (error) {
-      console.error('Error decrementing viewer count:', error);
+      logger.error('Error decrementing viewer count:', error);
       throw error;
     }
   }
@@ -253,7 +254,7 @@ class StreamsService {
       if (error) throw error;
       return data as unknown as unknown as Stream[];
     } catch (error) {
-      console.error('Error fetching streams by category:', error);
+      logger.error('Error fetching streams by category:', error);
       throw error;
     }
   }

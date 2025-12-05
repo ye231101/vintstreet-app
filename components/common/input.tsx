@@ -104,7 +104,7 @@ export const InputComponent: React.FC<InputProps> = ({
       <View style={[styles.input, style]}>
         {icon && (
           <Text className="mr-2">
-            <Feather name={icon as any} size={24} color="black" />
+            <Feather name={icon as unknown} size={24} color="black" />
           </Text>
         )}
         <TextInput

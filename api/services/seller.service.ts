@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { DashboardReports, SellerProfile, SellerSettings } from '../types';
 
@@ -40,24 +41,24 @@ class SellerService {
 
       // Calculate total sales
       const totalSales = ordersList
-        .filter((o: any) => o.status === 'completed')
-        .reduce((sum, order: any) => {
+        .filter((o: unknown) => o.status === 'completed')
+        .reduce((sum, order: unknown) => {
           // Assuming 10% platform fee
           const orderTotal = parseFloat(order.order_amount) || 0;
           return sum + orderTotal;
         }, 0);
 
       // Count orders by status
-      const processingOrders = ordersList.filter((o: any) => o.status === 'processing').length;
-      const completedOrders = ordersList.filter((o: any) => o.status === 'completed').length;
-      const onHoldOrders = ordersList.filter((o: any) => o.status === 'on-hold').length;
-      const pendingOrders = ordersList.filter((o: any) => o.status === 'pending').length;
-      const cancelledOrders = ordersList.filter((o: any) => o.status === 'cancelled').length;
-      const refundedOrders = ordersList.filter((o: any) => o.status === 'refunded').length;
+      const processingOrders = ordersList.filter((o: unknown) => o.status === 'processing').length;
+      const completedOrders = ordersList.filter((o: unknown) => o.status === 'completed').length;
+      const onHoldOrders = ordersList.filter((o: unknown) => o.status === 'on-hold').length;
+      const pendingOrders = ordersList.filter((o: unknown) => o.status === 'pending').length;
+      const cancelledOrders = ordersList.filter((o: unknown) => o.status === 'cancelled').length;
+      const refundedOrders = ordersList.filter((o: unknown) => o.status === 'refunded').length;
 
       const sellerBalance = ordersList
-        .filter((o: any) => o.status === 'completed')
-        .reduce((sum, order: any) => {
+        .filter((o: unknown) => o.status === 'completed')
+        .reduce((sum, order: unknown) => {
           const orderTotal = parseFloat(order.order_amount) || 0;
           return 0;
         }, 0);
@@ -72,7 +73,7 @@ class SellerService {
 
         pageviews = (listings?.length || 0) * 50; // Rough estimate
       } catch (e) {
-        console.warn('Could not fetch pageviews:', e);
+        logger.warn('Could not fetch pageviews:', e);
       }
 
       return {
@@ -92,7 +93,7 @@ class SellerService {
         },
       };
     } catch (error) {
-      console.error('Error fetching dashboard reports:', error);
+      logger.error('Error fetching dashboard reports:', error);
       throw error;
     }
   }
@@ -124,9 +125,9 @@ class SellerService {
       const { data: reviews } = await supabase.from('reviews').select('rating').eq('seller_id', sellerId);
 
       const reviewCount = reviews?.length || 0;
-      const averageRating = reviewCount > 0 ? reviews!.reduce((sum, r: any) => sum + r.rating, 0) / reviewCount : 0;
+      const averageRating = reviewCount > 0 ? reviews!.reduce((sum, r: unknown) => sum + r.rating, 0) / reviewCount : 0;
 
-      const fullName = (profile as any)?.full_name || '';
+      const fullName = (profile as unknown)?.full_name || '';
 
       // Fetch canonical seller profile for display preference (more reliable than view)
       const { data: sellerCore } = await supabase
@@ -136,10 +137,10 @@ class SellerService {
         .single();
 
       const displayNameFormat: 'shop_name' | 'personal_name' =
-        ((sellerCore as any)?.display_name_format as any) ||
-        ((sellerInfo as any)?.display_name_format as any) ||
+        ((sellerCore as unknown)?.display_name_format as unknown) ||
+        ((sellerInfo as unknown)?.display_name_format as unknown) ||
         'shop_name';
-      const shopName: string = (sellerCore as any)?.shop_name || (sellerInfo as any)?.shop_name || 'My Store';
+      const shopName: string = (sellerCore as unknown)?.shop_name || (sellerInfo as unknown)?.shop_name || 'My Store';
 
       const toPersonalName = (name: string) => {
         const trimmed = (name || '').trim();
@@ -167,7 +168,7 @@ class SellerService {
         },
       };
     } catch (error) {
-      console.error('Error fetching seller settings:', error);
+      logger.error('Error fetching seller settings:', error);
       throw error;
     }
   }
@@ -217,7 +218,7 @@ class SellerService {
 
       return data as unknown as SellerProfile | null;
     } catch (error) {
-      console.error('Error fetching seller profile:', error);
+      logger.error('Error fetching seller profile:', error);
       throw new Error('Failed to fetch seller profile');
     }
   }
@@ -266,7 +267,7 @@ class SellerService {
         return data as unknown as SellerProfile;
       }
     } catch (error) {
-      console.error('Error saving seller profile:', error);
+      logger.error('Error saving seller profile:', error);
       throw new Error('Failed to save seller profile');
     }
   }
@@ -297,15 +298,15 @@ class SellerService {
         .single();
 
       if (userError && userError.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', userError);
+        logger.error('Error fetching user profile:', userError);
       }
 
       return {
         sellerProfile,
-        userProfile: userProfile ? (userProfile as any) : null,
+        userProfile: userProfile ? (userProfile as unknown) : null,
       };
     } catch (error) {
-      console.error('Error fetching complete seller profile:', error);
+      logger.error('Error fetching complete seller profile:', error);
       throw new Error('Failed to fetch complete seller profile');
     }
   }

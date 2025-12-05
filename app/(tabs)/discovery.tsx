@@ -4,6 +4,7 @@ import FilterModal, { AppliedFilters, FilterOption } from '@/components/filter-m
 import FilterSortBar from '@/components/filter-sort-bar';
 import ProductCard from '@/components/product-card';
 import SearchBar from '@/components/search-bar';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -86,12 +87,12 @@ export default function DiscoveryScreen() {
             { label: 'Over £200', value: 'Over £200.00', count: priceCounts['Over £200.00'] },
           ]);
         } catch (brandError) {
-          console.error('Error loading brands:', brandError);
+          logger.error('Error loading brands:', brandError);
           // Set empty array as fallback
           setAvailableBrands([]);
         }
       } catch (error) {
-        console.error('Error loading initial data:', error);
+        logger.error('Error loading initial data:', error);
       }
     };
 
@@ -229,7 +230,7 @@ export default function DiscoveryScreen() {
             loadProductsForBrand(foundBrand.id, foundBrand.name);
           }
         } catch (error) {
-          console.error('Error finding brand by name:', error);
+          logger.error('Error finding brand by name:', error);
         }
       } else if (brand && brandName) {
         // Brand ID is provided directly
@@ -282,7 +283,7 @@ export default function DiscoveryScreen() {
       setCategories(fetchedCategories);
     } catch (err) {
       setError('Failed to load categories');
-      console.error('Error loading categories:', err);
+      logger.error('Error loading categories:', err);
     } finally {
       setIsLoading(false);
     }
@@ -360,7 +361,7 @@ export default function DiscoveryScreen() {
       setCurrentPage(1);
       setProducts(filteredProducts.slice(0, PRODUCTS_PER_PAGE));
     } catch (err) {
-      console.error('Error loading products for category:', err);
+      logger.error('Error loading products for category:', err);
       setProductsError('Failed to load products for this category');
     } finally {
       setIsLoadingProducts(false);
@@ -458,7 +459,7 @@ export default function DiscoveryScreen() {
         setTotalPages(filteredProducts.length < PRODUCTS_PER_PAGE ? pageNumber : pageNumber + 1);
       }
     } catch (err) {
-      console.error('Error loading products for brand:', err);
+      logger.error('Error loading products for brand:', err);
       setProductsError('Failed to load products for this brand');
     } finally {
       setIsLoadingProducts(false);
@@ -480,7 +481,7 @@ export default function DiscoveryScreen() {
       const pageOffset = (pageNumber - 1) * PRODUCTS_PER_PAGE;
 
       // Server-side search and brand filter; price will be client-side
-      const filtersPayload: any = { searchKeyword: searchText.trim() };
+      const filtersPayload: unknown = { searchKeyword: searchText.trim() };
       if (appliedFilters.brands.length > 0) {
         filtersPayload.selectedBrands = new Set(appliedFilters.brands);
       }
@@ -507,7 +508,7 @@ export default function DiscoveryScreen() {
         setTotalPages(Math.max(1, Math.ceil(result.total / PRODUCTS_PER_PAGE)));
       }
     } catch (error) {
-      console.error('Error searching products:', error);
+      logger.error('Error searching products:', error);
       Alert.alert('Search Error', 'Failed to search products. Please try again.');
       setSearchResults([]);
     } finally {
@@ -617,7 +618,7 @@ export default function DiscoveryScreen() {
       setCurrentPage(1);
       await loadSearchPage(1);
     } catch (error) {
-      console.error('Error searching products:', error);
+      logger.error('Error searching products:', error);
       Alert.alert('Search Error', 'Failed to search products. Please try again.');
       setSearchResults([]);
     } finally {
@@ -663,7 +664,7 @@ export default function DiscoveryScreen() {
 
         await loadSearchPage(1);
       } catch (error) {
-        console.error('Error searching with filters:', error);
+        logger.error('Error searching with filters:', error);
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -692,7 +693,7 @@ export default function DiscoveryScreen() {
 
   const handleProductPress = (productId: string) => {
     // Navigate to product detail
-    router.push(`/product/${productId}` as any);
+    router.push(`/product/${productId}` as unknown);
   };
 
   const getCurrentTitle = () => {

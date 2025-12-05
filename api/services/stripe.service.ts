@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { Linking } from 'react-native';
 import { supabase } from '../config/supabase';
 
@@ -14,12 +15,12 @@ class StripeService {
     // If no rows, return null instead of throwing to avoid PGRST116
     if (error) {
       // Gracefully handle the common "no rows" error
-      if ((error as any)?.code === 'PGRST116') {
+      if ((error as unknown)?.code === 'PGRST116') {
         return null;
       }
       throw error;
     }
-    return (data as any) ?? null;
+    return (data as unknown) ?? null;
   }
 
   /**
@@ -39,7 +40,7 @@ class StripeService {
   async getSellerBalance() {
     const { data, error } = await supabase.functions.invoke('get-seller-balance');
     if (error) throw error;
-    return data as any;
+    return data as unknown;
   }
 
   /**
@@ -61,7 +62,7 @@ class StripeService {
       .eq('seller_id', sellerId)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return (data || []) as any[];
+    return (data || []) as unknown[];
   }
 
   /**
@@ -74,7 +75,7 @@ class StripeService {
       .eq('seller_id', sellerId)
       .order('requested_at', { ascending: false });
     if (error) throw error;
-    return (data || []) as any[];
+    return (data || []) as unknown[];
   }
   /**
    * Create Stripe checkout session using Supabase Edge Function
@@ -92,8 +93,6 @@ class StripeService {
     shippingCost: number;
   }) {
     try {
-      console.log('[STRIPE] Creating checkout session for orders:', orderData.orders.length);
-
       // Validate order data
       if (!orderData.orders || orderData.orders.length === 0) {
         throw new Error('No orders provided');
@@ -102,17 +101,14 @@ class StripeService {
       // Validate each order has required fields
       for (const order of orderData.orders) {
         if (!order.id || !order.seller_id || !order.product_name || !order.seller_name) {
-          console.error('[STRIPE] Invalid order data:', order);
+          logger.error('[STRIPE] Invalid order data: missing required fields');
           throw new Error('Invalid order data: missing required fields');
         }
         if (order.price <= 0 || order.quantity <= 0) {
-          console.error('[STRIPE] Invalid order pricing:', order);
+          logger.error('[STRIPE] Invalid order data: price and quantity must be positive');
           throw new Error('Invalid order data: price and quantity must be positive');
         }
       }
-
-      console.log('[STRIPE] Order data validated successfully');
-      console.log('[STRIPE] Sending data to edge function:', JSON.stringify(orderData, null, 2));
 
       // Check authentication status
       const {
@@ -120,10 +116,9 @@ class StripeService {
         error: authError,
       } = await supabase.auth.getUser();
       if (authError || !user) {
-        console.error('[STRIPE] Authentication error:', authError);
+        logger.error('[STRIPE] Authentication error', authError);
         throw new Error('User not authenticated');
       }
-      console.log('[STRIPE] User authenticated:', user.id);
 
       const { data, error } = await supabase.functions.invoke('create-checkout-split', {
         body: {
@@ -133,35 +128,25 @@ class StripeService {
         },
       });
 
-      console.log('[STRIPE] Edge function response:', { data, error });
-
       if (error) {
-        console.error('[STRIPE] Edge function error details:', {
-          message: error.message,
-          name: error.name,
-          stack: error.stack,
-          context: error.context,
-        });
+        logger.error('[STRIPE] Edge function error', error);
 
         // Try to get more specific error information
         if (error.message.includes('non-2xx status code')) {
-          throw new Error(
-            `Edge function failed with status error. Check server logs for details. Original error: ${error.message}`
-          );
+          throw new Error('Edge function failed with status error. Check server logs for details.');
         }
 
         throw new Error(`Failed to create checkout session: ${error.message}`);
       }
 
       if (!data?.url) {
-        console.error('[STRIPE] No URL in response data:', data);
+        logger.error('[STRIPE] No URL in response data');
         throw new Error('No checkout URL returned from server');
       }
 
-      console.log('[STRIPE] Checkout session created successfully');
       return data;
     } catch (error) {
-      console.error('[STRIPE] Error creating checkout session:', error);
+      logger.error('[STRIPE] Error creating checkout session', error);
       throw error;
     }
   }
@@ -181,7 +166,7 @@ class StripeService {
       await Linking.openURL(checkoutUrl);
       return { success: true };
     } catch (error) {
-      console.error('[STRIPE] Error opening checkout:', error);
+      logger.error('[STRIPE] Error opening checkout', error);
       throw error;
     }
   }
@@ -210,7 +195,7 @@ class StripeService {
 
       return { success: true, checkoutUrl: checkoutData.url };
     } catch (error) {
-      console.error('[STRIPE] Error processing payment:', error);
+      logger.error('[STRIPE] Error processing payment', error);
       throw error;
     }
   }

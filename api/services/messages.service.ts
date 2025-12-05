@@ -1,6 +1,6 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Conversation, Message } from '../types';
-import { notificationsService } from './notifications.service';
 
 class MessagesService {
   /**
@@ -72,7 +72,7 @@ class MessagesService {
 
       return sortedThreads;
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      logger.error('Error fetching conversations', error);
       throw error;
     }
   }
@@ -147,7 +147,7 @@ class MessagesService {
 
       return sortedThreads;
     } catch (error) {
-      console.error('Error fetching received messages:', error);
+      logger.error('Error fetching received messages', error);
       throw error;
     }
   }
@@ -172,7 +172,7 @@ class MessagesService {
 
       return (data as unknown as Message[]) || [];
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      logger.error('Error fetching messages', error);
       throw error;
     }
   }
@@ -216,7 +216,7 @@ class MessagesService {
         .eq('user_id', messageData.sender_id)
         .single();
 
-      const senderName = (senderProfile as any)?.full_name || (senderProfile as any)?.username || 'Someone';
+      const senderName = (senderProfile as unknown)?.full_name || (senderProfile as unknown)?.username || 'Someone';
 
       // Create notification asynchronously (don't await to avoid blocking)
       // notificationsService
@@ -229,9 +229,9 @@ class MessagesService {
       //       conversation_id: messageData.parent_message_id || messageData.subject,
       //     }
       //   )
-      //   .catch((err) => console.error('Error creating message notification:', err));
+      //   .catch((err) => logger.error('Error creating message notification', err));
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending message', error);
       throw error;
     }
   }
@@ -256,7 +256,7 @@ class MessagesService {
         throw new Error(`Failed to mark messages as read: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error marking messages as read:', error);
+      logger.error('Error marking messages as read', error);
       throw error;
     }
   }
@@ -283,7 +283,7 @@ class MessagesService {
         throw new Error(`Failed to report message: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error reporting message:', error);
+      logger.error('Error reporting message', error);
       throw error;
     }
   }

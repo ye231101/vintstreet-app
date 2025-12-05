@@ -7,7 +7,7 @@ interface Notification {
   type?: string;
   title?: string;
   body: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface WebhookPayload {
@@ -30,8 +30,6 @@ serve(async (req) => {
   }
 
   try {
-    console.log('[PUSH] Function started');
-
     // Initialize Supabase client
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '');
 
@@ -53,13 +51,9 @@ serve(async (req) => {
       .single();
 
     if (profileError || !profileData?.expo_push_token) {
-      console.log(`[PUSH] No push token found for user ${notification.user_id}`);
-      return new Response(
-        JSON.stringify({ message: 'User does not have a push token registered' }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ message: 'User does not have a push token registered' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Determine notification title and body based on type

@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useSegments } from 'expo-router';
@@ -62,14 +63,14 @@ export default function WishlistScreen() {
       setAddingToCartId(product.id);
       await addToCart(product);
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      logger.error('Error adding to cart:', error);
     } finally {
       setAddingToCartId(null);
     }
   };
 
   const navigateToProduct = (itemId: string) => {
-    router.push(`/product/${itemId}` as any);
+    router.push(`/product/${itemId}` as unknown);
   };
 
   const WishlistCard = ({ item }: { item: Product }) => {

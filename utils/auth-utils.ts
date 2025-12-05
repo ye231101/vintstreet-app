@@ -1,4 +1,6 @@
 import { authService } from '@/api/services';
+import { logger } from '@/utils/logger';
+import { removeSecureValue } from '@/utils/secure-storage';
 import { getStorageValue, removeStorageValue } from '@/utils/storage';
 
 /**
@@ -10,7 +12,7 @@ export class AuthUtils {
    * @param maxRetries - Maximum number of retry attempts
    * @returns Promise with user data or null
    */
-  static async getCurrentUserWithRefresh(maxRetries: number = 2): Promise<{ user: any; error?: string }> {
+  static async getCurrentUserWithRefresh(maxRetries: number = 2): Promise<{ user: unknown; error?: string }> {
     let retryCount = 0;
 
     while (retryCount <= maxRetries) {
@@ -24,8 +26,6 @@ export class AuthUtils {
 
         // If no user or error, try to refresh session
         if (retryCount < maxRetries) {
-          console.log(`Session refresh attempt ${retryCount + 1}/${maxRetries}`);
-
           // Check if we have a valid session first
           const { session, error: sessionError } = await authService.getSession();
 
@@ -39,20 +39,14 @@ export class AuthUtils {
               if (refreshedUser && !refreshedUserError) {
                 return { user: refreshedUser };
               }
-            } else {
-              console.log('Session refresh failed:', refreshError);
             }
           } else {
-            console.log('No valid session found:', sessionError);
-
             // Try to restore from stored data as last resort
             if (retryCount === 0) {
               try {
                 const storedUserData = await getStorageValue('USER_DATA');
                 if (storedUserData) {
                   const user = JSON.parse(storedUserData);
-                  console.log('Found stored user data, attempting to restore session');
-
                   // Try to get user one more time after finding stored data
                   const { data: restoredUser, error: restoredError } = await authService.getUser();
                   if (restoredUser && !restoredError) {
@@ -60,7 +54,7 @@ export class AuthUtils {
                   }
                 }
               } catch (storageError) {
-                console.log('Failed to restore from storage:', storageError);
+                logger.error('Failed to restore from storage', storageError);
               }
             }
           }
@@ -68,7 +62,7 @@ export class AuthUtils {
 
         retryCount++;
       } catch (error) {
-        console.error(`Auth check attempt ${retryCount + 1} failed:`, error);
+        logger.error(`Auth check attempt ${retryCount + 1} failed`, error);
         retryCount++;
       }
     }
@@ -115,12 +109,12 @@ export class AuthUtils {
       await authService.signOut();
 
       // Clear stored data
-      await removeStorageValue('TOKEN');
+      // Remove token from secure storage
+      await removeSecureValue('TOKEN');
+      // Remove user data from regular storage
       await removeStorageValue('USER_DATA');
-
-      console.log('Authentication data cleared, user should be redirected to login');
     } catch (error) {
-      console.error('Error during force re-authentication:', error);
+      logger.error('Error during force re-authentication', error);
     }
   }
 

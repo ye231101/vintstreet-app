@@ -1,6 +1,7 @@
 import { messagesService } from '@/api/services';
 import { Conversation } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
@@ -46,7 +47,7 @@ export default function MessagesScreen() {
       const fetchedConversations = await messagesService.getReceivedMessages(user.id);
       setConversations(fetchedConversations);
     } catch (err) {
-      console.error('Error loading messages:', err);
+      logger.error('Error loading messages:', err);
       setError(err instanceof Error ? err.message : 'Error loading messages');
     } finally {
       setIsLoading(false);
@@ -144,7 +145,7 @@ export default function MessagesScreen() {
             <Feather name="inbox" size={64} color="#ccc" />
             <Text className="mt-4 mb-2 text-lg font-inter-bold text-gray-600">No messages yet</Text>
             <Text className="text-sm font-inter-semibold text-center text-gray-400">
-              You haven't received any messages yet
+              You haven't received unknown messages yet
             </Text>
           </View>
         ) : filteredConversations.length === 0 ? (

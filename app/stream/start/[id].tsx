@@ -1,10 +1,11 @@
 import { supabase } from '@/api/config';
-import { streamsService } from '@/api/services';
+import { listingsService, ordersService, streamsService } from '@/api/services';
 import { Stream } from '@/api/types';
 import LiveChat from '@/components/live-chat';
 import { useAgora } from '@/hooks/use-agora';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -144,7 +145,7 @@ export default function StartStreamScreen() {
 
       setStream(data);
     } catch (error) {
-      console.error('Error loading stream:', error);
+      logger.error('Error loading stream:', error);
       showErrorToast('Failed to load stream');
       router.back();
     } finally {
@@ -158,38 +159,10 @@ export default function StartStreamScreen() {
       if (!user) return;
 
       try {
-        const { data: orders, error: ordersError } = await supabase
-          .from('orders')
-          .select('id, order_amount, created_at, listing_id')
-          .eq('stream_id', currentStreamId)
-          .eq('status', 'completed')
-          .order('created_at', { ascending: false })
-          .limit(10);
-
-        if (ordersError) throw ordersError;
-
-        if (orders && orders.length > 0) {
-          const listingIds = orders.map((order: any) => order.listing_id).filter(Boolean);
-          const { data: listings, error: listingsError } = await supabase
-            .from('listings')
-            .select('id, product_name')
-            .in('id', listingIds);
-
-          if (listingsError) throw listingsError;
-
-          const salesData = orders.map((order: any, index: number) => {
-            const listing = (listings as any)?.find((l: any) => l.id === order.listing_id);
-            return {
-              id: order.id,
-              itemName: listing?.product_name || `Item ${index + 1}`,
-              price: Number(order.order_amount),
-              soldAt: new Date(order.created_at),
-            };
-          });
-          setRecentSales(salesData);
-        }
+        const salesData = await ordersService.getRecentSalesForStream(currentStreamId, 10);
+        setRecentSales(salesData);
       } catch (error) {
-        console.error('Error fetching recent sales:', error);
+        logger.error('Error fetching recent sales:', error);
       }
     };
 
@@ -248,15 +221,7 @@ export default function StartStreamScreen() {
     if (!activeListing) return;
 
     try {
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          is_active: false,
-          auction_end_time: null,
-        })
-        .eq('id', activeListing);
-
-      if (error) throw error;
+      await listingsService.endAuction(activeListing);
 
       setIsAuctionActive(false);
       setAuctionEndTime(null);
@@ -264,7 +229,7 @@ export default function StartStreamScreen() {
 
       showSuccessToast('Auction ended successfully');
     } catch (error) {
-      console.error('Error ending auction:', error);
+      logger.error('Error ending auction:', error);
       showErrorToast('Failed to end auction');
     }
   };
@@ -287,7 +252,7 @@ export default function StartStreamScreen() {
 
       showSuccessToast('Stream started! You are now LIVE');
     } catch (error) {
-      console.error('Error starting stream:', error);
+      logger.error('Error starting stream:', error);
       showErrorToast('Failed to start stream. Please check your camera and microphone permissions');
     }
   };
@@ -309,7 +274,7 @@ export default function StartStreamScreen() {
             showSuccessToast('Stream ended successfully');
             router.back();
           } catch (error) {
-            console.error('Error stopping stream:', error);
+            logger.error('Error stopping stream:', error);
             showErrorToast('Failed to stop stream');
           }
         },
@@ -360,30 +325,23 @@ export default function StartStreamScreen() {
 
     try {
       const endTime = new Date(Date.now() + auctionDuration * 1000);
-      const { data, error } = await supabase
-        .from('listings')
-        .insert({
-          seller_id: user.id,
-          stream_id: currentStreamId,
-          product_name: 'Auction Item',
-          product_description: 'Live auction item from stream',
-          starting_price: parseFloat(auctionPrice),
-          current_bid: parseFloat(auctionPrice),
-          is_active: true,
-          auction_end_time: endTime.toISOString(),
-        })
-        .select()
-        .single();
+      const data = await listingsService.createAuctionListing({
+        seller_id: user.id,
+        stream_id: currentStreamId,
+        product_name: 'Auction Item',
+        product_description: 'Live auction item from stream',
+        starting_price: parseFloat(auctionPrice),
+        current_bid: parseFloat(auctionPrice),
+        auction_end_time: endTime.toISOString(),
+      });
 
-      if (error) throw error;
-
-      setActiveListing((data as any)?.id);
+      setActiveListing((data as unknown)?.id);
       setIsAuctionActive(true);
       setAuctionEndTime(endTime);
 
       showSuccessToast(`Auction started! ${auctionDuration}-second auction is now live`);
     } catch (error) {
-      console.error('Error starting auction:', error);
+      logger.error('Error starting auction:', error);
       showErrorToast('Failed to start auction');
     }
   };

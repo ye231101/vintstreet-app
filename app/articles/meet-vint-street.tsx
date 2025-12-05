@@ -20,7 +20,7 @@ export default function MeetVintStreetScreen() {
   const buildSection = ({ title, content, icon }: { title: string; content: string; icon: string }) => (
     <View className="gap-3 p-4 mb-4 rounded-lg bg-gray-100">
       <View className="flex-row items-center gap-3">
-        <Feather name={icon as any} size={24} color="#000" />
+        <Feather name={icon as unknown} size={24} color="#000" />
         <Text className="flex-1 text-lg font-inter-bold text-black">{title}</Text>
       </View>
       <Text className="text-sm font-inter text-black/80 leading-6">{content}</Text>

@@ -2,6 +2,7 @@ import { listingsService, offersService, sellerService } from '@/api/services';
 import { DashboardReports, SellerSettings } from '@/api/types';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
@@ -111,8 +112,8 @@ export default function DashboardScreen() {
         declined,
         total: offers.length,
       });
-    } catch (err: any) {
-      console.error('Error loading dashboard data:', err);
+    } catch (err: unknown) {
+      logger.error('Error loading dashboard data:', err);
       setError(err?.message || 'Error loading dashboard data');
     } finally {
       setIsLoading(false);
@@ -222,7 +223,7 @@ export default function DashboardScreen() {
     <View className="flex-1 p-4 rounded-lg bg-white shadow-lg">
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-sm font-inter-semibold text-gray-600">{title}</Text>
-        {icon && <Feather name={icon as any} size={16} color={iconColor} />}
+        {icon && <Feather name={icon as unknown} size={16} color={iconColor} />}
       </View>
       <Text className="mb-1 text-2xl font-inter-bold text-gray-900">{value}</Text>
       {subtitle && <Text className="text-xs font-inter text-gray-500">{subtitle}</Text>}

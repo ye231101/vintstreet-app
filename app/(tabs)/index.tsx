@@ -8,6 +8,7 @@ import SearchBar from '@/components/search-bar';
 import ShopBannerCarousel from '@/components/shop-banner-carousel';
 import TopCategory from '@/components/top-category';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { getStorageJSON } from '@/utils/storage';
 import { Feather } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -85,7 +86,7 @@ export default function HomeScreen() {
         }
       }
     } catch (err) {
-      console.error('Error loading products:', err);
+      logger.error('Error loading products:', err);
       setProducts([]);
       setError(err instanceof Error ? err.message : 'Failed to load products');
     } finally {
@@ -100,7 +101,7 @@ export default function HomeScreen() {
       setError(null);
       await Promise.all([fetchProducts(), fetchRecommendedProducts()]);
     } catch (err) {
-      console.error('Error refreshing:', err);
+      logger.error('Error refreshing:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh products');
     } finally {
       setRefreshing(false);
@@ -167,7 +168,7 @@ export default function HomeScreen() {
       const recommended = await listingsService.getRecommendedProducts(recentlyViewed, 8);
       setRecommendedProducts(recommended);
     } catch (err) {
-      console.error('Error loading recommended products:', err);
+      logger.error('Error loading recommended products:', err);
       setRecentlyViewedProducts([]);
       setRecommendedProducts([]);
     } finally {

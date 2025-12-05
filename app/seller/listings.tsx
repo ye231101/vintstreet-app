@@ -3,6 +3,7 @@ import { Product } from '@/api/types';
 import { ShippingSettingsModal } from '@/components/shipping-settings-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -49,7 +50,7 @@ export default function ListingsScreen() {
       const fetchedProducts = await listingsService.getListingsByStatus(user.id, activeTab);
       setProducts(fetchedProducts);
     } catch (err) {
-      console.error('Error loading products:', err);
+      logger.error('Error loading products:', err);
       setError(err instanceof Error ? err.message : 'Error loading products');
     } finally {
       setIsLoading(false);
@@ -135,7 +136,7 @@ export default function ListingsScreen() {
         '*/*',
       ];
       const res = await DocumentPicker.getDocumentAsync({
-        type: csvMimeTypes as any,
+        type: csvMimeTypes as unknown,
         copyToCacheDirectory: true,
         multiple: false,
       });
@@ -165,7 +166,7 @@ export default function ListingsScreen() {
         } catch (_) {
           try {
             // Fallback for content:// URIs and others
-            const resp = await fetch(fileUri as any);
+            const resp = await fetch(fileUri as unknown);
             return await resp.text();
           } catch (err) {
             throw err;
@@ -202,7 +203,7 @@ export default function ListingsScreen() {
           // image1..image10 style
           for (let i = 1; i <= 10; i++) {
             const key = `image${i}` as keyof typeof r;
-            const v = (r as any)[key];
+            const v = (r as unknown)[key];
             pushSplit(v);
           }
 
@@ -230,10 +231,10 @@ export default function ListingsScreen() {
           sub_subcategory_id: r.sub_subcategory_id || null,
           sub_sub_subcategory_id: r.sub_sub_subcategory_id || null,
           brand_id: r.brand_id || null,
-          status: (r.status as any) || 'draft',
+          status: (r.status as unknown) || 'draft',
           product_image: primaryImage,
           product_images: imageUrls.length > 0 ? imageUrls : null,
-        } as any;
+        } as unknown;
       });
 
       const valid = normalized.filter(
@@ -244,11 +245,11 @@ export default function ListingsScreen() {
         return;
       }
 
-      const createdCount = await listingsService.bulkCreateProducts(user.id, valid as any);
+      const createdCount = await listingsService.bulkCreateProducts(user.id, valid as unknown);
       showSuccessToast(`Created ${createdCount} products`);
       await loadProducts();
     } catch (e) {
-      console.error(e);
+      logger.error('Bulk upload failed:', e);
       showErrorToast('Bulk upload failed');
     } finally {
       setIsBulkUploading(false);
@@ -400,7 +401,7 @@ export default function ListingsScreen() {
                 router.push({
                   pathname: '/(tabs)/sell',
                   params: { productId: product.id },
-                } as any);
+                } as unknown);
               }}
               className="bg-blue-500 rounded-lg py-2.5 px-4 flex-row items-center justify-center flex-1"
             >
@@ -409,7 +410,7 @@ export default function ListingsScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                router.push(`/product/${product.id}` as any);
+                router.push(`/product/${product.id}` as unknown);
               }}
               className="bg-gray-700 rounded-lg py-2.5 px-4 flex-row items-center justify-center flex-1"
             >

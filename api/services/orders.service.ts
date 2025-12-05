@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Order } from '../types';
 
@@ -29,7 +30,7 @@ class OrdersService {
       // Fetch listing details for all orders that have a listing_id
       const listingIds = orders.map((order) => order.listing_id).filter((id): id is string => !!id);
 
-      let listingsMap = new Map<string, any>();
+      let listingsMap = new Map<string, unknown>();
 
       if (listingIds.length > 0) {
         const { data: listings } = await supabase
@@ -37,12 +38,12 @@ class OrdersService {
           .select('id, product_name, product_image, starting_price, discounted_price')
           .in('id', listingIds);
 
-        listingsMap = new Map((listings || []).map((listing: any) => [listing.id, listing]));
+        listingsMap = new Map((listings || []).map((listing: unknown) => [listing.id, listing]));
       }
 
       // Fetch buyer profiles if seller is viewing
-      let buyerProfilesMap = new Map<string, any>();
-      let buyerDetailsMap = new Map<string, any>();
+      let buyerProfilesMap = new Map<string, unknown>();
+      let buyerDetailsMap = new Map<string, unknown>();
 
       if (userType === 'seller') {
         const buyerIds = orders.map((order) => order.buyer_id).filter((id): id is string => !!id);
@@ -53,11 +54,11 @@ class OrdersService {
             .from('profiles')
             .select('user_id, full_name, username')
             .in('user_id', buyerIds);
-          buyerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          buyerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
 
           // Fetch buyer details (shipping info)
           const { data: buyerDetails } = await supabase.from('buyer_profiles').select('*').in('user_id', buyerIds);
-          buyerDetailsMap = new Map((buyerDetails || []).map((detail: any) => [detail.user_id, detail]));
+          buyerDetailsMap = new Map((buyerDetails || []).map((detail: unknown) => [detail.user_id, detail]));
         }
       }
 
@@ -72,7 +73,7 @@ class OrdersService {
       // Transform API data to match the UI interface
       return this.transformOrdersData(ordersWithListings);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      logger.error('Error fetching orders', error);
       throw error;
     }
   }
@@ -113,7 +114,7 @@ class OrdersService {
       // Fetch listing details for all orders that have a listing_id
       const listingIds = orders.map((order) => order.listing_id).filter((id): id is string => !!id);
 
-      let listingsMap = new Map<string, any>();
+      let listingsMap = new Map<string, unknown>();
 
       if (listingIds.length > 0) {
         const { data: listings } = await supabase
@@ -121,12 +122,12 @@ class OrdersService {
           .select('id, product_name, product_image, starting_price, discounted_price')
           .in('id', listingIds);
 
-        listingsMap = new Map((listings || []).map((listing: any) => [listing.id, listing]));
+        listingsMap = new Map((listings || []).map((listing: unknown) => [listing.id, listing]));
       }
 
       // Fetch buyer profiles if seller is viewing
-      let buyerProfilesMap = new Map<string, any>();
-      let buyerDetailsMap = new Map<string, any>();
+      let buyerProfilesMap = new Map<string, unknown>();
+      let buyerDetailsMap = new Map<string, unknown>();
 
       if (userType === 'seller') {
         const buyerIds = orders.map((order) => order.buyer_id).filter((id): id is string => !!id);
@@ -138,12 +139,12 @@ class OrdersService {
             .select('user_id, full_name, username')
             .in('user_id', buyerIds);
 
-          buyerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          buyerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
 
           // Fetch buyer details (shipping info)
           const { data: buyerDetails } = await supabase.from('buyer_profiles').select('*').in('user_id', buyerIds);
 
-          buyerDetailsMap = new Map((buyerDetails || []).map((detail: any) => [detail.user_id, detail]));
+          buyerDetailsMap = new Map((buyerDetails || []).map((detail: unknown) => [detail.user_id, detail]));
         }
       }
 
@@ -157,7 +158,7 @@ class OrdersService {
 
       return this.transformOrdersData(ordersWithListings);
     } catch (error) {
-      console.error('Error fetching orders by status:', error);
+      logger.error('Error fetching orders by status', error);
       throw error;
     }
   }
@@ -175,7 +176,7 @@ class OrdersService {
         throw new Error(`Failed to update order status: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
+      logger.error('Error updating order status', error);
       throw error;
     }
   }
@@ -193,7 +194,7 @@ class OrdersService {
         throw new Error(`Failed to update tracking number: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error updating tracking number:', error);
+      logger.error('Error updating tracking number', error);
       throw error;
     }
   }
@@ -235,7 +236,7 @@ class OrdersService {
 
       return data as unknown as Order;
     } catch (error) {
-      console.error('Error creating order:', error);
+      logger.error('Error creating order', error);
       throw error;
     }
   }
@@ -272,6 +273,61 @@ class OrdersService {
         buyer_details: order.buyer_details,
       };
     });
+  }
+
+  /**
+   * Get recent sales for a stream
+   * @param streamId - The stream ID
+   * @param limit - Maximum number of sales to return
+   * @returns Array of sales with listing information
+   */
+  async getRecentSalesForStream(
+    streamId: string,
+    limit: number = 10
+  ): Promise<
+    Array<{
+      id: string;
+      itemName: string;
+      price: number;
+      soldAt: Date;
+    }>
+  > {
+    try {
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id, order_amount, created_at, listing_id')
+        .eq('stream_id', streamId)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (ordersError) throw ordersError;
+
+      if (!orders || orders.length === 0) {
+        return [];
+      }
+
+      const listingIds = orders.map((order: unknown) => order.listing_id).filter(Boolean);
+      const { data: listings, error: listingsError } = await supabase
+        .from('listings')
+        .select('id, product_name')
+        .in('id', listingIds);
+
+      if (listingsError) throw listingsError;
+
+      return orders.map((order: unknown, index: number) => {
+        const listing = (listings as unknown)?.find((l: unknown) => l.id === order.listing_id);
+        return {
+          id: order.id,
+          itemName: listing?.product_name || `Item ${index + 1}`,
+          price: Number(order.order_amount),
+          soldAt: new Date(order.created_at),
+        };
+      });
+    } catch (error) {
+      logger.error('Error fetching recent sales for stream', error);
+      throw error;
+    }
   }
 
   /**

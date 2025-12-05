@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Offer } from '../types';
 import { notificationsService } from './notifications.service';
@@ -39,7 +40,7 @@ class OffersService {
       // Fetch listing details for all offers that have a listing_id
       const listingIds = offers.map((offer) => offer.listing_id).filter((id): id is string => !!id);
 
-      let listingsMap = new Map<string, any>();
+      let listingsMap = new Map<string, unknown>();
 
       if (listingIds.length > 0) {
         const { data: listings } = await supabase
@@ -47,12 +48,12 @@ class OffersService {
           .select('id, product_name, seller_id, product_image, starting_price, discounted_price')
           .in('id', listingIds);
 
-        listingsMap = new Map((listings || []).map((listing: any) => [listing.id, listing]));
+        listingsMap = new Map((listings || []).map((listing: unknown) => [listing.id, listing]));
       }
 
       // Fetch buyer profiles (for sellers viewing offers)
-      let buyerProfilesMap = new Map<string, any>();
-      let sellerProfilesMap = new Map<string, any>();
+      let buyerProfilesMap = new Map<string, unknown>();
+      let sellerProfilesMap = new Map<string, unknown>();
 
       if (userType === 'seller') {
         const buyerIds = offers.map((offer) => offer.buyer_id).filter((id): id is string => !!id);
@@ -63,7 +64,7 @@ class OffersService {
             .from('profiles')
             .select('user_id, full_name, username')
             .in('user_id', buyerIds);
-          buyerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          buyerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
         }
       } else {
         // Fetch seller profiles (for buyers viewing offers)
@@ -75,7 +76,7 @@ class OffersService {
             .from('profiles')
             .select('user_id, full_name, username')
             .in('user_id', sellerIds);
-          sellerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          sellerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
         }
       }
 
@@ -90,7 +91,7 @@ class OffersService {
       // Transform API data to match the UI interface
       return this.transformOffersData(offersWithData);
     } catch (error) {
-      console.error('Error fetching offers:', error);
+      logger.error('Error fetching offers', error);
       throw error;
     }
   }
@@ -113,7 +114,7 @@ class OffersService {
       const declinedOffers = await this.getOffers(userId, 'seller', 'declined');
       return [...acceptedOffers, ...declinedOffers];
     } catch (error) {
-      console.error('Error fetching completed offers:', error);
+      logger.error('Error fetching completed offers', error);
       throw error;
     }
   }
@@ -142,7 +143,7 @@ class OffersService {
         throw new Error(`Failed to check existing offer: ${fetchError.message}`);
       }
 
-      const existingOffer = existingOfferData as any;
+      const existingOffer = existingOfferData as unknown;
 
       if (existingOffer && existingOffer.id) {
         // Update existing offer
@@ -184,9 +185,9 @@ class OffersService {
                   offer_id: updatedOffer.id,
                   listing_id: params.listing_id,
                 } as unknown as { offer_id?: string; listing_id?: string })
-                .catch((err) => console.error('Error creating offer notification:', err));
+                .catch((err) => logger.error('Error creating offer notification', err));
             })
-            .catch((err) => console.error('Error fetching offer notification data:', err));
+            .catch((err) => logger.error('Error fetching offer notification data', err));
         }
 
         return updatedOffer;
@@ -231,15 +232,15 @@ class OffersService {
                   offer_id: newOffer.id,
                   listing_id: params.listing_id,
                 } as unknown as { offer_id?: string; listing_id?: string })
-                .catch((err) => console.error('Error creating offer notification:', err));
+                .catch((err) => logger.error('Error creating offer notification', err));
             })
-            .catch((err) => console.error('Error fetching offer notification data:', err));
+            .catch((err) => logger.error('Error fetching offer notification data', err));
         }
 
         return newOffer;
       }
     } catch (error) {
-      console.error('Error creating offer:', error);
+      logger.error('Error creating offer', error);
       throw error;
     }
   }
@@ -269,7 +270,7 @@ class OffersService {
       }
 
       // Create notification for buyer about offer response
-      if (offerData && (offerData as any).buyer_id) {
+      if (offerData && (offerData as unknown).buyer_id) {
         Promise.all([
           supabase
             .from('profiles')
@@ -301,7 +302,7 @@ class OffersService {
                     listing_id: (offerData as unknown as Offer)?.listing_id,
                   } as unknown as { offer_id?: string; listing_id?: string }
                 )
-                .catch((err) => console.error('Error creating offer accepted notification:', err));
+                .catch((err) => logger.error('Error creating offer accepted notification', err));
             } else if (status === 'declined') {
               notificationsService
                 .notifyOfferDeclined(
@@ -314,13 +315,13 @@ class OffersService {
                     listing_id: (offerData as unknown as Offer)?.listing_id,
                   } as unknown as { offer_id?: string; listing_id?: string }
                 )
-                .catch((err) => console.error('Error creating offer declined notification:', err));
+                .catch((err) => logger.error('Error creating offer declined notification', err));
             }
           })
-          .catch((err) => console.error('Error fetching offer reply notification data:', err));
+          .catch((err) => logger.error('Error fetching offer reply notification data', err));
       }
     } catch (error) {
-      console.error('Error updating offer status:', error);
+      logger.error('Error updating offer status', error);
       throw error;
     }
   }
@@ -337,7 +338,7 @@ class OffersService {
         throw new Error(`Failed to delete offer: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error deleting offer:', error);
+      logger.error('Error deleting offer', error);
       throw error;
     }
   }

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Attribute } from '../types';
 
@@ -15,17 +16,17 @@ class AttributesService {
           .from('attribute_sub_subcategories')
           .select(
             `
-            attribute_id,
-            attributes (
-              *,
-              attribute_options (
-                id,
-                value,
-                is_active,
-                display_order
+              attribute_id,
+              attributes (
+                *,
+                attribute_options (
+                  id,
+                  value,
+                  is_active,
+                  display_order
+                )
               )
-            )
-          `
+            `
           )
           .eq('sub_subcategory_id', subSubcategoryId);
 
@@ -34,9 +35,9 @@ class AttributesService {
         // If level 3 has attributes, use those exclusively
         if (level3Data && level3Data.length > 0) {
           const attributesData = level3Data
-            .map((item: any) => item.attributes)
+            .map((item: unknown) => item.attributes)
             .filter(Boolean)
-            .sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
+            .sort((a: unknown, b: unknown) => (a.display_order || 0) - (b.display_order || 0));
 
           return attributesData;
         }
@@ -66,13 +67,13 @@ class AttributesService {
       if (error) throw error;
 
       const attributesData = data
-        .map((item: any) => item.attributes)
+        .map((item: unknown) => item.attributes)
         .filter(Boolean)
-        .sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
+        .sort((a: unknown, b: unknown) => (a.display_order || 0) - (b.display_order || 0));
 
       return attributesData;
     } catch (error) {
-      console.error('Error fetching attributes:', error);
+      logger.error('Error fetching attributes:', error);
       throw error;
     }
   }
@@ -82,7 +83,7 @@ class AttributesService {
    * @param productId - The product ID
    * @param dynamicAttributes - The attribute values to save
    */
-  async saveAttributeValues(productId: string, dynamicAttributes: Record<string, any>): Promise<void> {
+  async saveAttributeValues(productId: string, dynamicAttributes: Record<string, unknown>): Promise<void> {
     if (Object.keys(dynamicAttributes).length === 0) return;
 
     // Delete existing attribute values
@@ -95,7 +96,7 @@ class AttributesService {
         return true;
       })
       .map(([attributeId, value]) => {
-        const valueObj: any = {
+        const valueObj: unknown = {
           product_id: productId,
           attribute_id: attributeId,
           value_text: null,
@@ -126,7 +127,7 @@ class AttributesService {
       const { error } = await supabase.from('product_attribute_values').insert(attributeValues);
 
       if (error) {
-        console.error('Error saving attributes:', error);
+        logger.error('Error saving attributes:', error);
         throw error;
       }
     }
@@ -136,7 +137,7 @@ class AttributesService {
    * Get product attribute values for a specific product
    * @param productId - The product ID
    */
-  async getProductAttributeValues(productId: string): Promise<any[]> {
+  async getProductAttributeValues(productId: string): Promise<unknown[]> {
     try {
       const { data, error } = await supabase
         .from('product_attribute_values')
@@ -146,7 +147,7 @@ class AttributesService {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error loading product attributes:', error);
+      logger.error('Error loading product attributes:', error);
       throw new Error('Failed to fetch product attributes');
     }
   }

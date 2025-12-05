@@ -6,6 +6,8 @@ import cartReducer from './slices/cartSlice';
 import wishlistReducer from './slices/wishlistSlice';
 
 // Redux Persist configuration
+// Note: Tokens are stored in expo-secure-store (encrypted), not in Redux state
+// Only non-sensitive auth state (user data, isAuthenticated) is persisted here
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,

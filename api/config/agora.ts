@@ -1,9 +1,10 @@
 // Agora.io Configuration for React Native
+import { logger } from '@/utils/logger';
 import { supabase } from './supabase';
 
 // Cached configs to avoid multiple API calls
-let cachedConfig: any = null;
-let cachedRTMConfig: any = null;
+let cachedConfig: unknown = null;
+let cachedRTMConfig: unknown = null;
 
 export const getAgoraConfig = async (params?: { channelName?: string; uid?: number; role?: 'host' | 'audience' }) => {
   if (cachedConfig && !params) {
@@ -16,7 +17,7 @@ export const getAgoraConfig = async (params?: { channelName?: string; uid?: numb
     });
 
     if (error) {
-      console.error('Error fetching Agora config:', error);
+      logger.error('Error fetching Agora config', error);
       throw new Error('Failed to fetch Agora configuration');
     }
 
@@ -24,7 +25,7 @@ export const getAgoraConfig = async (params?: { channelName?: string; uid?: numb
     if (!params) cachedConfig = data;
     return data;
   } catch (error) {
-    console.error('Error in getAgoraConfig:', error);
+    logger.error('Error in getAgoraConfig', error);
     throw error;
   }
 };
@@ -40,7 +41,7 @@ export const getAgoraRTMConfig = async (params?: { channelName?: string; uid?: s
     });
 
     if (error) {
-      console.error('Error fetching Agora RTM config:', error);
+      logger.error('Error fetching Agora RTM config', error);
       throw new Error('Failed to fetch Agora RTM config');
     }
 
@@ -48,7 +49,7 @@ export const getAgoraRTMConfig = async (params?: { channelName?: string; uid?: s
     if (!params) cachedRTMConfig = data;
     return data;
   } catch (error) {
-    console.error('Error in getAgoraRTMConfig:', error);
+    logger.error('Error in getAgoraRTMConfig', error);
     throw error;
   }
 };
@@ -69,12 +70,5 @@ export const AGORA_CONFIG = {
   codec: 'vp8' as const,
   mode: 'live' as const,
 };
-
-// Instructions for setup:
-// 1. Go to https://console.agora.io/
-// 2. Create a new project
-// 3. Copy your App ID and replace "your_agora_app_id_here" above
-// 4. For production, set up token authentication (recommended)
-// 5. Update the appId in this file
 
 export default AGORA_CONFIG;

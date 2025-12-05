@@ -1,6 +1,7 @@
-import { supabase } from '@/api/config/supabase';
+import { listingsService } from '@/api/services';
 import { useAuth } from '@/hooks/use-auth';
 import { formatPrice } from '@/utils';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
@@ -55,18 +56,7 @@ export const AuctionDisplay: React.FC<AuctionDisplayProps> = ({ productId }) => 
 
   const fetchAuction = async () => {
     try {
-      const { data, error } = await supabase
-        .from('auctions')
-        .select('*')
-        .eq('listing_id', productId)
-        .eq('status', 'active')
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is "not found" error, which is okay
-        throw error;
-      }
-
+      const data = await listingsService.getAuctionByListingId(productId);
       if (data) {
         const auctionData = data as unknown as AuctionData;
         setAuction(auctionData);
@@ -74,7 +64,7 @@ export const AuctionDisplay: React.FC<AuctionDisplayProps> = ({ productId }) => 
       }
       return null;
     } catch (error) {
-      console.error('Error fetching auction:', error);
+      logger.error('Error fetching auction:', error);
       return null;
     }
   };
@@ -83,18 +73,10 @@ export const AuctionDisplay: React.FC<AuctionDisplayProps> = ({ productId }) => 
     if (!auctionId) return;
 
     try {
-      const { data, error } = await supabase
-        .from('bids')
-        .select('*')
-        .eq('auction_id', auctionId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      if (data) {
-        setBids(data as unknown as BidData[]);
-      }
+      const data = await listingsService.getBidsForAuction(auctionId);
+      setBids(data as unknown as BidData[]);
     } catch (error) {
-      console.error('Error fetching bids:', error);
+      logger.error('Error fetching bids:', error);
     }
   };
 
@@ -178,22 +160,13 @@ export const AuctionDisplay: React.FC<AuctionDisplayProps> = ({ productId }) => 
     setIsSubmitting(true);
 
     try {
-      // Call the proxy bidding edge function
-      const { data, error } = await supabase.functions.invoke('place-proxy-bid', {
-        body: {
-          auctionId: auction.id,
-          maxBidAmount: maxBidAmount,
-        },
-      });
+      const result = await listingsService.placeProxyBid(auction.id, maxBidAmount);
 
-      if (error) throw error;
-
-      if (data && data.success) {
-        const isLeading = data.isLeading;
+      if (result.success) {
         showSuccessToast(
-          isLeading
-            ? `You're winning! Current bid: £${data.currentBid.toFixed(2)}`
-            : `Bid placed! Current bid: £${data.currentBid.toFixed(2)} (another bidder is leading)`
+          result.isLeading
+            ? `You're winning! Current bid: £${result.currentBid.toFixed(2)}`
+            : `Bid placed! Current bid: £${result.currentBid.toFixed(2)} (another bidder is leading)`
         );
         setBidAmount('');
         await fetchAuction();
@@ -201,10 +174,10 @@ export const AuctionDisplay: React.FC<AuctionDisplayProps> = ({ productId }) => 
           await fetchBids(auction.id);
         }
       } else {
-        throw new Error((data && data.error) || 'Failed to place bid');
+        throw new Error(result.error || 'Failed to place bid');
       }
-    } catch (error: any) {
-      console.error('Error placing bid:', error);
+    } catch (error: unknown) {
+      logger.error('Error placing bid:', error);
       showErrorToast(error.message || 'Failed to place bid');
     } finally {
       setIsSubmitting(false);

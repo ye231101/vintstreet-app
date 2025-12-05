@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from '../config/supabase';
 import { UploadResult } from '../types';
@@ -41,7 +42,7 @@ class StorageService {
         });
 
       if (error) {
-        console.error('Avatar upload error:', error);
+        logger.error('Avatar upload error', error);
 
         // Check if it's an authentication error
         if (error.message.includes('JWT') || error.message.includes('token') || error.message.includes('auth')) {
@@ -56,7 +57,7 @@ class StorageService {
 
       return { success: true, url: publicUrlData.publicUrl };
     } catch (error) {
-      console.error('Avatar upload error:', error);
+      logger.error('Avatar upload error', error);
 
       // Check if it's an authentication error
       if (
@@ -109,7 +110,7 @@ class StorageService {
       });
 
       if (error) {
-        console.error('Upload error:', error);
+        logger.error('Upload error', error);
 
         // Check if it's an authentication error
         if (error.message.includes('JWT') || error.message.includes('token') || error.message.includes('auth')) {
@@ -124,7 +125,7 @@ class StorageService {
 
       return { success: true, url: publicUrlData.publicUrl };
     } catch (error) {
-      console.error('Upload error:', error);
+      logger.error('Upload error', error);
 
       // Check if it's an authentication error
       if (
@@ -186,13 +187,13 @@ class StorageService {
       const { error } = await supabase.storage.from(this.BUCKET_NAME).remove([fullPath]);
 
       if (error) {
-        console.error('Delete error:', error);
+        logger.error('Delete error', error);
         return { success: false, error: error.message };
       }
 
       return { success: true };
     } catch (error) {
-      console.error('Delete error:', error);
+      logger.error('Delete error', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Review, ReviewReply, ReviewResponse, ReviewStats } from '../types';
 
@@ -24,7 +25,7 @@ class ReviewsService {
       }
 
       // Get unique buyer IDs
-      const buyerIds = [...new Set(reviewsData.map((review: any) => review.buyer_id))];
+      const buyerIds = [...new Set(reviewsData.map((review: unknown) => review.buyer_id))];
 
       // Fetch profiles for all buyers
       const { data: profilesData } = await supabase
@@ -33,10 +34,10 @@ class ReviewsService {
         .in('user_id', buyerIds);
 
       // Create a map of profiles
-      const profilesMap = new Map((profilesData || []).map((profile: any) => [profile.user_id, profile]));
+      const profilesMap = new Map((profilesData || []).map((profile: unknown) => [profile.user_id, profile]));
 
       // Fetch review replies
-      const reviewIds = reviewsData.map((review: any) => review.id);
+      const reviewIds = reviewsData.map((review: unknown) => review.id);
       const { data: repliesData } = await supabase
         .from('review_replies')
         .select('*')
@@ -45,7 +46,7 @@ class ReviewsService {
 
       // Create a map of replies
       const repliesMap = new Map<string, ReviewReply[]>();
-      (repliesData || []).forEach((reply: any) => {
+      (repliesData || []).forEach((reply: unknown) => {
         if (!repliesMap.has(reply.review_id)) {
           repliesMap.set(reply.review_id, []);
         }
@@ -53,7 +54,7 @@ class ReviewsService {
       });
 
       // Merge reviews with profiles and replies
-      const reviewsWithProfiles = reviewsData.map((review: any) => ({
+      const reviewsWithProfiles = reviewsData.map((review: unknown) => ({
         ...review,
         buyer_profile: profilesMap.get(review.buyer_id) || null,
         review_replies: repliesMap.get(review.id) || [],
@@ -62,7 +63,7 @@ class ReviewsService {
       // Transform API data to match the UI interface
       return this.transformReviewsData((reviewsWithProfiles as unknown as ReviewResponse[]) || []);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      logger.error('Error fetching reviews:', error);
       throw error;
     }
   }
@@ -93,7 +94,7 @@ class ReviewsService {
         totalSales,
       };
     } catch (error) {
-      console.error('Error fetching review stats:', error);
+      logger.error('Error fetching review stats:', error);
       throw error;
     }
   }
@@ -128,7 +129,7 @@ class ReviewsService {
       }
 
       // Get unique buyer IDs
-      const buyerIds = [...new Set(reviewsData.map((review: any) => review.buyer_id))];
+      const buyerIds = [...new Set(reviewsData.map((review: unknown) => review.buyer_id))];
 
       // Fetch profiles for all buyers
       const { data: profilesData } = await supabase
@@ -137,10 +138,10 @@ class ReviewsService {
         .in('user_id', buyerIds);
 
       // Create a map of profiles
-      const profilesMap = new Map((profilesData || []).map((profile: any) => [profile.user_id, profile]));
+      const profilesMap = new Map((profilesData || []).map((profile: unknown) => [profile.user_id, profile]));
 
       // Fetch review replies
-      const reviewIds = reviewsData.map((review: any) => review.id);
+      const reviewIds = reviewsData.map((review: unknown) => review.id);
       const { data: repliesData } = await supabase
         .from('review_replies')
         .select('*')
@@ -149,7 +150,7 @@ class ReviewsService {
 
       // Create a map of replies
       const repliesMap = new Map<string, ReviewReply[]>();
-      (repliesData || []).forEach((reply: any) => {
+      (repliesData || []).forEach((reply: unknown) => {
         if (!repliesMap.has(reply.review_id)) {
           repliesMap.set(reply.review_id, []);
         }
@@ -157,7 +158,7 @@ class ReviewsService {
       });
 
       // Merge reviews with profiles and replies
-      const reviewsWithProfiles = reviewsData.map((review: any) => ({
+      const reviewsWithProfiles = reviewsData.map((review: unknown) => ({
         ...review,
         buyer_profile: profilesMap.get(review.buyer_id) || null,
         review_replies: repliesMap.get(review.id) || [],
@@ -165,7 +166,7 @@ class ReviewsService {
 
       return this.transformReviewsData((reviewsWithProfiles as unknown as ReviewResponse[]) || []);
     } catch (error) {
-      console.error('Error fetching sorted reviews:', error);
+      logger.error('Error fetching sorted reviews:', error);
       throw error;
     }
   }
@@ -236,14 +237,14 @@ class ReviewsService {
         .single();
 
       const reviewData = {
-        ...(data as any),
+        ...(data as unknown),
         buyer_profile: profile || null,
         review_replies: [],
       };
 
       return this.transformReviewsData([reviewData as unknown as ReviewResponse])[0];
     } catch (error) {
-      console.error('Error creating review:', error);
+      logger.error('Error creating review:', error);
       throw error;
     }
   }
@@ -272,7 +273,7 @@ class ReviewsService {
 
       return data as unknown as ReviewReply;
     } catch (error) {
-      console.error('Error posting reply:', error);
+      logger.error('Error posting reply:', error);
       throw error;
     }
   }

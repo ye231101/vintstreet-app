@@ -4,6 +4,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logger } from './logger';
 
 /**
  * Set a value in storage
@@ -46,7 +47,7 @@ export const hasStorageValue = async (key: string) => {
  * @param key - The key to store the object under
  * @param value - The object to store
  */
-export const setStorageJSON = async (key: string, value: any) => {
+export const setStorageJSON = async (key: string, value: unknown) => {
   await AsyncStorage.setItem(key, JSON.stringify(value));
 };
 
@@ -61,7 +62,7 @@ export const getStorageJSON = async (key: string) => {
     try {
       return JSON.parse(value);
     } catch (error) {
-      console.error(`Error parsing JSON for key ${key}:`, error);
+      logger.error(`Error parsing JSON for key ${key}:`, error);
       return null;
     }
   }
@@ -83,7 +84,7 @@ export const getRecentSearches = async (): Promise<string[]> => {
     const searches = await getStorageJSON(RECENT_SEARCHES_KEY);
     return Array.isArray(searches) ? searches : [];
   } catch (error) {
-    console.error('Error getting recent searches:', error);
+    logger.error('Error getting recent searches:', error);
     return [];
   }
 };
@@ -107,7 +108,7 @@ export const addRecentSearch = async (searchTerm: string): Promise<void> => {
 
     await setStorageJSON(RECENT_SEARCHES_KEY, updatedSearches);
   } catch (error) {
-    console.error('Error adding recent search:', error);
+    logger.error('Error adding recent search:', error);
   }
 };
 
@@ -118,7 +119,7 @@ export const clearRecentSearches = async (): Promise<void> => {
   try {
     await removeStorageValue(RECENT_SEARCHES_KEY);
   } catch (error) {
-    console.error('Error clearing recent searches:', error);
+    logger.error('Error clearing recent searches:', error);
   }
 };
 
@@ -132,7 +133,7 @@ export const removeRecentSearch = async (searchTerm: string): Promise<void> => {
     const filteredSearches = searches.filter((s) => s.toLowerCase() !== searchTerm.toLowerCase());
     await setStorageJSON(RECENT_SEARCHES_KEY, filteredSearches);
   } catch (error) {
-    console.error('Error removing recent search:', error);
+    logger.error('Error removing recent search:', error);
   }
 };
 
@@ -151,7 +152,7 @@ export const getRecentlyViewedProducts = async (): Promise<string[]> => {
     const products = await getStorageJSON(RECENTLY_VIEWED_PRODUCTS_KEY);
     return Array.isArray(products) ? products : [];
   } catch (error) {
-    console.error('Error getting recently viewed products:', error);
+    logger.error('Error getting recently viewed products:', error);
     return [];
   }
 };
@@ -175,7 +176,7 @@ export const addRecentlyViewedProduct = async (productId: string): Promise<void>
 
     await setStorageJSON(RECENTLY_VIEWED_PRODUCTS_KEY, updatedProducts);
   } catch (error) {
-    console.error('Error adding recently viewed product:', error);
+    logger.error('Error adding recently viewed product:', error);
   }
 };
 
@@ -186,6 +187,6 @@ export const clearRecentlyViewedProducts = async (): Promise<void> => {
   try {
     await removeStorageValue(RECENTLY_VIEWED_PRODUCTS_KEY);
   } catch (error) {
-    console.error('Error clearing recently viewed products:', error);
+    logger.error('Error clearing recently viewed products:', error);
   }
 };

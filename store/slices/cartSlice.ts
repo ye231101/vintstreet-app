@@ -20,7 +20,7 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (userId: strin
   try {
     const cartItems = await cartService.getCart(userId);
     return cartItems;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return rejectWithValue(error.message || 'Failed to fetch cart');
   }
 });
@@ -33,7 +33,7 @@ export const addToCartAsync = createAsyncThunk(
       await cartService.addToCart(userId, listingId);
       const cartItems = await cartService.getCart(userId);
       return cartItems;
-    } catch (error: any) {
+    } catch (error: unknown) {
       showErrorToast('Failed to add item to cart');
       return rejectWithValue(error.message || 'Failed to add item to cart');
     }
@@ -48,7 +48,7 @@ export const removeFromCartAsync = createAsyncThunk(
       await cartService.removeFromCart(userId, listingId);
       const cartItems = await cartService.getCart(userId);
       return cartItems;
-    } catch (error: any) {
+    } catch (error: unknown) {
       showErrorToast('Failed to remove item from cart');
       return rejectWithValue(error.message || 'Failed to remove item from cart');
     }
@@ -60,7 +60,7 @@ export const clearCartAsync = createAsyncThunk('cart/clearCart', async (userId: 
   try {
     await cartService.clearCart(userId);
     return [];
-  } catch (error: any) {
+  } catch (error: unknown) {
     showErrorToast('Failed to clear cart');
     return rejectWithValue(error.message || 'Failed to clear cart');
   }

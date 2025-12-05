@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { CartItem } from '../types';
 
@@ -21,7 +22,7 @@ class CartService {
         .order('created_at', { ascending: false });
 
       if (cartError) {
-        console.error('Error fetching cart:', cartError);
+        logger.error('Error fetching cart', cartError);
         throw new Error(`Failed to fetch cart: ${cartError.message}`);
       }
 
@@ -30,54 +31,54 @@ class CartService {
       }
 
       // Get all listing IDs
-      const listingIds = cartData.map((item: any) => item.listing_id);
+      const listingIds = cartData.map((item: unknown) => item.listing_id);
 
       // Fetch listings with their details
       const { data: listingsData, error: listingsError } = await supabase
         .from('listings')
         .select(
           `
-          id,
-          product_name,
-          starting_price,
-          discounted_price,
-          product_image,
-          product_images,
-          product_description,
-          seller_id,
-          category_id,
-          subcategory_id,
-          sub_subcategory_id,
-          sub_sub_subcategory_id,
-          brand_id,
-          status,
-          created_at,
-          product_categories(id, name)
-        `
+            id,
+            product_name,
+            starting_price,
+            discounted_price,
+            product_image,
+            product_images,
+            product_description,
+            seller_id,
+            category_id,
+            subcategory_id,
+            sub_subcategory_id,
+            sub_sub_subcategory_id,
+            brand_id,
+            status,
+            created_at,
+            product_categories(id, name)
+          `
         )
         .in('id', listingIds);
 
       if (listingsError) {
-        console.error('Error fetching listings:', listingsError);
+        logger.error('Error fetching listings', listingsError);
         throw new Error(`Failed to fetch listings: ${listingsError.message}`);
       }
 
       // Create a map of listings by ID
-      const listingsMap = new Map((listingsData || []).map((listing: any) => [listing.id, listing]));
+      const listingsMap = new Map((listingsData || []).map((listing: unknown) => [listing.id, listing]));
 
       // Fetch seller info for all listings
-      const sellerIds = [...new Set((listingsData || []).map((listing: any) => listing.seller_id))];
+      const sellerIds = [...new Set((listingsData || []).map((listing: unknown) => listing.seller_id))];
 
       let sellersMap = new Map();
       if (sellerIds.length > 0) {
         const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
-        sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+        sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
       }
 
       // Transform the data to include product info and calculate subtotal
       return cartData
-        .filter((item: any) => listingsMap.has(item.listing_id)) // Only include items with valid listings
-        .map((item: any) => {
+        .filter((item: unknown) => listingsMap.has(item.listing_id)) // Only include items with valid listings
+        .map((item: unknown) => {
           const listing = listingsMap.get(item.listing_id);
           if (!listing) return null;
 
@@ -94,7 +95,7 @@ class CartService {
         })
         .filter(Boolean) as CartItem[];
     } catch (error) {
-      console.error('Error in getCart:', error);
+      logger.error('Error in getCart', error);
       throw error;
     }
   }
@@ -128,7 +129,7 @@ class CartService {
         throw new Error(`Failed to add item to cart: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in addToCart:', error);
+      logger.error('Error in addToCart', error);
       throw error;
     }
   }
@@ -146,7 +147,7 @@ class CartService {
         throw new Error(`Failed to remove item from cart: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in removeFromCart:', error);
+      logger.error('Error in removeFromCart', error);
       throw error;
     }
   }
@@ -163,7 +164,7 @@ class CartService {
         throw new Error(`Failed to clear cart: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error in clearCart:', error);
+      logger.error('Error in clearCart', error);
       throw error;
     }
   }

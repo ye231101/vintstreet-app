@@ -2,6 +2,7 @@ import { messagesService } from '@/api/services';
 import { Conversation } from '@/api/types';
 import SearchBar from '@/components/search-bar';
 import { useAuth } from '@/hooks/use-auth';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router, useSegments } from 'expo-router';
@@ -48,7 +49,7 @@ export default function MessagesScreen() {
       const fetchedConversations = await messagesService.getConversations(user.id);
       setConversations(fetchedConversations);
     } catch (err) {
-      console.error('Error loading conversations:', err);
+      logger.error('Error loading conversations:', err);
       setError(err instanceof Error ? err.message : 'Error loading conversations');
     } finally {
       setIsLoading(false);

@@ -3,6 +3,7 @@ import { Order } from '@/api/types';
 import { OrderDetailsModal } from '@/components/order-details-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { File, Paths } from 'expo-file-system';
 import { Image } from 'expo-image';
@@ -52,7 +53,7 @@ export default function OrdersScreen() {
       const fetchedOrders = await ordersService.getOrders(user.id, 'seller');
       setOrders(fetchedOrders);
     } catch (err) {
-      console.error('Error loading orders:', err);
+      logger.error('Error loading orders', err);
       setError(err instanceof Error ? err.message : 'Error loading orders');
     } finally {
       setIsLoading(false);
@@ -179,7 +180,7 @@ export default function OrdersScreen() {
             UTI: 'com.microsoft.excel.xlsx',
           });
         } catch (shareError) {
-          console.log('Share cancelled or failed:', shareError);
+          logger.error('Share cancelled or failed', shareError);
           // User cancelled or error occurred
           Alert.alert(
             'File Saved',
@@ -205,7 +206,7 @@ export default function OrdersScreen() {
         ]);
       }
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
+      logger.error('Error exporting to Excel', error);
       Alert.alert('Export Error', 'Failed to export data to Excel. Please try again.');
     } finally {
       setIsExporting(false);

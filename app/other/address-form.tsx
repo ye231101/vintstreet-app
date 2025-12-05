@@ -2,6 +2,7 @@ import { savedAddressesService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
@@ -77,12 +78,12 @@ const AddressAutocompleteField = ({
   label: string;
   value: string;
   onChangeText: (text: string) => void;
-  onSelectAddress: (place: any) => void;
+  onSelectAddress: (place: unknown) => void;
   placeholder: string;
   required?: boolean;
   editable?: boolean;
 }) => {
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<unknown[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   const fetchPlaces = async (text: string) => {
@@ -102,8 +103,8 @@ const AddressAutocompleteField = ({
       );
 
       // Sort results to prioritize address types first
-      const sortedResults = res.data.features.sort((a: any, b: any) => {
-        const typeOrder: any = { address: 0, place: 1, postcode: 2, region: 3 };
+      const sortedResults = res.data.features.sort((a: unknown, b: unknown) => {
+        const typeOrder: unknown = { address: 0, place: 1, postcode: 2, region: 3 };
         const aType = a.place_type?.[0] || 'other';
         const bType = b.place_type?.[0] || 'other';
         return (typeOrder[aType] ?? 999) - (typeOrder[bType] ?? 999);
@@ -111,14 +112,14 @@ const AddressAutocompleteField = ({
 
       setResults(sortedResults.slice(0, 5));
     } catch (error) {
-      console.error('Error fetching places:', error);
+      logger.error('Error fetching places:', error);
       setResults([]);
     } finally {
       setIsSearching(false);
     }
   };
 
-  const handleSelectPlace = (place: any) => {
+  const handleSelectPlace = (place: unknown) => {
     onSelectAddress(place);
     setResults([]);
   };
@@ -213,7 +214,7 @@ export default function AddressFormScreen() {
       const data = await savedAddressesService.getById(String(id), user.id);
 
       if (data) {
-        const addressData = data as any;
+        const addressData = data as unknown;
         setLabel(addressData.label || '');
         setFirstName(addressData.first_name);
         setLastName(addressData.last_name);
@@ -226,8 +227,8 @@ export default function AddressFormScreen() {
         setPhone(addressData.phone || '');
         setIsDefault(addressData.is_default);
       }
-    } catch (error: any) {
-      console.error('Error loading address:', error);
+    } catch (error: unknown) {
+      logger.error('Error loading address:', error);
       showErrorToast(error.message || 'Failed to load address');
       router.back();
     } finally {
@@ -235,7 +236,7 @@ export default function AddressFormScreen() {
     }
   };
 
-  const handleAddressSelect = (place: any) => {
+  const handleAddressSelect = (place: unknown) => {
     const context = place.context || [];
     const placeType = place.place_type?.[0] || '';
 
@@ -271,7 +272,7 @@ export default function AddressFormScreen() {
     }
 
     // Parse the context array for all other info
-    context.forEach((item: any) => {
+    context.forEach((item: unknown) => {
       if (item.id.includes('place')) {
         cityValue = item.text;
       } else if (item.id.includes('locality') && !cityValue) {
@@ -329,7 +330,7 @@ export default function AddressFormScreen() {
         if (stateMatch) {
           stateValue = stateMatch[0];
         } else {
-          // Use full text, remove any postal codes
+          // Use full text, remove unknown postal codes
           stateValue = statePart.replace(/\d+/g, '').trim();
         }
       }
@@ -434,8 +435,8 @@ export default function AddressFormScreen() {
       setTimeout(() => {
         router.back();
       }, 500);
-    } catch (error: any) {
-      console.error('Error saving address:', error);
+    } catch (error: unknown) {
+      logger.error('Error saving address:', error);
       showErrorToast(error.message || 'Failed to save address');
     } finally {
       setIsSaving(false);

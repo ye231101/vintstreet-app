@@ -2,6 +2,7 @@ import { messagesService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -115,7 +116,7 @@ export default function MessageDetailScreen() {
         router.back();
       }
     } catch (error) {
-      console.error('Error loading messages:', error);
+      logger.error('Error loading messages:', error);
       Alert.alert('Error', 'Failed to load messages');
     } finally {
       setIsLoading(false);
@@ -156,7 +157,7 @@ export default function MessageDetailScreen() {
       setIsReportDialogOpen(false);
       setReportReason('');
     } catch (error) {
-      console.error('Error reporting message:', error);
+      logger.error('Error reporting message:', error);
       Alert.alert('Error', 'Failed to report message');
     } finally {
       setIsReporting(false);
@@ -259,7 +260,7 @@ export default function MessageDetailScreen() {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending message:', error);
       Alert.alert('Error', 'Failed to send message');
     } finally {
       setIsSending(false);

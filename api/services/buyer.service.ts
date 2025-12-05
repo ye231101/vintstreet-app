@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { AddressData, BuyerProfile } from '../types';
 
@@ -16,7 +17,7 @@ class BuyerService {
 
       return data as unknown as BuyerProfile | null;
     } catch (error) {
-      console.error('Error fetching buyer profile:', error);
+      logger.error('Error fetching buyer profile', error);
       throw new Error('Failed to fetch buyer profile');
     }
   }
@@ -65,7 +66,7 @@ class BuyerService {
         return data as unknown as BuyerProfile;
       }
     } catch (error) {
-      console.error('Error saving buyer profile:', error);
+      logger.error('Error saving buyer profile', error);
       throw new Error('Failed to save buyer profile');
     }
   }
@@ -91,7 +92,7 @@ class BuyerService {
 
       await this.saveBuyerProfile(userId, profileData);
     } catch (error) {
-      console.error('Error saving shipping address:', error);
+      logger.error('Error saving shipping address', error);
       throw new Error('Failed to save shipping address');
     }
   }
@@ -117,7 +118,7 @@ class BuyerService {
 
       await this.saveBuyerProfile(userId, profileData);
     } catch (error) {
-      console.error('Error saving billing address:', error);
+      logger.error('Error saving billing address', error);
       throw new Error('Failed to save billing address');
     }
   }
@@ -186,7 +187,7 @@ class BuyerService {
 
       await this.saveBuyerProfile(userId, profileData);
     } catch (error) {
-      console.error('Error deleting shipping address:', error);
+      logger.error('Error deleting shipping address', error);
       throw new Error('Failed to delete shipping address');
     }
   }
@@ -211,7 +212,7 @@ class BuyerService {
 
       await this.saveBuyerProfile(userId, profileData);
     } catch (error) {
-      console.error('Error deleting billing address:', error);
+      logger.error('Error deleting billing address', error);
       throw new Error('Failed to delete billing address');
     }
   }

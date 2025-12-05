@@ -2,6 +2,7 @@ import { offersService } from '@/api/services';
 import { Product } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -66,7 +67,7 @@ export const MakeOfferModal: React.FC<MakeOfferModalProps> = ({ isOpen, onClose,
       showSuccessToast('Offer submitted successfully! The seller will be notified.');
       handleClose();
     } catch (error) {
-      console.error('Error submitting offer:', error);
+      logger.error('Error submitting offer:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit offer';
       setOfferError(errorMessage);
       showErrorToast(errorMessage);

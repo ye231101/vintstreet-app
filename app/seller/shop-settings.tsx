@@ -2,6 +2,7 @@ import { authService, sellerService } from '@/api/services';
 import { InputComponent } from '@/components/common/input';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
+import { logger } from '@/utils/logger';
 import { showToast } from '@/utils/toast';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -88,7 +89,7 @@ export default function ShopSettingsScreen() {
         setReturnPolicy(sellerProfile.return_policy || '');
       }
     } catch (error) {
-      console.error('Error loading shop settings:', error);
+      logger.error('Error loading shop settings:', error);
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +152,7 @@ export default function ShopSettingsScreen() {
       showToast('Shop settings saved successfully!', 'success');
       router.replace('/account');
     } catch (error) {
-      console.error('Error saving shop settings:', error);
+      logger.error('Error saving shop settings:', error);
       showToast(error instanceof Error ? error.message : 'Failed to save shop settings', 'danger');
     } finally {
       setLoading(false);

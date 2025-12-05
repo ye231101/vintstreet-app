@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 
 export type NotificationType = 'message' | 'offer_created' | 'offer_accepted' | 'offer_declined';
@@ -7,7 +8,7 @@ interface CreateNotificationParams {
   type: NotificationType;
   title?: string;
   body: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 class NotificationsService {
@@ -29,11 +30,11 @@ class NotificationsService {
       ]);
 
       if (error) {
-        console.error('Error creating notification:', error);
+        logger.error('Error creating notification:', error);
         // Don't throw - we don't want notification failures to break the main flow
       }
     } catch (error) {
-      console.error('Error creating notification:', error);
+      logger.error('Error creating notification:', error);
       // Don't throw - we don't want notification failures to break the main flow
     }
   }

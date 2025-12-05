@@ -1,5 +1,6 @@
-import { supabase } from '@/api/config';
+import { bannersService } from '@/api/services';
 import { blurhash } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -53,7 +54,7 @@ export default function ShopBannerCarousel() {
     if (banners.length <= 1) return; // Don't auto-scroll if there's only one or no banners
 
     const startAutoScroll = () => {
-      // Clear any existing timer
+      // Clear unknown existing timer
       if (autoScrollTimer.current) {
         clearInterval(autoScrollTimer.current);
       }
@@ -101,35 +102,17 @@ export default function ShopBannerCarousel() {
   const fetchBanners = async () => {
     try {
       setIsLoading(true);
-      // Try to fetch from shop_banners table, or fallback to a similar table
-      const { data, error } = await supabase
-        .from('shop_banners')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true })
-        .limit(10);
-
-      if (error) {
-        console.error('Error fetching shop banners:', error);
-        // If table doesn't exist, use empty array
-        setBanners([]);
-        return;
-      }
-
-      if (data && Array.isArray(data)) {
-        setBanners(data as unknown as ShopBanner[]);
-      } else {
-        setBanners([]);
-      }
+      const data = await bannersService.getShopBanners(10);
+      setBanners(data);
     } catch (error) {
-      console.error('Error fetching shop banners:', error);
+      logger.error('Error fetching shop banners:', error);
       setBanners([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const onScroll = (event: any) => {
+  const onScroll = (event: unknown) => {
     if (isScrolling.current || banners.length === 0) return;
 
     const scrollX = event.nativeEvent.contentOffset.x;
@@ -163,7 +146,7 @@ export default function ShopBannerCarousel() {
     }, 3000); // Resume auto-scroll 3 seconds after user stops scrolling
   };
 
-  const onScrollEnd = (event: any) => {
+  const onScrollEnd = (event: unknown) => {
     if (banners.length === 0) return;
 
     const scrollX = event.nativeEvent.contentOffset.x;
@@ -200,13 +183,10 @@ export default function ShopBannerCarousel() {
     if (banner.link_url) {
       // If it's a category link, navigate to discovery with category
       if (banner.category_id) {
-        router.push(`/(tabs)/discovery?category=${banner.category_id}` as any);
+        router.push(`/(tabs)/discovery?category=${banner.category_id}` as unknown);
       } else if (banner.link_url.startsWith('/')) {
         // Internal route
-        router.push(banner.link_url as any);
-      } else {
-        // External URL - you might want to use Linking.openURL here
-        console.log('External URL:', banner.link_url);
+        router.push(banner.link_url as unknown);
       }
     }
   };

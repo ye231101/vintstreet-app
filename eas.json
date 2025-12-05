@@ -21,7 +21,7 @@
     },
     "production": {
       "environment": "production",
-      "autoIncrement": true,
+      "autoIncrement": false,
       "distribution": "store",
       "ios": {
         "buildConfiguration": "Release"

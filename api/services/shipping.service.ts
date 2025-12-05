@@ -1,5 +1,13 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
-import { SellerShippingOptions, ShippingAddress, ShippingOption, ShippingProvider } from '../types';
+import {
+  SellerShippingOptions,
+  ShippingAddress,
+  ShippingBand,
+  ShippingOption,
+  ShippingProvider,
+  ShippingProviderPrice,
+} from '../types';
 
 class ShippingService {
   /**
@@ -12,7 +20,7 @@ class ShippingService {
       if (error) throw error;
       return (data as unknown as ShippingProvider[]) || [];
     } catch (error) {
-      console.error('Error fetching shipping providers:', error);
+      logger.error('Error fetching shipping providers', error);
       throw new Error('Failed to fetch shipping providers');
     }
   }
@@ -31,7 +39,7 @@ class ShippingService {
       if (error) throw error;
       return data as ShippingAddress | null;
     } catch (error) {
-      console.error('Error fetching seller shipping address:', error);
+      logger.error('Error fetching seller shipping address:', error);
       throw new Error('Failed to fetch shipping address');
     }
   }
@@ -52,7 +60,7 @@ class ShippingService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error updating shipping address:', error);
+      logger.error('Error updating shipping address:', error);
       throw new Error('Failed to update shipping address');
     }
   }
@@ -70,7 +78,7 @@ class ShippingService {
       if (error) throw error;
       return (data as unknown as SellerShippingOptions[]) || [];
     } catch (error) {
-      console.error('Error fetching seller shipping options:', error);
+      logger.error('Error fetching seller shipping options:', error);
       throw new Error('Failed to fetch shipping options');
     }
   }
@@ -108,7 +116,7 @@ class ShippingService {
 
       if (insertError) throw insertError;
     } catch (error) {
-      console.error('Error saving shipping settings:', error);
+      logger.error('Error saving shipping settings:', error);
       throw new Error('Failed to save shipping settings');
     }
   }
@@ -127,8 +135,42 @@ class ShippingService {
       if (error) throw error;
       return (data as unknown as ShippingOption[]) || [];
     } catch (error) {
-      console.error('Error fetching seller shipping options for buyer:', error);
+      logger.error('Error fetching seller shipping options for buyer:', error);
       throw new Error('Failed to fetch shipping options');
+    }
+  }
+
+  /**
+   * Get all active shipping bands
+   */
+  async getShippingBands(): Promise<ShippingBand[]> {
+    try {
+      const { data, error } = await supabase
+        .from('shipping_bands')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+
+      if (error) throw error;
+      return (data as unknown as ShippingBand[]) || [];
+    } catch (error) {
+      logger.error('Error fetching shipping bands:', error);
+      throw new Error('Failed to fetch shipping bands');
+    }
+  }
+
+  /**
+   * Get all shipping provider prices
+   */
+  async getShippingProviderPrices(): Promise<ShippingProviderPrice[]> {
+    try {
+      const { data, error } = await supabase.from('shipping_provider_prices').select('*');
+
+      if (error) throw error;
+      return (data as unknown as ShippingProviderPrice[]) || [];
+    } catch (error) {
+      logger.error('Error fetching shipping provider prices:', error);
+      throw new Error('Failed to fetch shipping provider prices');
     }
   }
 
@@ -164,13 +206,13 @@ class ShippingService {
       });
 
       if (error) {
-        console.error('Error generating shipping label:', error);
+        logger.error('Error generating shipping label:', error);
         return { success: false, error: error.message };
       }
 
       return { success: true, ...data };
     } catch (error) {
-      console.error('Error generating shipping label:', error);
+      logger.error('Error generating shipping label:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to generate shipping label',

@@ -10,6 +10,7 @@ import {
 import { AlgoliaBrand, AlgoliaCategory, AlgoliaProduct, AlgoliaQuerySuggestion } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { addRecentSearch, getRecentSearches, removeRecentSearch } from '@/utils';
+import { logger } from '@/utils/logger';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useSegments } from 'expo-router';
@@ -74,7 +75,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
         setSuggestions([]);
       }
     } catch (error) {
-      console.error('Error loading recent searches:', error);
+      logger.error('Error loading recent searches:', error);
     }
   }, []);
 
@@ -177,11 +178,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
           }
         } catch (error) {
           // Query suggestions are optional, so we don't fail if they're not configured
-          console.log('Query suggestions not available:', error);
+          logger.error('Query suggestions not available:', error);
         }
       }
     } catch (error) {
-      console.error('Error searching Algolia:', error);
+      logger.error('Error searching Algolia:', error);
     }
 
     return results;
@@ -298,7 +299,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
 
         setSuggestions(sections);
       } catch (error) {
-        console.error('Error fetching suggestions:', error);
+        logger.error('Error fetching suggestions:', error);
         setSuggestions([]);
       } finally {
         setIsLoadingSuggestions(false);
@@ -353,19 +354,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
     // Navigate based on type
     if (item.type === 'brand' && item.data) {
       const brand = item.data as AlgoliaBrand;
-      router.push(`/(tabs)/discovery?brandName=${encodeURIComponent(brand.name.toLowerCase())}` as any);
+      router.push(`/(tabs)/discovery?brandName=${encodeURIComponent(brand.name.toLowerCase())}` as unknown);
     } else if (item.type === 'category' && item.data) {
       const category = item.data as AlgoliaCategory;
-      router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as any);
+      router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as unknown);
     } else if (item.type === 'product' && item.data) {
       const product = item.data as AlgoliaProduct;
-      router.push(`/product/${product.objectID}` as any);
+      router.push(`/product/${product.objectID}` as unknown);
     } else {
-      router.push(`/(tabs)/discovery?search=${encodeURIComponent(searchValue)}` as any);
+      router.push(`/(tabs)/discovery?search=${encodeURIComponent(searchValue)}` as unknown);
     }
   };
 
-  const handleRemoveRecent = async (searchTerm: string, event: any) => {
+  const handleRemoveRecent = async (searchTerm: string, event: unknown) => {
     event.stopPropagation();
     await removeRecentSearch(searchTerm);
     await loadRecentSearches();

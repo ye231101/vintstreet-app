@@ -1,4 +1,5 @@
 import { stripeService } from '@/api/services';
+import { logger } from '@/utils/logger';
 import { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { useAuth } from './use-auth';
@@ -38,7 +39,7 @@ export function useStripeConnect() {
         setConnected(false);
       }
     } catch (err) {
-      console.error('Error checking Stripe connection:', err);
+      logger.error('Error checking Stripe connection:', err);
       setConnected(false);
     }
   };
@@ -59,8 +60,8 @@ export function useStripeConnect() {
           throw new Error('Unable to open Stripe onboarding URL');
         }
       }
-    } catch (err: any) {
-      console.error('Error connecting Stripe account:', err);
+    } catch (err: unknown) {
+      logger.error('Error connecting Stripe account:', err);
       throw new Error(err?.message || 'Failed to connect Stripe account');
     } finally {
       setLoading(false);
@@ -74,13 +75,13 @@ export function useStripeConnect() {
     try {
       const data = await stripeService.getSellerBalance();
       setBalance(data as StripeBalance);
-      if ((data as any)?.accountStatus) {
+      if ((data as unknown)?.accountStatus) {
         setConnected(
-          Boolean((data as any).accountStatus.onboarding_complete && (data as any).accountStatus.charges_enabled)
+          Boolean((data as unknown).accountStatus.onboarding_complete && (data as unknown).accountStatus.charges_enabled)
         );
       }
-    } catch (err: any) {
-      console.error('Error fetching balance:', err);
+    } catch (err: unknown) {
+      logger.error('Error fetching balance:', err);
       if (!String(err?.message || '').includes('No Stripe account found')) {
         // Surface other errors to caller
         throw new Error(err?.message || 'Failed to fetch balance');

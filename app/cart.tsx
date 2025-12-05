@@ -1,9 +1,9 @@
-import { supabase } from '@/api/config';
 import { shippingService } from '@/api/services';
 import { CartItem, ShippingBand, ShippingOption, ShippingProviderPrice } from '@/api/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { blurhash, formatPrice } from '@/utils';
+import { logger } from '@/utils/logger';
 import { getStorageValue, setStorageValue } from '@/utils/storage';
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -54,7 +54,7 @@ export default function CartScreen() {
           setShowCountryDialog(true);
         }
       } catch (error) {
-        console.error('Error loading shipping country:', error);
+        logger.error('Error loading shipping country:', error);
       }
     };
     loadShippingCountry();
@@ -65,7 +65,7 @@ export default function CartScreen() {
     try {
       await setStorageValue('SHIPPING_COUNTRY', countryCode);
     } catch (error) {
-      console.error('Error saving shipping country:', error);
+      logger.error('Error saving shipping country:', error);
     }
     setShowCountryDialog(false);
   };
@@ -112,7 +112,7 @@ export default function CartScreen() {
             selected[sellerId] = sellerOptions[0].id;
           }
         } catch (error) {
-          console.error(`Error fetching shipping options for seller ${sellerId}:`, error);
+          logger.error(`Error fetching shipping options for seller ${sellerId}:`, error);
           options[sellerId] = [];
         }
       }
@@ -120,7 +120,7 @@ export default function CartScreen() {
       setShippingOptions(options);
       setSelectedShipping(selected);
     } catch (error) {
-      console.error('Error fetching shipping options:', error);
+      logger.error('Error fetching shipping options:', error);
     } finally {
       setShippingLoading(false);
     }
@@ -131,22 +131,14 @@ export default function CartScreen() {
     const fetchShippingData = async () => {
       try {
         // Fetch shipping bands
-        const { data: bands, error: bandsError } = await supabase
-          .from('shipping_bands')
-          .select('*')
-          .eq('is_active', true)
-          .order('display_order');
-
-        if (bandsError) throw bandsError;
-        setShippingBands((bands as unknown as ShippingBand[]) || []);
+        const bands = await shippingService.getShippingBands();
+        setShippingBands(bands);
 
         // Fetch provider prices
-        const { data: prices, error: pricesError } = await supabase.from('shipping_provider_prices').select('*');
-
-        if (pricesError) throw pricesError;
-        setShippingProviderPrices((prices as unknown as ShippingProviderPrice[]) || []);
+        const prices = await shippingService.getShippingProviderPrices();
+        setShippingProviderPrices(prices);
       } catch (error) {
-        console.error('Error fetching shipping data:', error);
+        logger.error('Error fetching shipping data:', error);
       }
     };
 
@@ -209,7 +201,7 @@ export default function CartScreen() {
       }
       groups[sellerId].items.push(item);
       return groups;
-    }, {} as Record<string, { sellerInfo: any; items: CartItem[] }>);
+    }, {} as Record<string, { sellerInfo: unknown; items: CartItem[] }>);
   };
 
   const sellerGroups = groupCartItemsBySeller();
@@ -220,7 +212,7 @@ export default function CartScreen() {
     onRemove,
   }: {
     sellerId: string;
-    sellerData: { sellerInfo: any; items: CartItem[] };
+    sellerData: { sellerInfo: unknown; items: CartItem[] };
     onRemove: (productId: string) => void;
   }) => {
     const sellerShippingOptions = shippingOptions[sellerId] || [];
@@ -230,7 +222,7 @@ export default function CartScreen() {
     // Calculate total weight for this seller's items
     const totalWeight = sellerData.items.reduce((weightSum, item) => {
       // Access weight from product - it may be stored as weight or in a nested property
-      const weight = (item.product as any)?.weight ?? 0;
+      const weight = (item.product as unknown)?.weight ?? 0;
       return weightSum + (typeof weight === 'number' ? weight : 0);
     }, 0);
 
@@ -526,7 +518,7 @@ export default function CartScreen() {
             <SellerGroupSection
               key={sellerId}
               sellerId={sellerId}
-              sellerData={sellerData as { sellerInfo: any; items: CartItem[] }}
+              sellerData={sellerData as { sellerInfo: unknown; items: CartItem[] }}
               onRemove={(productId) => handleRemoveItem(productId)}
             />
           ))}

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { supabase } from '../config/supabase';
 import { Brand, BrandFilters } from '../types';
 
@@ -34,7 +35,7 @@ class BrandsService {
 
       return (data as unknown as Brand[]) || [];
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      logger.error('Error fetching brands:', error);
       throw error;
     }
   }
@@ -46,7 +47,7 @@ class BrandsService {
     try {
       return await this.getBrands({ is_active: true, is_popular: true });
     } catch (error) {
-      console.error('Error fetching popular brands:', error);
+      logger.error('Error fetching popular brands:', error);
       throw error;
     }
   }
@@ -58,7 +59,7 @@ class BrandsService {
     try {
       return await this.getBrands({ is_active: true });
     } catch (error) {
-      console.error('Error fetching active brands:', error);
+      logger.error('Error fetching active brands:', error);
       throw error;
     }
   }
@@ -71,7 +72,7 @@ class BrandsService {
     try {
       return await this.getBrands({ is_active: true, search: searchTerm });
     } catch (error) {
-      console.error('Error searching brands:', error);
+      logger.error('Error searching brands:', error);
       throw error;
     }
   }
@@ -94,7 +95,7 @@ class BrandsService {
 
       return data as unknown as Brand;
     } catch (error) {
-      console.error('Error fetching brand by ID:', error);
+      logger.error('Error fetching brand by ID:', error);
       throw error;
     }
   }
@@ -123,7 +124,7 @@ class BrandsService {
 
       return data as unknown as Brand;
     } catch (error) {
-      console.error('Error creating brand:', error);
+      logger.error('Error creating brand:', error);
       throw error;
     }
   }
@@ -157,7 +158,7 @@ class BrandsService {
 
       return data as unknown as Brand;
     } catch (error) {
-      console.error('Error updating brand:', error);
+      logger.error('Error updating brand:', error);
       throw error;
     }
   }
@@ -174,7 +175,7 @@ class BrandsService {
         throw new Error(`Failed to delete brand: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error deleting brand:', error);
+      logger.error('Error deleting brand:', error);
       throw error;
     }
   }
@@ -188,7 +189,7 @@ class BrandsService {
     try {
       return await this.updateBrand(brandId, { is_popular: isPopular });
     } catch (error) {
-      console.error('Error toggling brand popularity:', error);
+      logger.error('Error toggling brand popularity:', error);
       throw error;
     }
   }
@@ -202,7 +203,7 @@ class BrandsService {
     try {
       return await this.updateBrand(brandId, { is_active: isActive });
     } catch (error) {
-      console.error('Error toggling brand active status:', error);
+      logger.error('Error toggling brand active status:', error);
       throw error;
     }
   }
