@@ -88,7 +88,7 @@ export default function AccountScreen() {
         handleClosePasswordModal();
       } else if (result.type === 'auth/updatePassword/rejected') {
         // Extract error message from rejected action
-        const rejectedResult = result as any;
+        const rejectedResult = result as unknown;
         const errorMessage = rejectedResult.error?.message || 'Failed to change password';
         Alert.alert('Error', errorMessage);
       }

@@ -79,7 +79,7 @@ const InputField = ({
         error ? 'border-red-400' : 'border-gray-200'
       }`}
     >
-      {icon && <Feather name={icon as any} color={error ? '#f87171' : '#666'} size={16} className="mr-2" />}
+      {icon && <Feather name={icon as unknown} color={error ? '#f87171' : '#666'} size={16} className="mr-2" />}
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -100,7 +100,7 @@ export default function CheckoutScreen() {
   const { items, isLoading, refreshCart, removeItem } = useCart();
   const { user } = useAuth();
   const [checkoutItems, setCheckoutItems] = useState<CartItem[]>([]);
-  const [sellerInfo, setSellerInfo] = useState<any>(null);
+  const [sellerInfo, setSellerInfo] = useState<unknown>(null);
 
   // Step completion tracking
   const [stepCompleted, setStepCompleted] = useState([false, false]);
@@ -157,7 +157,7 @@ export default function CheckoutScreen() {
   ];
 
   // Mapbox address autocomplete
-  const [addressResults, setAddressResults] = useState<any[]>([]);
+  const [addressResults, setAddressResults] = useState<unknown[]>([]);
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
 
   useEffect(() => {
@@ -358,8 +358,8 @@ export default function CheckoutScreen() {
         }&autocomplete=true&limit=10&types=address,place,postcode`
       );
 
-      const sorted = (res.data?.features || []).sort((a: any, b: any) => {
-        const order: any = { address: 0, place: 1, postcode: 2, region: 3 };
+      const sorted = (res.data?.features || []).sort((a: unknown, b: unknown) => {
+        const order: unknown = { address: 0, place: 1, postcode: 2, region: 3 };
         const aType = a.place_type?.[0] || 'other';
         const bType = b.place_type?.[0] || 'other';
         return (order[aType] ?? 999) - (order[bType] ?? 999);
@@ -373,7 +373,7 @@ export default function CheckoutScreen() {
   };
 
   // When user selects an address suggestion, parse and populate fields
-  const handleAddressSelect = (place: any) => {
+  const handleAddressSelect = (place: unknown) => {
     const context = place.context || [];
     const placeType = place.place_type?.[0] || '';
 
@@ -403,7 +403,7 @@ export default function CheckoutScreen() {
       postalCodeValue = place.properties.postcode;
     }
 
-    context.forEach((item: any) => {
+    context.forEach((item: unknown) => {
       if (item.id.includes('place')) {
         cityValue = item.text;
       } else if (item.id.includes('locality') && !cityValue) {
@@ -634,7 +634,7 @@ export default function CheckoutScreen() {
 
       // Calculate total weight for checkout items
       const totalWeight = checkoutItems.reduce((weightSum, item) => {
-        const weight = (item.product as any)?.weight ?? 0;
+        const weight = (item.product as unknown)?.weight ?? 0;
         return weightSum + (typeof weight === 'number' ? weight : 0);
       }, 0);
 
@@ -816,7 +816,7 @@ export default function CheckoutScreen() {
                 {savedAddresses.length > 0 && (
                   <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-sm font-inter-bold text-black">Delivery Address</Text>
-                    <TouchableOpacity onPress={() => router.push('/other/addresses' as any)}>
+                    <TouchableOpacity onPress={() => router.push('/other/addresses' as unknown)}>
                       <Text className="text-sm font-inter-bold text-gray-800">Manage Addresses</Text>
                     </TouchableOpacity>
                   </View>
@@ -986,7 +986,7 @@ export default function CheckoutScreen() {
                               nestedScrollEnabled
                               keyboardShouldPersistTaps="handled"
                             >
-                              {addressResults.map((item: any) => {
+                              {addressResults.map((item: unknown) => {
                                 const placeType = item.place_type?.[0] || '';
                                 const icon = placeType === 'address' ? '📍' : placeType === 'place' ? '🏙️' : '📮';
                                 return (
@@ -1106,7 +1106,7 @@ export default function CheckoutScreen() {
                     {shippingMethods.map((option) => {
                       // Calculate total weight for checkout items
                       const totalWeight = checkoutItems.reduce((weightSum, item) => {
-                        const weight = (item.product as any)?.weight ?? 0;
+                        const weight = (item.product as unknown)?.weight ?? 0;
                         return weightSum + (typeof weight === 'number' ? weight : 0);
                       }, 0);
 
@@ -1243,7 +1243,7 @@ export default function CheckoutScreen() {
 
                       // Calculate total weight for checkout items
                       const totalWeight = checkoutItems.reduce((weightSum, item) => {
-                        const weight = (item.product as any)?.weight ?? 0;
+                        const weight = (item.product as unknown)?.weight ?? 0;
                         return weightSum + (typeof weight === 'number' ? weight : 0);
                       }, 0);
 
@@ -1284,7 +1284,7 @@ export default function CheckoutScreen() {
                       if (selectedOption) {
                         // Calculate total weight for checkout items
                         const totalWeight = checkoutItems.reduce((weightSum, item) => {
-                          const weight = (item.product as any)?.weight ?? 0;
+                          const weight = (item.product as unknown)?.weight ?? 0;
                           return weightSum + (typeof weight === 'number' ? weight : 0);
                         }, 0);
 

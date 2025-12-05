@@ -15,12 +15,12 @@ class StripeService {
     // If no rows, return null instead of throwing to avoid PGRST116
     if (error) {
       // Gracefully handle the common "no rows" error
-      if ((error as any)?.code === 'PGRST116') {
+      if ((error as unknown)?.code === 'PGRST116') {
         return null;
       }
       throw error;
     }
-    return (data as any) ?? null;
+    return (data as unknown) ?? null;
   }
 
   /**
@@ -40,7 +40,7 @@ class StripeService {
   async getSellerBalance() {
     const { data, error } = await supabase.functions.invoke('get-seller-balance');
     if (error) throw error;
-    return data as any;
+    return data as unknown;
   }
 
   /**
@@ -62,7 +62,7 @@ class StripeService {
       .eq('seller_id', sellerId)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return (data || []) as any[];
+    return (data || []) as unknown[];
   }
 
   /**
@@ -75,7 +75,7 @@ class StripeService {
       .eq('seller_id', sellerId)
       .order('requested_at', { ascending: false });
     if (error) throw error;
-    return (data || []) as any[];
+    return (data || []) as unknown[];
   }
   /**
    * Create Stripe checkout session using Supabase Edge Function

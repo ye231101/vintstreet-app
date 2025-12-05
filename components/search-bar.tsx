@@ -354,19 +354,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search...', value,
     // Navigate based on type
     if (item.type === 'brand' && item.data) {
       const brand = item.data as AlgoliaBrand;
-      router.push(`/(tabs)/discovery?brandName=${encodeURIComponent(brand.name.toLowerCase())}` as any);
+      router.push(`/(tabs)/discovery?brandName=${encodeURIComponent(brand.name.toLowerCase())}` as unknown);
     } else if (item.type === 'category' && item.data) {
       const category = item.data as AlgoliaCategory;
-      router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as any);
+      router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as unknown);
     } else if (item.type === 'product' && item.data) {
       const product = item.data as AlgoliaProduct;
-      router.push(`/product/${product.objectID}` as any);
+      router.push(`/product/${product.objectID}` as unknown);
     } else {
-      router.push(`/(tabs)/discovery?search=${encodeURIComponent(searchValue)}` as any);
+      router.push(`/(tabs)/discovery?search=${encodeURIComponent(searchValue)}` as unknown);
     }
   };
 
-  const handleRemoveRecent = async (searchTerm: string, event: any) => {
+  const handleRemoveRecent = async (searchTerm: string, event: unknown) => {
     event.stopPropagation();
     await removeRecentSearch(searchTerm);
     await loadRecentSearches();

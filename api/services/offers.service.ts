@@ -40,7 +40,7 @@ class OffersService {
       // Fetch listing details for all offers that have a listing_id
       const listingIds = offers.map((offer) => offer.listing_id).filter((id): id is string => !!id);
 
-      let listingsMap = new Map<string, any>();
+      let listingsMap = new Map<string, unknown>();
 
       if (listingIds.length > 0) {
         const { data: listings } = await supabase
@@ -48,12 +48,12 @@ class OffersService {
           .select('id, product_name, seller_id, product_image, starting_price, discounted_price')
           .in('id', listingIds);
 
-        listingsMap = new Map((listings || []).map((listing: any) => [listing.id, listing]));
+        listingsMap = new Map((listings || []).map((listing: unknown) => [listing.id, listing]));
       }
 
       // Fetch buyer profiles (for sellers viewing offers)
-      let buyerProfilesMap = new Map<string, any>();
-      let sellerProfilesMap = new Map<string, any>();
+      let buyerProfilesMap = new Map<string, unknown>();
+      let sellerProfilesMap = new Map<string, unknown>();
 
       if (userType === 'seller') {
         const buyerIds = offers.map((offer) => offer.buyer_id).filter((id): id is string => !!id);
@@ -64,7 +64,7 @@ class OffersService {
             .from('profiles')
             .select('user_id, full_name, username')
             .in('user_id', buyerIds);
-          buyerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          buyerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
         }
       } else {
         // Fetch seller profiles (for buyers viewing offers)
@@ -76,7 +76,7 @@ class OffersService {
             .from('profiles')
             .select('user_id, full_name, username')
             .in('user_id', sellerIds);
-          sellerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          sellerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
         }
       }
 
@@ -143,7 +143,7 @@ class OffersService {
         throw new Error(`Failed to check existing offer: ${fetchError.message}`);
       }
 
-      const existingOffer = existingOfferData as any;
+      const existingOffer = existingOfferData as unknown;
 
       if (existingOffer && existingOffer.id) {
         // Update existing offer
@@ -270,7 +270,7 @@ class OffersService {
       }
 
       // Create notification for buyer about offer response
-      if (offerData && (offerData as any).buyer_id) {
+      if (offerData && (offerData as unknown).buyer_id) {
         Promise.all([
           supabase
             .from('profiles')

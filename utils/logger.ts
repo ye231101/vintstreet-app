@@ -45,7 +45,7 @@ function isSensitiveKey(key: string): boolean {
 /**
  * Sanitize an object by removing or masking sensitive data
  */
-function sanitizeData(data: any, depth: number = 0): any {
+function sanitizeData(data: unknown, depth: number = 0): unknown {
   // Prevent infinite recursion
   if (depth > 10) {
     return '[Max depth reached]';
@@ -81,7 +81,7 @@ function sanitizeData(data: any, depth: number = 0): any {
   }
 
   // Handle objects
-  const sanitized: any = {};
+  const sanitized: unknown = {};
   for (const [key, value] of Object.entries(data)) {
     if (isSensitiveKey(key)) {
       // Mask sensitive values
@@ -110,7 +110,7 @@ class SafeLogger {
   /**
    * Log info messages (only in development)
    */
-  info(...args: any[]): void {
+  info(...args: unknown[]): void {
     if (isDevelopment) {
       const sanitized = args.map((arg) => sanitizeData(arg));
       console.info(...sanitized);
@@ -120,7 +120,7 @@ class SafeLogger {
   /**
    * Log debug messages (only in development)
    */
-  debug(...args: any[]): void {
+  debug(...args: unknown[]): void {
     if (isDevelopment) {
       const sanitized = args.map((arg) => sanitizeData(arg));
       console.debug(...sanitized);
@@ -130,7 +130,7 @@ class SafeLogger {
   /**
    * Log warning messages (sanitized in production)
    */
-  warn(...args: any[]): void {
+  warn(...args: unknown[]): void {
     const sanitized = args.map((arg) => sanitizeData(arg));
     console.warn(...sanitized);
   }
@@ -139,7 +139,7 @@ class SafeLogger {
    * Log error messages (sanitized in production)
    * Errors are always logged but sensitive data is redacted
    */
-  error(message: string, error?: any): void {
+  error(message: string, error?: unknown): void {
     if (isDevelopment) {
       // In development, log full details
       if (error) {
@@ -161,7 +161,7 @@ class SafeLogger {
   /**
    * Log general messages (only in development)
    */
-  log(...args: any[]): void {
+  log(...args: unknown[]): void {
     if (isDevelopment) {
       const sanitized = args.map((arg) => sanitizeData(arg));
       console.log(...sanitized);

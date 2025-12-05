@@ -40,7 +40,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
     configError: null,
   });
 
-  const [agoraConfig, setAgoraConfig] = useState<any>(null);
+  const [agoraConfig, setAgoraConfig] = useState<unknown>(null);
   const engineRef = useRef<IRtcEngine | null>(null);
   const remoteUsersRef = useRef<Set<number>>(new Set());
   const uidRef = useRef<number | null>(null);
@@ -165,7 +165,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
               setupLocalVideo();
             }
           },
-          onLeaveChannel: (connection: RtcConnection, stats: any) => {
+          onLeaveChannel: (connection: RtcConnection, stats: unknown) => {
             setState((prev) => ({
               ...prev,
               isConnected: false,
@@ -221,7 +221,7 @@ export const useAgora = ({ channelName, userId, isHost = false }: UseAgoraProps)
           await engine.joinChannel(agoraConfig.token || '', channelName, uid, {
             clientRoleType: isHost ? ClientRoleType.ClientRoleBroadcaster : ClientRoleType.ClientRoleAudience,
           });
-        } catch (joinError: any) {
+        } catch (joinError: unknown) {
           logger.error('Failed to join Agora channel:', joinError);
           throw joinError;
         }

@@ -78,7 +78,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ visible, onClose, or
       onClose();
       setSubject('');
       setMessage('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error sending message:', error);
       const errorMessage = error?.message || 'Failed to send message. Please try again.';
       Alert.alert('Error', errorMessage);

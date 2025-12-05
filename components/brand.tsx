@@ -54,7 +54,7 @@ const BrandCard = ({ brand }: { brand: Brand }) => {
       router.push(
         `/(tabs)/discovery?brand=${encodeURIComponent(brand.brandId)}&brandName=${encodeURIComponent(
           brand.name
-        )}` as any
+        )}` as unknown
       );
     }
   };

@@ -15,7 +15,7 @@ interface QuickLink {
   id: number;
   title: string;
   description: string;
-  imageUrl: any;
+  imageUrl: unknown;
   link: string;
   navigationType: NavigationType;
   routeName: string;
@@ -73,7 +73,7 @@ export default function QuickLinks() {
   const scrollRef = useRef<ScrollView | null>(null);
   const [index, setIndex] = useState(quickLinks[0].id);
 
-  const onScroll = (event: any) => {
+  const onScroll = (event: unknown) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const viewWidth = event.nativeEvent.layoutMeasurement.width;
     const current = Math.round(contentOffsetX / viewWidth);
@@ -92,7 +92,7 @@ export default function QuickLinks() {
       case NavigationType.Internal: {
         // Pass the item data as parameters to the article screen
         router.push({
-          pathname: item.routeName as any,
+          pathname: item.routeName as unknown,
           params: {
             title: item.title,
             description: item.description,
@@ -102,7 +102,7 @@ export default function QuickLinks() {
         break;
       }
       case NavigationType.HelpCenter: {
-        router.push('/other/help-center' as any);
+        router.push('/other/help-center' as unknown);
         break;
       }
       case NavigationType.External: {

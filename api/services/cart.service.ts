@@ -31,7 +31,7 @@ class CartService {
       }
 
       // Get all listing IDs
-      const listingIds = cartData.map((item: any) => item.listing_id);
+      const listingIds = cartData.map((item: unknown) => item.listing_id);
 
       // Fetch listings with their details
       const { data: listingsData, error: listingsError } = await supabase
@@ -64,21 +64,21 @@ class CartService {
       }
 
       // Create a map of listings by ID
-      const listingsMap = new Map((listingsData || []).map((listing: any) => [listing.id, listing]));
+      const listingsMap = new Map((listingsData || []).map((listing: unknown) => [listing.id, listing]));
 
       // Fetch seller info for all listings
-      const sellerIds = [...new Set((listingsData || []).map((listing: any) => listing.seller_id))];
+      const sellerIds = [...new Set((listingsData || []).map((listing: unknown) => listing.seller_id))];
 
       let sellersMap = new Map();
       if (sellerIds.length > 0) {
         const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
-        sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+        sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
       }
 
       // Transform the data to include product info and calculate subtotal
       return cartData
-        .filter((item: any) => listingsMap.has(item.listing_id)) // Only include items with valid listings
-        .map((item: any) => {
+        .filter((item: unknown) => listingsMap.has(item.listing_id)) // Only include items with valid listings
+        .map((item: unknown) => {
           const listing = listingsMap.get(item.listing_id);
           if (!listing) return null;
 

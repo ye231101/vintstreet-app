@@ -3,8 +3,8 @@ import { logger } from '@/utils/logger';
 import { supabase } from './supabase';
 
 // Cached configs to avoid multiple API calls
-let cachedConfig: any = null;
-let cachedRTMConfig: any = null;
+let cachedConfig: unknown = null;
+let cachedRTMConfig: unknown = null;
 
 export const getAgoraConfig = async (params?: { channelName?: string; uid?: number; role?: 'host' | 'audience' }) => {
   if (cachedConfig && !params) {

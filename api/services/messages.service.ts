@@ -216,7 +216,7 @@ class MessagesService {
         .eq('user_id', messageData.sender_id)
         .single();
 
-      const senderName = (senderProfile as any)?.full_name || (senderProfile as any)?.username || 'Someone';
+      const senderName = (senderProfile as unknown)?.full_name || (senderProfile as unknown)?.username || 'Someone';
 
       // Create notification asynchronously (don't await to avoid blocking)
       // notificationsService

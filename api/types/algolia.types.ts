@@ -11,7 +11,7 @@ export interface AlgoliaProduct {
   category_name?: string;
   price?: number;
   status?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Algolia Category Type
@@ -23,7 +23,7 @@ export interface AlgoliaCategory {
   category_path?: string[];
   category_path_names?: string[];
   is_active?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Algolia Brand Type
@@ -33,14 +33,14 @@ export interface AlgoliaBrand {
   description?: string;
   logo_url?: string;
   is_active?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Algolia Query Suggestion Type
 export interface AlgoliaQuerySuggestion {
   objectID: string;
   query: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Algolia Search Result Types

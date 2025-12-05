@@ -59,9 +59,9 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
   const [isLoading, setIsLoading] = useState(true);
 
   // RTM related refs and state
-  const [agoraRTMConfig, setAgoraRTMConfig] = useState<any>(null);
-  const clientRef = useRef<any>(null);
-  const messageListenerRef = useRef<any>(null);
+  const [agoraRTMConfig, setAgoraRTMConfig] = useState<unknown>(null);
+  const clientRef = useRef<unknown>(null);
+  const messageListenerRef = useRef<unknown>(null);
   const userColorRef = useRef<string>(randomColor());
   const userIdRef = useRef<string>(makeid(5));
   const currentUserRef = useRef<string>('');
@@ -148,7 +148,7 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
         const messageListener = client.addListener('ChannelMessageReceived', async (message, fromMember) => {
           try {
             const publisherId = fromMember.userId;
-            let userAttributes: any = {};
+            let userAttributes: unknown = {};
 
             // Get user attributes
             try {
@@ -221,16 +221,16 @@ const LiveChat = ({ streamId, onClose, isVisible = true, onCleanup }: LiveChatPr
           }
           // Leave channel
           if (streamId) {
-            await clientRef.current.leaveChannel(streamId).catch((err: any) => {
+            await clientRef.current.leaveChannel(streamId).catch((err: unknown) => {
               logger.error('Error leaving channel', err);
             });
           }
           // Logout RTM client
-          await clientRef.current.logout().catch((err: any) => {
+          await clientRef.current.logout().catch((err: unknown) => {
             logger.error('Error during RTM logout', err);
           });
           // Release client
-          await clientRef.current.release().catch((err: any) => {
+          await clientRef.current.release().catch((err: unknown) => {
             logger.error('Error during RTM release', err);
           });
         } catch (error) {

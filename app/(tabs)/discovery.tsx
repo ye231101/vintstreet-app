@@ -481,7 +481,7 @@ export default function DiscoveryScreen() {
       const pageOffset = (pageNumber - 1) * PRODUCTS_PER_PAGE;
 
       // Server-side search and brand filter; price will be client-side
-      const filtersPayload: any = { searchKeyword: searchText.trim() };
+      const filtersPayload: unknown = { searchKeyword: searchText.trim() };
       if (appliedFilters.brands.length > 0) {
         filtersPayload.selectedBrands = new Set(appliedFilters.brands);
       }
@@ -693,7 +693,7 @@ export default function DiscoveryScreen() {
 
   const handleProductPress = (productId: string) => {
     // Navigate to product detail
-    router.push(`/product/${productId}` as any);
+    router.push(`/product/${productId}` as unknown);
   };
 
   const getCurrentTitle = () => {

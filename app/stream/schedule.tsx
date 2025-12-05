@@ -164,7 +164,7 @@ export default function ScheduleStreamScreen() {
     }
   };
 
-  const onDateChange = (_event: any, selectedDate?: Date) => {
+  const onDateChange = (_event: unknown, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       const newDate = new Date(startTime);
@@ -175,7 +175,7 @@ export default function ScheduleStreamScreen() {
     }
   };
 
-  const onTimeChange = (_event: any, selectedTime?: Date) => {
+  const onTimeChange = (_event: unknown, selectedTime?: Date) => {
     setShowTimePicker(false);
     if (selectedTime) {
       const newDate = new Date(startTime);

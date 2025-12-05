@@ -56,7 +56,7 @@ const topCategories: TopCategory[] = [
 const TopCategoryCard = ({ category }: { category: TopCategory }) => {
   const handlePress = () => {
     // Navigate to discovery screen with category filter
-    router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as any);
+    router.push(`/(tabs)/discovery?category=${encodeURIComponent(category.slug)}` as unknown);
   };
 
   return (

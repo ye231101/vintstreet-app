@@ -47,7 +47,7 @@ export const hasStorageValue = async (key: string) => {
  * @param key - The key to store the object under
  * @param value - The object to store
  */
-export const setStorageJSON = async (key: string, value: any) => {
+export const setStorageJSON = async (key: string, value: unknown) => {
   await AsyncStorage.setItem(key, JSON.stringify(value));
 };
 

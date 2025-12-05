@@ -60,7 +60,7 @@ export function useStripeConnect() {
           throw new Error('Unable to open Stripe onboarding URL');
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Error connecting Stripe account:', err);
       throw new Error(err?.message || 'Failed to connect Stripe account');
     } finally {
@@ -75,12 +75,12 @@ export function useStripeConnect() {
     try {
       const data = await stripeService.getSellerBalance();
       setBalance(data as StripeBalance);
-      if ((data as any)?.accountStatus) {
+      if ((data as unknown)?.accountStatus) {
         setConnected(
-          Boolean((data as any).accountStatus.onboarding_complete && (data as any).accountStatus.charges_enabled)
+          Boolean((data as unknown).accountStatus.onboarding_complete && (data as unknown).accountStatus.charges_enabled)
         );
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Error fetching balance:', err);
       if (!String(err?.message || '').includes('No Stripe account found')) {
         // Surface other errors to caller

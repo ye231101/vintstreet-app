@@ -61,7 +61,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ visible, o
       showSuccessToast('Order status updated successfully');
       onOrderUpdated();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error updating status:', error);
       showErrorToast('Failed to update order status');
       // Revert to previous status on error

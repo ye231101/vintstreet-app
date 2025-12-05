@@ -7,7 +7,7 @@ interface Notification {
   type?: string;
   title?: string;
   body: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 interface WebhookPayload {

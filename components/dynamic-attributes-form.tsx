@@ -6,8 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface DynamicAttributesFormProps {
   attributes: Attribute[];
-  dynamicAttributes: Record<string, any>;
-  onAttributeChange: (attributeId: string, value: any) => void;
+  dynamicAttributes: Record<string, unknown>;
+  onAttributeChange: (attributeId: string, value: unknown) => void;
 }
 
 export const DynamicAttributesForm: React.FC<DynamicAttributesFormProps> = ({

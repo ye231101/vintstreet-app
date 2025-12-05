@@ -12,7 +12,7 @@ export class AuthUtils {
    * @param maxRetries - Maximum number of retry attempts
    * @returns Promise with user data or null
    */
-  static async getCurrentUserWithRefresh(maxRetries: number = 2): Promise<{ user: any; error?: string }> {
+  static async getCurrentUserWithRefresh(maxRetries: number = 2): Promise<{ user: unknown; error?: string }> {
     let retryCount = 0;
 
     while (retryCount <= maxRetries) {

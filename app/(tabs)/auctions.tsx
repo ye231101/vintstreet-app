@@ -152,7 +152,7 @@ const AuctionCard: React.FC<{ auction: AuctionProduct }> = ({ auction }) => {
       return;
     }
 
-    toggleItem(auction as any);
+    toggleItem(auction as unknown);
   };
 
   const handlePress = () => {

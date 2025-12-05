@@ -20,7 +20,7 @@ export const fetchWishlist = createAsyncThunk('wishlist/fetchWishlist', async (u
   try {
     const items = await wishlistService.getWishlist(userId);
     return items;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return rejectWithValue(error.message || 'Failed to fetch wishlist');
   }
 });
@@ -35,7 +35,7 @@ export const addToWishlistAsync = createAsyncThunk(
       const items = await wishlistService.getWishlist(userId);
       showSuccessToast(`${product.product_name} added to wishlist`);
       return items;
-    } catch (error: any) {
+    } catch (error: unknown) {
       showErrorToast('Failed to add to wishlist');
       return rejectWithValue(error.message || 'Failed to add to wishlist');
     }
@@ -54,7 +54,7 @@ export const removeFromWishlistAsync = createAsyncThunk(
       showSuccessToast(`${productName || 'Item'} removed from wishlist`);
       const wishlistItems = await wishlistService.getWishlist(userId);
       return wishlistItems;
-    } catch (error: any) {
+    } catch (error: unknown) {
       showErrorToast('Failed to remove from wishlist');
       return rejectWithValue(error.message || 'Failed to remove from wishlist');
     }
@@ -80,7 +80,7 @@ export const toggleWishlistAsync = createAsyncThunk(
         showSuccessToast(`${product.product_name} added to wishlist`);
         return { action: 'add' as const, items };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showErrorToast('Failed to update wishlist');
       return rejectWithValue(error.message || 'Failed to update wishlist');
     }
@@ -95,7 +95,7 @@ export const clearWishlistAsync = createAsyncThunk(
       await wishlistService.clearWishlist(userId);
       showSuccessToast('Wishlist cleared');
       return;
-    } catch (error: any) {
+    } catch (error: unknown) {
       showErrorToast('Failed to clear wishlist');
       return rejectWithValue(error.message || 'Failed to clear wishlist');
     }

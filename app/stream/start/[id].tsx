@@ -335,7 +335,7 @@ export default function StartStreamScreen() {
         auction_end_time: endTime.toISOString(),
       });
 
-      setActiveListing((data as any)?.id);
+      setActiveListing((data as unknown)?.id);
       setIsAuctionActive(true);
       setAuctionEndTime(endTime);
 

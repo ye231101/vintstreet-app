@@ -173,7 +173,7 @@ const authSlice = createSlice({
       state.loading = action.payload;
     },
     // Handle auth state changes from Supabase
-    handleAuthStateChange: (state, action: PayloadAction<{ event: string; session: any }>) => {
+    handleAuthStateChange: (state, action: PayloadAction<{ event: string; session: unknown }>) => {
       const { event, session } = action.payload;
 
       if (event === 'SIGNED_IN' && session) {

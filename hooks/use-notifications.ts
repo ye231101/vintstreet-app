@@ -133,7 +133,7 @@ function handleNotificationResponse(response: Notifications.NotificationResponse
     return;
   }
 
-  const { type, metadata } = data as { type?: string; metadata?: Record<string, any> };
+  const { type, metadata } = data as { type?: string; metadata?: Record<string, unknown> };
 
   try {
     switch (type) {

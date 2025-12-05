@@ -176,7 +176,7 @@ export const AuctionDisplay: React.FC<AuctionDisplayProps> = ({ productId }) => 
       } else {
         throw new Error(result.error || 'Failed to place bid');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error placing bid:', error);
       showErrorToast(error.message || 'Failed to place bid');
     } finally {

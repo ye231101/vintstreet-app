@@ -30,7 +30,7 @@ class OrdersService {
       // Fetch listing details for all orders that have a listing_id
       const listingIds = orders.map((order) => order.listing_id).filter((id): id is string => !!id);
 
-      let listingsMap = new Map<string, any>();
+      let listingsMap = new Map<string, unknown>();
 
       if (listingIds.length > 0) {
         const { data: listings } = await supabase
@@ -38,12 +38,12 @@ class OrdersService {
           .select('id, product_name, product_image, starting_price, discounted_price')
           .in('id', listingIds);
 
-        listingsMap = new Map((listings || []).map((listing: any) => [listing.id, listing]));
+        listingsMap = new Map((listings || []).map((listing: unknown) => [listing.id, listing]));
       }
 
       // Fetch buyer profiles if seller is viewing
-      let buyerProfilesMap = new Map<string, any>();
-      let buyerDetailsMap = new Map<string, any>();
+      let buyerProfilesMap = new Map<string, unknown>();
+      let buyerDetailsMap = new Map<string, unknown>();
 
       if (userType === 'seller') {
         const buyerIds = orders.map((order) => order.buyer_id).filter((id): id is string => !!id);
@@ -54,11 +54,11 @@ class OrdersService {
             .from('profiles')
             .select('user_id, full_name, username')
             .in('user_id', buyerIds);
-          buyerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          buyerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
 
           // Fetch buyer details (shipping info)
           const { data: buyerDetails } = await supabase.from('buyer_profiles').select('*').in('user_id', buyerIds);
-          buyerDetailsMap = new Map((buyerDetails || []).map((detail: any) => [detail.user_id, detail]));
+          buyerDetailsMap = new Map((buyerDetails || []).map((detail: unknown) => [detail.user_id, detail]));
         }
       }
 
@@ -114,7 +114,7 @@ class OrdersService {
       // Fetch listing details for all orders that have a listing_id
       const listingIds = orders.map((order) => order.listing_id).filter((id): id is string => !!id);
 
-      let listingsMap = new Map<string, any>();
+      let listingsMap = new Map<string, unknown>();
 
       if (listingIds.length > 0) {
         const { data: listings } = await supabase
@@ -122,12 +122,12 @@ class OrdersService {
           .select('id, product_name, product_image, starting_price, discounted_price')
           .in('id', listingIds);
 
-        listingsMap = new Map((listings || []).map((listing: any) => [listing.id, listing]));
+        listingsMap = new Map((listings || []).map((listing: unknown) => [listing.id, listing]));
       }
 
       // Fetch buyer profiles if seller is viewing
-      let buyerProfilesMap = new Map<string, any>();
-      let buyerDetailsMap = new Map<string, any>();
+      let buyerProfilesMap = new Map<string, unknown>();
+      let buyerDetailsMap = new Map<string, unknown>();
 
       if (userType === 'seller') {
         const buyerIds = orders.map((order) => order.buyer_id).filter((id): id is string => !!id);
@@ -139,12 +139,12 @@ class OrdersService {
             .select('user_id, full_name, username')
             .in('user_id', buyerIds);
 
-          buyerProfilesMap = new Map((profiles || []).map((profile: any) => [profile.user_id, profile]));
+          buyerProfilesMap = new Map((profiles || []).map((profile: unknown) => [profile.user_id, profile]));
 
           // Fetch buyer details (shipping info)
           const { data: buyerDetails } = await supabase.from('buyer_profiles').select('*').in('user_id', buyerIds);
 
-          buyerDetailsMap = new Map((buyerDetails || []).map((detail: any) => [detail.user_id, detail]));
+          buyerDetailsMap = new Map((buyerDetails || []).map((detail: unknown) => [detail.user_id, detail]));
         }
       }
 
@@ -307,7 +307,7 @@ class OrdersService {
         return [];
       }
 
-      const listingIds = orders.map((order: any) => order.listing_id).filter(Boolean);
+      const listingIds = orders.map((order: unknown) => order.listing_id).filter(Boolean);
       const { data: listings, error: listingsError } = await supabase
         .from('listings')
         .select('id, product_name')
@@ -315,8 +315,8 @@ class OrdersService {
 
       if (listingsError) throw listingsError;
 
-      return orders.map((order: any, index: number) => {
-        const listing = (listings as any)?.find((l: any) => l.id === order.listing_id);
+      return orders.map((order: unknown, index: number) => {
+        const listing = (listings as unknown)?.find((l: unknown) => l.id === order.listing_id);
         return {
           id: order.id,
           itemName: listing?.product_name || `Item ${index + 1}`,

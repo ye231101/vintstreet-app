@@ -151,7 +151,7 @@ class AuthService {
 
   /**
    * Sign out the current user
-   * @returns Error message if any
+   * @returns Error message if unknown
    */
   async signOut(): Promise<{ error: string | null }> {
     try {
@@ -365,13 +365,13 @@ class AuthService {
       const authUser: AuthUser = {
         id: user.id,
         email: user.email || '',
-        username: (profile as any).username,
-        full_name: (profile as any).full_name,
-        avatar_url: (profile as any).avatar_url,
-        user_type: (profile as any).user_type,
-        bio: (profile as any).bio,
-        preferred_currency: (profile as any).preferred_currency,
-        is_blocked: (profile as any).is_blocked,
+        username: (profile as unknown).username,
+        full_name: (profile as unknown).full_name,
+        avatar_url: (profile as unknown).avatar_url,
+        user_type: (profile as unknown).user_type,
+        bio: (profile as unknown).bio,
+        preferred_currency: (profile as unknown).preferred_currency,
+        is_blocked: (profile as unknown).is_blocked,
       };
 
       return {
@@ -579,7 +579,7 @@ class AuthService {
    * @param callback - Callback function to handle auth state changes
    * @returns Subscription object
    */
-  onAuthStateChange(callback: (event: string, session: any) => void) {
+  onAuthStateChange(callback: (event: string, session: unknown) => void) {
     return supabase.auth.onAuthStateChange(callback);
   }
 }

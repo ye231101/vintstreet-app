@@ -30,8 +30,8 @@ interface CategoryAttributesCardProps {
 
   // Dynamic attributes props
   attributes: Attribute[];
-  dynamicAttributes: Record<string, any>;
-  onAttributeChange: (attributeId: string, value: any) => void;
+  dynamicAttributes: Record<string, unknown>;
+  onAttributeChange: (attributeId: string, value: unknown) => void;
 }
 
 export const CategoryAttributesCard: React.FC<CategoryAttributesCardProps> = ({

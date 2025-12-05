@@ -70,7 +70,7 @@ export default function WishlistScreen() {
   };
 
   const navigateToProduct = (itemId: string) => {
-    router.push(`/product/${itemId}` as any);
+    router.push(`/product/${itemId}` as unknown);
   };
 
   const WishlistCard = ({ item }: { item: Product }) => {

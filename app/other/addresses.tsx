@@ -28,7 +28,7 @@ export default function AddressesScreen() {
     try {
       const data = await savedAddressesService.list(user.id);
       setAddresses((data as SavedAddress[]) || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Error loading addresses:', err);
       showErrorToast(err.message || 'Error loading addresses');
     } finally {
@@ -37,11 +37,11 @@ export default function AddressesScreen() {
   };
 
   const addAddress = () => {
-    router.push('/other/address-form' as any);
+    router.push('/other/address-form' as unknown);
   };
 
   const editAddress = (addressId: string) => {
-    router.push(`/other/address-form?id=${addressId}` as any);
+    router.push(`/other/address-form?id=${addressId}` as unknown);
   };
 
   const deleteAddress = (address: SavedAddress) => {
@@ -58,7 +58,7 @@ export default function AddressesScreen() {
             await savedAddressesService.remove(address.id);
             showSuccessToast('Address deleted successfully');
             loadAddresses();
-          } catch (err: any) {
+          } catch (err: unknown) {
             logger.error('Error deleting address:', err);
             showErrorToast(err.message || 'Failed to delete address');
           }

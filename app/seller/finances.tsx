@@ -40,7 +40,7 @@ export default function FinancesScreen() {
   const { loading, connected, balance, balanceLoading, connectAccount, fetchBalance, requestPayout, checkConnection } =
     useStripeConnect();
 
-  const [sellerOrders, setSellerOrders] = useState<any[]>([]);
+  const [sellerOrders, setSellerOrders] = useState<unknown[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +89,7 @@ export default function FinancesScreen() {
 
   const availableFromOrders = useMemo(() => {
     return (
-      sellerOrders?.reduce((sum: number, order: any) => {
+      sellerOrders?.reduce((sum: number, order: unknown) => {
         if (order.payout_status === 'available' && order.funds_released) {
           return sum + Number(order.order_amount || 0);
         }
@@ -100,7 +100,7 @@ export default function FinancesScreen() {
 
   const clearingBalance = useMemo(() => {
     return (
-      sellerOrders?.reduce((sum: number, order: any) => {
+      sellerOrders?.reduce((sum: number, order: unknown) => {
         if (order.payout_status === 'clearing') {
           return sum + Number(order.order_amount || 0);
         }
@@ -133,7 +133,7 @@ export default function FinancesScreen() {
       await requestPayout(amount);
       setPayoutAmount('');
       Alert.alert('Success', 'Payout requested successfully.');
-    } catch (err: any) {
+    } catch (err: unknown) {
       Alert.alert('Payout Failed', err?.message || 'Failed to request payout');
     } finally {
       setRequesting(false);

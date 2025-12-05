@@ -30,7 +30,7 @@ export default function SellingRelistingScreen() {
   const buildSection = ({ title, content, icon }: { title: string; content: string; icon: string }) => (
     <View className="gap-3 p-4 mb-4 rounded-lg bg-gray-100">
       <View className="flex-row items-center gap-3">
-        <Feather name={icon as any} size={24} color="#000" />
+        <Feather name={icon as unknown} size={24} color="#000" />
         <Text className="flex-1 text-lg font-inter-bold text-black">{title}</Text>
       </View>
       <Text className="text-sm font-inter text-black/80 leading-6">{content}</Text>
@@ -90,7 +90,7 @@ export default function SellingRelistingScreen() {
           {buildSection({
             title: 'Selling',
             content:
-              "If you're finally letting go of those records in the attic, Vint Street can help get them moving instead of gathering dust. Those old jeans you've outgrown? That old Stallone poster from your bedroom? List them. The special collections from your parents' garage? List them (assuming you have permission). Let someone else fall in love with them all over again.\n\nClick the Sell button (bottom centre, can't miss it) and fill out the form. Upload some great photos, give it an accurate title and description (be honest about any wear and tear), and set your price. Then add the brand from the list and categories to help buyers find it easily in search. It's simple and easy.\n\nThe more you put into it, the more likely it'll catch someone's eye.",
+              "If you're finally letting go of those records in the attic, Vint Street can help get them moving instead of gathering dust. Those old jeans you've outgrown? That old Stallone poster from your bedroom? List them. The special collections from your parents' garage? List them (assuming you have permission). Let someone else fall in love with them all over again.\n\nClick the Sell button (bottom centre, can't miss it) and fill out the form. Upload some great photos, give it an accurate title and description (be honest about unknown wear and tear), and set your price. Then add the brand from the list and categories to help buyers find it easily in search. It's simple and easy.\n\nThe more you put into it, the more likely it'll catch someone's eye.",
             icon: 'dollar-sign',
           })}
 
@@ -98,7 +98,7 @@ export default function SellingRelistingScreen() {
           {buildSection({
             title: 'Re-Listing',
             content:
-              'Bought something from Vint Street and are ready to move it on? Re-list it in seconds.\n\nJust head to your order history and hit Re-List. It will auto-fill, just update any new details.\n\nRe-listing made simple by Vint Street.',
+              'Bought something from Vint Street and are ready to move it on? Re-list it in seconds.\n\nJust head to your order history and hit Re-List. It will auto-fill, just update unknown new details.\n\nRe-listing made simple by Vint Street.',
             icon: 'refresh-cw',
           })}
 

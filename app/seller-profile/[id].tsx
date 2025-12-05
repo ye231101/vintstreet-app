@@ -111,7 +111,7 @@ export default function SellerProfileScreen() {
 
       // Check if user has already reviewed (for showing separately)
       if (user?.id) {
-        const userReviewData = reviewsData.find((r: any) => r.buyer_id === user.id);
+        const userReviewData = reviewsData.find((r: unknown) => r.buyer_id === user.id);
         setUserReview(userReviewData || null);
       } else {
         setUserReview(null);
@@ -243,7 +243,7 @@ export default function SellerProfileScreen() {
 
       // Check if user has already reviewed (for showing separately)
       if (user?.id) {
-        const userReviewData = reviewsData.find((r: any) => r.buyer_id === user.id);
+        const userReviewData = reviewsData.find((r: unknown) => r.buyer_id === user.id);
         setUserReview(userReviewData || null);
       } else {
         setUserReview(null);
@@ -279,7 +279,7 @@ export default function SellerProfileScreen() {
   };
 
   const renderProductItem = ({ item }: { item: Product }) => (
-    <Pressable className="w-1/2 p-2" onPress={() => router.push(`/product/${item.id}` as any)}>
+    <Pressable className="w-1/2 p-2" onPress={() => router.push(`/product/${item.id}` as unknown)}>
       <View className="bg-white rounded-lg overflow-hidden border border-gray-200">
         <Image
           source={item.product_image}
@@ -553,7 +553,7 @@ export default function SellerProfileScreen() {
                 <Pressable
                   key={show.id}
                   className="p-4 mb-3 rounded-lg bg-white border border-gray-200"
-                  onPress={() => router.push(`/stream/${show.id}` as any)}
+                  onPress={() => router.push(`/stream/${show.id}` as unknown)}
                 >
                   <View className="w-full h-40 mb-3 rounded-lg overflow-hidden">
                     <Image

@@ -54,7 +54,7 @@ export default function ShopBannerCarousel() {
     if (banners.length <= 1) return; // Don't auto-scroll if there's only one or no banners
 
     const startAutoScroll = () => {
-      // Clear any existing timer
+      // Clear unknown existing timer
       if (autoScrollTimer.current) {
         clearInterval(autoScrollTimer.current);
       }
@@ -112,7 +112,7 @@ export default function ShopBannerCarousel() {
     }
   };
 
-  const onScroll = (event: any) => {
+  const onScroll = (event: unknown) => {
     if (isScrolling.current || banners.length === 0) return;
 
     const scrollX = event.nativeEvent.contentOffset.x;
@@ -146,7 +146,7 @@ export default function ShopBannerCarousel() {
     }, 3000); // Resume auto-scroll 3 seconds after user stops scrolling
   };
 
-  const onScrollEnd = (event: any) => {
+  const onScrollEnd = (event: unknown) => {
     if (banners.length === 0) return;
 
     const scrollX = event.nativeEvent.contentOffset.x;
@@ -183,10 +183,10 @@ export default function ShopBannerCarousel() {
     if (banner.link_url) {
       // If it's a category link, navigate to discovery with category
       if (banner.category_id) {
-        router.push(`/(tabs)/discovery?category=${banner.category_id}` as any);
+        router.push(`/(tabs)/discovery?category=${banner.category_id}` as unknown);
       } else if (banner.link_url.startsWith('/')) {
         // Internal route
-        router.push(banner.link_url as any);
+        router.push(banner.link_url as unknown);
       }
     }
   };

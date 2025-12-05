@@ -201,13 +201,13 @@ export default function StreamScreen() {
             {isStreamOwner && stream.status === 'scheduled' && (
               <View className="flex-row gap-3 mt-4">
                 <TouchableOpacity
-                  onPress={() => router.push(`/stream/start/${stream.id}` as any)}
+                  onPress={() => router.push(`/stream/start/${stream.id}` as unknown)}
                   className="flex-1 bg-green-600 rounded-lg py-4 items-center"
                 >
                   <Text className="text-white text-base font-inter-bold">Go Live</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => router.push(`/stream/schedule?edit=${stream.id}` as any)}
+                  onPress={() => router.push(`/stream/schedule?edit=${stream.id}` as unknown)}
                   className="bg-gray-700 rounded-lg py-4 px-6 items-center"
                 >
                   <Feather name="edit" size={20} color="#fff" />

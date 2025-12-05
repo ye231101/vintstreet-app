@@ -201,7 +201,7 @@ export default function CartScreen() {
       }
       groups[sellerId].items.push(item);
       return groups;
-    }, {} as Record<string, { sellerInfo: any; items: CartItem[] }>);
+    }, {} as Record<string, { sellerInfo: unknown; items: CartItem[] }>);
   };
 
   const sellerGroups = groupCartItemsBySeller();
@@ -212,7 +212,7 @@ export default function CartScreen() {
     onRemove,
   }: {
     sellerId: string;
-    sellerData: { sellerInfo: any; items: CartItem[] };
+    sellerData: { sellerInfo: unknown; items: CartItem[] };
     onRemove: (productId: string) => void;
   }) => {
     const sellerShippingOptions = shippingOptions[sellerId] || [];
@@ -222,7 +222,7 @@ export default function CartScreen() {
     // Calculate total weight for this seller's items
     const totalWeight = sellerData.items.reduce((weightSum, item) => {
       // Access weight from product - it may be stored as weight or in a nested property
-      const weight = (item.product as any)?.weight ?? 0;
+      const weight = (item.product as unknown)?.weight ?? 0;
       return weightSum + (typeof weight === 'number' ? weight : 0);
     }, 0);
 
@@ -518,7 +518,7 @@ export default function CartScreen() {
             <SellerGroupSection
               key={sellerId}
               sellerId={sellerId}
-              sellerData={sellerData as { sellerInfo: any; items: CartItem[] }}
+              sellerData={sellerData as { sellerInfo: unknown; items: CartItem[] }}
               onRemove={(productId) => handleRemoveItem(productId)}
             />
           ))}

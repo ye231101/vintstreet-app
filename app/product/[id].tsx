@@ -40,7 +40,7 @@ export default function ProductDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   // Product attributes
-  const [productAttributes, setProductAttributes] = useState<any[]>([]);
+  const [productAttributes, setProductAttributes] = useState<unknown[]>([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
   // Related products
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -178,7 +178,7 @@ export default function ProductDetailScreen() {
   };
 
   const handleViewShop = () => {
-    router.push(`/seller-profile/${product?.seller_id}` as any);
+    router.push(`/seller-profile/${product?.seller_id}` as unknown);
   };
 
   const handleContactSeller = () => {
@@ -291,7 +291,7 @@ export default function ProductDetailScreen() {
               {/* Pagination Dots */}
               {product.product_images.length > 1 && (
                 <View className="flex-row items-center justify-center py-2">
-                  {product.product_images.map((_: any, index: number) => (
+                  {product.product_images.map((_: unknown, index: number) => (
                     <View
                       key={index}
                       className={`h-2 rounded-full mx-1 ${
@@ -483,7 +483,7 @@ export default function ProductDetailScreen() {
                     <View className="p-4">
                       <Text className="text-sm font-inter-bold text-gray-800 mb-3">Product Attributes</Text>
                       <View className="gap-2">
-                        {productAttributes.map((attribute: any, index: number) => {
+                        {productAttributes.map((attribute: unknown, index: number) => {
                           // Extract the correct value based on data type
                           const getValue = () => {
                             if (attribute.value_text !== null) {
@@ -599,12 +599,12 @@ export default function ProductDetailScreen() {
             <View className="px-4">
               <Text className="my-4 text-xl font-inter-bold text-black">Related Products</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
-                {relatedProducts.map((relatedProduct: any) => {
+                {relatedProducts.map((relatedProduct: unknown) => {
                   const isRelatedInCart = isInCart(relatedProduct.id);
                   return (
                     <Pressable
                       key={relatedProduct.id}
-                      onPress={() => router.push(`/product/${relatedProduct.id}` as any)}
+                      onPress={() => router.push(`/product/${relatedProduct.id}` as unknown)}
                       className="w-44 overflow-hidden mx-2 rounded-lg bg-white border border-gray-200"
                     >
                       {/* Product Image */}

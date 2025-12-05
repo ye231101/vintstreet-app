@@ -69,8 +69,8 @@ export default function SellScreen() {
   const [currentCategoryLevel, setCurrentCategoryLevel] = useState<
     'category' | 'subcategory' | 'subSubcategory' | 'subSubSubcategory'
   >('category');
-  const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, any>>({});
-  const [attributes, setAttributes] = useState<any[]>([]);
+  const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, unknown>>({});
+  const [attributes, setAttributes] = useState<unknown[]>([]);
   const [productImages, setProductImages] = useState<
     Array<{ key: string; uri: string; uploadedUrl?: string; isPrimary: boolean }>
   >([]);
@@ -227,7 +227,7 @@ export default function SellScreen() {
   };
 
   // Handle dynamic attribute changes
-  const handleAttributeChange = (attributeId: string, value: any) => {
+  const handleAttributeChange = (attributeId: string, value: unknown) => {
     setDynamicAttributes((prev) => ({
       ...prev,
       [attributeId]: value,
@@ -592,7 +592,7 @@ export default function SellScreen() {
         showSuccessToast('Draft saved successfully!');
       }
 
-      // Save dynamic attributes if any
+      // Save dynamic attributes if unknown
       if (Object.keys(dynamicAttributes).length > 0) {
         await attributesService.saveAttributeValues(product.id, dynamicAttributes);
       }
@@ -714,7 +714,7 @@ export default function SellScreen() {
         showSuccessToast(message);
       }
 
-      // Save dynamic attributes if any
+      // Save dynamic attributes if unknown
       if (Object.keys(dynamicAttributes).length > 0) {
         await attributesService.saveAttributeValues(product.id, dynamicAttributes);
       }
@@ -986,7 +986,7 @@ export default function SellScreen() {
                       data={productImages}
                       itemHeight={(Dimensions.get('window').width - 48) / 3}
                       delayLongPress={150}
-                      renderItem={(item: any) => {
+                      renderItem={(item: unknown) => {
                         const isUploaded = !!item.uploadedUrl;
                         const isUploading = isUploadingImages && !isUploaded;
 
@@ -1135,9 +1135,9 @@ export default function SellScreen() {
                           </View>
                         );
                       }}
-                      onDragRelease={(data: any) => {
+                      onDragRelease={(data: unknown) => {
                         // After reordering, automatically set the first image as primary/cover
-                        const reorderedImages = data.map((img: any, index: number) => ({
+                        const reorderedImages = data.map((img: unknown, index: number) => ({
                           ...img,
                           isPrimary: index === 0,
                         }));

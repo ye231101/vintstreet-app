@@ -109,12 +109,12 @@ class ListingsService {
       if (error) throw error;
 
       // Optimized: Fetch seller info using the new view (single query instead of 2)
-      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const sellerIds = [...new Set((data || []).map((p: unknown) => p.seller_id))];
       const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
-      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      const sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
 
-      const productsWithSellers = (data || []).map((product: any) => ({
+      const productsWithSellers = (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
@@ -168,12 +168,12 @@ class ListingsService {
       }
 
       // Optimized: Fetch seller info using the new view (single query instead of 2)
-      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const sellerIds = [...new Set((data || []).map((p: unknown) => p.seller_id))];
       const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
-      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      const sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
 
-      const productsWithSellers = (data || []).map((product: any) => ({
+      const productsWithSellers = (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
@@ -197,10 +197,10 @@ class ListingsService {
   ): Promise<Product[]> {
     const tryQuery = async (column: string, value: string | number) => {
       try {
-        let query = (supabase as any)
+        let query = (supabase as unknown)
           .from('listings')
           .select('*')
-          .eq(column as any, value)
+          .eq(column as unknown, value)
           .eq('product_type', 'shop')
           .eq('status', 'published');
 
@@ -225,11 +225,11 @@ class ListingsService {
         const { data, error } = await query;
         if (error) {
           // Skip unknown column or other errors silently; we'll try the next option
-          return [] as any[];
+          return [] as unknown[];
         }
-        return (data as any[]) || [];
+        return (data as unknown[]) || [];
       } catch (_) {
-        return [] as any[];
+        return [] as unknown[];
       }
     };
 
@@ -249,12 +249,12 @@ class ListingsService {
           switch (sort) {
             case 'price:asc':
               items.sort(
-                (a: any, b: any) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0)
+                (a: unknown, b: unknown) => (a.current_bid || a.starting_price || 0) - (b.current_bid || b.starting_price || 0)
               );
               break;
             case 'price:desc':
               items.sort(
-                (a: any, b: any) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0)
+                (a: unknown, b: unknown) => (b.current_bid || b.starting_price || 0) - (a.current_bid || a.starting_price || 0)
               );
               break;
             default:
@@ -265,7 +265,7 @@ class ListingsService {
       }
     }
 
-    // No results from any attempt
+    // No results from unknown attempt
     return [];
   }
 
@@ -309,7 +309,7 @@ class ListingsService {
       // Optimized: Fetch seller info using the new view (single query instead of 2)
       const { data: seller } = await supabase.from('seller_info_view').select('*').eq('user_id', sellerId).single();
 
-      const productsWithSeller = (data || []).map((product: any) => ({
+      const productsWithSeller = (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: seller || null,
       })) as Product[];
@@ -377,7 +377,7 @@ class ListingsService {
       // Optimized: Fetch seller info using the new view (single query instead of 2)
       const { data: seller } = await supabase.from('seller_info_view').select('*').eq('user_id', sellerId).single();
 
-      const productsWithSeller = (data || []).map((product: any) => ({
+      const productsWithSeller = (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: seller || null,
       })) as Product[];
@@ -439,11 +439,11 @@ class ListingsService {
       const { data: seller } = await supabase
         .from('seller_info_view')
         .select('*')
-        .eq('user_id', (data as any).seller_id)
+        .eq('user_id', (data as unknown).seller_id)
         .single();
 
       const productWithSeller = {
-        ...(data as any),
+        ...(data as unknown),
         seller_info_view: seller || null,
       } as Product;
 
@@ -506,7 +506,7 @@ class ListingsService {
       // Optimized: Fetch seller info using the new view (single query instead of 2)
       const { data: seller } = await supabase.from('seller_info_view').select('*').eq('user_id', sellerId).single();
 
-      const productsWithSeller = (data || []).map((product: any) => ({
+      const productsWithSeller = (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: seller || null,
       })) as Product[];
@@ -597,12 +597,12 @@ class ListingsService {
       }
 
       // Optimized: Fetch seller info using the new view (single query instead of 2)
-      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const sellerIds = [...new Set((data || []).map((p: unknown) => p.seller_id))];
       const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
-      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      const sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
 
-      const productsWithSellers = (data || []).map((product: any) => ({
+      const productsWithSellers = (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
@@ -674,11 +674,11 @@ class ListingsService {
       const { data: seller } = await supabase
         .from('seller_info_view')
         .select('*')
-        .eq('user_id', (data as any).seller_id)
+        .eq('user_id', (data as unknown).seller_id)
         .single();
 
       const productWithSeller = {
-        ...(data as any),
+        ...(data as unknown),
         seller_info_view: seller || null,
       } as Product;
 
@@ -751,11 +751,11 @@ class ListingsService {
       const { data: seller } = await supabase
         .from('seller_info_view')
         .select('*')
-        .eq('user_id', (data as any).seller_id)
+        .eq('user_id', (data as unknown).seller_id)
         .single();
 
       const productWithSeller = {
-        ...(data as any),
+        ...(data as unknown),
         seller_info_view: seller || null,
       } as Product;
 
@@ -798,7 +798,7 @@ class ListingsService {
         throw new Error(`Failed to fetch product categories: ${error.message}`);
       }
 
-      return (data as any) || [];
+      return (data as unknown) || [];
     } catch (error) {
       logger.error('Error fetching product categories:', error);
       throw error;
@@ -822,7 +822,7 @@ class ListingsService {
         throw new Error(`Failed to fetch subcategories: ${error.message}`);
       }
 
-      return (data as any) || [];
+      return (data as unknown) || [];
     } catch (error) {
       logger.error('Error fetching subcategories:', error);
       throw error;
@@ -848,7 +848,7 @@ class ListingsService {
         throw new Error(`Failed to fetch sub-subcategories: ${error.message}`);
       }
 
-      return (data as any) || [];
+      return (data as unknown) || [];
     } catch (error) {
       logger.error('Error fetching sub-subcategories:', error);
       throw error;
@@ -874,7 +874,7 @@ class ListingsService {
         throw new Error(`Failed to fetch sub-sub-subcategories: ${error.message}`);
       }
 
-      return (data as any) || [];
+      return (data as unknown) || [];
     } catch (error) {
       logger.error('Error fetching sub-sub-subcategories:', error);
       throw error;
@@ -932,7 +932,7 @@ class ListingsService {
 
       // Extract unique brands and count products per brand
       const brandsMap = new Map<string, { id: string; name: string; count: number }>();
-      (data || []).forEach((item: any) => {
+      (data || []).forEach((item: unknown) => {
         if (item.brands && item.brands.id && item.brands.name) {
           const brandId = item.brands.id;
           if (brandsMap.has(brandId)) {
@@ -998,7 +998,7 @@ class ListingsService {
         'Over £200.00': 0,
       };
 
-      (data || []).forEach((item: any) => {
+      (data || []).forEach((item: unknown) => {
         const price = item.starting_price || 0;
         if (price < 50) {
           counts['Under £50.00'] += 1;
@@ -1049,7 +1049,7 @@ class ListingsService {
         return new Map<string, number>();
       }
 
-      const productIds = products.map((p: any) => p.id);
+      const productIds = products.map((p: unknown) => p.id);
 
       // Query product_attribute_values for size attribute
       const { data: attributeValues, error: attributeError } = await supabase
@@ -1066,7 +1066,7 @@ class ListingsService {
       // Count occurrences of each size
       const sizeCounts = new Map<string, number>();
 
-      (attributeValues || []).forEach((item: any) => {
+      (attributeValues || []).forEach((item: unknown) => {
         // Handle multi-select values (stored as JSON array in value_text)
         if (item.value_text) {
           try {
@@ -1117,12 +1117,12 @@ class ListingsService {
 
       const productIds = new Set<string>();
 
-      (data || []).forEach((item: any) => {
+      (data || []).forEach((item: unknown) => {
         if (item.value_text) {
           try {
             const parsed = JSON.parse(item.value_text);
             if (Array.isArray(parsed)) {
-              // Multi-select: check if any selected size matches
+              // Multi-select: check if unknown selected size matches
               if (parsed.some((v: string) => sizeOptionIds.includes(v))) {
                 productIds.add(item.product_id);
               }
@@ -1156,9 +1156,9 @@ class ListingsService {
     return apiListings.map((apiListing: Product) => {
       // Prefer primary image, fall back to first in product_images
       const primaryImage: string | undefined =
-        (apiListing as any).product_image ||
-        ((apiListing as any).product_images && (apiListing as any).product_images.length > 0
-          ? (apiListing as any).product_images[0]
+        (apiListing as unknown).product_image ||
+        ((apiListing as unknown).product_images && (apiListing as unknown).product_images.length > 0
+          ? (apiListing as unknown).product_images[0]
           : undefined);
 
       return {
@@ -1213,7 +1213,7 @@ class ListingsService {
       if (!productsError && products) {
         // Get unique product names
         const uniqueNames = new Set<string>();
-        products.forEach((p: any) => {
+        products.forEach((p: unknown) => {
           if (p.product_name && !uniqueNames.has(p.product_name.toLowerCase())) {
             uniqueNames.add(p.product_name.toLowerCase());
             suggestions.push({
@@ -1234,7 +1234,7 @@ class ListingsService {
         .limit(Math.floor(limit / 2));
 
       if (!brandsError && brands) {
-        brands.forEach((b: any) => {
+        brands.forEach((b: unknown) => {
           suggestions.push({
             type: 'brand',
             value: b.name,
@@ -1306,12 +1306,12 @@ class ListingsService {
       }
 
       // Fetch seller info for all related products
-      const sellerIds = [...new Set(data.map((p: any) => p.seller_id))];
+      const sellerIds = [...new Set(data.map((p: unknown) => p.seller_id))];
       const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
-      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      const sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
 
-      const productsWithSellers = data.map((p: any) => ({
+      const productsWithSellers = data.map((p: unknown) => ({
         ...p,
         seller_info_view: sellersMap.get(p.seller_id) || null,
       })) as Product[];
@@ -1366,12 +1366,12 @@ class ListingsService {
       }
 
       // Fetch seller info for all products
-      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const sellerIds = [...new Set((data || []).map((p: unknown) => p.seller_id))];
       const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
-      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      const sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
 
-      return (data || []).map((product: any) => ({
+      return (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
@@ -1410,7 +1410,7 @@ class ListingsService {
         .select('user_id')
         .eq('is_suspended', false);
 
-      const nonSuspendedSellerIds = nonSuspendedSellers?.map((s: any) => s.user_id) || [];
+      const nonSuspendedSellerIds = nonSuspendedSellers?.map((s: unknown) => s.user_id) || [];
 
       // Build query for similar products
       let query = supabase
@@ -1462,12 +1462,12 @@ class ListingsService {
       }
 
       // Fetch seller info for recommended products
-      const sellerIds = [...new Set((data || []).map((p: any) => p.seller_id))];
+      const sellerIds = [...new Set((data || []).map((p: unknown) => p.seller_id))];
       const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
-      const sellersMap = new Map((sellers || []).map((s: any) => [s.user_id, s]));
+      const sellersMap = new Map((sellers || []).map((s: unknown) => [s.user_id, s]));
 
-      return (data || []).map((product: any) => ({
+      return (data || []).map((product: unknown) => ({
         ...product,
         seller_info_view: sellersMap.get(product.seller_id) || null,
       })) as Product[];
@@ -1517,7 +1517,7 @@ class ListingsService {
 
           const startingPrice = sp !== undefined && sp !== null && !Number.isNaN(sp) ? Number(sp) : 0;
           const discountedPrice = dp !== undefined && dp !== null && !Number.isNaN(dp) ? Number(dp) : null;
-          const stockQty = qty !== undefined && qty !== null && !Number.isNaN(qty as any) ? Number(qty) : null;
+          const stockQty = qty !== undefined && qty !== null && !Number.isNaN(qty as unknown) ? Number(qty) : null;
 
           return {
             seller_id: sellerId,
@@ -1569,7 +1569,7 @@ class ListingsService {
     page: number = 0,
     pageSize: number = 20,
     sortBy: 'ending_soon' | 'newest' | 'price_low' | 'price_high' = 'ending_soon'
-  ): Promise<{ products: any[]; total: number }> {
+  ): Promise<{ products: unknown[]; total: number }> {
     try {
       let query = supabase
         .from('listings')
@@ -1624,12 +1624,12 @@ class ListingsService {
       if (productsError) throw productsError;
 
       // Fetch seller information separately
-      const sellerIds = [...new Set((productsData || []).map((p: any) => p.seller_id))];
+      const sellerIds = [...new Set((productsData || []).map((p: unknown) => p.seller_id))];
       const { data: sellers } = await supabase.from('seller_info_view').select('*').in('user_id', sellerIds);
 
-      const sellersMap = new Map(sellers?.map((s: any) => [s.user_id, s]));
+      const sellersMap = new Map(sellers?.map((s: unknown) => [s.user_id, s]));
 
-      const productsWithSellers = (productsData || []).map((product: any) => ({
+      const productsWithSellers = (productsData || []).map((product: unknown) => ({
         ...product,
         seller_info_view: sellersMap.get(product.seller_id) || null,
       }));
@@ -1657,7 +1657,7 @@ class ListingsService {
     starting_price: number;
     current_bid: number;
     auction_end_time: string;
-  }): Promise<any> {
+  }): Promise<unknown> {
     try {
       const { data, error } = await supabase
         .from('listings')
@@ -1708,7 +1708,7 @@ class ListingsService {
    * @param listingId - The listing ID
    * @returns Auction data or null if not found
    */
-  async getAuctionByListingId(listingId: string): Promise<any | null> {
+  async getAuctionByListingId(listingId: string): Promise<unknown | null> {
     try {
       const { data, error } = await supabase
         .from('auctions')
@@ -1722,7 +1722,7 @@ class ListingsService {
         throw error;
       }
 
-      return data ? (data as any) : null;
+      return data ? (data as unknown) : null;
     } catch (error) {
       logger.error('Error fetching auction:', error);
       throw error;
@@ -1734,7 +1734,7 @@ class ListingsService {
    * @param auctionId - The auction ID
    * @returns Array of bids
    */
-  async getBidsForAuction(auctionId: string): Promise<any[]> {
+  async getBidsForAuction(auctionId: string): Promise<unknown[]> {
     try {
       const { data, error } = await supabase
         .from('bids')
@@ -1743,7 +1743,7 @@ class ListingsService {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data as any[]) || [];
+      return (data as unknown[]) || [];
     } catch (error) {
       logger.error('Error fetching bids:', error);
       throw error;

@@ -8,7 +8,7 @@ interface CreateNotificationParams {
   type: NotificationType;
   title?: string;
   body: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 class NotificationsService {

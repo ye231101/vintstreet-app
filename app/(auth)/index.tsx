@@ -106,7 +106,7 @@ export default function IndexScreen() {
   useEffect(() => {
     if (isAuthenticated && !loading) {
       const redirectPath = redirect || '/(tabs)';
-      router.replace(redirectPath as any);
+      router.replace(redirectPath as unknown);
     }
   }, [isAuthenticated, loading, redirect, router]);
 

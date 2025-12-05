@@ -112,7 +112,7 @@ export default function DashboardScreen() {
         declined,
         total: offers.length,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('Error loading dashboard data:', err);
       setError(err?.message || 'Error loading dashboard data');
     } finally {
@@ -223,7 +223,7 @@ export default function DashboardScreen() {
     <View className="flex-1 p-4 rounded-lg bg-white shadow-lg">
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-sm font-inter-semibold text-gray-600">{title}</Text>
-        {icon && <Feather name={icon as any} size={16} color={iconColor} />}
+        {icon && <Feather name={icon as unknown} size={16} color={iconColor} />}
       </View>
       <Text className="mb-1 text-2xl font-inter-bold text-gray-900">{value}</Text>
       {subtitle && <Text className="text-xs font-inter text-gray-500">{subtitle}</Text>}

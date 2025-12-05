@@ -25,7 +25,7 @@ class ReviewsService {
       }
 
       // Get unique buyer IDs
-      const buyerIds = [...new Set(reviewsData.map((review: any) => review.buyer_id))];
+      const buyerIds = [...new Set(reviewsData.map((review: unknown) => review.buyer_id))];
 
       // Fetch profiles for all buyers
       const { data: profilesData } = await supabase
@@ -34,10 +34,10 @@ class ReviewsService {
         .in('user_id', buyerIds);
 
       // Create a map of profiles
-      const profilesMap = new Map((profilesData || []).map((profile: any) => [profile.user_id, profile]));
+      const profilesMap = new Map((profilesData || []).map((profile: unknown) => [profile.user_id, profile]));
 
       // Fetch review replies
-      const reviewIds = reviewsData.map((review: any) => review.id);
+      const reviewIds = reviewsData.map((review: unknown) => review.id);
       const { data: repliesData } = await supabase
         .from('review_replies')
         .select('*')
@@ -46,7 +46,7 @@ class ReviewsService {
 
       // Create a map of replies
       const repliesMap = new Map<string, ReviewReply[]>();
-      (repliesData || []).forEach((reply: any) => {
+      (repliesData || []).forEach((reply: unknown) => {
         if (!repliesMap.has(reply.review_id)) {
           repliesMap.set(reply.review_id, []);
         }
@@ -54,7 +54,7 @@ class ReviewsService {
       });
 
       // Merge reviews with profiles and replies
-      const reviewsWithProfiles = reviewsData.map((review: any) => ({
+      const reviewsWithProfiles = reviewsData.map((review: unknown) => ({
         ...review,
         buyer_profile: profilesMap.get(review.buyer_id) || null,
         review_replies: repliesMap.get(review.id) || [],
@@ -129,7 +129,7 @@ class ReviewsService {
       }
 
       // Get unique buyer IDs
-      const buyerIds = [...new Set(reviewsData.map((review: any) => review.buyer_id))];
+      const buyerIds = [...new Set(reviewsData.map((review: unknown) => review.buyer_id))];
 
       // Fetch profiles for all buyers
       const { data: profilesData } = await supabase
@@ -138,10 +138,10 @@ class ReviewsService {
         .in('user_id', buyerIds);
 
       // Create a map of profiles
-      const profilesMap = new Map((profilesData || []).map((profile: any) => [profile.user_id, profile]));
+      const profilesMap = new Map((profilesData || []).map((profile: unknown) => [profile.user_id, profile]));
 
       // Fetch review replies
-      const reviewIds = reviewsData.map((review: any) => review.id);
+      const reviewIds = reviewsData.map((review: unknown) => review.id);
       const { data: repliesData } = await supabase
         .from('review_replies')
         .select('*')
@@ -150,7 +150,7 @@ class ReviewsService {
 
       // Create a map of replies
       const repliesMap = new Map<string, ReviewReply[]>();
-      (repliesData || []).forEach((reply: any) => {
+      (repliesData || []).forEach((reply: unknown) => {
         if (!repliesMap.has(reply.review_id)) {
           repliesMap.set(reply.review_id, []);
         }
@@ -158,7 +158,7 @@ class ReviewsService {
       });
 
       // Merge reviews with profiles and replies
-      const reviewsWithProfiles = reviewsData.map((review: any) => ({
+      const reviewsWithProfiles = reviewsData.map((review: unknown) => ({
         ...review,
         buyer_profile: profilesMap.get(review.buyer_id) || null,
         review_replies: repliesMap.get(review.id) || [],
@@ -237,7 +237,7 @@ class ReviewsService {
         .single();
 
       const reviewData = {
-        ...(data as any),
+        ...(data as unknown),
         buyer_profile: profile || null,
         review_replies: [],
       };

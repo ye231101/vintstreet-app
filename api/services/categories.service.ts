@@ -26,33 +26,33 @@ class CategoriesService {
       if (sub2Res.error) throw new Error(`product_sub_subcategories: ${sub2Res.error.message}`);
       if (sub3Res.error) throw new Error(`product_sub_sub_subcategories: ${sub3Res.error.message}`);
 
-      const top = (topRes.data as any[]) || [];
-      const sub = (subRes.data as any[]) || [];
-      const sub2 = (sub2Res.data as any[]) || [];
-      const sub3 = (sub3Res.data as any[]) || [];
+      const top = (topRes.data as unknown[]) || [];
+      const sub = (subRes.data as unknown[]) || [];
+      const sub2 = (sub2Res.data as unknown[]) || [];
+      const sub3 = (sub3Res.data as unknown[]) || [];
 
       // Index lower levels by their parent foreign keys. We assume conventional FKs:
       // sub.category_id -> product_categories.id
       // sub2.subcategory_id -> product_subcategories.id
       // sub3.sub_subcategory_id -> product_sub_subcategories.id
 
-      const subByCategoryId = new Map<any, any[]>();
+      const subByCategoryId = new Map<unknown, unknown[]>();
       for (const row of sub) {
-        const key = (row as any).category_id;
+        const key = (row as unknown).category_id;
         if (!subByCategoryId.has(key)) subByCategoryId.set(key, []);
         subByCategoryId.get(key)!.push(row);
       }
 
-      const sub2BySubId = new Map<any, any[]>();
+      const sub2BySubId = new Map<unknown, unknown[]>();
       for (const row of sub2) {
-        const key = (row as any).subcategory_id;
+        const key = (row as unknown).subcategory_id;
         if (!sub2BySubId.has(key)) sub2BySubId.set(key, []);
         sub2BySubId.get(key)!.push(row);
       }
 
-      const sub3BySub2Id = new Map<any, any[]>();
+      const sub3BySub2Id = new Map<unknown, unknown[]>();
       for (const row of sub3) {
-        const key = (row as any).sub_subcategory_id;
+        const key = (row as unknown).sub_subcategory_id;
         if (!sub3BySub2Id.has(key)) sub3BySub2Id.set(key, []);
         sub3BySub2Id.get(key)!.push(row);
       }
@@ -64,7 +64,7 @@ class CategoriesService {
           .replace(/[^a-z0-9\s-]/g, '')
           .replace(/\s+/g, '-');
 
-      const mapLeaf = (row: any): Category => ({
+      const mapLeaf = (row: unknown): Category => ({
         id: String(row.id),
         name: row.name || '',
         slug: row.slug || toSlug(row.name),
@@ -75,7 +75,7 @@ class CategoriesService {
         image: row.image || undefined,
       });
 
-      const buildLevel3 = (sub2Row: any): Category => {
+      const buildLevel3 = (sub2Row: unknown): Category => {
         const children = (sub3BySub2Id.get(sub2Row.id) || []).map(mapLeaf);
         return {
           id: String(sub2Row.id),
@@ -89,7 +89,7 @@ class CategoriesService {
         };
       };
 
-      const buildLevel2 = (subRow: any): Category => {
+      const buildLevel2 = (subRow: unknown): Category => {
         const children = (sub2BySubId.get(subRow.id) || []).map(buildLevel3);
         return {
           id: String(subRow.id),
@@ -103,7 +103,7 @@ class CategoriesService {
         };
       };
 
-      const categories: Category[] = top.map((topRow: any) => {
+      const categories: Category[] = top.map((topRow: unknown) => {
         const children = (subByCategoryId.get(topRow.id) || []).map(buildLevel2);
         return {
           id: String(topRow.id),
@@ -140,7 +140,7 @@ class CategoriesService {
     if (error) {
       throw new Error(`Failed to fetch stream categories: ${error.message}`);
     }
-    return data as any[] as any;
+    return data as unknown[] as unknown;
   }
 
   /**
@@ -217,7 +217,7 @@ class CategoriesService {
   /**
    * Get mega menu custom lists
    */
-  async getMegaMenuCustomLists(): Promise<any[]> {
+  async getMegaMenuCustomLists(): Promise<unknown[]> {
     try {
       const { data, error } = await supabase
         .from('mega_menu_custom_lists')
@@ -226,7 +226,7 @@ class CategoriesService {
         .order('display_order', { ascending: true });
 
       if (error) throw error;
-      return (data || []) as any[];
+      return (data || []) as unknown[];
     } catch (error) {
       logger.error('Error fetching mega menu custom lists:', error);
       throw error;
@@ -236,7 +236,7 @@ class CategoriesService {
   /**
    * Get mega menu custom list items
    */
-  async getMegaMenuCustomListItems(): Promise<any[]> {
+  async getMegaMenuCustomListItems(): Promise<unknown[]> {
     try {
       const { data, error } = await supabase
         .from('mega_menu_custom_list_items')
@@ -257,13 +257,13 @@ class CategoriesService {
           .eq('is_active', true),
       ]);
 
-      const l1Map = new Map((l1Data.data || []).map((c: any) => [c.id, c]));
-      const l2Map = new Map((l2Data.data || []).map((c: any) => [c.id, c]));
-      const l3Map = new Map((l3Data.data || []).map((c: any) => [c.id, c]));
-      const l4Map = new Map((l4Data.data || []).map((c: any) => [c.id, c]));
+      const l1Map = new Map((l1Data.data || []).map((c: unknown) => [c.id, c]));
+      const l2Map = new Map((l2Data.data || []).map((c: unknown) => [c.id, c]));
+      const l3Map = new Map((l3Data.data || []).map((c: unknown) => [c.id, c]));
+      const l4Map = new Map((l4Data.data || []).map((c: unknown) => [c.id, c]));
 
       // Enhance items with generated URLs and dynamic display names for category-based items
-      return ((data || []) as any[]).map((item: any) => {
+      return ((data || []) as unknown[]).map((item: unknown) => {
         if (item.url) {
           return { ...item, display_name: item.name };
         }
@@ -330,7 +330,7 @@ class CategoriesService {
   /**
    * Get mega menu categories with all related data (brands, trending, best sellers, layouts, images, etc.)
    */
-  async getMegaMenuCategories(): Promise<any[]> {
+  async getMegaMenuCategories(): Promise<unknown[]> {
     try {
       const [
         cats,
@@ -400,16 +400,16 @@ class CategoriesService {
       if (cats.error) throw cats.error;
 
       // Build maps for quick lookup
-      const l2Map = new Map((subs.data || []).map((s: any) => [s.id, s]));
-      const l3Map = new Map((subSubs.data || []).map((ss: any) => [ss.id, ss]));
-      const l4Map = new Map((subSubSubs.data || []).map((sss: any) => [sss.id, sss]));
+      const l2Map = new Map((subs.data || []).map((s: unknown) => [s.id, s]));
+      const l3Map = new Map((subSubs.data || []).map((ss: unknown) => [ss.id, ss]));
+      const l4Map = new Map((subSubSubs.data || []).map((sss: unknown) => [sss.id, sss]));
 
       // Build hierarchy client-side for optimal performance
-      return ((cats.data || []) as any[]).map((cat: any) => {
-        const layout = (layouts.data || []).find((l: any) => l.category_id === cat.id);
-        const images = (menuImages.data || []).filter((img: any) => {
-          const layoutMatch = (layouts.data || []).find((l: any) => l.category_id === cat.id);
-          return layoutMatch && img.layout_id === (layoutMatch as any).id;
+      return ((cats.data || []) as unknown[]).map((cat: unknown) => {
+        const layout = (layouts.data || []).find((l: unknown) => l.category_id === cat.id);
+        const images = (menuImages.data || []).filter((img: unknown) => {
+          const layoutMatch = (layouts.data || []).find((l: unknown) => l.category_id === cat.id);
+          return layoutMatch && img.layout_id === (layoutMatch as unknown).id;
         });
 
         return {
@@ -417,16 +417,16 @@ class CategoriesService {
           layout,
           images,
           brands: (categoryBrands.data || [])
-            .filter((cb: any) => cb.category_id === cat.id)
-            .map((cb: any) => ({
+            .filter((cb: unknown) => cb.category_id === cat.id)
+            .map((cb: unknown) => ({
               brand_id: cb.brand_id,
               brands: cb.brands,
             })),
           trending: (trending.data || [])
-            .filter((t: any) => t.category_id === cat.id)
-            .map((t: any) => {
+            .filter((t: unknown) => t.category_id === cat.id)
+            .map((t: unknown) => {
               const level = t.item_level;
-              let itemData: any = { id: '', name: '', path: '' };
+              let itemData: unknown = { id: '', name: '', path: '' };
 
               if (level === 2) {
                 const l2 = l2Map.get(t.subcategory_id);
@@ -463,10 +463,10 @@ class CategoriesService {
               return itemData;
             }),
           bestSellers: (bestSellers.data || [])
-            .filter((bs: any) => bs.category_id === cat.id)
-            .map((bs: any) => {
+            .filter((bs: unknown) => bs.category_id === cat.id)
+            .map((bs: unknown) => {
               const level = bs.item_level;
-              let itemData: any = { id: '', name: '', path: '' };
+              let itemData: unknown = { id: '', name: '', path: '' };
 
               if (level === 2) {
                 const l2 = l2Map.get(bs.subcategory_id);
@@ -503,21 +503,21 @@ class CategoriesService {
               return itemData;
             }),
           luxuryBrands: (luxuryBrands.data || [])
-            .filter((lb: any) => lb.category_id === cat.id)
-            .map((lb: any) => ({
+            .filter((lb: unknown) => lb.category_id === cat.id)
+            .map((lb: unknown) => ({
               brand_id: lb.brand_id,
               brands: lb.brands,
             })),
           customLists: (customLists.data || [])
-            .filter((cl: any) => cl.category_id === cat.id)
-            .map((cl: any) => ({
+            .filter((cl: unknown) => cl.category_id === cat.id)
+            .map((cl: unknown) => ({
               id: cl.id,
               name: cl.name,
               system_name: cl.system_name,
               list_type: cl.list_type,
               items: (customItems.data || [])
-                .filter((item: any) => item.list_id === cl.id)
-                .map((item: any) => ({
+                .filter((item: unknown) => item.list_id === cl.id)
+                .map((item: unknown) => ({
                   id: item.id,
                   name: item.name,
                   url: item.url,
@@ -525,15 +525,15 @@ class CategoriesService {
                 })),
             })),
           product_subcategories: (subs.data || [])
-            .filter((sub: any) => sub.category_id === cat.id)
-            .map((sub: any) => ({
+            .filter((sub: unknown) => sub.category_id === cat.id)
+            .map((sub: unknown) => ({
               ...sub,
               product_sub_subcategories: (subSubs.data || [])
-                .filter((subSub: any) => subSub.subcategory_id === sub.id)
-                .map((subSub: any) => ({
+                .filter((subSub: unknown) => subSub.subcategory_id === sub.id)
+                .map((subSub: unknown) => ({
                   ...subSub,
                   product_sub_sub_subcategories: (subSubSubs.data || []).filter(
-                    (subSubSub: any) => subSubSub.sub_subcategory_id === subSub.id
+                    (subSubSub: unknown) => subSubSub.sub_subcategory_id === subSub.id
                   ),
                 })),
             })),

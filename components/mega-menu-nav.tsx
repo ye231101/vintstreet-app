@@ -83,7 +83,7 @@ interface ProductCategory {
   name: string;
   slug: string;
   icon?: string;
-  layout?: any;
+  layout?: unknown;
   images?: MenuImage[];
   brands: CategoryBrand[];
   product_subcategories: ProductSubcategory[];
@@ -148,7 +148,7 @@ export const MegaMenuNav = () => {
     router.push({
       pathname: '/(tabs)/discovery',
       params: { category: categorySlug },
-    } as any);
+    } as unknown);
   };
 
   const handleLinkClick = (path: string) => {
@@ -159,7 +159,7 @@ export const MegaMenuNav = () => {
       // Parse query params from string like "/(tabs)/discovery?category=x&subcategory=y"
       if (path.includes('?')) {
         const [pathname, queryString] = path.split('?');
-        const params: any = {};
+        const params: unknown = {};
         const pairs = queryString.split('&');
         pairs.forEach((pair) => {
           const [key, value] = pair.split('=');
@@ -170,28 +170,28 @@ export const MegaMenuNav = () => {
         router.push({
           pathname: '/(tabs)/discovery',
           params,
-        } as any);
+        } as unknown);
       } else {
-        router.push(path as any);
+        router.push(path as unknown);
       }
     } else if (path.startsWith('/shop/')) {
       // Legacy web-style paths - convert to expo-router format
       const parts = path.split('/').filter(Boolean);
       if (parts.length >= 2) {
-        const params: any = { category: parts[1] };
+        const params: unknown = { category: parts[1] };
         if (parts.length >= 3) params.subcategory = parts[2];
         if (parts.length >= 4) params.sub_subcategory = parts[3];
         if (parts.length >= 5) params.sub_sub_subcategory = parts[4];
         router.push({
           pathname: '/(tabs)/discovery',
           params,
-        } as any);
+        } as unknown);
       }
     } else if (path.startsWith('http://') || path.startsWith('https://')) {
       // External links
       Linking.openURL(path);
     } else {
-      router.push(path as any);
+      router.push(path as unknown);
     }
   };
 
@@ -221,7 +221,7 @@ export const MegaMenuNav = () => {
                           category: category.slug,
                           brandName: categoryBrand.brands.name,
                         },
-                      } as any);
+                      } as unknown);
                     }}
                     className="p-2 active:bg-gray-50 rounded"
                   >
@@ -235,12 +235,12 @@ export const MegaMenuNav = () => {
       case 'categories':
         if (!category.product_subcategories || category.product_subcategories.length === 0) return null;
         const visibleSubcategories = category.product_subcategories.filter(
-          (sub: any) => sub.show_in_mega_menu !== false
+          (sub: unknown) => sub.show_in_mega_menu !== false
         );
         if (visibleSubcategories.length === 0) return null;
         return (
           <View className="gap-1">
-            {visibleSubcategories.map((subcategory: any) => (
+            {visibleSubcategories.map((subcategory: unknown) => (
               <View key={subcategory.id} className="gap-1">
                 <Pressable
                   onPress={() => {
@@ -252,7 +252,7 @@ export const MegaMenuNav = () => {
                         category: category.slug,
                         subcategory: subcategory.slug,
                       },
-                    } as any);
+                    } as unknown);
                   }}
                   className="active:opacity-70"
                 >
@@ -263,8 +263,8 @@ export const MegaMenuNav = () => {
                 {subcategory.product_sub_subcategories && subcategory.product_sub_subcategories.length > 0 && (
                   <View>
                     {subcategory.product_sub_subcategories
-                      .filter((subSub: any) => subSub.show_in_mega_menu !== false)
-                      .map((subSubcategory: any) => (
+                      .filter((subSub: unknown) => subSub.show_in_mega_menu !== false)
+                      .map((subSubcategory: unknown) => (
                         <Pressable
                           key={subSubcategory.id}
                           onPress={() => {
@@ -277,7 +277,7 @@ export const MegaMenuNav = () => {
                                 subcategory: subcategory.slug,
                                 sub_subcategory: subSubcategory.slug,
                               },
-                            } as any);
+                            } as unknown);
                           }}
                           className="p-2 active:bg-gray-50 rounded"
                         >
@@ -357,7 +357,7 @@ export const MegaMenuNav = () => {
                           category: category.slug,
                           brandName: luxuryBrand.brands.name,
                         },
-                      } as any);
+                      } as unknown);
                     }}
                     className="p-2 active:bg-gray-50 rounded"
                   >
@@ -387,7 +387,7 @@ export const MegaMenuNav = () => {
               <Text className="text-sm font-inter-bold text-gray-900 uppercase tracking-wide">{list.name}</Text>
             )}
             <View className="gap-1">
-              {items.map((item: any) => {
+              {items.map((item: unknown) => {
                 // The URL is already generated in the allCustomItems query
                 const itemUrl = item.url || '/(tabs)/discovery';
                 const isExternal = itemUrl.startsWith('http://') || itemUrl.startsWith('https://');
@@ -465,7 +465,7 @@ export const MegaMenuNav = () => {
     let columns = layout.columns || [];
     // Normalize old format to new format
     if (columns.length > 0 && !columns[0].items) {
-      columns = columns.map((col: any) => ({
+      columns = columns.map((col: unknown) => ({
         items: [{ type: col.type, label: col.label }],
       }));
     }
@@ -473,9 +473,9 @@ export const MegaMenuNav = () => {
     return (
       <View className="p-4">
         <View className="flex-row gap-4" style={{ flexWrap: 'wrap' }}>
-          {columns.map((col: any, index: number) => (
+          {columns.map((col: unknown, index: number) => (
             <View key={index} style={{ flex: 1, minWidth: 140 }}>
-              {col.items?.map((item: any, itemIndex: number) => (
+              {col.items?.map((item: unknown, itemIndex: number) => (
                 <View key={itemIndex}>{renderColumnContent(category, item.type, item.label)}</View>
               ))}
             </View>
@@ -563,7 +563,7 @@ export const MegaMenuNav = () => {
               {activeCategoryData?.images && activeCategoryData.images.length > 0 && (
                 <View className="w-48 p-4 border-l border-gray-200">
                   <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-                    {activeCategoryData.images.map((image: any) => (
+                    {activeCategoryData.images.map((image: unknown) => (
                       <View key={image.id} className="rounded-xl overflow-hidden shadow-sm bg-gray-100 mb-4">
                         {image.image_link ? (
                           <Pressable
