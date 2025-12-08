@@ -162,6 +162,20 @@ export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
   }
 });
 
+export const deleteAccount = createAsyncThunk('auth/deleteAccount', async () => {
+  const { error, success } = await authService.deleteAccount();
+
+  if (error || !success) {
+    throw new Error(error || 'Failed to delete account');
+  }
+
+  // Clean up local storage
+  await removeSecureValue(KEY_TOKEN);
+  await removeStorageValue(KEY_USER_DATA);
+
+  return { success: true };
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -282,6 +296,21 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.error = action.error.message || 'Logout failed';
+      })
+      // Delete account
+      .addCase(deleteAccount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAccount.fulfilled, (state) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(deleteAccount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Account deletion failed';
       });
   },
 });

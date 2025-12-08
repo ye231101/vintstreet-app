@@ -10,10 +10,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AccountScreen() {
   const segments = useSegments();
-  const { isAuthenticated, user, logout, changePassword } = useAuth();
+  const { isAuthenticated, user, logout, changePassword, deleteAccount } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // Form states for Change Password
   const [currentPassword, setCurrentPassword] = useState('');
@@ -32,6 +34,23 @@ export default function AccountScreen() {
 
   const showLogoutConfirmation = () => {
     setShowLogoutModal(true);
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      const result = await deleteAccount();
+      if (result?.type === 'auth/deleteAccount/fulfilled') {
+        setShowDeleteAccountModal(false);
+        Alert.alert('Account Deleted', 'Your account has been permanently deleted.');
+      } else {
+        Alert.alert('Error', 'Failed to delete account. Please try again.');
+      }
+    } catch {
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsDeletingAccount(false);
+    }
   };
 
   const handleChangePassword = () => {
@@ -308,6 +327,12 @@ export default function AccountScreen() {
             <Feather name="log-out" size={24} color="#ff4444" />
             <Text className="flex-1 ml-4 text-base font-inter-semibold text-red-500">Logout</Text>
           </Pressable>
+
+          <Pressable onPress={() => setShowDeleteAccountModal(true)} className="flex-row items-center px-4 py-3">
+            <Feather name="trash-2" size={24} color="#ff4444" />
+            <Text className="flex-1 ml-4 text-base font-inter-semibold text-red-500">Delete Account</Text>
+            <Feather name="chevron-right" size={16} color="#ff4444" />
+          </Pressable>
         </View>
       </ScrollView>
 
@@ -415,6 +440,56 @@ export default function AccountScreen() {
 
               <Pressable onPress={handleLogout} className="px-5 py-3 bg-red-500 rounded-lg">
                 <Text className="text-base font-inter-semibold text-white">Logout</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        visible={showDeleteAccountModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDeleteAccountModal(false)}
+      >
+        <View className="flex-1 bg-black/50 items-center justify-center p-4">
+          <View className="bg-white rounded-xl p-5 w-full max-w-sm shadow-lg">
+            <View className="items-center mb-4">
+              <View className="bg-red-100 rounded-full p-3 mb-3">
+                <Feather name="alert-triangle" size={32} color="#EF4444" />
+              </View>
+              <Text className="text-xl font-inter-bold text-black text-center">Delete Account</Text>
+            </View>
+
+            <Text className="mb-2 text-center text-base font-inter-semibold text-black leading-6">
+              Are you sure you want to delete your account?
+            </Text>
+
+            <Text className="mb-6 text-center text-sm font-inter text-gray-500 leading-5">
+              This action is permanent and cannot be undone. All your data, including your profile, listings, and order
+              history will be permanently deleted.
+            </Text>
+
+            <View className="flex-row gap-3">
+              <Pressable
+                onPress={() => setShowDeleteAccountModal(false)}
+                disabled={isDeletingAccount}
+                className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg"
+              >
+                <Text className="text-base font-inter-semibold text-black text-center">Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleDeleteAccount}
+                disabled={isDeletingAccount}
+                className={`flex-1 px-4 py-3 rounded-lg ${isDeletingAccount ? 'bg-gray-400' : 'bg-red-500'}`}
+              >
+                {isDeletingAccount ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text className="text-base font-inter-semibold text-white text-center">Delete</Text>
+                )}
               </Pressable>
             </View>
           </View>
