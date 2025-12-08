@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   clearError,
+  deleteAccount as deleteAccountAction,
   loginUser,
   logoutUser,
   registerUser,
@@ -63,6 +64,12 @@ export const useAuth = () => {
     dispatch(logoutUser());
   };
 
+  const deleteAccount = async () => {
+    if (loading) return;
+    const result = await dispatch(deleteAccountAction());
+    return result;
+  };
+
   const clearAuthError = () => {
     dispatch(clearError());
   };
@@ -78,6 +85,7 @@ export const useAuth = () => {
     updateProfile,
     changePassword,
     logout,
+    deleteAccount,
     clearError: clearAuthError,
   };
 };

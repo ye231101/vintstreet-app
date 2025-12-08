@@ -17,8 +17,8 @@
           "remote-notification"
         ],
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "This app needs access to your camera to take photos.",
-        "NSMicrophoneUsageDescription": "This app needs access to your microphone to record audio."
+        "NSCameraUsageDescription": "Vint Street uses your camera to take photos of items you want to sell and to update your profile picture.",
+        "NSMicrophoneUsageDescription": "Vint Street uses your microphone during live streaming sessions to communicate with buyers in real-time."
       }
     },
     "android": {
@@ -68,9 +68,7 @@
         "@stripe/stripe-react-native",
         {
           "urlScheme": "vintstreetapp",
-          "merchantIdentifier": "merchant.com.vintstreet.app",
-          "enableGooglePay": true,
-          "enableApplePay": true
+          "merchantIdentifier": "merchant.com.vintstreet.app"
         }
       ],
       "expo-secure-store"
@@ -82,7 +80,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "29349cba-bcae-4246-8f20-b07f602f22a1"
+        "projectId": "59fe92e2-a0e3-4b82-847c-ac926bd486f9"
       }
     }
   }
