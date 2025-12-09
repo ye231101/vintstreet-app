@@ -1,7 +1,7 @@
 import { supabase } from '@/api/config';
 import { listingsService, ordersService, streamsService } from '@/api/services';
 import { Stream } from '@/api/types';
-import LiveChat from '@/components/live-chat';
+// import LiveChat from '@/components/live-chat';
 import { useAgora } from '@/hooks/use-agora';
 import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles';
@@ -440,7 +440,17 @@ export default function StartStreamScreen() {
   }
 
   if (!user || !stream) {
-    return null;
+    return (
+      <SafeAreaView className="flex-1 bg-white items-center justify-center">
+        <View className="items-center p-6">
+          <Feather name="alert-circle" size={48} color="#ef4444" />
+          <Text className="mt-4 text-lg font-inter-bold text-gray-900">Unable to load</Text>
+          <Text className="mt-2 text-base font-inter text-gray-600 text-center">
+            {!user ? 'Please sign in to continue' : 'Stream not found'}
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   const formatTime = (seconds: number) => {
@@ -478,9 +488,7 @@ export default function StartStreamScreen() {
                     <Feather name="video-off" size={36} color="#ef4444" />
                   </View>
                   <Text className="mt-4 text-2xl font-inter-bold text-gray-900">Configuration Error</Text>
-                  <Text className="mt-2 text-base font-inter text-gray-600 text-center leading-6">
-                    asdf{configError}
-                  </Text>
+                  <Text className="mt-2 text-base font-inter text-gray-600 text-center leading-6">{configError}</Text>
                 </View>
               </View>
             ) : !configLoaded ? (
@@ -640,12 +648,12 @@ export default function StartStreamScreen() {
 
           {/* Chat Overlay - Full Screen - Enhanced Design */}
           {/* Keep LiveChat mounted to maintain RTM connection */}
-          <View
+          {/* <View
             className={`absolute inset-0 z-20 ${showChat ? '' : 'pointer-events-none'}`}
             style={{ display: showChat ? 'flex' : 'none' }}
           >
             <LiveChat streamId={currentStreamId} onClose={() => setShowChat(false)} isVisible={showChat} />
-          </View>
+          </View> */}
 
           {/* Bottom Controls Overlay - Enhanced Design */}
           <View className="absolute bottom-0 left-0 right-0 z-10">
