@@ -24,7 +24,6 @@
     "@reduxjs/toolkit": "^2.10.1",
     "@stripe/stripe-react-native": "0.50.3",
     "@supabase/supabase-js": "^2.84.0",
-    "agora-react-native-rtm": "^1.5.0",
     "algoliasearch": "^5.44.0",
     "axios": "^1.13.2",
     "base64-arraybuffer": "^1.0.2",

@@ -10,6 +10,10 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true,
+        "buildConfiguration": "Debug"
       }
     },
     "preview": {
@@ -17,17 +21,20 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "buildConfiguration": "Release"
       }
     },
     "production": {
       "environment": "production",
       "autoIncrement": true,
       "distribution": "store",
-      "ios": {
-        "buildConfiguration": "Release"
-      },
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "buildConfiguration": "Release"
       }
     }
   },
