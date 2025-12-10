@@ -68,8 +68,7 @@
       [
         "@stripe/stripe-react-native",
         {
-          "urlScheme": "vintstreetapp",
-          "merchantIdentifier": "merchant.com.vintstreet.app"
+          "urlScheme": "vintstreetapp"
         }
       ],
       "expo-secure-store"
