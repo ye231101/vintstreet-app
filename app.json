@@ -18,7 +18,8 @@
         ],
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Vint Street uses your camera to take photos of items you want to sell and to update your profile picture.",
-        "NSMicrophoneUsageDescription": "Vint Street uses your microphone during live streaming sessions to communicate with buyers in real-time."
+        "NSMicrophoneUsageDescription": "Vint Street uses your microphone during live streaming sessions to communicate with buyers in real-time.",
+        "NSPhotoLibraryUsageDescription": "Vint Street uses your photo library to select existing photos of items you want to sell. For example, you can choose photos of vintage clothing or accessories from your library to create a listing."
       }
     },
     "android": {
